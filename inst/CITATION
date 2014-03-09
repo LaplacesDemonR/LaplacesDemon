@@ -1,0 +1,52 @@
+if(!exists('meta') || is.null(meta)) meta <- packageDescription("LaplacesDemon")
+
+year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", meta$Date)
+vers <- paste("R package version", meta$Version)
+author <- "Statisticat, LLC." #as.personList(meta$Author)
+url <- "http://www.bayesian-inference.com/software"
+
+citHeader(sprintf("To cite package '%s' in publications use:", meta$Package))
+
+citEntry(entry="Manual",
+         author = author,
+         year = year,
+         title =sprintf("%s: %s", meta$Package, meta$Title),
+         note = vers,
+         url = url,
+    	 publisher = "Bayesian-Inference.com",
+    	 textVersion = sprintf("%s (%s). %s: %s. Bayesian-Inference.com. %s. [%s]", author, year, meta$Package, meta$Title, vers, url),
+    	 header = "Technical documentation:"
+)
+
+citEntry(entry="Manual",
+         author = author,
+         year = year,
+         title = vign <- "Bayesian Inference",
+         note = vers,
+         url = url,
+    	 publisher = "Bayesian-Inference.com",
+    	 textVersion = sprintf("%s (%s). %s. Bayesian-Inference.com. %s. [%s]", author, year, vign, vers, url),
+    	 header = "Vignette(s):"
+)
+
+citEntry(entry="Manual",
+         author = author,
+         year = year,
+         title = vign <- "LaplacesDemon Examples",
+         note = vers,
+         url = url,
+    	 publisher = "Bayesian-Inference.com",
+    	 textVersion = sprintf("%s (%s). %s. Bayesian-Inference.com. %s. [%s]", author, year, vign, vers, url),
+    	 header = "Vignette(s):"
+)
+
+citEntry(entry="Manual",
+         author = author,
+         year = year,
+         title = vign <- "LaplacesDemon Tutorial",
+         note = vers,
+         url = url,
+    	 publisher = "Bayesian-Inference.com",
+    	 textVersion = sprintf("%s (%s). %s. Bayesian-Inference.com. %s. [%s]", author, year, vign, vers, url),
+    	 header = "Vignette(s):"
+)

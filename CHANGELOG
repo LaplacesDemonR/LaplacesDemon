@@ -1,0 +1,534 @@
+2013-03-05 Added Heidelberger.Diagnostic and is.heidelberger
+2013-03-05 Added is.raftery and print.heidelberger
+2013-03-04 LML: Added the GD method
+2013-03-03 Vignette Examples: Added Change Point Regression
+2013-03-02 LaplacesDemon: Added Specs to output
+2013-03-02 LaplacesDemon: Removed Adaptive, DR, and Periodicity from output
+2013-02-25 Vignette Examples: Added Hidden Markov Model
+2013-02-09 dmvnp: Sped up by inverting the Cholesky, rather than Omega
+2013-02-06 Added VariationalBayes, plot.vb, plot.vb.ppc, and predict.vb
+2013-02-06 Added print.vb and summary.vb.ppc
+2013-11-11 as.parm.names: Added the ability to omit missing elements
+2013-11-07 LaplacesDemon: Added the AGG algorithm
+2013-11-05 Vignette Examples: rewrote CCA, ECA, FMM, IMM, and SSVS for
+           discrete parameters
+2013-11-03 Added rStick
+2013-11-03 LaplacesDemon: GG now accepts discrete parameters with dparm
+2013-11-03 LaplacesDemon: GG now allows a unique Grid per parameter
+2013-11-03 Vignette Examples: Removed grep from Model functions
+2013-10-29 LaplaceApproximation: Added the SPG algorithm
+2013-10-19 Added Hermite
+2013-10-17 as.covar: added class iterquad
+2013-10-17 as.initial.values: added class iterquad
+2013-10-17 caterpillar.plot: added class iterquad
+2013-10-17 Added is.iterquad and is.iterquad.ppc
+2013-10-17 Added plot.iterquad, plot.iterquad.ppc, and predict.iterquad
+2013-10-17 Added print.iterquad and summary.iterquad.ppc
+2013-10-17 Added IterativeQuadrature
+2013-10-17 Added GaussHermiteCubeRule and GaussHermiteQuadRule
+2013-10-12 Added SparseGrid
+2013-10-12 LaplaceApproximation: Added the BFGS algorithm
+2013-10-06 CITATION has been updated from CRAN to bayesian-inference.com
+2013-09-19 LaplacesDemon: Added the GG algorithm
+2013-09-14 Vignette Examples: Added Linear Regression with Zellner's g-Prior
+2013-09-13 Added dhyperg and dzellner for Zellner's g-prior
+2013-09-13 rdirichlet: Expanded alpha from vector to matrix, if desired
+2013-09-12 LaplaceApproximation: Default method changed from LM to CG
+2013-09-09 LaplaceApproximation: Added the CG algorithm
+2013-09-08 LaplaceApproximation: Fixed bug with LM and NR
+2013-09-07 LaplaceApproximation: Added the BHHH algorithm
+2013-09-07 LaplaceApproximation: Added the CovEst argument
+2013-09-07 Added CovEstim
+2013-09-07 plot.laplace: Fixed bug with Parms when not converged
+2013-09-05 LaplacesDemon: Fixed bug with ADMG
+2013-09-03 LaplacesDemon: Added the MALA algorithm
+2013-09-02 Added plotSamples
+2013-09-01 plot.demonoid.ppc: Changed time-series plots to have shading
+2013-09-01 plot.laplace.ppc: Changed time-series plots to have shading
+2013-09-01 plot.pmc.ppc: Changed time-series plots to have shading
+2013-08-31 LaplaceApproximation: Fixed bug reported by David Marino,
+           davidmarino838@gmail.com, in which m.old was not updated 
+           (in case of a failure with m.new) in the LBFGS algorithm.
+2013-08-17 LaplacesDemon: Added the ADMG algorithm
+2013-08-14 Added Blocks and is.blocks
+2013-08-14 LaplacesDemon: Added specification B to HARM for blocking
+2013-08-14 LaplacesDemon: Added specification B to RWM for blocking
+2013-08-04 Distributions: Added Normal Mixture
+2013-08-04 Consort: Added abs. posterior1 correlation for componentwise
+2013-08-04 Vignette Examples: Added Quantile Regression
+2013-08-03 Vignette Examples: Added Binary Robit and Binomial Robit
+2013-07-31 Added AcceptanceRate
+2013-07-30 Added Raftery.Diagnostic and print.raftery
+2013-07-29 Added plot.miss, print.miss, and summary.miss
+2013-07-27 Added MISS and is.miss
+2013-07-23 ABB: Fixed bug that caused the loss of 1 imputed value
+2013-07-21 LaplacesDemon: Added the ESS algorithm
+2013-07-19 hpc_server and LaplacesDemon: Silvere Vialet-Chabrand, 
+           silvere@vialet-chabrand.com, updated INCA with global adaptive 
+           scaling (Andrieu et al, 2008) to share the acceptance rate among 
+           chains
+2013-07-14 Added Jacobian
+2013-07-14 Hessian: Added Richardson extrapolation per numDeriv package
+2013-07-14 partial: Added Richardson extrapolation per numDeriv package
+2013-07-14 LaplaceApproximation: Default method changed from LBFGS to LM
+2013-07-14 Added cond.plot
+2013-07-14 Vignette Examples: Added Variable Selection: Horseshoe
+2013-07-14 Distributions: Added Horseshoe
+2013-07-13 Software License: Changed from GPL-2 to MIT
+2013-07-13 LaplaceApproximation: Added the LM algorithm
+2013-07-13 LaplaceApproximation: Added the PSO algorithm
+2013-07-13 LaplaceApproximation: Added the SGD algorithm
+2013-07-13 LaplaceApproximation: Added the TR algorithm
+2013-07-13 LaplaceApproximation: Changed LML method to LME
+2013-07-13 LML: Added Covar
+2013-07-13 LML: Removed LME2 and renamed LME1 to LME
+2013-07-11 Distributions: Added Generalized Poisson
+2013-07-07 read.matrix: Added sampling from big data
+2013-07-07 BigData: Added parallel processing
+2013-07-07 BigData: changed to open connection and scan from read.csv
+2013-07-06 LaplacesDemon: Added the SGLD algorithm
+2013-06-30 LaplaceApproximation: Added the HJ and NR algorithms
+2013-06-29 LaplaceApproximation: Added parallel processing of SIR
+2013-06-29 SIR: Added parallel processing
+2013-06-29 Added BigData
+2013-06-26 Added is.sensitivity
+2013-06-26 Added SensitivityAnalysis
+2013-06-25 PMC: Added parallel processing
+2013-06-24 Importance: Added parallel processing
+2013-06-24 predict.demonoid: Added parallel processing
+2013-06-24 predict.laplace: Added parallel processing
+2013-06-24 predict.ppc: Added parallel processing
+2013-06-23 Vignette Examples: Added Ridge Regression
+2013-05-17 Mode: Fixed bug with mode of discrete vectors, reported by 
+           Chris Campell, ccampbell@mango-solutions.com
+2013-04-20 LaplacesDemon.hpc: Added MPI support and logging, thanks to
+           Mathias Moser, matmoser@wu.ac.at
+2013-04-20 LaplacesDemon: Added logging, thanks to Mathias Moser,
+           matmoser@wu.ac.at
+2013-02-16 Added LossMatrix
+2013-02-15 LaplaceApproximation: Added the SOMA algorithm
+2013-02-14 LaplaceApproximation: Added the NM algorithm
+2013-02-13 LaplaceApproximation: Added the HAR algorithm
+2013-02-13 LaplaceApproximation: Revised AGA with Robbins-Monro
+2013-02-12 Added BMK.Diagnostic and plot.bmk
+2013-02-07 LaplacesDemon: Added the AIES algorithm
+2013-02-07 LaplacesDemon: Added optional adaptivity to CHARM and HARM
+2013-01-27 LaplacesDemon: Covariance matrices are now created only when 
+           required to minimize RAM for models with thousands of parameters
+2013-01-26 LaplacesDemon: Added the DEMC algorithm
+2013-01-25 LaplacesDemon: Many thanks to Bilal Barakat, 
+           bilal.barakat@oeaw.ac.at, for reporting an inefficient use of RAM
+           regarding un-thinned samples, which is now more efficient
+2013-01-21 LaplacesDemon: Added specification (B) to AMM for blocking
+2013-01-19 LML: Fixed bug reported by Bilal Barakat, bilal.barakat@oeaw.ac.at
+2013-01-14 Vignette Examples: Added Time Varying AR(1) with Chebyshev Series
+2013-01-11 LaplacesDemon.hpc: Silvere fixed bug with >2 cores reported by
+           Eric Brown, eric.c.brown@mac.com
+2013-01-10 Vignette Examples: Reintroduced Penalized Spline Regression
+2013-01-09 LaplacesDemon: Fixed bug with Monitor in NUTS reported by
+           Eric Brown, eric.c.brown@mac.com
+2012-12-26 LaplacesDemon: Added the Slice algorithm
+2012-12-26 LaplacesDemon: Sped up thinning by replacing rbind, thanks to
+           Stefan Humer, shumer@wu.ac.at
+2012-12-10 Vignette Examples: Reintroduced Ordinal Probit
+2012-12-04 Added server_Listening: This is not called by the user, but is
+           for INCA, authored by Silvere Vialet-Chabrand, 
+           silvere@vialet-chabrand.com
+2012-12-04 LaplacesDemon.hpc: Added functionality for the INCA algorithm, 
+           authored by Silvere Vialet-Chabrand, silvere@vialet-chabrand.com
+2012-12-04 LaplacesDemon: Added the INCA algorithm, authored by 
+           Silvere Vialet-Chabrand, silvere@vialet-chabrand.com
+2012-12-04 DESCRIPTION: Added ByteCompile: TRUE
+2012-11-30 LaplacesDemon: Added the IM algorithm
+2012-11-28 p.interval: now plots disjoint HPD intervals
+2012-11-28 dmvl, dmvlc, rmvl, rmvlc: Fixed bug reported by 
+           Thomas Almer, tom.almer@gmail.com.
+2012-11-27 BayesianBootstrap: Fixed bug and expanded to statistics, with
+           the help of Bogumil Kaminski, bkamins@sgh.waw.pl
+2012-11-16 Vignette Examples: Fixed bug with ordinal logit
+2012-11-15 p.interval: Fixed bug with multimodal intervals
+2012-11-10 Email Address: Changed to software@bayesian-inference.com
+2012-11-10 URL: changed to http://www.bayesian-inference.com/software
+2012-11-09 as.initial.values: Now returns a matrix for demonoid.hpc
+2012-11-09 LaplacesDemon.hpc: Dispersed initial values are now allowed, 
+           solution provided by Silvere Vialet-Chabrand, 
+           silvere@vialet-chabrand.com
+2012-11-06 dtrunc: Fixed bug reported by Bilal Barakat, bilal.barakat@oeaw.ac.at
+2012-11-02 summary.demonoid.ppc: Corrected a discrepancy between L-criterions
+2012-11-02 summary.laplace.ppc: Corrected a discrepancy between L-criterions
+2012-11-02 summary.pmc.ppc: Corrected a discrepancy between L-criterions
+2012-10-21 BayesTheorem: Fixed bug with vector checks
+2012-10-15 plot.demonoid: Now delimits trace plot y-axis for componentwise LP
+2012-10-13 Added qcat
+2012-10-05 Added Gelfand.Diagnostic
+2012-10-04 Geweke.Diagnostic: Warning due to too small sample replaced with fail
+2012-09-28 Vignette Examples: Added Variable Selection, RJ
+2012-09-26 LaplacesDemon: Added the RJ algorithm
+2012-09-25 Vignette Examples: Removed Penalized Reg. and Ordinal Probit
+2012-09-24 Vignette Examples: Added Linear Reg. with Missing Response via ABB
+2012-09-23 Vignette Examples: Contingency table revised
+2012-09-22 Vignette Tutorial: HARM becomes the recommended beginning MCMC alg.
+2012-09-21 dinvgaussian: Fixed bug
+2012-09-17 Vignette Examples: SSVS has delta specified differently
+2012-09-16 LaplacesDemon: Added CHARM and HARM algorithms
+2012-09-15 Vignette Examples: Multivariate Laplace Regression uses Cholesky
+2012-09-15 dmvpe, dmvpec: Fixed bug with Sigma, thanks to Olga Usuga
+2012-09-06 Vignette Examples: Changed specification of BAL
+2012-09-03 Added joint.pr.plot
+2012-08-29 Added ABB
+2012-08-28 Vignette Examples: Fixed bug with DC.MNP, MNP, and MBP
+2012-08-28 BayesianBootstrap: Fixed bug when X is a vector
+2012-08-08 Added is.pmc.val
+2012-08-08 Validate: Added class pmc.val
+2012-08-07 plotMatrix: Fixed bug with label size when circle=TRUE
+2012-08-07 joint.density.plot: Changed color ramp
+2012-08-05 Vignette Examples: Added PGF
+2012-08-04 GIV: Added the PGF argument
+2012-08-03 Added dinvbeta, rinvbeta
+2012-08-02 Added rmvpe
+2012-08-01 LaplacesDemon.RAM: added Summary1
+2012-07-30 Added PMC.RAM
+2012-07-29 Vignette Examples: adapted many examples to Cholesky parameterization
+2012-07-28 ddirichlet, dhalfcauchy, dinvwishart: now calculated as log-density
+2012-07-28 dlaplacep, dmvc, dmvcp, dmvnp, dmvt: now calculated as log-density
+2012-07-28 dmvtp, dpareto, dpe, dsdlaplace: now calculated as log-density
+2012-07-28 dslaplace, dwishart: now calculated as log-density
+2012-07-27 interval: added the reflect argument
+2012-07-26 Added dmvcc, dmvcpc, dmvlc, dmvnc, dmvnpc, dmvpec, dmvtc
+2012-07-26 Added rmvcc, rmvcpc, rmvlc, rmvnc, rmvnpc, rmvpec, rmvtc
+2012-07-26 Added dinvwishartc, dwishartc, rinvwishartc, rwishartc
+2012-07-25 rmvn: Fixed bug affecting rmvc, rmvcp, rmvl, rmvn, rmvnp, rmvt, rmvtp
+2012-07-19 Added plotMatrix
+2012-07-18 LaplacesDemon: Added 2 algorithms: HMCDA and NUTS
+2012-07-17 Vignette Examples: Added Linear Regression with Power Priors
+2012-07-16 Importance: Added BPIC
+2012-07-16 summary.demonoid.ppc, ...laplace.ppc, ...pmc.ppc: Added BPIC
+2012-07-16 predict.demonoid, predict.laplace, predict.ppc: Added BPIC
+2012-07-16 Added is.constant
+2012-07-15 logadd: Expanded to add or subtract vectors
+2012-07-14 dst, rst: Improved calculations, oddly enough, avoiding dt and rt
+2012-07-13 plot.demonoic.ppc, plot.laplace.ppc, plot.pmc.ppc: Changed Fitted
+2012-07-12 DESCRIPTION: Changed package title and description
+2012-07-11 Vignette Examples: Fixed bug with mu and ppc
+2012-07-11 Vignette Tutorial: Fixed bug reported by Kodi Arfer with mu and ppc
+2012-07-10 summary.demonoid.ppc, summary.laplace.ppc, summary.pmc.ppc: Added PPL
+2012-07-09 Added as.covar, mainly due to multiple PMC matrices
+2012-07-08 as.initial.values, BayesFactor: includes pmc objects
+2012-07-08 caterpillar.plot, is.proper, Levene.Test: includes pmc objects
+2012-07-08 Importance and LPL.interval: includes pmc objects
+2012-07-08 PosteriorChecks and Validate: includes pmc objects
+2012-07-07 Added is.pmc, is.pmc.ppc
+2012-07-06 Added PMC, plot.pmc, predict.pmc, print.pmc, summary.pmc.ppc
+2012-07-03 Added as.ppc, is.demonoid.val, and Validate
+2012-07-02 Added BayesianBootstrap
+2012-06-30 Added is.proper
+2012-06-29 Vignette Bayesian Inference: Added WIP and Reference Prior sections
+2012-06-28 Vignette Examples: Fixed bug with MNL, used K, not J
+2012-06-27 Added LPL.interval
+2012-06-26 Added logadd
+2012-06-25 joint.density.plot: Added Trace argument
+2012-06-24 plot.demonoid.ppc, plot.laplace.ppc: Residuals now look caterpillarish
+2012-06-23 Vignette Tutorial: Changed to t-walk, added HPC section
+2012-06-22 Added read.matrix
+2012-06-21 Added is.data and is.model
+2012-06-20 Added Thin
+2012-06-19 AMWG, SAMWG, USAMWG: Sped up by replacing ifelse with which
+2012-06-18 LaplacesDemon: Added 3 algorithms: AHMC, HMC, and THMC
+2012-06-17 Added Juxtapose, is.juxtapose, and plot.juxtapose
+2012-06-16 Added is.bayesfactor, is.importance, and is.ppc
+2012-06-15 Added LaplacesDemon.RAM to estimate MB in required RAM
+2012-06-14 plot.demonoid.ppc, plot.laplace.ppc: Fixed bug with Jarque-Bera
+2012-06-13 Fixed bug with twalk regarding secondary parameter vector
+2012-06-12 Vignette Examples: Moved Initial Values AFTER the Model
+2012-06-11 caterpillar.plot: Added plot for class demonoid.hpc
+2012-06-10 GIV: Fixed bug when model function causes an error
+2012-06-09 LaplacesDemon: Sped up twalk by reducing Model calls
+2012-06-08 keywords: redid as index entries
+2012-06-07 LaplacesDemon: Fixed bug with twalk, so Adaptive = Iter. + 1
+2012-06-06 Added plot.demonoid.hpc
+2012-06-05 Added LaplacesDemon.hpc for high performance computing
+2012-06-04 Email Address: Changed back to statisticat@gmail.com
+2012-06-03 LaplacesDemon: Added the t-walk algorithm
+2012-06-03 caterpillar.plot: Expanded to accept a generic matrix
+2012-06-02 p.interval: Added MM for multi-modal probability intervals
+2012-05-30 Added p.interval, which replaces HPD
+2012-05-29 rmvl: Fixed bug
+2012-05-08 Consort: Fixed object reference bug for diminishing adaptation
+2012-04-24 plot.demonoid.ppc and plot.laplace.ppc: Added Mardia plots
+2012-04-23 plot.demonoid.ppc and plot.laplace.ppc: Added Jarque-Bera plots
+2012-04-22 Added Levene.Test
+2012-04-21 plot.demonoid.ppc and plot.laplace.ppc: Added Residual Density plots
+2012-04-20 Distributions: Added Skew Discrete Laplace
+2012-04-19 Vignette Examples: Added Infinite Mixture Model
+2012-04-18 plot.demonoid.ppc and plot.laplace.ppc: Added DW plots
+2012-04-17 Vignette Examples: Added Exploratory Cluster Analysis (ECA)
+2012-04-17 Vignette Examples: Renamed Cluster Analysis to CCA
+2012-04-15 Stick: Added a truncated stick-breaking function for DPs
+2012-04-15 Distributions: Added dStick for stick-breaking
+2012-04-10 summary.demonoid.ppc: Added MASE, MSE, and Quadratic Loss
+2012-04-10 summary.demonoid.ppc: Added Quadratic Utility, and RMSE
+2012-04-10 summary.laplace.ppc: Added MASE, MSE, and Quadratic Loss
+2012-04-10 summary.laplace.ppc: Added Quadratic Utility, and RMSE
+2012-04-10 plot.demonoid.ppc and plot.laplace.ppc: Added ECDF plots
+2012-04-06 Vignette Examples: Added State Space Model (SSM), Local Linear Trend
+2012-04-06 Vignette Examples: Added State Space Model (SSM), Local Level
+2012-04-06 Vignette Examples: Changed DLM and Stochastic Volatility to SSMs
+2012-04-01 Added IAT
+2012-03-31 Vignette Examples: Added Stochastic Volatility
+2012-03-30 Vignette Examples: Updated DLM and DFA to include Dyn
+2012-03-29 : USAMWG and USMWG for SSMs
+2012-03-28 Vignette Examples: Added Spatial Autoregression (SAR)
+2012-03-27 LaplacesDemon: Added 2 algorithms: SAMWG and SMWG for SSMs
+2012-03-26 Vignette Examples: Added Hierarchical Bayesian
+2012-03-25 Consort: Changed the Demonic Suggestions due to a new MCMC alg
+2012-03-19 Vignette Tutorial: Added a Sampler Selection section
+2012-03-18 LaplacesDemon: Added the RAM algorithm
+2012-03-17 LaplacesDemon: Redesigned arguments to make it modular for more algs.
+2012-03-12 Vignette Examples: expanded Linear Regression with Full Missingness
+2012-03-11 summary.demonoid.ppc: Allow missing values for L, S.L., and Discrep
+2012-03-11 summary.laplace.ppc: Allow missing values for L, S.L., and Discrep
+2012-03-10 Vignette Examples: Added STARMA(1,1)
+2012-03-09 LaplacesDemon: Changed MWG and AWMG to random-scan
+2012-03-06 LaplaceApproximation and SIR: Document sample size vs. parm. correl.
+2012-03-04 Vignette Examples: Added Negative Binomial Regression
+2012-03-03 Vignette Examples: Added TARCH(1)
+2012-02-26 Vignette Examples: Added Ordinal Logit and Ordinal Probit
+2012-02-23 logit and log-log functions no longer require vector arguments
+2012-02-21 Distributions: Made rcat faster by using rmultinom
+2012-02-16 Vignette Examples: Added Variable Selection, BAL (Lasso)
+2012-02-11 Vignette Examples: ARCH models updated
+2012-02-02 plot.demonoid.ppc and plot.laplace.ppc: Fitted now has na.rm=TRUE
+2012-01-05 interval: Expanded to include arrays
+2011-12-30 Vignette Examples: Fixed bugs in Mixed Logit and ZIP
+2011-12-29 Vignette Examples: Vectorized Penalized Spline Regression
+2011-12-22 Vignette Examples: Added LSTAR
+2011-12-21 Vignette Examples: Added Approximate Dynamic Factor Analysis (ADFA)
+2011-12-20 Vignette Examples: Added Dynamic Factor Analysis (DFA)
+2011-12-19 Vignette Examples: Vectorized Factor Regression, and fixed bug
+2011-12-18 Vignette Examples: Vectorized Confirmatory Factor Analysis
+2011-12-17 Vignette Examples: Vectorized Exploratory Factor Analysis
+2011-12-06 SIR: Prevent infinite weights
+2011-12-03 Added plot.importance
+2011-12-01 CITATION now includes citations for vignettes
+2011-11-26 Added GIV
+2011-11-26 OnLoad: Included version number
+2011-11-23 Vignette Examples: Changed sigma in Kriging, Predictive Process
+2011-11-22 LaplacesDemon: MCSE with method IMPS becomes default
+2011-11-21 Consort: Changed the Demonic Suggestions due to new MCMC algs
+2011-11-20 Added partial and Hessian
+2011-11-19 LML: Added the HME method, changed defaults for LA and LD
+2011-11-18 LML: Fixed major bug between LL and LP
+2011-11-17 caterpillar.plot: Added posterior samples due to SIR from LA
+2011-11-16 plot.laplace: Added posterior samples due to SIR
+2011-11-15 PosteriorChecks: Added Burn-In and posterior LA samples
+2011-11-14 LaplaceApproximation: Added posterior samples with sir=TRUE
+2011-11-13 LaplaceApproximation: Deprecated the CG method
+2011-11-12 LaplaceApproximation: Added algorithms LBFGS and Rprop
+2011-11-11 LaplaceApproximation: Sped up AGA with efficient coding
+2011-11-10 LaplacesDemon: Added 3 MCMC algorithms - AMM, AMWG, and MWG
+2011-11-09 LaplacesDemon: Sped up MCMC algorithms with efficient coding
+2011-11-08 Added Model.Spec.Time
+2011-11-07 Added SIR for sampling importance resampling
+2011-11-06 Added de.Finetti.Game
+2011-11-05 Added burnin
+2011-11-04 Added KS.Diagnostic
+2011-11-03 Added MCSS
+2011-11-02 Added Elicitation
+2011-11-01 Added Importance
+2011-10-31 Added CSF and additional MCSE methods
+2011-10-30 Added BayesTheorem and more Mode functions
+2011-10-29 Vignette Examples: Added Covariance Separation Strategy
+2011-10-28 Made LML public and added methods LME2 and NSIS
+2011-10-27 Added Gelman.Diagnostic, renamed indmat to as.indicator.matrix
+2011-10-26 Added as.initial.values and as.inverse
+2011-10-26 parm.names: Converted to as.parm.names, added arrays
+2011-10-25 Added is.appeased, is.demonoid, is.laplace, is.stationary
+2011-10-24 Distributions: Added Inverse-Chi-Squared and Pareto
+2011-10-23 Added is.positive.definite and is.positive.semidefinite
+2011-10-23 Added is.square.matrix, is.symmetric.matrix, and tr (trace)
+2011-10-23 Added lower.triangle and upper.triangle
+2011-10-22 Distributions: Added Log-Normal with precision parameterization
+2011-10-21 Distributions: Added Multivariate Cauchy with precision param.
+2011-10-20 Distributions: Added Multivariate Cauchy
+2011-10-19 Distributions: Added Multivariate Polya
+2011-10-18 Distributions: Added Skew-Laplace
+2011-10-17 Distributions: Added Power Exponential
+2011-10-16 Distributions: Added Asymmetric Log-Laplace
+2011-10-15 Distributions: Added Log-Laplace
+2011-10-14 Distributions: Added Student t with precision param.
+2011-10-13 Distributions: Added Laplace with precision parameterization
+2011-10-12 Distributions: Added Multivariate t with precision param.
+2011-10-11 Distributions: Added Multivariate Laplace
+2011-10-10 Distributions: Added Multivariate Power Exponential
+2011-10-09 Distributions: Added Multivariate Normal with precision param.
+2011-10-08 Added as.parm.matrix to prepare matrices in a model spec.
+2011-10-07 Added as.positive.definite and as.positive.semidefinite
+2011-10-06 Precision: Added elementary functions for precision conversions
+2011-10-05 Distributions: Added the normal with variance parameterization
+2011-10-04 Distributions: Added the asymmetric Laplace
+2011-10-03 Added KLD for Kullback-Leibler Divergence
+2011-10-03 Distributions: Added the half-normal
+2011-10-02 Documentation: Added LaTeX math formulas throughout
+2011-10-02 Vignette Examples: Added Multivariate Binary Probit
+2011-10-01 Vignette Examples: Added Multivariate Regression
+2011-09-30 Vignette Examples: Added Inverse Gaussian Regression
+2011-09-29 plot.laplace.ppc: Added 2 multivariate residual plots
+2011-09-29 plot.demonoid.ppc: Added 2 multivariate residual plots
+2011-09-28 plot.laplace.ppc: Bug fixed with ylim in multivariate plots
+2011-09-28 plot.demonoid.ppc: Bug fixed with ylim in multivariate plots
+2011-09-27 Distributions: Added dinvgaussian, rinvgaussian, and rcat
+2011-09-26 summary.laplace.ppc: Added 4 discrepancies
+2011-09-26 summary.demonoid.ppc: Added 4 discrepancies
+2011-09-25 cloglog, invcloglog, invloglog, and loglog added
+2011-09-24 PosteriorChecks added
+2011-09-24 summary.laplace.ppc: Added Chi-Square, Kurtosis, and Skewness
+2011-09-24 summary.demonoid.ppc: Added Chi-Square, Kurtosis, and Skewness
+2011-09-23 summary.laplace.ppc: Added L-criterion and S.L
+2011-09-23 summary.demonoid.ppc: Added L-criterion and S.L
+2011-09-22 Vignette Examples: Added Threshold Autoregression (TAR)
+2011-09-21 Vignette Examples: Added Beta-Binomial
+2011-09-20 Vignette Examples: Added Mixture Model, Poisson-Gamma
+2011-09-19 Vignette Examples: Added Gamma Regression
+2011-09-18 Vignette Examples: Survival Analysis renamed to Proportional Hazards
+2011-09-17 Vignette Examples: Added Weighted Regression
+2011-09-16 Vignette Examples: Added Conditional Predictive Ordinate (CPO)
+2011-09-15 Vignette Examples: Added Approximate Bayesian Computation (ABC)
+2011-09-14 caterpillar.plot: Now allows plotting of only 1 parameter
+2011-09-14 plot.laplace.ppc: Added 14 plot styles
+2011-09-13 plot.demonoid.ppc: Added 14 plot styles
+2011-09-11 Vignette Examples: Added Koyck Distributed Lag
+2011-09-11 Vignette Examples: Added Factor Regression
+2011-09-10 Vignette Examples: Added Penalized Spline Regression
+2011-09-10 Vignette Examples: Added Polynomial Regression
+2011-09-09 LaplaceApproximation: Added test of each matrix rank with QR in Data.
+2011-09-08 LaplacesDemon: Added test of each matrix rank with QR in Data.
+2011-09-07 plot.demonoid: fixed bug with Parms argument
+2011-09-06 Vignette Examples: Added Space-Time, Dynamic
+2011-09-05 Vignette Examples: Added Kriging, Predictive Process
+2011-09-02 logit function updated from scalars to vectors
+2011-09-01 Vignette Examples: Updated Separable Space-Time to half-Cauchy
+2011-08-28 Vignette Examples: Added Geographically Weighted Regression
+2011-08-27 Vignette Examples: Added ARCH-M, GARCH-M, and Simultaneous Equations
+2011-08-26 Vignette Examples: Added GARCH(1,1)
+2011-08-25 Vignette Examples: Added MANCOVA
+2011-08-24 Vignette Examples: Added MANOVA
+2011-08-23 Vignette Examples: Added Frequentist Linear Regression
+2011-08-21 Vignette Examples: Added Finite Mixture Model
+2011-08-15 Added Combine
+2011-08-12 LaplaceApproximation: Added wrapper to optim for CG
+2011-08-07 Vignette Examples: Corrected epsilon in ARCH(1,1)
+2011-08-03 Vignette Examples: Added Exponential Smoothing
+2011-07-27 plot.demonid, plot.laplace, caterpillar.plot: Improved grep
+2011-07-26 Vignette Examples: Added Beta Regression
+2011-07-25 LaplacesDemon: Corrected error preventing multivariate updating
+2011-07-25 Vignette Examples: Added ARMA(1,1)
+2011-07-25 Vignette Examples: Added ARCH(1,1)
+2011-07-24 LaplacesDemon: Only estimates LML when algorithm is random-walk
+2011-07-24 LaplacesDemon: Added note to screen when estimating LML
+2011-07-18 Vignette Examples: Added Vector Autoregression, VAR(1)
+2011-07-13 Vignette Examples: Added Dicrete Choice, Multinomial Probit
+2011-07-12 Included more else and else ifs with if() for efficiency
+2011-07-10 Vignette Examples: Added Multinomial Probit
+2011-07-09 summary.laplace.ppc: Included Categorical argument
+2011-07-09 summary.demonoid.ppc: Included Categorical argument
+2011-07-09 LaplaceApproximation and LML: Replaced () and x^2 with {} and x*x
+2011-07-08 Distributions: Replace x^2 with x*x for speed where possible
+2011-07-08 Distributions: Replaced () with {} for speed where possible
+2011-07-08 Distributions: Laplace return() bug fixed
+2011-07-07 Distributions: dmvn is corrected and expanded
+2011-07-06 Vignette Examples: Added ANCOVA
+2011-07-06 Vignette Examples: Changed nonsensible min(grep...:max(grep code
+2011-07-05 Vignette Examples: Variable Selection error corrected
+2011-07-05 Changed %*% to crossprod() or tcrossprod() for small speed gains
+2011-07-04 Distributions: Added dcat for density of categorical distribution
+2011-07-03 Vignette Examples: Added Discrete Choice, Mixed Logit
+2011-07-02 Vignette Examples: Added Discrete Choice, Conditional Logit
+2011-07-01 Vignette Examples: Added paragraph about statistical notation
+2011-06-30 Vignette Examples: Added Cluster Analysis
+2011-06-29 Replaced many apply functions with rowSums, colMeans, etc.
+2011-06-28 Vignette Examples: Added Revision, Normal
+2011-06-27 Distributions: 'Vectorized' dmvn and dmvt
+2011-06-26 LaplaceApproximation and LaplacesDemon: Suggestion about loops
+2011-06-25 LaplaceApproximation and LaplacesDemon: Warning for multiple LPs
+2011-06-18 Added indmat function
+2011-06-15 Vignette Examples: Added ANOVA, Two-Way
+2011-06-09 predict.demonoid now warns about use of non-stationary samples
+2011-06-08 Distributions: Added the half-t
+2011-06-03 Distributions: Added the half-Cauchy
+2011-04-09 Email Address: Changed to laplacesdemon@statisticat.com
+2011-04-07 Vignette Examples: Added Robust Regression
+2011-04-05 Distributions: Added the 3-parameter Student t
+2011-04-04 plot.demonoid and plot.laplace: Changed Parms argument with grep
+2011-04-02 Vignette Examples: Added Survival Analysis
+2011-04-01 Vignette Examples: Added Space-Time, Nonseparable
+2011-03-31 Vignette Examples: Added Space-Time, Separable
+2011-03-30 Vignette Examples: Added Kriging
+2011-03-29 Vignette Examples: Added CAR, Poisson
+2011-03-28 Vignette Examples: Changed Panel, Autoregressive Poisson
+2011-03-27 predict.demonoid: Fixed bug with non-stationary samples
+2011-03-26 Vignette Examples: Added Panel, Autoregressive Poisson
+2011-03-25 Vignette Examples: Added Multinomial Logit, Nested
+2011-03-24 Vignette Examples: Added Binary Probit and Binomial Logit
+2011-03-23 Added interval function
+2011-03-20 Vignette Examples: Added Variable Selection
+2011-03-19 Vignette Examples: Added Factor Analysis, Confirmatory
+2011-03-18 Vignette Examples: Added ANOVA, One-Way
+2011-03-17 parm.names function added
+2011-03-16 Vignette Examples: Added Contingency Table
+2011-03-15 BayesFactor: Included posterior probability of each model
+2011-03-14 Added Cov2Cor
+2011-03-13 Vignette Examples: Added Linear Regression, Multilevel
+2011-03-12 Vignette Examples: Added Factor Analysis, Exploratory
+2011-03-11 Vignette Examples: Omega and S changed in SUR
+2011-03-09 Consort: Bug fix since Rec.Status was continuous in some cases
+2011-03-08 Vignette Examples: Added Linear Regression with Full Missingness
+2011-03-07 Vignette Examples: Added Linear Regression with Missing Response
+2011-03-06 BayesFactor extended to more than two model comparisons
+2011-03-05 LaplacesDemon now estimates LML (log-marginal likelihood)
+2011-03-03 Vignette Examples: Added Zero-Inflated Poisson (ZIP)
+2011-03-02 Distributions: dmvn requires vectors for x and mu
+2011-02-27 LaplacesDemon single-component updating replaces independent
+2011-02-25 Distributions: MVN is improved
+2011-02-24 LaplaceApproximation: Corrected typo in error message
+2011-02-21 plot.demonoid: now also plots proposal variance changes
+2011-02-18 Changed Proposal Shrinkage and Scale
+2011-02-17 Corrected typos in documentation
+2011-02-13 Added test statistics included in summary.(class).ppc
+2011-02-12 Added BayesFactor
+2011-02-11 Added Monitor names
+2011-02-09 Added plot.laplace.ppc and summary.laplace.ppc
+2011-02-08 Added Predict.laplace, print.laplace, and plot.laplace
+2011-02-07 Added joint.density.plot, logit, and Mode functions
+2011-02-06 Caterpillar Plot included
+2011-02-05 Added CenterScale for centering and scaling variables
+2011-02-04 Added LaplaceApproximation
+2011-02-03 Distributions: Added Bernoulli and truncated
+2011-02-02 Vignette Examples: Corrected off-diagonal asymmetry in SUR
+2011-01-31 Vignette Examples: Added Seemingly Unrelated Regression (SUR)
+2011-01-30 Consort: Adaptive, Periodicity suggestions include Acc. Rate
+2011-01-29 Initial Values: Missings are set to zero
+2011-01-28 Vignette Examples: Corrected Typos
+2011-01-27 Removed Software License
+2011-01-26 Vignette Examples: Added Binomial Probit and Multinomial Logit
+2011-01-25 Distributions: Added invwishart, mvt, and wishart 
+2011-01-24 Distributions: Added dirichlet, invgamma, laplace, mvn
+2011-01-23 Vectorized some loops and increased speed
+2011-01-22 Logo replacement: the horned-Theta
+2011-01-21 Vignette Examples: Added Binary Logit, DLM, and Laplace Reg.
+2011-01-20 Parameter constraints included
+2011-01-18 Vignette style changes
+2011-01-17 Logo adoption: the pitchfork-psi
+2011-01-16 Vignette included: Examples
+2011-01-12 Vignette included: BayesianInference
+2011-01-11 Refined the LaplacesDemon Tutorial vignette
+2011-01-09 Renamed the ESS function
+2011-01-08 Vignette included: LaplacesDemon Tutorial
+2011-01-07 Corrected typos
+2011-01-06 Added summary.demonoid.ppc and plot.demonoid.ppc functions
+2011-01-03 First appeared on CRAN, as the 2,768th package
+2010-12-30 Added a predict.demonoid function
+2010-12-29 Added plot.demonoid and print.demonoid functions
+2010-12-28 Consort: Demonic Suggestions has expanded dramatically
+2010-12-25 Version Nomenclature changes to Year-Month-Day (10.12.24)
+2010-12-24 The LaplacesDemon package was first put together
+2010-12-13 Project Laplace's Demon began, and LaplacesDemon was written
