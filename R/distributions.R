@@ -221,6 +221,42 @@ rcat <- function(n, p)
      }
 
 ###########################################################################
+# Continuous Relaxation of a Markov Random Field Distribution             #
+###########################################################################
+
+dcrmrf <- function(x, alpha, Omega, log=FALSE)
+     {
+     alpha <- as.vector(alpha)
+     if(missing(Omega)) Omega <- diag(length(alpha))
+     if(!is.matrix(Omega)) Omega <- matrix(Omega)
+     Omega <- as.symmetric.matrix(Omega)
+     if(!is.positive.definite(Omega))
+          stop("Matrix Omega is not positive-definite.")
+     dens <- as.vector(-0.5*t(x) %*% as.inverse(Omega) %*% x) +
+          log(prod(1 + exp(x + alpha)))
+     if(log == FALSE) dens <- exp(dens)
+     return(dens)
+     }
+rcrmrf <- function(n=1, alpha, Omega)
+     {
+     alpha <- as.vector(alpha)
+     J <- length(alpha)
+     if(missing(Omega)) Omega <- diag(J)
+     if(!is.matrix(Omega)) Omega <- matrix(Omega)
+     if(!is.positive.definite(Omega))
+          stop("Matrix Omega is not positive-definite.")
+     dens <- rep(0,J)
+     x <- rep(0,n)
+     for (i in 1:n) {
+          for (j in 1:J) {
+               z <- as.vector(rmvn(1,
+                    as.vector(Omega %*% diag(J)[j,]), Omega))
+               dens[j] <- dcrmrf(z, alpha, Omega, log=FALSE)}
+          x[i] <- sample(1:J, size=1, replace=TRUE, prob=dens)}
+     return(x)
+     }
+
+###########################################################################
 # Dirichlet Distribution                                                  #
 #                                                                         #
 # These functions are similar to those in the MCMCpack package.           #

@@ -54,16 +54,16 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     value will be the starting point for an adaptive chain or a
     non-adaptive Markov chain of a parameter. Parameters are assumed to
     be continuous, unless specified to be discrete (see \code{dparm}
-    below), which is not accepted by all algorithms. If all initial
-    values are set to zero, then Laplace's Demon will attempt to
-    optimize the initial values with the
-    \code{\link{LaplaceApproximation}} function. After Laplace's Demon
-    finishes updating, it may be desired to continue updating from where
-    it left off. To continue, this argument should receive the last
-    iteration of the previous update. For example, if the output object
-    is called Fit, then \code{Initial.Values=as.initial.values(Fit)}.
-    Initial values may be generated randomly with the \code{\link{GIV}}
-    function.}
+    below), which is not accepted by all algorithms (see
+    \code{\link{dcrmrf}} for an alternative). If all initial values are
+    set to zero, then Laplace's Demon will attempt to optimize the
+    initial values with the \code{\link{LaplaceApproximation}}
+    function. After Laplace's Demon finishes updating, it may be desired
+    to continue updating from where it left off. To continue, this
+    argument should receive the last iteration of the previous update.
+    For example, if the output object is called Fit, then
+    \code{Initial.Values=as.initial.values(Fit)}. Initial values may be
+    generated randomly with the \code{\link{GIV}} function.}
   \item{Covar}{This argument defaults to \code{NULL}, but may otherwise
     accept a \eqn{K \times K}{K x K} proposal covariance matrix
     (where \eqn{K} is the number of dimensions or parameters), a
@@ -591,6 +591,7 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
   \code{\link{BMK.Diagnostic}},
   \code{\link{Combine}},
   \code{\link{Consort}},
+  \code{\link{dcrmrf}},
   \code{\link{ESS}},
   \code{\link{GIV}},
   \code{\link{is.data}},
