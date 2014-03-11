@@ -14,9 +14,9 @@ The main function in this package is the `LaplacesDemon` function, and the best 
 
 Using the 'devtools' package:
 
-    > install.packages("devtools")
-    > library(devtools)
-    > install_github('R-package','LaplacesDemon')
+    install.packages("devtools")
+    library(devtools)
+    install_github("Statisticat/LaplacesDemon")
 
 To install the latest official version, see [Bayesian-Inference.com/SoftwareDownload](http://www.bayesian-inference.com/softwaredownload).
 
