@@ -51,7 +51,7 @@ burnin(x, method="BMK")
 \references{
   Geyer, C.J. (2011). "Introduction to Markov Chain Monte Carlo". In
   S Brooks, A Gelman, G Jones, and M Xiao-Li (eds.), "Handbook of
-  Markov Chain Monte Carlo", p. 3--48. Chapman \& Hall, Boca Raton, FL.
+  Markov Chain Monte Carlo", p. 3--48. Chapman and Hall, Boca Raton, FL.
 }
 \author{Statisticat, LLC. \email{software@bayesian-inference.com}}
 \seealso{

@@ -250,7 +250,7 @@
   
   Gelfand, A. (1996). "Model Determination Using Sampling Based
   Methods". In Gilks, W., Richardson, S., Spiegehalter, D., Chapter 9 in
-  Markov Chain Monte Carlo in Practice. Chapman \& Hall: Boca Raton, FL.
+  Markov Chain Monte Carlo in Practice. Chapman and Hall: Boca Raton, FL.
 
   Gelfand, A. and Ghosh, S. (1998). "Model Choice: A Minimum Posterior
   Predictive Loss Approach". \emph{Biometrika}, 85, p. 1--11.

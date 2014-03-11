@@ -158,7 +158,7 @@ Importance(object, Model, Data, Categorical=FALSE, Discrep, d=0, CPUs=1,
 
   Gelfand, A. (1996). "Model Determination Using Sampling Based
   Methods". In Gilks, W., Richardson, S., Spiegehalter, D., Chapter 9 in
-  Markov Chain Monte Carlo in Practice. Chapman \& Hall: Boca Raton, FL.
+  Markov Chain Monte Carlo in Practice. Chapman and Hall: Boca Raton, FL.
 
   Laud, P.W. and Ibrahim, J.G. (1995). "Predictive Model
   Selection". \emph{Journal of the Royal Statistical Society}, B 57,
