@@ -1098,7 +1098,7 @@ The AM and AMM algorithms adapt the scale of the proposal distribution to attain
 
 This version of RAM does not force positive-definiteness of the variance-covariance matrix, and adapts only when it is positive-definite. Alternative versions exist elsewhere that force positive-definiteness, but in testing here, it seems better to allow it to adapt only when it is positive-definite without coercion.
 
-RAM is slow when \code{Periodicity=1} (where it performs best), and does not seem to perform well when \code{Periodicity} is $\ge 100$. A general recommendation is \code{Periodicity=10}.
+RAM is slow when \code{Periodicity=1} (where it performs best), and does not seem to perform well when \code{Periodicity} is $\ge 10$. A general recommendation is \code{Periodicity=1}.
 
 In testing the RAM algorithm, it has not been observed to obtain its acceptance rate goal and some wild fluctuations have been observed in the proposal variance after many iterations in some cases. In some models it does well, nonetheless it cannot be recommended as a first choice for a generalized algorithm.
 
@@ -1200,7 +1200,7 @@ Once the model is updated with the \code{LaplacesDemon} function, the \code{BMK.
 
 The importance of Monte Carlo Standard Error (MCSE) is debated \citep{gelman04,jones06}. It is included in posterior summaries of \code{LaplacesDemon}, and is one of five main criteria as a stopping rule to appease Laplace's Demon. MCSE has been shown to be a better stopping rule than MCMC diagnostics \citep{jones06}. Laplace's Demon provides a \code{MCSE} function that allows three methods of estimation: sample variance, batch means \citep{jones06}, and Geyer's method \citep{geyer92}.
 
-The user is encouraged to explore MCMC diagnostics (also called convergence diagnostics). The \pkg{LaplacesDemon} package offers \code{AcceptanceRate}, the \code{BMK.Diagnostic}, a Cumulative Sample Function (\code{CSF}), Effective Sample Size (\code{ESS}), \code{Gelman.Diagnostic}, \code{Geweke.Diagnostic}, Integrated Autocorrelation Time (\code{IAT}), the Kolmogorov-Smirnov test (\code{KS.Diagnostic}), Monte Carlo Standard Error (\code{MCSE}), and both the \code{plot} and \code{PosteriorChecks} functions include multiple diagnostics.
+The user is encouraged to explore MCMC diagnostics (also called convergence diagnostics). The \pkg{LaplacesDemon} package offers \code{AcceptanceRate}, the \code{BMK.Diagnostic}, a Cumulative Sample Function (\code{CSF}), Effective Sample Size (\code{ESS}), \code{Gelfand.Diagnostic}, \code{Gelman.Diagnostic}, \code{Geweke.Diagnostic}, \code{Heidelberger.Diagnostic}, Integrated Autocorrelation Time (\code{IAT}), the Kolmogorov-Smirnov test (\code{KS.Diagnostic}), Monte Carlo Standard Error (\code{MCSE}), \code{Raftery.Diagnostic}, and both the \code{plot} and \code{PosteriorChecks} functions include multiple diagnostics.
 
 \subsection{Variational Bayes} \label{variationalbayes}
 
@@ -1255,7 +1255,7 @@ A lower-level language can be much faster for MCMC, but only when the model spec
 
 \section{Bayesian-Inference.com} \label{bayesianinferencecom}
 
-Many additional things may be found at \url{http://www.bayesian-inference.com}.
+Many additional resources may be found at \url{http://www.bayesian-inference.com}, as well as other places online:
 
 \begin{itemize}
 \item A Bayesian forum is available at \url{http://www.bayesian-inference.com/forum} to discuss all things Bayesian, including \pkg{LaplacesDemon}.
@@ -1263,7 +1263,9 @@ Many additional things may be found at \url{http://www.bayesian-inference.com}.
 \item Bayesian news is aggregated daily as ``The Bayesian Bulletin'': \url{http://www.bayesian-inference.com/newsbayesian}.
 \item Consulting services are available here: \url{http://www.bayesian-inference.com/consulting}.
 \item Merchandise may be found at \url{http://www.bayesian-inference.com/merchandise}, such as \pkg{LaplacesDemon} t-shirts, coffee mugs, and more.
+\item \pkg{LaplacesDemon} development is public and occurs at \url{https://github.com/Statisticat/LaplacesDemon}.
 \item \pkg{LaplacesDemon} screencasts are available at \url{http://www.bayesian-inference.com/softwarescreencasts}.
+\item \pkg{LaplacesDemon} updates are announced at \url{https://plus.google.com/+Bayesian-inference}.
 \item Opinion polls for Bayesian inference and \pkg{LaplacesDemon} are here: \url{http://www.bayesian-inference.com/polls}.
 \item Technical support services are available at \url{http://www.bayesian-inference.com/support}.
 \item And, the home of \pkg{LaplacesDemon} is \url{http://www.bayesian-inference.com/software}.

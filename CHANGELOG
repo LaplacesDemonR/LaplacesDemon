@@ -1,3 +1,5 @@
+2013-03-13 Added WAIC
+2013-03-13 LaplacesDemon: Reduced number of chol() evals in some samplers
 2013-03-11 Added dcrmrf and rcrmrf
 2013-03-05 Added Heidelberger.Diagnostic and is.heidelberger
 2013-03-05 Added is.raftery and print.heidelberger

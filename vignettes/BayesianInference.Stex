@@ -49,7 +49,7 @@ In statistical inference, there are two broad categories of interpretations of p
 
 Within Bayesian inference, there are also different interpretations of probability, and different approaches based on those interpretations. The most popular interpretations and approaches are objective Bayesian inference \citep{berger06} and subjective Bayesian inference \citep{anscombe63, goldstein06}. Objective Bayesian inference is often associated with \citet{bayes63}, \citet{laplace14}, and \citet{jeffreys61}. Subjective Bayesian inference is often associated with \citet{ramsey26}, \citet{definetti31}, and \citet{savage54}. The first major event to bring about the rebirth of Bayesian inference was \citet{definetti37}. Differences in the interpretation of probability are best explored outside of this article\footnote{If these terms are new to the reader, then please do not focus too much on the words `objective' and `subjective', since there is a lot of debate over them. For what it's worth, \textit{Statisticat, LLC}, the provider of this \proglang{R} package entitled \pkg{LaplacesDemon}, favors the `subjective' interpretation.}.
 
-This article is intended as an approachable introduction to Bayesian inference, or as a handy summary for experienced Bayesians. It is assumed that the reader has at least an elementary understanding of statistics, and this article focuses on applied, rather than theoretical, material. Equations and statistical notation are included, but it is hopefully presented so the reader does not need an intricate understanding of solving integrals, for example, but should understand the basic concept of integration. Please be aware that it is difficult to summarize Bayesian inference in such a short article. In which case, consider \citet{gelman04} for a more thorough and formal introduction.
+This article is intended as an approachable introduction to Bayesian inference, or as a handy summary for experienced Bayesians. It is assumed that the reader has at least an elementary understanding of statistics, and this article focuses on applied, rather than theoretical, material. Equations and statistical notation are included, but it is hopefully presented so the reader does not need an intricate understanding of solving integrals, for example, but should understand the basic concept of integration. Please be aware that it is difficult to summarize Bayesian inference in such a short article. In which case, consider \citet{gelman14} for a more thorough and formal introduction.
 
 \section{Bayes' Theorem} \label{bayestheorem}
 
@@ -272,7 +272,7 @@ where $\Phi$ is a set of hyperprior distributions. By reading the equation from 
 
 \section{Conjugacy} \label{conjugacy}
 
-When the posterior distribution $p(\Theta | \textbf{y})$ is in the same family as the prior probability distribution $p(\Theta)$, the prior and posterior are then called conjugate distributions, and the prior is called a conjugate prior for the likelihood\footnote{The conjugate prior approach was introduced in \citet{raiffa61}.}. For example, the Gaussian family is conjugate to itself (or self-conjugate) with respect to a Gaussian likelihood function: if the likelihood function is Gaussian, then choosing a Gaussian prior for the mean will ensure that the posterior distribution is also Gaussian. All probability distributions in the exponential family have conjugate priors. See \citet{gelman04} for a catalog.
+When the posterior distribution $p(\Theta | \textbf{y})$ is in the same family as the prior probability distribution $p(\Theta)$, the prior and posterior are then called conjugate distributions, and the prior is called a conjugate prior for the likelihood\footnote{The conjugate prior approach was introduced in \citet{raiffa61}.}. For example, the Gaussian family is conjugate to itself (or self-conjugate) with respect to a Gaussian likelihood function: if the likelihood function is Gaussian, then choosing a Gaussian prior for the mean will ensure that the posterior distribution is also Gaussian. All probability distributions in the exponential family have conjugate priors. See \citet{gelman14} for a catalog.
 
 Although the gamma distribution is the conjugate prior distribution for the precision of a normal distribution \citep{spiegelhalter03}, 
 
@@ -462,14 +462,15 @@ where $d$ is the number of parameters and $\Sigma$ is the inverse of the negativ
 
 Gelman finds Bayes factors generally to be irrelevant, because they compute the relative probabilities of the models conditional on one of them being true. Gelman prefers approaches that measure the distance of the data to each of the approximate models \citep[p. 180]{gelman04}. However, \citet{kass95} explain that ``the logarithm of the marginal probability of the data may also be viewed as a predictive score. This is of interest, because it leads to an interpretation of the Bayes factor that does not depend on viewing one of the models as `true'''.
 
-Two of many possible alternatives are to use
+Three of many possible alternatives are to use
 
 \begin{enumerate}
 \item pseudo Bayes factors (PsBF) based on a ratio of pseudo marginal likelihoods (PsMLs)
 \item Deviance Information Criterion (DIC)
+\item Widely Applicable Information Criterion (WAIC)
 \end{enumerate}
 
-DIC is the most popular method of assessing model fit and comparing models, though Bayes factors are better, when appropriate, because they take more into account.
+DIC is the most popular method of assessing model fit and comparing models, though Bayes factors are better, when appropriate, because they take more into account. WAIC is a newer criterion.
 
 \section{Model Fit} \label{modelfit}
 
@@ -500,6 +501,8 @@ $$\mathrm{DIC} = \bar{D} + \mathrm{pV}$$
 DIC may be compared across different models and even different methods, as long as the dependent variable does not change between models, making DIC the most flexible model fit statistic. DIC is a hierarchical modeling generalization of the Akaike Information Criterion (AIC) and Bayesian Information Criterion (BIC). Like AIC and BIC, it is an asymptotic approximation as the sample size becomes large. DIC is valid only when the joint posterior distribution is approximately multivariate normal. Models should be preferred with smaller DIC. Since DIC increases with model complexity (pD or pV), simpler models are preferred.
 
 It is difficult to say what would constitute an important difference in DIC. Very roughly, differences of more than 10 might rule out the model with the higher DIC, differences between 5 and 10 are substantial, but if the difference in DIC is, say, less than 5, and the models make very different inferences, then it could be misleading just to report the model with the lowest DIC.
+
+The Widely Applicable Information Criterion (WAIC) is an information criterion that is more fully Bayesian than DIC. WAIC is more difficult to calculate because the record-level log-likelihood is required over numerous samples. However, when available, the result more closely resembles leave-one-out cross-validation (LOO-CV).
 
 The Bayesian Predictive Information Criterion (BPIC) was introduced as a criterion of model fit when the goal is to pick a model with the best out-of-sample predictive power \citep{ando07}. BPIC is a variation of DIC where the effective number of parameters is 2pD (or 2pV). BPIC may be compared between $\textbf{y}^{new}$ and $\textbf{y}^{holdout}$, and has many other extensions, such as with Bayesian Model Averaging (BMA).
 

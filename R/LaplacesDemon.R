@@ -2381,6 +2381,7 @@ DRM <- function(Model, Data, Iterations, Status, Thinning, Specs,
      VarCov, LogFile)
      {
      DR <- 1
+     U <- chol(VarCov)
      for (iter in 1:Iterations) {
           ### Print Status
           if(iter %% Status == 0)
@@ -2393,7 +2394,7 @@ DRM <- function(Model, Data, Iterations, Status, Thinning, Specs,
                Mon[t.iter,] <- Mo0[["Monitor"]]}
           ### Propose new parameter values
           MVN.rand <- rnorm(LIV, 0, 1)
-          MVNz <- try(matrix(MVN.rand,1,LIV) %*% chol(VarCov),
+          MVNz <- try(matrix(MVN.rand,1,LIV) %*% U,
                silent=TRUE)
           if(!inherits(MVNz, "try-error") &
                ((Acceptance / iter) >= 0.05)) {
@@ -2479,6 +2480,7 @@ Ess <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Block <- Specs[["B"]]
      if(length(Block) == 0) {
           nu <- rnorm(LIV, 0, diag(VarCov))
+          U <- chol(VarCov)
           for (iter in 1:Iterations) {
                ### Print Status
                if(iter %% Status == 0)
@@ -2491,7 +2493,7 @@ Ess <- function(Model, Data, Iterations, Status, Thinning, Specs,
                     Mon[t.iter,] <- Mo0[["Monitor"]]}
                ### Propose new parameter values
                MVN.rand <- rnorm(LIV, 0, 1)
-               MVNz <- try(matrix(MVN.rand,1,LIV) %*% chol(VarCov), silent=TRUE)
+               MVNz <- try(matrix(MVN.rand,1,LIV) %*% U, silent=TRUE)
                if(!inherits(MVNz, "try-error")) {
                     if(iter %% Status == 0) 
                          cat(",   Proposal: Multivariate\n", file=LogFile,
@@ -3214,9 +3216,10 @@ IM <- function(Model, Data, Iterations, Status, Thinning, Specs,
      LogFile)
      {
      mu <- Specs[["mu"]]
-     VarCov2 <- as.positive.definite(as.symmetric.matrix(VarCov * 1.1))
-     Omega <- as.inverse(VarCov2)
-     d <- eigen(VarCov2, symmetric=TRUE)$values
+     VarCov <- as.positive.definite(as.symmetric.matrix(VarCov * 1.1))
+     Omega <- as.inverse(VarCov)
+     U <- chol(VarCov)
+     d <- eigen(VarCov, symmetric=TRUE)$values
      for (iter in 1:Iterations) {
           ### Print Status
           if(iter %% Status == 0)
@@ -3229,7 +3232,7 @@ IM <- function(Model, Data, Iterations, Status, Thinning, Specs,
                Mon[t.iter,] <- Mo0[["Monitor"]]}
           ### Propose new parameter values
           MVN.rand <- rnorm(LIV, 0, 1)
-          MVNz <- try(matrix(MVN.rand,1,LIV) %*% chol(VarCov2),
+          MVNz <- try(matrix(MVN.rand,1,LIV) %*% U,
                silent=TRUE)
           if(!inherits(MVNz, "try-error")) {
                if(iter %% Status == 0) 
@@ -3989,6 +3992,7 @@ RWM <- function(Model, Data, Iterations, Status, Thinning, Specs,
      {
      Block <- Specs[["B"]]
      if(length(Block) == 0) {
+          U <- chol(VarCov)
           for (iter in 1:Iterations) {
                ### Print Status
                if(iter %% Status == 0)
@@ -4001,7 +4005,7 @@ RWM <- function(Model, Data, Iterations, Status, Thinning, Specs,
                     Mon[t.iter,] <- Mo0[["Monitor"]]}
                ### Propose new parameter values
                MVN.rand <- rnorm(LIV, 0, 1)
-               MVNz <- as.vector(matrix(MVN.rand,1,LIV) %*% chol(VarCov))
+               MVNz <- as.vector(matrix(MVN.rand,1,LIV) %*% U)
                prop <- as.vector(Mo0[["parm"]]) + MVNz
                if(iter %% Status == 0) 
                     cat(",   Proposal: Multivariate\n", file=LogFile,

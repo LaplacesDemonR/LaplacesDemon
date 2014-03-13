@@ -281,7 +281,8 @@ export(ABB,
        VariationalBayes,
        vartrunc,
        var2prec,
-       var2sd)
+       var2sd,
+       WAIC)
 
 S3method("plot","bmk")
 S3method("plot","demonoid")
