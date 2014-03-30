@@ -44,7 +44,7 @@ burnin(x, method="BMK")
   failures (Geyer, 2011).
 }
 \value{
-  The \code{burnin} fucntion returns a vector equal in length to the
+  The \code{burnin} function returns a vector equal in length to the
   number of MCMC chains in \code{x}, and each element indicates the
   maximum iteration in burn-in.
 }
@@ -56,6 +56,7 @@ burnin(x, method="BMK")
 \author{Statisticat, LLC. \email{software@bayesian-inference.com}}
 \seealso{
   \code{\link{BMK.Diagnostic}},
+  \code{\link{deburn}},
   \code{\link{Geweke.Diagnostic}},
   \code{\link{KS.Diagnostic}}, and
   \code{\link{LaplacesDemon}}.

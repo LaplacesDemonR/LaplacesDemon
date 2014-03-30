@@ -65,8 +65,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                sep="", file=LogFile, append=TRUE)}
      if(Algorithm %in% c("ADMG","AGG","AHMC","AIES","AM","AMM","AMWG",
           "CHARM","DEMC","DRAM","DRM","ESS","Experimental","GG","HARM",
-          "HMC","HMCDA","IM","INCA","MALA","MWG","NUTS","RAM","RJ","RWM",
-          "SAMWG","SGLD","Slice","SMWG","THMC","twalk","USAMWG","USMWG")) {
+          "HMC","HMCDA","IM","INCA","MALA","MWG","NUTS","OHSS","RAM",
+          "Refractive","RJ","RSS","RWM","SAMWG","SGLD","Slice","SMWG",
+          "THMC","twalk","UESS","USAMWG","USMWG")) {
           if(Algorithm == "ADMG") {
                Algorithm <- "Adaptive Directional Metropolis-within-Gibbs"
                if(missing(Specs))
@@ -295,7 +296,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                Specs <- NULL
                }
           else if(Algorithm == "ESS") {
-               Algorithm <- "Elliptical Slice Sampling"
+               Algorithm <- "Elliptical Slice Sampler"
                if(missing(Specs))
                     stop("The Specs argument is required.", file=LogFile,
                          append=TRUE)
@@ -472,6 +473,10 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(!is.null(Specs[["epsilon"]]))
                     Specs[["epsilon"]] <- abs(Specs[["epsilon"]][1])
                }
+          else if(Algorithm == "OHSS") {
+               Algorithm <- "Oblique Hyperrectangle Slice Sampler"
+               Specs <- NULL
+               }
           else if(Algorithm == "RAM") {
                Algorithm <- "Robust Adaptive Metropolis"
                if(missing(Specs))
@@ -499,6 +504,31 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     cat("\ngamma not in (0.5,1]. Changed to 0.66.\n",
                          file=LogFile, append=TRUE)
                     Specs[["gamma"]] <- 0.66}
+               }
+          else if(Algorithm == "Refractive") {
+               Algorithm <- "Refractive Sampler"
+               if(missing(Specs))
+                    stop("The Specs argument is required.", file=LogFile,
+                         append=TRUE)
+               if(!is.list(Specs))
+                    stop("The Specs argument is not a list.", file=LogFile,
+                         append=TRUE)
+               if(!identical(names(Specs), c("Adaptive","m","w","r")))
+                    stop("The Specs argument is incorrect.", file=LogFile,
+                         append=TRUE)
+               Specs[["m"]] <- abs(round(Specs[["m"]]))
+               if(length(Specs[["m"]]) != 1)
+                    Specs[["m"]] <- Specs[["m"]][1]
+               if(Specs[["m"]] < 2) {
+                    cat("\nm was misspecified, and is replaced with 2.\n",
+                         file=LogFile, append=TRUE)
+                    Specs[["m"]] <- 2}
+               Specs[["w"]] <- abs(Specs[["w"]])
+               if(length(Specs[["w"]]) != 1)
+                    Specs[["w"]] <- Specs[["w"]][1]
+               Specs[["r"]] <- abs(Specs[["r"]])
+               if(length(Specs[["r"]]) != 1)
+                    Specs[["r"]] <- Specs[["r"]][1]
                }
           else if(Algorithm == "RJ") {
                Algorithm <- "Reversible-Jump"
@@ -538,6 +568,34 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     Specs[["selected"]] <- rep(1, length(Initial.Values))
                     cat("\nselected now has the correct length, all set to 1.\n",
                          file=LogFile, append=TRUE)}
+               }
+          else if(Algorithm == "RSS") {
+               Algorithm <- "Reflective Slice Sampler"
+               if(missing(Specs))
+                    stop("The Specs argument is required.", file=LogFile,
+                         append=TRUE)
+               if(!is.list(Specs))
+                    stop("The Specs argument is not a list.", file=LogFile,
+                         append=TRUE)
+               if(!identical(names(Specs), c("m","w")))
+                    stop("The Specs argument is incorrect.", file=LogFile,
+                         append=TRUE)
+               Specs[["m"]] <- abs(round(Specs[["m"]]))
+               if(length(Specs[["m"]]) != 1)
+                    Specs[["m"]] <- Specs[["m"]][1]
+               if(Specs[["m"]] < 1) {
+                    cat("\nm was misspecified, and is replaced with 1.\n",
+                         file=LogFile, append=TRUE)
+                    Specs[["m"]] <- 1}
+               Specs[["w"]] <- abs(Specs[["w"]])
+               if(length(Specs[["w"]]) != length(Initial.Values))
+                    Specs[["w"]] <- rep(Specs[["w"]],
+                         len=length(Initial.Values))
+               if(any(Specs[["w"]] <= 0)) {
+                    cat("\nw was misspecified, and is replaced with 1.\n",
+                         file=LogFile, append=TRUE)
+                    Specs[["w"]] <- ifelse(Specs[["w"]] <= 0, 1,
+                         Specs[["w"]])}
                }
           else if(Algorithm == "RWM") {
                Algorithm <- "Random-Walk Metropolis"
@@ -712,6 +770,19 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          file=LogFile, append=TRUE)
                     Specs[["aw"]] <- 1.5}
                }
+          else if(Algorithm == "UESS") {
+               Algorithm = "Univariate Eigenvector Slice Sampler"
+               if(missing(Specs))
+                    stop("The Specs argument is required.", file=LogFile,
+                          append=TRUE)
+               if(!is.list(Specs))
+                    stop("The Specs argument is not a list.", file=LogFile,
+                         append=TRUE)
+               if(!identical(names(Specs), "m"))
+                    stop("The Specs argument is incorrect.", file=LogFile,
+                         append=TRUE)
+               Specs[["m"]] <- abs(round(Specs[["m"]]))
+               }
           else if(Algorithm == "USAMWG") {
                Algorithm <- "Updating Sequential Adaptive Metropolis-within-Gibbs"
                if(missing(Specs))
@@ -859,9 +930,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      Mon <- matrix(Mo0[["Monitor"]], floor(Iterations/Thinning)+1,
           length(Mo0[["Monitor"]]), byrow=TRUE)
      LIV <- length(Initial.Values)
-     thinned <- matrix(0, floor(Iterations/Thinning)+1,
-          length(Initial.Values))
-     thinned[1,] <- prop <- Initial.Values
+     thinned <- matrix(Initial.Values, floor(Iterations/Thinning)+1,
+          length(Initial.Values), byrow=TRUE)
      ScaleF <- 2.381204 * 2.381204 / LIV
      if(Algorithm %in% c("Adaptive Metropolis",
           "Adaptive-Mixture Metropolis",
@@ -898,10 +968,12 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     DiagCovar[Specs[["B"]][[b]]] <- diag(VarCov[[b]])}}
           }
      else if(Algorithm %in% c("Adaptive Directional Metropolis-within-Gibbs",
-          "Elliptical Slice Sampling",
+          "Elliptical Slice Sampler",
           "Independence Metropolis",
           "Metropolis-Adjusted Langevin Algorithm",
-          "Robust Adaptive Metropolis")) {
+          "Oblique Hyperrectangle Slice Sampler",
+          "Robust Adaptive Metropolis",
+          "Univariate Eigenvector Slice Sampler")) {
           ### Algorithms that require VarCov, but not tuning
           if(is.list(Covar)) VarCov <- Covar
           else if(is.matrix(Covar) & !is.list(Covar)) VarCov <- Covar
@@ -998,7 +1070,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           mcmc.out <- DEMC(Model, Data, Iterations, Status, Thinning, Specs,
                Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
                LogFile)}
-     else if(Algorithm == "Elliptical Slice Sampling") {
+     else if(Algorithm == "Elliptical Slice Sampler") {
           mcmc.out <- Ess(Model, Data, Iterations, Status, Thinning, Specs,
                Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
                VarCov, LogFile)}
@@ -1044,18 +1116,30 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           mcmc.out <- NUTS(Model, Data, Iterations, Status, Thinning, Specs,
                Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
                LogFile)}
-     else if(Algorithm == "Robust Adaptive Metropolis") {
-          mcmc.out <- RAM(Model, Data, Iterations, Status, Thinning, Specs,
+     else if(Algorithm == "Oblique Hyperrectangle Slice Sampler") {
+          mcmc.out <- OHSS(Model, Data, Iterations, Status, Thinning, Specs,
                Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
                VarCov, LogFile)}
      else if(Algorithm == "Random-Walk Metropolis") {
           mcmc.out <- RWM(Model, Data, Iterations, Status, Thinning, Specs,
                Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
                tuning, VarCov, LogFile)}
+     else if(Algorithm == "Refractive Sampler") {
+          mcmc.out <- Refractive(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, thinned,
+               LogFile)}
+     else if(Algorithm == "Reflective Slice Sampler") {
+          mcmc.out <- RSS(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, thinned,
+               LogFile)}
      else if(Algorithm == "Reversible-Jump") {
           mcmc.out <- RJ(Model, Data, Iterations, Status, Thinning, Specs,
                Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
                LogFile)}
+     else if(Algorithm == "Robust Adaptive Metropolis") {
+          mcmc.out <- RAM(Model, Data, Iterations, Status, Thinning, Specs,
+               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
+               VarCov, LogFile)}
      else if(Algorithm == "Sequential Adaptive Metropolis-within-Gibbs") {
           mcmc.out <- SAMWG(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
@@ -1080,6 +1164,10 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           mcmc.out <- twalk(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
                thinned, LogFile)}
+     else if(Algorithm == "Univariate Eigenvector Slice Sampler") {
+          mcmc.out <- UESS(Model, Data, Iterations, Status, Thinning, Specs,
+               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
+               VarCov, LogFile)}
      else if(Algorithm == "Updating Sequential Adaptive Metropolis-within-Gibbs") {
           mcmc.out <- USAMWG(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
@@ -1259,7 +1347,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           {Algorithm == "Affine-Invariant Ensemble Sampler"} |
           {Algorithm == "Componentwise Hit-And-Run Metropolis"} |
           {Algorithm == "Delayed Rejection Metropolis"} |
-          {Algorithm == "Elliptical Slice Sampling"} |
+          {Algorithm == "Elliptical Slice Sampler"} |
           {Algorithm == "Griddy-Gibbs"} | 
           {Algorithm == "Hamiltonian Monte Carlo"} |
           {Algorithm == "Hit-And-Run Metropolis"} | 
@@ -1267,6 +1355,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           {Algorithm == "Metropolis-within-Gibbs"} |
           {Algorithm == "No-U-Turn Sampler"} | 
           {Algorithm == "Random-Walk Metropolis"} |
+          {Algorithm == "Reflective Slice Sampler"} |
+          {Algorithm == "Refractive Sampler"} |
           {Algorithm == "Reversible-Jump"} |
           {Algorithm == "Sequential Metropolis-within-Gibbs"} |
           {Algorithm == "Slice Sampler"} |
@@ -2510,6 +2600,7 @@ Ess <- function(Model, Data, Iterations, Status, Thinning, Specs,
                theta.min <- theta - 2*pi
                shrink <- TRUE
                log.u <- log(runif(1))
+               ### Rejection Sampling
                while (shrink == TRUE) {
                     prop <- Mo0[["parm"]]*cos(theta) + nu*sin(theta)
                     ### Log-Posterior of the proposed state
@@ -3813,6 +3904,68 @@ NUTS <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=apply(thinned, 2, var))
      return(out)
      }
+OHSS <- function(Model, Data, Iterations, Status, Thinning, Specs,
+     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
+     VarCov, LogFile)
+     {
+     w <- 0.05 # as with Roberts & Rosenthal
+     decomp.freq <- max(floor(Iterations / Thinning / 100), 10)
+     S.eig <-try(eigen(VarCov), silent=TRUE)
+     if(inherits(S.eig, "try-error")) S.eig <- NULL
+     tuning <- 1 #Tuning
+     edge.scale <- 5 #Tuning
+     t.iter <- 1
+     for (iter in 1:Iterations) {
+          ### Print Status
+          if(iter %% Status == 0)
+               cat("Iteration: ", iter, ",   Proposal: Multivariate\n",
+                    sep="")
+          ### Eigenvectors of the Sample Covariance Matrix
+          if({iter %% decomp.freq == 0} & {iter > 1})
+               S.eig <- eigen(cov(thinned[1:(t.iter-1),,drop=FALSE]))
+          ### Hypercube or Eigenvector
+          if(runif(1) < w || is.null(S.eig)) {
+               vals <- rep(tuning, LIV)
+               vecs <- diag(1, nrow=LIV)
+               }
+          else {
+               vals <- S.eig$values
+               vecs <- S.eig$vectors}
+          ### Slice Interval
+          y.slice <- Model(Mo0[["parm"]], Data)[["LP"]] - rexp(1)
+          L <- -1 * runif(LIV)
+          U <- L + 1
+          ### Rejection Sampling
+          repeat {
+               wt <- runif(LIV, min=L, max=U)
+               v <- as.numeric(vecs %*% (edge.scale * wt * vals))
+               prop <- Mo0[["parm"]] + v
+               Mo1 <- Model(prop, Data)
+               if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
+                    Mo1[["Monitor"]]))))
+                    Mo1 <- Mo0
+               y1 <- Mo1[["LP"]]
+               if(y1 >= y.slice) break
+               L[wt < 0] <- wt[wt < 0]
+               U[wt > 0] <- wt[wt > 0]}
+          ### Save Thinned Samples
+          if(iter %% Thinning == 0) {
+               t.iter <- floor(iter / Thinning) + 1
+               thinned[t.iter,] <- Mo1[["parm"]]
+               Dev[t.iter] <- Mo1[["Dev"]]
+               Mon[t.iter,] <- Mo1[["Monitor"]]
+               DiagCovar <- rbind(DiagCovar, S.eig$vectors)}
+          Mo0 <- Mo1
+          }
+     ### Output
+     out <- list(Acceptance=Iterations,
+          Dev=Dev,
+          DiagCovar=DiagCovar,
+          Mon=Mon,
+          thinned=thinned,
+          VarCov=cov(thinned))
+     return(out)
+     }
 RAM <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, VarCov,
      LogFile)
@@ -3892,6 +4045,85 @@ RAM <- function(Model, Data, Iterations, Status, Thinning, Specs,
           Mon=Mon,
           thinned=thinned,
           VarCov=VarCov)
+     return(out)
+     }
+Refractive <- function(Model, Data, Iterations, Status, Thinning, Specs,
+     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, thinned, LogFile)
+     {
+     Adaptive <- Specs[["Adaptive"]]
+     m <- Specs[["m"]]
+     w <- Specs[["w"]]
+     r <- Specs[["r"]]
+     norm <- function(x) return(sqrt(sum(x*x)))
+     alpha.star <- 0.65
+     if(Adaptive < Iterations) DiagCovar <- matrix(w, nrow(thinned), LIV)
+     for (iter in 1:Iterations) {
+          ### Print Status
+          if(iter %% Status == 0)
+               cat("Iteration: ", iter, ",   Proposal: Multivariate\n",
+                    sep="")
+          ### Save Thinned Samples
+          if(iter %% Thinning == 0) {
+               t.iter <- floor(iter / Thinning) + 1
+               thinned[t.iter,] <- Mo0[["parm"]]
+               Dev[t.iter] <- Mo0[["Dev"]]
+               Mon[t.iter,] <- Mo0[["Monitor"]]}
+          prop <- Mo0[["parm"]]
+          p <- rnorm(LIV)
+          a <- 1
+          g <- partial(Model, prop, Data)
+          for (i in 1:(m+1)) {
+               if(t(p) %*% g > 0) {
+                    u <- g / norm(g)
+                    r1 <- 1
+                    r2 <- r
+                    }
+               else {
+                    u <- -g / norm(g)
+                    r1 <- r
+                    r2 <- 1}
+               cos.theta.1 <- (t(p) %*% u) / norm(p)
+               cos.2.theta.1 <- cos.theta.1 * cos.theta.1
+               cos.2.theta.2 <- 1 - (r1^2 / r2^2)*(1 - cos.2.theta.1)
+               if(cos.2.theta.2 > 0) cos.theta.2 <- sqrt(cos.2.theta.2)
+               else cos.theta.2 <- -sqrt(abs(cos.2.theta.2))
+               if(cos.2.theta.2 < 0) p <- as.vector(p - 2*(t(p) %*% u) %*% u)
+               else {
+                    p <- (r1 / r2)*p -
+                         norm(p)*((r1 / r2)*cos.theta.1 - cos.theta.2)*u
+                    a <- (r1 / r2)^(LIV-1)*(cos.theta.1 / cos.theta.2)*a}
+               prop <- prop + w*p
+               Mo1 <- Model(prop, Data)
+               if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
+                    Mo1[["Monitor"]]))))
+                    Mo1 <- Mo0
+               prop <- Mo1[["parm"]]}
+          ### Accept/Reject
+          a <- Mo1[["LP"]] - Mo0[["LP"]] + a
+          if(log(runif(1)) < a) {
+               Mo0 <- Mo1
+               Acceptance <- Acceptance + 1
+               if(Adaptive < Iterations)
+                    w <- w + (w / (alpha.star * (1 - alpha.star))) *
+                         (1 - alpha.star) / iter
+               if(iter %% Thinning == 0) {
+                    thinned[t.iter,] <- Mo1[["parm"]]
+                    Dev[t.iter] <- Mo1[["Dev"]]
+                    Mon[t.iter] <- Mo1[["Monitor"]]
+                    if(Adaptive < Iterations) DiagCovar[t.iter,] <- w}
+               }
+          else if(Adaptive < Iterations) {
+               w <- abs(w - (w / (alpha.star * (1 - alpha.star))) *
+                    alpha.star / iter)
+               if(iter %% Thinning == 0) DiagCovar[t.iter,] <- w}
+          }
+     ### Output
+     out <- list(Acceptance=Acceptance,
+          Dev=Dev,
+          DiagCovar=DiagCovar,
+          Mon=Mon,
+          thinned=thinned,
+          VarCov=apply(thinned, 2, var))
      return(out)
      }
 RJ <- function(Model, Data, Iterations, Status, Thinning, Specs,
@@ -3979,6 +4211,57 @@ RJ <- function(Model, Data, Iterations, Status, Thinning, Specs,
           }
      ### Output
      out <- list(Acceptance=Acceptance,
+          Dev=Dev,
+          DiagCovar=DiagCovar,
+          Mon=Mon,
+          thinned=thinned,
+          VarCov=apply(thinned, 2, var))
+     return(out)
+     }
+RSS <- function(Model, Data, Iterations, Status, Thinning, Specs,
+     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, thinned, LogFile)
+     {
+     m <- Specs[["m"]]
+     w <- Specs[["w"]]
+     norm <- function(x) return(sqrt(sum(x*x)))
+     for (iter in 1:Iterations) {
+          ### Print Status
+          if(iter %% Status == 0)
+               cat("Iteration: ", iter, ",   Proposal: Multivariate\n",
+                    sep="")
+          ### Save Thinned Samples
+          if(iter %% Thinning == 0) {
+               t.iter <- floor(iter / Thinning) + 1
+               thinned[t.iter,] <- Mo0[["parm"]]
+               Dev[t.iter] <- Mo0[["Dev"]]
+               Mon[t.iter,] <- Mo0[["Monitor"]]}
+          prop <- Mo0[["parm"]]
+          p <- rnorm(LIV)
+          g <- partial(Model, prop, Data)
+          ### Take m Steps
+          for (i in 1:m) {
+               prop <- prop + w*p
+               Mo1 <- Model(prop, Data)
+               if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
+                    Mo1[["Monitor"]]))))
+                    Mo1 <- Mo0
+               prop <- Mo1[["parm"]]
+               ### Reflect at boundary
+               if(Mo0[["LP"]] > Mo1[["LP"]])
+                    p <- p - 2*g*{(t(p) %*% g) / norm(g)^2}}
+          Mo1 <- Model(prop, Data)
+          if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
+               Mo1[["Monitor"]]))))
+               Mo1 <- Mo0
+          prop <- Mo1[["parm"]]
+          if(iter %% Thinning == 0) {
+               thinned[t.iter,] <- Mo1[["parm"]]
+               Dev[t.iter] <- Mo1[["Dev"]]
+               Mon[t.iter] <- Mo1[["Monitor"]]}
+          Mo0 <- Mo1
+          }
+     ### Output
+     out <- list(Acceptance=Iterations,
           Dev=Dev,
           DiagCovar=DiagCovar,
           Mon=Mon,
@@ -4812,6 +5095,87 @@ twalk <- function(Model, Data, Iterations, Status, Thinning, Specs,
           Status=Status, Thinning=Thinning, Acceptance=Acceptance, Dev=Dev,
           Mon=Mon, Mo0=Mo0, thinned=thinned, LogFile=LogFile)
      ### Output
+     return(out)
+     }
+UESS <- function(Model, Data, Iterations, Status, Thinning, Specs,
+     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
+     VarCov, LogFile)
+     {
+     m <- Specs[["m"]]
+     norm <- function(x) return(sqrt(sum(x^2)))
+     w <- 0.05
+     decomp.freq <- max(LIV * floor(Iterations / Thinning / 100), 10)
+     S.eig <-try(eigen(VarCov), silent=TRUE)
+     if(inherits(S.eig, "try-error")) S.eig <- NULL
+     obs.sum <- matrix(0, LIV, 1)
+     obs.scatter <- matrix(0, LIV, LIV)
+     scatter.N <- 0
+     for (iter in 1:Iterations) {
+          ### Print Status
+          if(iter %% Status == 0)
+               cat("Iteration: ", iter, ",   Proposal: Multivariate\n",
+                    sep="")
+          ### Eigenvectors of the Sample Covariance Matrix
+          if({iter %% decomp.freq == 0} & {iter > 1})
+               S.eig <- eigen(obs.scatter/scatter.N -
+                    tcrossprod(obs.sum/scatter.N))
+          ### Non-Adaptive or Adaptive
+          if(runif(1) < w || is.null(S.eig)) {
+               v <- rnorm(LIV)
+               v <- v / norm(v)
+               }
+          else {
+               which.eig <- floor(1 + LIV * runif(1))
+               v <- S.eig$vectors[,which.eig] *
+                    sqrt(abs(S.eig$values[which.eig]))}
+          ### Slice Interval
+          y.slice <- Model(Mo0[["parm"]], Data)[["LP"]] - rexp(1)
+          L <- -runif(1)
+          U <- L + 1
+          if(m > 0) {
+               L.y <- Model(Mo0[["parm"]] + v*L, Data)[["LP"]]
+               U.y <- Model(Mo0[["parm"]] + v*U, Data)[["LP"]]
+               step <- 0
+               while({L.y > y.slice || U.y > y.slice} && step < m) {
+                    step <- step + 1
+                    if(runif(1) < 0.5) {
+                         L <- L - 1
+                         L.y <- Model(Mo0[["parm"]] + v*L, Data)[["LP"]]
+                         }
+                    else {
+                         U <- U + 1
+                         U.y <- Model(Mo0[["parm"]] + v*U, Data)[["LP"]]}}}
+          ### Rejection Sampling
+          repeat {
+               prop.offset <- runif(1, min=L, max=U)
+               prop <- Mo0[["parm"]] + prop.offset * v
+               Mo1 <- Model(prop, Data)
+               if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
+                    Mo1[["Monitor"]]))))
+                    Mo1 <- Mo0
+               y1 <- Mo1[["LP"]]
+               prop <- Mo1[["parm"]]
+               if(y1 >= y.slice) break
+               if(prop.offset < 0) L <- prop.offset
+               else U <- prop.offset}
+          ### Save Thinned Samples
+          if(iter %% Thinning == 0) {
+               t.iter <- floor(iter / Thinning) + 1
+               thinned[t.iter,] <- Mo1[["parm"]]
+               Dev[t.iter] <- Mo1[["Dev"]]
+               Mon[t.iter,] <- Mo1[["Monitor"]]
+               DiagCovar <- rbind(DiagCovar, S.eig$vectors)
+               obs.sum <- obs.sum + Mo1[["parm"]]
+               obs.scatter <- obs.scatter + tcrossprod(Mo1[["parm"]])
+               scatter.N <- scatter.N + 1}
+          Mo0 <- Mo1}
+     ### Output
+     out <- list(Acceptance=Iterations,
+          Dev=Dev,
+          DiagCovar=DiagCovar,
+          Mon=Mon,
+          thinned=thinned,
+          VarCov=cov(thinned))
      return(out)
      }
 USAMWG <- function(Model, Data, Iterations, Status, Thinning, Specs,

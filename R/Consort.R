@@ -27,13 +27,12 @@ Consort <- function(object=NULL)
           else {
                Acc.Rate.Low <- 0.6
                Acc.Rate.High <- 0.7}}
-     else if(object$Algorithm == "Elliptical Slice Sampling") {
-          Acc.Rate.Low <- 1
-          Acc.Rate.High <- 1
-          }
      else if(object$Algorithm %in% c("Adaptive Griddy-Gibbs",
-          "Elliptical Slice Sampling", "Griddy-Gibbs", "Slice Sampler",
-          "Stochastic Gradient Langevin Dynamics")) {
+          "Elliptical Slice Sampler", "Griddy-Gibbs",
+          "Oblique Hyperrectangle Slice Sampler",
+          "Reflective Slice Sampler", "Slice Sampler",
+          "Stochastic Gradient Langevin Dynamics",
+          "Univariate Eigenvector Slice Sampler")) {
           Acc.Rate.Low <- 1
           Acc.Rate.High <- 1
           }
@@ -65,6 +64,10 @@ Consort <- function(object=NULL)
           delta <- object$Specs[["delta"]]
           Acc.Rate.Low <- max(round(delta - 0.05, 2), 0.01)
           Acc.Rate.High <- min(round(delta + 0.05, 2), 1)}
+     else if(object$Algorithm == "Refractive Sampler") {
+          m <- object$Specs[["m"]]
+          Acc.Rate.Low <- 0.6
+          Acc.Rate.High <- 0.7}
      else {
           Acc.Rate.Low <- 0.15
           Acc.Rate.High <- 0.5}
@@ -249,7 +252,7 @@ Consort <- function(object=NULL)
                Alg <- "DRM"
           else if(object$Algorithm == "Differential Evolution Markov Chain")
                Alg <- "DEMC"
-          else if(object$Algorithm == "Elliptical Slice Sampling")
+          else if(object$Algorithm == "Elliptical Slice Sampler")
                Alg <- "ESS"
           else if(object$Algorithm == "Experimental")
                Alg <- "Exper"
@@ -270,8 +273,12 @@ Consort <- function(object=NULL)
           else if(object$Algorithm == "Metropolis-within-Gibbs")
                Alg <- "MWG"
           else if(object$Algorithm == "No-U-Turn Sampler") Alg <- "NUTS"
+          else if(object$Algorithm == "Oblique Hyperrectangle Slice Sampler") Alg <- "OHSS"
           else if(object$Algorithm == "Robust Adaptive Metropolis")
                Alg <- "RAM"
+          else if(object$Algorithm == "Refractive Sampler") Alg <- "Refractive"
+          else if(object$Algorithm == "Reflective Slice Sampler")
+               Alg <- "RSS"
           else if(object$Algorithm == "Random-Walk Metropolis")
                Alg <- "RWM"
           else if(object$Algorithm == "Reversible-Jump") Alg <- "RJ"
@@ -285,6 +292,8 @@ Consort <- function(object=NULL)
           else if(object$Algorithm == "Tempered Hamiltonian Monte Carlo")
                Alg <- "THMC"
           else if(object$Algorithm == "t-walk") Alg <- "t-walk"
+          else if(object$Algorithm == "Univariate Eigenvector Slice Sampler")
+               Alg <- "UESS"
           else if(object$Algorithm == "Updating Sequential Adaptive Metropolis-within-Gibbs")
                Alg <- "USAMWG"
           else Alg <- "USMWG"
@@ -651,6 +660,16 @@ Consort <- function(object=NULL)
                     max(round(object$CovarDHis[nrow(object$CovarDHis),1],3),
                     1e-10), "))\n\n", sep="")
                }
+          else if(Alg == "OHSS") {
+               ### OHSS
+               cat(oname, " <- LaplacesDemon(Model, Data=", dname,
+                    ", Initial.Values,\n", sep="")
+               cat("     Covar=", oname, "$Covar, Iterations=",
+                    Rec.Iterations, ", Status=", Rec.Status, ", ",
+                    "Thinning=", Rec.Thinning, ",\n", sep="")
+               cat("     Algorithm=\"OHSS\", ",
+                    "Specs=NULL)\n\n", sep="")
+               }
           else if({(Alg == "AM") & !Dim.Adapt & !Fast & !Ready} | 
              {(Alg == "AMM") & !Dim.Adapt & !Fast & Ready} | 
              {(Alg == "AMM") & !Dim.Adapt & !Fast & !Ready} | 
@@ -679,6 +698,24 @@ Consort <- function(object=NULL)
                     "\", gamma=", gamma, ",\n", sep="")
                cat("     Periodicity=1))\n\n", sep="")
                }
+          else if(Alg == "Refractive") {
+               ### Refractive
+               Adaptive <- object$Specs[["Adaptive"]]
+               m <- object$Specs[["m"]]
+               w <- object$Specs[["w"]]
+               if(Adaptive < object$Iterations)
+                    w <- object$CovarDHis[nrow(object$CovarDHis),1]
+               if(!Dim.Adapt) Adaptive <- 1
+               else Adaptive <- Rec.Iterations + 1
+               cat(oname, " <- LaplacesDemon(Model, Data=", dname,
+                    ", Initial.Values,\n", sep="")
+               cat("     Covar=NULL, Iterations=",
+                    Rec.Iterations, ", Status=", Rec.Status, ", ",
+                    "Thinning=", Rec.Thinning, ",\n", sep="")
+               cat("     Algorithm=\"Refractive\", ",
+                    "Specs=list(Adaptive=", Adaptive, ", m=", m,
+                    ", w=", w, ", r=1.3))\n\n", sep="")
+               }
           else if(Alg == "RJ" & (Acc.Rate.Level > 1)) {
                ### RJ
                cat(oname, " <- LaplacesDemon(Model, Data=", dname,
@@ -696,6 +733,16 @@ Consort <- function(object=NULL)
                     paste(object$Specs[["selectable"]], collapse=","),
                     ")", sep=""), ",\n", sep="")
                cat("     selected=1*(Initial.Values != 0)))\n\n", sep="")
+               }
+          else if(Alg == "RSS") {
+               ### RSS
+               cat(oname, " <- LaplacesDemon(Model, Data=", dname,
+                    ", Initial.Values,\n", sep="")
+               cat("     Covar=NULL, Iterations=",
+                    Rec.Iterations, ", Status=", Rec.Status, ", ",
+                    "Thinning=", Rec.Thinning, ",\n", sep="")
+               cat("     Algorithm=\"RSS\", ",
+                    "Specs=", oname, "$Specs)\n\n", sep="")
                }
           else if({(Alg == "AM") & Dim.Adapt & Fast & Ready} |
              {(Alg == "AM") & Dim.Adapt & !Fast & Ready} |
@@ -818,6 +865,17 @@ Consort <- function(object=NULL)
                cat("     Algorithm=\"twalk\", ",
                     "Specs=list(SIV=NULL, n1=", n1,
                     ", at=", at, ", aw=", aw, "))\n\n", sep="")
+               }
+          else if(Alg == "UESS") {
+               ### UESS
+               m <- object$Specs[["m"]]
+               cat(oname, " <- LaplacesDemon(Model, Data=", dname,
+                    ", Initial.Values,\n", sep="")
+               cat("     Covar=", oname, "$Covar, Iterations=",
+                    Rec.Iterations, ", Status=", Rec.Status, ", ",
+                    "Thinning=", Rec.Thinning, ",\n", sep="")
+               cat("     Algorithm=\"UESS\", ",
+                    "Specs=list(m=", m, "))\n\n", sep="")
                }
           else if((Alg == "USAMWG") | (Alg == "USMWG")) {
                ### USAMWG or USMWG

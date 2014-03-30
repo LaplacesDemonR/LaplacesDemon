@@ -19,6 +19,7 @@
 \alias{is.pmc.val}
 \alias{is.posteriorchecks}
 \alias{is.raftery}
+\alias{is.rejection}
 \alias{is.sensitivity}
 \alias{is.vb}
 \alias{is.vb.ppc}
@@ -47,6 +48,7 @@ is.pmc.ppc(x)
 is.pmc.val(x)
 is.posteriorchecks(x)
 is.raftery(x)
+is.rejection(x)
 is.sensitivity(x)
 is.vb(x)
 is.vb.ppc(x)
@@ -139,6 +141,9 @@ is.vb.ppc(x)
   The \code{is.raftery} function returns a logical value indicating
   whether or not the supplied object is of class \code{raftery}.
 
+  The \code{is.rejection} function returns a logical value indicating
+  whether or not the supplied object is of class \code{rejection}.
+
   The \code{is.sensitivity} function returns a logical value indicating
   whether or not the supplied object is of class \code{sensitivity}.
 
@@ -169,6 +174,7 @@ is.vb.ppc(x)
   \code{\link{predict.pmc}},
   \code{\link{predict.vb}},
   \code{\link{Raftery.Diagnostic}},
+  \code{\link{RejectionSampling}},
   \code{\link{SensitivityAnalysis}},
   \code{\link{Validate}}, and
   \code{\link{VariationalBayes}}.

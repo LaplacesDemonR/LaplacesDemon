@@ -1,16 +1,20 @@
-2013-03-13 Added WAIC
-2013-03-13 LaplacesDemon: Reduced number of chol() evals in some samplers
-2013-03-11 Added dcrmrf and rcrmrf
-2013-03-05 Added Heidelberger.Diagnostic and is.heidelberger
-2013-03-05 Added is.raftery and print.heidelberger
-2013-03-04 LML: Added the GD method
-2013-03-03 Vignette Examples: Added Change Point Regression
-2013-03-02 LaplacesDemon: Added Specs to output
-2013-03-02 LaplacesDemon: Removed Adaptive, DR, and Periodicity from output
-2013-02-25 Vignette Examples: Added Hidden Markov Model
-2013-02-09 dmvnp: Sped up by inverting the Cholesky, rather than Omega
-2013-02-06 Added VariationalBayes, plot.vb, plot.vb.ppc, and predict.vb
-2013-02-06 Added print.vb and summary.vb.ppc
+2014-03-26 LaplacesDemon: Added the OHSS, Refractive, RSS, and UESS algorithms
+2014-03-25 Added deburn
+2014-03-14 Vignette Examples: Added Latent Dirichlet Allocation (LDA)
+2014-03-14 Added RejectionSampling and is.rejection
+2014-03-13 Added WAIC
+2014-03-13 LaplacesDemon: Reduced number of chol() evals in some samplers
+2014-03-11 Added dcrmrf and rcrmrf
+2014-03-05 Added Heidelberger.Diagnostic and is.heidelberger
+2014-03-05 Added is.raftery and print.heidelberger
+2014-03-04 LML: Added the GD method
+2014-03-03 Vignette Examples: Added Change Point Regression
+2014-03-02 LaplacesDemon: Added Specs to output
+2014-03-02 LaplacesDemon: Removed Adaptive, DR, and Periodicity from output
+2014-02-25 Vignette Examples: Added Hidden Markov Model
+2014-02-09 dmvnp: Sped up by inverting the Cholesky, rather than Omega
+2014-02-06 Added VariationalBayes, plot.vb, plot.vb.ppc, and predict.vb
+2014-02-06 Added print.vb and summary.vb.ppc
 2013-11-11 as.parm.names: Added the ability to omit missing elements
 2013-11-07 LaplacesDemon: Added the AGG algorithm
 2013-11-05 Vignette Examples: rewrote CCA, ECA, FMM, IMM, and SSVS for

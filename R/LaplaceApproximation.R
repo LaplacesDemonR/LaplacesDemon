@@ -887,9 +887,9 @@ LMA <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
      Norm <- function(x, p=2) {
           stopifnot(is.numeric(x) || is.complex(x), is.numeric(p),
                length(p) == 1)
-          if(p > -Inf && p < Inf) sum(abs(x)^p)^(1/p)
-          else if(p ==  Inf) max(abs(x))
-          else if(p == -Inf) min(abs(x))
+          if(p > -Inf && p < Inf) return(sum(abs(x)^p)^(1/p))
+          else if(p ==  Inf) return(max(abs(x)))
+          else if(p == -Inf) return(min(abs(x)))
           else return(NULL)
           }
      Dev <- matrix(m.old[["Dev"]],1,1)
@@ -1595,7 +1595,7 @@ TR <- function(Model, parm, Data, Iterations, m.old)
      {
      fterm <- sqrt(.Machine$double.eps)
      mterm <- sqrt(.Machine$double.eps)
-     norm <- function(x) sqrt(sum(x^2))
+     norm <- function(x) return(sqrt(sum(x^2)))
      parm.len <- length(parm)
      post <- matrix(parm, 1, parm.len)
      Dev <- matrix(m.old[["Dev"]],1,1)

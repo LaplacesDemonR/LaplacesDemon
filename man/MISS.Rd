@@ -19,8 +19,8 @@ MISS(X, Iterations=100, Algorithm="ESS", K=10, Fit=NULL, verbose=TRUE)
     (MAR).}
   \item{Iterations}{This is the number of iterations to perform
     sequential sampling via MCMC algorithms.}
-  \item{Algorithm}{The MCMC algorithm defaults to Elliptical Slice
-    Sampling (ESS). Gibbs Sampling (GS) is also supported.}
+  \item{Algorithm}{The MCMC algorithm defaults to the Elliptical Slice
+    Sampler (ESS). A Gibbs Sampler (GS) is also supported.}
   \item{K}{This is the maximum number of discrete values for multinomial
     logit. Variables with more discrete values are considered to be
     continuous.}
@@ -107,7 +107,7 @@ MISS(X, Iterations=100, Algorithm="ESS", K=10, Fit=NULL, verbose=TRUE)
   user can easily specify complicated structures such as multilevel,
   spatial or temporal dependence, and more.
 
-  When MISS applies Gibbs sampling, matrix inversions are
+  When MISS applies a Gibbs sampler, matrix inversions are
   required. Matrix inversions become more cumbersome as the number
   \eqn{J} of variables increases. In contrast, the ESS algorithm scales
   well to data sets with a large number of variables.
@@ -215,7 +215,7 @@ MISS(X, Iterations=100, Algorithm="ESS", K=10, Fit=NULL, verbose=TRUE)
 
 #End
 }
-\keyword{Elliptical Slice Sampling}
-\keyword{Gibbs Sampling}
+\keyword{Elliptical Slice Sampler}
+\keyword{Gibbs Sampler}
 \keyword{Imputation}
 \keyword{Utility}

@@ -89,7 +89,7 @@ Juxtapose <- function(x)
           else if(alg == "Delayed Rejection Metropolis") alg <- "DRM"
           else if(alg == "Differential Evolution Markov Chain")
                alg <- "DEMC"
-          else if(alg == "Elliptical Slice Sampling") alg <- "ESS"
+          else if(alg == "Elliptical Slice Sampler") alg <- "ESS"
           else if(alg == "Experimental") alg <- "Exper"
           else if(alg == "Griddy-Gibbs") alg <- "GG"
           else if(alg == "Hamiltonian Monte Carlo") alg <- "HMC"
@@ -102,9 +102,12 @@ Juxtapose <- function(x)
                alg <- "MALA"
           else if(alg == "Metropolis-within-Gibbs") alg <- "MWG"
           else if(alg == "No-U-Turn Sampler") alg <- "NUTS"
+          else if(alg == "Olbique Hyperrectangle Slice Sampler") alg <- "OHSS"
+          else if(alg == "Random-Walk Metropolis") alg <- "RWM"
+          else if(alg == "Reflective Slice Sampler") alg <- "RSS"
+          else if(alg == "Refractive Sampler") alg <- "Refractive"
           else if(alg == "Reversible-Jump") alg <- "RJ"
           else if(alg == "Robust Adaptive Metropolis") alg <- "RAM"
-          else if(alg == "Random-Walk Metropolis") alg <- "RWM"
           else if(alg == "Sequential Adaptive Metropolis-within-Gibbs")
                alg <- "SAMWG"
           else if(alg == "Sequential Metropolis-within-Gibbs")
@@ -114,6 +117,7 @@ Juxtapose <- function(x)
                alg <- "SGLD"
           else if(alg == "Tempered Hamiltonian Monte Carlo") alg <- "THMC"
           else if(alg == "t-walk") alg <- "twalk"
+          else if(alg == "UESS") alg <- "Univariate Eigenvector Slice Sampler"
           else if(alg == "Updating Sequential Adaptive Metropolis-within-Gibbs")
                alg <- "USAMWG"
           else if(alg == "Updating Sequential Metropolis-within-Gibbs")

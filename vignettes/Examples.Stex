@@ -73,6 +73,7 @@ This vignette will grow over time as examples of more methods become included. C
 \item Change Point Regression \ref{changepoint}
 \item Cluster Analysis, Confirmatory (CCA) \ref{cca}
 \item Cluster Analysis, Exploratory (ECA) \ref{eca}
+\item Collaborative Filtering (CF) \ref{efa}
 \item Conditional Autoregression (CAR), Poisson \ref{car.poisson}
 \item Conditional Predictive Ordinate (CPO) \ref{cpo}
 \item Contingency Table \ref{contingency.table}
@@ -100,6 +101,7 @@ This vignette will grow over time as examples of more methods become included. C
 \item Kriging, Predictive Process \ref{kriging.pp}
 \item Laplace Regression \ref{laplace.reg}
 \item LASSO \ref{bal}
+\item Latent Dirichlet Allocation (LDA) \ref{lda}
 \item Linear Regression \ref{linear.reg}
 \item Linear Regression, Frequentist \ref{linear.reg.freq}
 \item Linear Regression, Hierarchical Bayesian \ref{linear.reg.hb}
@@ -157,6 +159,7 @@ This vignette will grow over time as examples of more methods become included. C
 \item T-test \ref{anova.one.way}
 \item TARCH(1) \ref{tarch}
 \item Threshold Autoregression (TAR) \ref{tar}
+\item Topic Model \ref{lda}
 \item Time Varying AR(1) with Chebyshev Series \ref{tvarcs}
 \item Variable Selection, BAL \ref{bal}
 \item Variable Selection, Horseshoe \ref{horseshoe}
@@ -2220,7 +2223,7 @@ for (t in 1:T) \{for (p in 1:P) \{ \\
 }
 
 \section{Factor Analysis, Exploratory} \label{efa}
-Factor scores are in matrix \textbf{F} and factor loadings are in matrix $\Lambda$.
+Factor scores are in matrix \textbf{F} and factor loadings are in matrix $\Lambda$. This exploratory factor analysis (EFA) model form is also suitable for collaborative filtering, and automatically handles missing values.
 \subsection{Form}
 $$\textbf{Y}_{i,m} \sim \mathcal{N}(\mu_{i,m}, \sigma^2_m), \quad i=1,\dots,N, \quad m=1,\dots,M$$
 $$\mu = \alpha^T + \textbf{F} \Lambda$$
@@ -3024,6 +3027,74 @@ MyData <- list(J=J, PGF=PGF, X=X, mon.names=mon.names, \\
 }
 \subsection{Initial Values}
 \code{Initial.Values <- c(rep(0,J), 1)}
+
+\section{Latent Dirichlet Allocation} \label{lda}
+\subsection{Form}
+$$\textbf{Y}_{m,n} \sim \mathcal{CAT}(\phi[\textbf{Z}_{m,n},]), \quad m=1,\dots,M, \quad n=1,\dots,N$$
+$$\textbf{Z}_{m,n} \sim \mathcal{CAT}(\theta_{m,1:K})$$
+$$\phi_{k,v} \sim \mathcal{D}(\beta)$$
+$$\theta_{m,k} \sim \mathcal{D}(\alpha)$$
+$$\alpha_k = 1, \quad k=1,\dots,K$$
+$$\beta_v = 1, \quad v=1,\dots,V$$
+\subsection{Data}
+\code{K <- 2 \#Number of (latent) topics \\
+M <- 4 \#Number of documents in corpus \\
+N <- 15 \#Maximum number of (used) words per document \\
+V <- 5 \#Maximum number of occurrences of any word (Vocabulary size) \\
+Y <- matrix(rcat(M*N,rep(1/V,V)), M, N) \\
+rownames(Y) <- paste("doc", 1:nrow(Y), sep="") \\
+colnames(Y) <- paste("word", 1:ncol(Y), sep="") \\
+\#Note: Y is usually represented as w, a matrix of word counts. \\
+if(min(Y) == 0) Y <- Y + 1 \#A zero cannot occur, Y must be 1,2,...,V. \\
+V <- max(Y) \#Maximum number of occurrences of any word (Vocabulary size) \\
+alpha <- rep(1,K) \# hyperparameters (constant) \\
+beta <- rep(1,V) \\
+mon.names <- "LP" \\
+parm.names <- as.parm.names(list(phi=matrix(0,K,V), theta=matrix(0,M,K), \\
+\hspace*{0.27 in} Z=matrix(0,M,N))) \\
+pos.phi <- grep("phi", parm.names) \\
+pos.theta <- grep("theta", parm.names) \\
+pos.Z <- grep("Z", parm.names) \\
+PGF <- function(Data) \{ \\
+\hspace*{0.27 in} phi <- matrix(runif(Data$J*Data$V), Data$K, Data$V) \\
+\hspace*{0.27 in} phi <- phi / rowSums(phi) \\
+\hspace*{0.27 in} theta <- matrix(runif(Data$M*Data$K), Data$M, Data$K) \\
+\hspace*{0.27 in} theta <- theta / rowSums(theta) \\
+\hspace*{0.27 in} z <- rcat(Data$M*Data$N, rep(1/Data$K,Data$K)) \\
+\hspace*{0.27 in} return(c(as.vector(phi), as.vector(theta), z))\} \\
+MyData <- list(K=K, M=M, N=N, PGF=PGF, V=V, Y=Y, alpha=alpha, beta=beta, \\
+\hspace*{0.27 in} mon.names=mon.names, parm.names=parm.names, pos.phi=pos.phi, \\
+\hspace*{0.27 in} pos.theta=pos.theta, pos.Z=pos.Z) \\
+}
+\subsection{Model}
+\code{Model <- function(parm, Data) \\
+\hspace*{0.27 in} \{ \\
+\hspace*{0.27 in} \#\#\# Parameters \\
+\hspace*{0.27 in} phi <- matrix(interval(parm[Data$pos.phi], 0, 1), Data$K, Data$V) \\
+\hspace*{0.27 in} phi <- phi / rowSums(phi) \\
+\hspace*{0.27 in} parm[Data$pos.phi] <- as.vector(phi) \\
+\hspace*{0.27 in} theta <- matrix(interval(parm[Data$pos.theta], 0, 1), Data$M, Data$K) \\
+\hspace*{0.27 in} theta <- theta / rowSums(theta) \\
+\hspace*{0.27 in} parm[Data$pos.theta] <- as.vector(theta) \\
+\hspace*{0.27 in} Z <- matrix(parm[Data$pos.Z], Data$M, Data$N) \\
+\hspace*{0.27 in} \#\#\# Log(Prior Densities) \\
+\hspace*{0.27 in} phi.prior <- sum(ddirichlet(phi, beta, log=TRUE)) \\
+\hspace*{0.27 in} theta.prior <- sum(ddirichlet(theta, alpha, log=TRUE)) \\
+\hspace*{0.27 in} \#\#\# Log-Likelihood \\
+\hspace*{0.27 in} LL <- Z.prior <- 0 \\
+\hspace*{0.27 in} Yhat <- Data$Y \\
+\hspace*{0.27 in} for (m in 1:Data$M) \{for (n in 1:Data$N) \{ \\
+\hspace*{0.62 in} Z.prior + Z.prior + dcat(Z[m,n], theta[m,], log=TRUE) \\
+\hspace*{0.62 in} LL <- LL + dcat(Data$Y[m,n], as.vector(phi[Z[m,n],]), log=TRUE) \\
+\hspace*{0.62 in} Yhat[m,n] <- rcat(1, as.vector(phi[Z[m,n],]))\}\} \\
+\hspace*{0.27 in} \#\#\# Log-Posterior \\
+\hspace*{0.27 in} LP <- LL + phi.prior + theta.prior + Z.prior \\
+\hspace*{0.27 in} Modelout <- list(LP=LP, Dev=-2*LL, Monitor=LP, yhat=Yhat, parm=parm) \\
+\hspace*{0.27 in} return(Modelout) \\
+\hspace*{0.27 in} \}
+}
+\subsection{Initial Values}
+\code{Initial.Values <- c(rep(1/V,K*V), rep(1/K,M*K), rcat(M*N,rep(1/K,K)))}
 
 \section{Linear Regression} \label{linear.reg}
 \subsection{Form}

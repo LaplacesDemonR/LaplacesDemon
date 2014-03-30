@@ -158,7 +158,7 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     \item Delayed Rejection Adaptive Metropolis (DRAM)
     \item Delayed Rejection Metropolis (DRM)
     \item Differential Evolution Markov Chain (DEMC)
-    \item Elliptical Slice Sampling (ESS)
+    \item Elliptical Slice Sampler (ESS)
     \item Griddy-Gibbs (GG)
     \item Hamiltonian Monte Carlo (HMC)
     \item Hamiltonian Monte Carlo with Dual-Averaging (HMCDA)
@@ -168,7 +168,10 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     \item Metropolis-Adjusted Langevin Algorithm (MALA)
     \item Metropolis-within-Gibbs (MWG)
     \item No-U-Turn Sampler (NUTS)
+    \item Oblique Hyperrectangle Slice Sampler (OHSS)
     \item Random-Walk Metropolis (RWM)
+    \item Reflective Slice Sampler (RSS)
+    \item Refractive Sampler (Refractive)
     \item Reversible-Jump (RJ)
     \item Robust Adaptive Metropolis (RAM)
     \item Sequential Adaptive Metropolis-within-Gibbs (SAMWG)
@@ -177,6 +180,7 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     \item Stochastic Gradient Langevin Dynamics (SGLD)
     \item Tempered Hamiltonian Monte Carlo (THMC)
     \item t-walk (twalk)
+    \item Univariate Eigenvector Slice Sampler (UESS)
     \item Updating Sequential Adaptive Metropolis-within-Gibbs (USAMWG)
     \item Updating Sequential Metropolis-within-Gibbs (USMWG)
   }
@@ -192,9 +196,9 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     \item \code{A} is the number of initial, adaptive iterations to be
     discarded as burn-in, and is used in HMCDA and NUTS.
     \item \code{Adaptive} is the iteration in which adaptation begins,
-    and is used in AM, AMM, DRAM, and INCA. These algorithms adapt
-    according to an observed covariance matrix, and should sample before
-    beginning to adapt.
+    and is used in AM, AMM, DRAM, INCA, and Refractive. Most of these
+    algorithms adapt according to an observed covariance matrix, and
+    should sample before beginning to adapt.
     \item \code{alpha.star} is the desired acceptance rate(s) in RAM,
     and is optional in CHARM and HARM. It is a scalar in CHARM or HARM,
     and in RAM it may be a scalar or a vector equal in length to the
@@ -275,11 +279,12 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     \item \code{lambda} is a scalar trajectory length in HMCDA.
     \item \code{Lmax} is a scalar maximum for \code{L} (see above) in
     HMCDA.
-    \item \code{m} is a scalar (or vector equal in length to the number
-    of initial values) integer in [1,Inf] in which each element
-    indicates the maximum number of steps for creating the slice
-    interval. It is used by the Slice algorithm, and defaults to
-    infinity.
+    \item \code{m} is used in the Refractive, RSS, Slice, and UESS
+    algorithms. In Refractive, RSS, and UESS, it is a scalar, and is the
+    number of steps to take per iteration. In Slice, it is a scalar (or
+    vector equal in length to the number of initial values) integer in
+    [1,Inf] in which each element indicates the maximum number of steps
+    for creating the slice interval.
     \item \code{mu} is a vector that is equal in length to the initial
     values. This vector will be used as the mean of the proposal
     distribution, and is usually the posterior mode of a
@@ -295,6 +300,8 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     \item \code{parm.p} is a vector of probabilities for parameter
     selection in the RJ algorithm, and must be equal in length to
     the number of initial values.
+    \item \code{r} is a scalar used in the Refractive algorithm to
+    indicate the ratio between r1 and r2.
     \item \code{Periodicity} specifies how often in iterations the
     adaptive algorithm should adapt, and is used by AHMC, AM, AMM, AMWG,
     DRAM, INCA, RAM, SAMWG, and USAMWG. If \code{Periodicity=10},
@@ -328,25 +335,26 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     down the momentum in the last half. \code{Temperature} must be
     positive. When greater than 1, THMC should explore more diffuse
     distributions, and may be helpful with multimodal distributions.
-    \item \code{w} is used in AMM, DEMC, and Slice. It is a mixture
-    weight for both the AMM and DEMC algorithms, and in these algorithms
-    it is in the interval (0,1]. For AMM, it is recommended to use
-    \code{w=0.05}, as per Roberts and Rosenthal (2009). The two mixture
-    components in AMM are adaptive multivariate and static/symmetric
-    univariate proposals. The mixture is determined at each iteration
-    with mixture weight \code{w}. In the AMM algorithm, a higher value
-    of \code{w} is associated with more static/symmetric univariate
-    proposals, and a lower \code{w} is associated with more adaptive
-    multivariate proposals. AMM will be unable to include the
-    multivariate mixture component until it has accumulated some
-    history, and models with more parameters will take longer to be
-    able to use adaptive multivariate proposals. In DEMC, it indicates
-    the probability that each iteration uses a snooker update, rather
-    than a projection update, and the recommended default is
-    \code{w=0.1}. In the Slice algorithm, this argument may be a
-    scalar or a vector equal in length the number of initial values, and
-    each element indicates the step size used for creating the slice
-    interval.
+    \item \code{w} is used in AMM, DEMC, Refractive, RSS, and Slice. It
+    is a mixture weight for both the AMM and DEMC algorithms, and in
+    these algorithms it is in the interval (0,1]. For AMM, it is
+    recommended to use \code{w=0.05}, as per Roberts and Rosenthal
+    (2009). The two mixture components in AMM are adaptive multivariate
+    and static/symmetric univariate proposals. The mixture is determined
+    at each iteration with mixture weight \code{w}. In the AMM
+    algorithm, a higher value of \code{w} is associated with more
+    static/symmetric univariate proposals, and a lower \code{w} is
+    associated with more adaptive multivariate proposals. AMM will be
+    unable to include the multivariate mixture component until it has
+    accumulated some history, and models with more parameters will take
+    longer to be able to use adaptive multivariate proposals. In DEMC,
+    it indicates the probability that each iteration uses a snooker
+    update, rather than a projection update, and the recommended default
+    is \code{w=0.1}. In the Refractive algorithm, \code{w} is a scalar
+    step size parameter. In RSS and the Slice algorithms, this argument
+    may be a scalar or a vector equal in length the number of initial
+    values, and each element indicates the step size used for creating
+    the slice interval.
     \item \code{Z} accepts a \eqn{T \times J}{T x J} matrix or \eqn{T
     \times J \times Nc}{T x J x Nc} array of thinned samples for \eqn{T}
     thinned iterations, \eqn{J} parameters, and \eqn{Nc} chains for
@@ -415,7 +423,7 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     Hit-And-Run (CHARM), Delayed Rejection Metropolis (DRM),
     Hamiltonian Monte Carlo (HMC), Hit-And-Run (HARM),
     Metropolis-within-Gibbs (MWG), No-U-Turn Sampler (NUTS),
-    Random-Walk Metropolis (RWM), Slice Sampling (Slice), Stochastic
+    Random-Walk Metropolis (RWM), Slice Sampler (Slice), Stochastic
     Gradient Langevin Dynamics (SGLD), Tempered Hamiltonian Monte Carlo
     (THMC), or t-walk (twalk). \code{LML} is estimated with
     nonparametric self-normalized importance sampling (NSIS), given LL
@@ -491,6 +499,9 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
   Bai, Y. (2009). "An Adaptive Directional Metropolis-within-Gibbs
   Algorithm". Technical Report in Department of Statistics at the
   University of Toronto.
+
+  Boyles, L.B. and Welling, M. (2012). "Refractive Sampling".
+  \url{http://www.ics.uci.edu/~lboyles/publications.html}
 
   Craiu, R.V., Rosenthal, J., and Yang, C. (2009). "Learn From Thy
   Neighbor: Parallel-Chain and Regional Adaptive MCMC". \emph{Journal
@@ -570,6 +581,9 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
   Ter Braak, C.J.F. and Vrugt, J.A. (2008). "Differential Evolution
   Markov Chain with Snooker Updater and Fewer Chains", \emph{Statistics
   and Computing}, 18(4), p. 435--446.
+
+  Thompson, M.D. (2011). "Slice Sampling with Multivariate Steps".
+  \url{http://hdl.handle.net/1807/31955}
 
   Vihola, M. (2011). "Robust Adaptive Metropolis Algorithm with Coerced
   Acceptance Rate". \emph{Statistics and Computing}. Springer,
@@ -739,7 +753,7 @@ print(Fit)
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
 #     Algorithm="DEMC", Specs=list(Nc=3, Z=NULL, gamma=NULL, w=0.1))
 
-#######################  Elliptical Slice Sampling  #######################
+#######################  Elliptical Slice Sampler  ########################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
 #     Algorithm="ESS", Specs=list(B=NULL))
@@ -798,11 +812,21 @@ print(Fit)
 #     Covar=NULL, Iterations=100, Status=10, Thinning=1,
 #     Algorithm="NUTS", Specs=list(A=50, delta=0.6, epsilon=NULL))
 
+#################  Oblique Hyperrectangle Slice Sampler  ##################
+#Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
+#     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
+#     Algorithm="OHSS", Specs=NULL)
+
 ######################  Robust Adaptive Metropolis  #######################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
 #     Algorithm="RAM", Specs=list(alpha.star=0.234, Dist="N", gamma=0.66,
 #     Periodicity=1))
+
+##########################  Refractive Sampler  ###########################
+#Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
+#     Covar=NULL, Iterations=1000, Status=10, Thinning=1,
+#     Algorithm="Refractive", Specs=list(Adaptive=1, m=2, w=0.1, r=1.3))
 
 ###########################  Reversible-Jump  #############################
 #bin.n <- J-1
@@ -820,6 +844,11 @@ print(Fit)
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
 #     Algorithm="RWM", Specs=NULL)
 
+########################  Reflective Slice Sampler  #######################
+#Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
+#     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
+#     Algorithm="RSS", Specs=list(m=5, w=1e-5))
+
 ##############  Sequential Adaptive Metropolis-within-Gibbs  ##############
 #NOTE: The SAMWG algorithm is only for state-space models (SSMs)
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
@@ -833,10 +862,9 @@ print(Fit)
 #     Algorithm="SMWG", Specs=list(Dyn=Dyn))
 
 #############################  Slice Sampler  #############################
-#m <- Inf; w <- 1
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
-#     Algorithm="Slice", Specs=list(m=m, w=w))
+#     Algorithm="Slice", Specs=list(m=Inf, w=1))
 
 #################  Stochastic Gradient Langevin Dynamics  #################
 #NOTE: The Data and Model functions must be coded differently for SGLD.
@@ -855,6 +883,11 @@ print(Fit)
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
 #     Algorithm="twalk", Specs=list(SIV=NULL, n1=4, at=6, aw=1.5))
+
+#################  Univariate Eigenvector Slice Sampler  #################
+#Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
+#     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
+#     Algorithm="UESS", Specs=list(m=100))
 
 ##########  Updating Sequential Adaptive Metropolis-within-Gibbs  #########
 #NOTE: The USAMWG algorithm is only for state-space model updating
@@ -883,7 +916,7 @@ print(Fit)
 \keyword{Delayed Rejection Adaptive Metropolis}
 \keyword{Delayed Rejection Metropolis}
 \keyword{Differential Evolution Markov Chain}
-\keyword{Elliptical Slice Sampling}
+\keyword{Elliptical Slice Sampler}
 \keyword{Griddy-Gibbs}
 \keyword{Hamiltonian Monte Carlo}
 \keyword{High Performance Computing}
@@ -895,16 +928,20 @@ print(Fit)
 \keyword{Metropolis-within-Gibbs}
 \keyword{Multiple Chains}
 \keyword{No-U-Turn Sampler}
+\keyword{Oblique Hyperrectangle Slice Sampler}
 \keyword{Optimization}
 \keyword{Parallel Chains}
+\keyword{Reflective Slice Sampler}
+\keyword{Refractive Sampler}
 \keyword{Reversible-Jump}
 \keyword{Robust Adaptive Metropolis}
 \keyword{Random-Walk Metropolis}
 \keyword{Sequential Adaptive Metropolis-within-Gibbs}
 \keyword{Sequential Metropolis-within-Gibbs}
-\keyword{Slice Sampling}
+\keyword{Slice Sampler}
 \keyword{Stochastic Gradient Langevin Dynamics}
 \keyword{Tempered Hamiltonian Monte Carlo}
 \keyword{t-walk}
+\keyword{Univariate Eigenvector Slice Sampler}
 \keyword{Updating Sequential Adaptive Metropolis-within-Gibbs}
 \keyword{Updating Sequential Metropolis-within-Gibbs}

@@ -125,6 +125,12 @@ is.raftery <- function(x)
      if(identical(class(x), "raftery")) raftery <- TRUE
      return(raftery)
      }
+is.rejection <- function(x)
+     {
+     rejection <- FALSE
+     if(identical(class(x), "rejection")) rejection <- TRUE
+     return(rejection)
+     }
 is.sensitivity <- function(x)
      {
      sensitivity <- FALSE
