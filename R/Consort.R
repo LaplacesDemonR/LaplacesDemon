@@ -824,7 +824,8 @@ Consort <- function(object=NULL)
                     Rec.Iterations, ", Status=", Rec.Status, ", ",
                     "Thinning=", Rec.Thinning, ",\n", sep="")
                cat("     Algorithm=\"Slice\", ",
-                    "Specs=", oname, "$Specs)\n\n", sep="")
+                    "Specs=list(m=Inf, w=3*sqrt(", oname,
+                         "$Covar))\n\n", sep="")
                }
           else if(Alg == "THMC") {
                ### THMC

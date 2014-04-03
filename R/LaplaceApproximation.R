@@ -1595,7 +1595,7 @@ TR <- function(Model, parm, Data, Iterations, m.old)
      {
      fterm <- sqrt(.Machine$double.eps)
      mterm <- sqrt(.Machine$double.eps)
-     norm <- function(x) return(sqrt(sum(x^2)))
+     Norm <- function(x) return(sqrt(sum(x^2)))
      parm.len <- length(parm)
      post <- matrix(parm, 1, parm.len)
      Dev <- matrix(m.old[["Dev"]],1,1)
@@ -1625,7 +1625,7 @@ TR <- function(Model, parm, Data, Iterations, m.old)
           is.newton <- FALSE
           if(all(eout$values > 0)) {
                ptry <- as.numeric(- eout$vectors %*% (gq / eout$values))
-               if(norm(ptry) <= r) is.newton <- TRUE}
+               if(Norm(ptry) <= r) is.newton <- TRUE}
           if(is.newton == FALSE) {
                lambda.min <- min(eout$values)
                beta <- eout$values - lambda.min

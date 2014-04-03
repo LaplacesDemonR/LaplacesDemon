@@ -377,8 +377,6 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          append=TRUE)
                Specs[["epsilon"]] <- abs(Specs[["epsilon"]])
                if(length(Specs[["epsilon"]]) != length(Initial.Values)) {
-                    cat("\nLength of epsilon is incorrect.\n", file=LogFile,
-                         append=TRUE)
                     Specs[["epsilon"]] <- rep(Specs[["epsilon"]][1],
                          length(Initial.Values))}
                Specs[["L"]] <- abs(round(Specs[["L"]]))
@@ -1087,7 +1085,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      else if(Algorithm == "Hamiltonian Monte Carlo") {
           mcmc.out <- HMC(Model, Data, Iterations, Status, Thinning, Specs,
                Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               LogFile)}
+               VarCov, LogFile)}
      else if(Algorithm == "Hamiltonian Monte Carlo with Dual-Averaging") {
           mcmc.out <- HMCDA(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
@@ -3102,7 +3100,8 @@ HARM <- function(Model, Data, Iterations, Status, Thinning, Specs,
           }
      }
 HMC <- function(Model, Data, Iterations, Status, Thinning, Specs,
-     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, LogFile)
+     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, VarCov,
+     LogFile)
      {
      epsilon <- Specs[["epsilon"]]
      L <- Specs[["L"]]
@@ -4054,7 +4053,6 @@ Refractive <- function(Model, Data, Iterations, Status, Thinning, Specs,
      m <- Specs[["m"]]
      w <- Specs[["w"]]
      r <- Specs[["r"]]
-     norm <- function(x) return(sqrt(sum(x*x)))
      alpha.star <- 0.65
      if(Adaptive < Iterations) DiagCovar <- matrix(w, nrow(thinned), LIV)
      for (iter in 1:Iterations) {
@@ -4072,17 +4070,17 @@ Refractive <- function(Model, Data, Iterations, Status, Thinning, Specs,
           p <- rnorm(LIV)
           a <- 1
           g <- partial(Model, prop, Data)
-          for (i in 1:(m+1)) {
+          for (i in 1:m) {
                if(t(p) %*% g > 0) {
-                    u <- g / norm(g)
+                    u <- g / sqrt(sum(g*g))
                     r1 <- 1
                     r2 <- r
                     }
                else {
-                    u <- -g / norm(g)
+                    u <- -g / sqrt(sum(g*g))
                     r1 <- r
                     r2 <- 1}
-               cos.theta.1 <- (t(p) %*% u) / norm(p)
+               cos.theta.1 <- (t(p) %*% u) / sqrt(sum(p*p))
                cos.2.theta.1 <- cos.theta.1 * cos.theta.1
                cos.2.theta.2 <- 1 - (r1^2 / r2^2)*(1 - cos.2.theta.1)
                if(cos.2.theta.2 > 0) cos.theta.2 <- sqrt(cos.2.theta.2)
@@ -4090,7 +4088,8 @@ Refractive <- function(Model, Data, Iterations, Status, Thinning, Specs,
                if(cos.2.theta.2 < 0) p <- as.vector(p - 2*(t(p) %*% u) %*% u)
                else {
                     p <- (r1 / r2)*p -
-                         norm(p)*((r1 / r2)*cos.theta.1 - cos.theta.2)*u
+                         sqrt(sum(p*p))*((r1 / r2)*cos.theta.1 -
+                         cos.theta.2)*u
                     a <- (r1 / r2)^(LIV-1)*(cos.theta.1 / cos.theta.2)*a}
                prop <- prop + w*p
                Mo1 <- Model(prop, Data)
@@ -4099,8 +4098,9 @@ Refractive <- function(Model, Data, Iterations, Status, Thinning, Specs,
                     Mo1 <- Mo0
                prop <- Mo1[["parm"]]}
           ### Accept/Reject
-          a <- Mo1[["LP"]] - Mo0[["LP"]] + a
-          if(log(runif(1)) < a) {
+          log.alpha <- Mo1[["LP"]] - Mo0[["LP"]] + exp(a)
+          if(!is.finite(log.alpha)) log.alpha <- 0
+          if(log(runif(1)) < log.alpha) {
                Mo0 <- Mo1
                Acceptance <- Acceptance + 1
                if(Adaptive < Iterations)
@@ -4109,7 +4109,7 @@ Refractive <- function(Model, Data, Iterations, Status, Thinning, Specs,
                if(iter %% Thinning == 0) {
                     thinned[t.iter,] <- Mo1[["parm"]]
                     Dev[t.iter] <- Mo1[["Dev"]]
-                    Mon[t.iter] <- Mo1[["Monitor"]]
+                    Mon[t.iter,] <- Mo1[["Monitor"]]
                     if(Adaptive < Iterations) DiagCovar[t.iter,] <- w}
                }
           else if(Adaptive < Iterations) {
@@ -4223,12 +4223,14 @@ RSS <- function(Model, Data, Iterations, Status, Thinning, Specs,
      {
      m <- Specs[["m"]]
      w <- Specs[["w"]]
-     norm <- function(x) return(sqrt(sum(x*x)))
+     reflections <- 0
+     Norm <- function(x) return(sqrt(sum(x*x)))
      for (iter in 1:Iterations) {
           ### Print Status
           if(iter %% Status == 0)
-               cat("Iteration: ", iter, ",   Proposal: Multivariate\n",
-                    sep="")
+               cat("Iteration: ", iter,
+                    ",   Proposal: Multivariate, r:", reflections,
+                    "\n", sep="")
           ### Save Thinned Samples
           if(iter %% Thinning == 0) {
                t.iter <- floor(iter / Thinning) + 1
@@ -4236,8 +4238,9 @@ RSS <- function(Model, Data, Iterations, Status, Thinning, Specs,
                Dev[t.iter] <- Mo0[["Dev"]]
                Mon[t.iter,] <- Mo0[["Monitor"]]}
           prop <- Mo0[["parm"]]
-          p <- rnorm(LIV)
           g <- partial(Model, prop, Data)
+          p <- rnorm(LIV)
+          reflections <- 0
           ### Take m Steps
           for (i in 1:m) {
                prop <- prop + w*p
@@ -4247,8 +4250,9 @@ RSS <- function(Model, Data, Iterations, Status, Thinning, Specs,
                     Mo1 <- Mo0
                prop <- Mo1[["parm"]]
                ### Reflect at boundary
-               if(Mo0[["LP"]] > Mo1[["LP"]])
-                    p <- p - 2*g*{(t(p) %*% g) / norm(g)^2}}
+               if(Mo0[["LP"]] > Mo1[["LP"]]) {
+                    reflections <- reflections + 1
+                    p <- p - 2*g*{(t(p) %*% g) / Norm(g)^2}}}
           Mo1 <- Model(prop, Data)
           if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]]))))
@@ -4257,7 +4261,7 @@ RSS <- function(Model, Data, Iterations, Status, Thinning, Specs,
           if(iter %% Thinning == 0) {
                thinned[t.iter,] <- Mo1[["parm"]]
                Dev[t.iter] <- Mo1[["Dev"]]
-               Mon[t.iter] <- Mo1[["Monitor"]]}
+               Mon[t.iter,] <- Mo1[["Monitor"]]}
           Mo0 <- Mo1
           }
      ### Output
@@ -5090,10 +5094,11 @@ twalk <- function(Model, Data, Iterations, Status, Thinning, Specs,
                VarCov=apply(thinned, 2, var))
           return(out)
           }
-     out <- Runtwalk(Iterations=Iterations, dim=LIV, x0=Mo0[["parm"]], xp0=xp0,
-          pphi=min(LIV, n1)/LIV, at=6, aw=1.5, Model=Model, Data=Data,
-          Status=Status, Thinning=Thinning, Acceptance=Acceptance, Dev=Dev,
-          Mon=Mon, Mo0=Mo0, thinned=thinned, LogFile=LogFile)
+     out <- Runtwalk(Iterations=Iterations, dim=LIV, x0=Mo0[["parm"]],
+          xp0=xp0, pphi=min(LIV, n1)/LIV, at=6, aw=1.5, Model=Model,
+          Data=Data, Status=Status, Thinning=Thinning,
+          Acceptance=Acceptance, Dev=Dev, Mon=Mon, Mo0=Mo0,
+          thinned=thinned, LogFile=LogFile)
      ### Output
      return(out)
      }
@@ -5102,7 +5107,7 @@ UESS <- function(Model, Data, Iterations, Status, Thinning, Specs,
      VarCov, LogFile)
      {
      m <- Specs[["m"]]
-     norm <- function(x) return(sqrt(sum(x^2)))
+     Norm <- function(x) return(sqrt(sum(x^2)))
      w <- 0.05
      decomp.freq <- max(LIV * floor(Iterations / Thinning / 100), 10)
      S.eig <-try(eigen(VarCov), silent=TRUE)
@@ -5122,7 +5127,7 @@ UESS <- function(Model, Data, Iterations, Status, Thinning, Specs,
           ### Non-Adaptive or Adaptive
           if(runif(1) < w || is.null(S.eig)) {
                v <- rnorm(LIV)
-               v <- v / norm(v)
+               v <- v / Norm(v)
                }
           else {
                which.eig <- floor(1 + LIV * runif(1))
