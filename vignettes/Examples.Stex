@@ -124,6 +124,7 @@ This vignette will grow over time as examples of more methods become included. C
 \item Multinomial Logit \ref{mnl}
 \item Multinomial Logit, Nested \ref{nmnl}
 \item Multinomial Probit \ref{mnp}
+\item Multiple Discrete-Continuous Choice \ref{mdcc}
 \item Multivariate Binary Probit \ref{multiv.bin.probit}
 \item Multivariate Laplace Regression \ref{multivariate.lap.reg}
 \item Multivariate Regression \ref{multivariate.reg}
@@ -156,6 +157,7 @@ This vignette will grow over time as examples of more methods become included. C
 \item State Space Model (SSM), Local Linear Trend \ref{ssm.llt}
 \item State Space Model (SSM), Stochastic Volatility (SV) \ref{sv}
 \item Stochastic Volatility (SV) \ref{sv}
+\item Survival Model \ref{prop.haz.weib}
 \item T-test \ref{anova.one.way}
 \item TARCH(1) \ref{tarch}
 \item Threshold Autoregression (TAR) \ref{tar}
@@ -165,6 +167,7 @@ This vignette will grow over time as examples of more methods become included. C
 \item Variable Selection, Horseshoe \ref{horseshoe}
 \item Variable Selection, RJ \ref{rj}
 \item Variable Selection, SSVS \ref{ssvs}
+\item Variety Model \ref{mdcc}
 \item Vector Autoregression, VAR(1) \ref{var1}
 \item Weighted Regression \ref{weighted.reg}
 \item Zellner's g-Prior \ref{linear.reg.g}
@@ -4349,6 +4352,111 @@ MyData <- list(J=J, K=K, N=N, PGF=PGF, S=S, X=X, mon.names=mon.names, \\
 }
 \subsection{Initial Values}
 \code{Initial.Values <- GIV(Model, MyData, PGF=TRUE)}
+
+\section{Multiple Discrete-Continuous Choice} \label{mdcc}
+This form of a multivariate discrete-continuous choice model was introduced in \citet{kim02} and referred to as a variety model. The original version is presented with log-normally distributed errors, but a gamma regression form is used here instead, which has always mixed better in testing. Note that the $\gamma$ parameters are fixed here, as recommended for identifiability in future articles by these authors.
+\subsection{Form}
+$$\textbf{Y} \sim \mathcal{G}(\lambda\tau, \tau)$$
+$$\lambda_{i,j} = \exp(\textbf{Z}_{i,j}\log(\psi1_{m[i],j}) + \textbf{X1}_{i,1:K}\log(\beta) + \textbf{X2}_{i,1:L}\log(\delta))(\textbf{Y}_{i,j} + \gamma_j)^\alpha_j), \quad i=1,\dots,N, j=1,\dots,J$$
+$$\alpha_j \sim \mathcal{U}(0,1), \quad j=1,\dots,J$$
+$$\log(\beta_k) \sim \mathcal{N}(0,1000), \quad k=1,\dots,K$$
+$$\gamma_j = 1, \quad j=1,\dots,J$$
+$$\log(\delta_{j,l}) \sim \mathcal{N}(0,1000), \quad j=1,\dots,(J-1), \quad l=1,\dots,L$$
+$$\log(\psi0_j) \sim \mathcal{N}(0, 1000), \quad j=1,\dots,J$$
+$$\log(\psi1_{g,j}) \sim \mathcal{N}_{J}(\log(\psi0), \Omega^{-1}), \quad g=1,\dots,G, \quad j1=,\dots,J$$
+$$\Omega \sim \mathcal{W}_{J+1}(\textbf{S}), \quad \textbf{S} = \textbf{I}_J$$
+$$\tau_j \sim \mathcal{HC}(25), \quad j=1,\dots,J$$
+\subsection{Data}
+\code{G <- 6 \#Number of Multilevel Groups (decision-makers, households, etc.) \\
+J <- 3 \#Number of products \\
+K <- 4 \#Number of product attributes \\
+L <- 5 \#Number of decision-maker attributes \\
+N <- 30 \#Number of records \\
+X1 <- matrix(rnorm(N*K), N, K) \#Product attributes \\
+X2 <- matrix(rnorm(N*L), N, L) \#Decision-maker attributes \\
+Sigma <- matrix(runif((J-1)*(J-1),-1,1),J-1,J-1) \\
+diag(Sigma) <- runif(J-1,1,5) \\
+Sigma <- as.positive.definite(Sigma) / 100 \\
+alpha <- runif(J) \\
+log.beta <- rnorm(K,0,0.1) \\
+log.delta <- matrix(rnorm((J-1)*L,0,0.1), J-1, L) \\
+log.psi0 <- rnorm(J) \\
+log.psi1 <- rmvn(G, log.psi0, Sigma) \\
+m <- rcat(N, rep(1/G,G)) \# Multilevel group indicator \\
+Z <- as.indicator.matrix(m) \\
+Y <- matrix(0, N, J) \\
+Y <- round(exp(tcrossprod(Z, t(cbind(log.psi1,0))) + \\
+\hspace*{0.27 in} matrix(tcrossprod(X1, t(log.beta)), N, J) + \\
+\hspace*{0.27 in} tcrossprod(X2, rbind(log.delta, colSums(log.delta)*-1))) * \\
+\hspace*{0.27 in} (Y + 1)\textasciicircum matrix(alpha,N,J,byrow=TRUE) + \\
+\hspace*{0.27 in} matrix(rnorm(N*J,0,0.1),N,J)) \\
+S <- diag(J) \\
+mon.names <- "LP" \\
+parm.names <- as.parm.names(list(alpha=rep(0,J), log.beta=rep(0,K), \\
+\hspace*{0.27 in} log.delta=matrix(0,J-1,L), log.psi0=rep(0,J), \\
+\hspace*{0.27 in} log.psi1=matrix(0,G,J), tau=rep(0,J), U=S), \\
+\hspace*{0.27 in} uppertri=c(0,0,0,0,0,0,1)) \\
+pos.alpha <- grep("alpha", parm.names) \\
+pos.log.beta <- grep("log.beta", parm.names) \\
+pos.log.delta <- grep("delta", parm.names) \\
+pos.log.psi0 <- grep("log.psi0", parm.names) \\
+pos.log.psi1 <- grep("log.psi1", parm.names) \\
+pos.tau <- grep("tau", parm.names) \\
+PGF <- function(Data) \{ \\
+\hspace*{0.27 in} log.psi0 <- rnorm(Data$J,0,0.1) \\
+\hspace*{0.27 in} U <- rwishartc(Data$J+1, Data$S) \\
+\hspace*{0.27 in} return(c(runif(Data$J,0.9,1), rnorm(Data$K,0,0.1), \\
+\hspace*{0.27 in} rnorm((Data$J-1)*Data$L,0,0.1), log.psi0, rmvnpc(Data$G, log.psi0, U), \\
+\hspace*{0.27 in} runif(Data$J), upper.triangle(U, diag=TRUE)))\} \\
+MyData <- list(G=G, J=J, K=K, L=L, N=N, PGF=PGF, S=S, X1=X1, X2=X2, Y=Y, \\
+\hspace*{0.27 in} Z=Z, m=m, mon.names=mon.names, parm.names=parm.names, \\
+\hspace*{0.27 in} pos.alpha=pos.alpha, pos.log.beta=pos.log.beta, \\
+\hspace*{0.27 in} pos.log.delta=pos.log.delta, pos.log.psi0=pos.log.psi0, \\
+\hspace*{0.27 in} pos.log.psi1=pos.log.psi1, pos.tau=pos.tau) \\
+}
+\subsection{Model}
+\code{Model <- function(parm, Data) \\
+\hspace*{0.27 in} \{ \\
+\hspace*{0.27 in} \#\#\# Parameters \\
+\hspace*{0.27 in} parm[Data$pos.alpha] <- alpha <- interval(parm[Data$pos.alpha], 0, 1) \\
+\hspace*{0.27 in} log.beta <- parm[Data$pos.log.beta] \\
+\hspace*{0.27 in} log.delta <- matrix(parm[Data$pos.log.delta], Data$J-1, Data$L) \\
+\hspace*{0.27 in} log.psi0 <- parm[Data$pos.log.psi0] \\
+\hspace*{0.27 in} log.psi1 <- matrix(parm[Data$pos.log.psi1], Data$G, Data$J) \\
+\hspace*{0.27 in} parm[Data$pos.tau] <- tau <- interval(parm[Data$pos.tau], 1e-100, Inf) \\
+\hspace*{0.27 in} U <- as.parm.matrix(U, Data$J, parm, Data, chol=TRUE) \\
+\hspace*{0.27 in} diag(U) <- exp(diag(U)) \\
+\hspace*{0.27 in} lambda <- tcrossprod(Data$Z, t(log.psi1)) + \\
+\hspace*{0.62 in} matrix(tcrossprod(Data$X1, t(log.beta)), Data$N, Data$J) + \\
+\hspace*{0.62 in} tcrossprod(Data$X2, rbind(log.delta, colSums(log.delta)*-1)) \\
+\hspace*{0.27 in} \#\#\# Log(Prior Densities) \\
+\hspace*{0.27 in} U.prior <- dwishartc(U, Data$J+1, Data$S, log=TRUE) \\
+\hspace*{0.27 in} alpha.prior <- sum(dunif(alpha, 0, 1, log=TRUE)) \\
+\hspace*{0.27 in} log.beta.prior <- sum(dnormv(log.beta, 0, 1000, log=TRUE)) \\
+\hspace*{0.27 in} log.delta.prior <- sum(dnormv(log.delta, 0, 1000, log=TRUE)) \\
+\hspace*{0.27 in} log.psi0.prior <- sum(dnormv(log.psi0, 0, 1000, log=TRUE)) \\
+\hspace*{0.27 in} log.psi1.prior <- sum(dmvnpc(lambda, \\
+\hspace*{0.62 in} matrix(log.psi0, Data$N, Data$J, byrow=TRUE), U, log=TRUE)) \\
+\hspace*{0.27 in} tau.prior <- sum(dhalfcauchy(tau, 25, log=TRUE)) \\
+\hspace*{0.27 in} \#\#\# Log-Likelihood \\
+\hspace*{0.27 in} alpha <- matrix(alpha, Data$N, Data$J, byrow=TRUE) \\
+\hspace*{0.27 in} lambda <- exp(lambda)*(Data$Y + 1)\textasciicircum alpha \\
+\hspace*{0.27 in} tau <- matrix(tau, Data$N, Data$J, byrow=TRUE) \\
+\hspace*{0.27 in} LL <- sum(dgamma(Data$Y+1, lambda*tau, tau, log=TRUE)) \\
+\hspace*{0.27 in} \#\#\# Log-Posterior \\
+\hspace*{0.27 in} LP <- LL + U.prior + alpha.prior + log.beta.prior + log.delta.prior + \\
+\hspace*{0.62 in} log.psi0.prior + log.psi1.prior + tau.prior \\
+\hspace*{0.27 in} Modelout <- list(LP=LP, Dev=-2*LL, Monitor=LP, \\
+\hspace*{0.62 in} yhat=rgamma(prod(dim(lambda)), lambda*tau, tau)-1, \\
+\hspace*{0.62 in} parm=parm) \\
+\hspace*{0.27 in} return(Modelout) \\
+\hspace*{0.27 in} \} \\
+}
+\subsection{Initial Values}
+\code{Initial.Values <- c(runif(J,0.9,1), rnorm(K,0,0.1), \\
+\hspace*{0.27 in} rnorm((J-1)*L,0,0.1), rnorm(J,0,0.1), \\
+\hspace*{0.27 in} rmvnpc(G, rnorm(J,0,0.1), rwishartc(J+1,S)), runif(J), \\
+\hspace*{0.27 in} upper.triangle(rwishartc(J+1,S), diag=TRUE))}
 
 \section{Multivariate Binary Probit} \label{multiv.bin.probit}
 \subsection{Form}
