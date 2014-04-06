@@ -49,25 +49,30 @@ Consort <- function(object=NULL)
           if(L == 1) {
                Acc.Rate.Low <- 0.4
                Acc.Rate.High <- 0.8}
+               
           else {
                Acc.Rate.Low <- 0.6
-               Acc.Rate.High <- 0.7}}
+               Acc.Rate.High <- 0.7}
+          }
      else if(object$Algorithm == "Hamiltonian Monte Carlo with Dual-Averaging") {
           A <- object$Specs[["A"]]
           delta <- object$Specs[["delta"]]
           Lmax <- object$Specs[["Lmax"]]
           lambda <- object$Specs[["lambda"]]
           Acc.Rate.Low <- max(round(delta - 0.05, 2), 0.01)
-          Acc.Rate.High <- min(round(delta + 0.05, 2), 1)}
+          Acc.Rate.High <- min(round(delta + 0.05, 2), 1)
+          }
      else if(object$Algorithm == "No-U-Turn Sampler") {
           A <- object$Specs[["A"]]
           delta <- object$Specs[["delta"]]
           Acc.Rate.Low <- max(round(delta - 0.05, 2), 0.01)
-          Acc.Rate.High <- min(round(delta + 0.05, 2), 1)}
+          Acc.Rate.High <- min(round(delta + 0.05, 2), 1)
+          }
      else if(object$Algorithm == "Refractive Sampler") {
           m <- object$Specs[["m"]]
           Acc.Rate.Low <- 0.6
-          Acc.Rate.High <- 0.7}
+          Acc.Rate.High <- 0.7
+          }
      else {
           Acc.Rate.Low <- 0.15
           Acc.Rate.High <- 0.5}
@@ -190,6 +195,7 @@ Consort <- function(object=NULL)
                "Componentwise Hit-And-Run Metropolis",
                "Griddy-Gibbs",
                "Metropolis-within-Gibbs",
+               "Random Dive Metropolis-Hastings",
                "Reversible-Jump",
                "Sequential Adaptive Metropolis-within-Gibbs",
                "Sequential Metropolis-within-Gibbs",
@@ -208,6 +214,7 @@ Consort <- function(object=NULL)
                if({object$Algorithm != "Interchain Adaptation"} &
                   {object$Algorithm != "Metropolis-Adjusted Langevin Algorithm"} &
                   {object$Algorithm != "No-U-Turn Sampler"} &
+                  {object$Algorithm != "Refractive Sampler"} &
                   {object$Algorithm != "Sequential Adaptive Metropolis-within-Gibbs"} &
                   {object$Algorithm != "Updating Sequential Adaptive Metropolis-within-Gibbs"})
                     cat("         A new algorithm will be suggested.\n\n")}
@@ -276,6 +283,8 @@ Consort <- function(object=NULL)
           else if(object$Algorithm == "Oblique Hyperrectangle Slice Sampler") Alg <- "OHSS"
           else if(object$Algorithm == "Robust Adaptive Metropolis")
                Alg <- "RAM"
+          else if(object$Algorithm == "Random Dive Metropolis-Hastings")
+               Alg <- "RDMH"
           else if(object$Algorithm == "Refractive Sampler") Alg <- "Refractive"
           else if(object$Algorithm == "Reflective Slice Sampler")
                Alg <- "RSS"
@@ -697,6 +706,16 @@ Consort <- function(object=NULL)
                     ", Dist=\"", Dist,
                     "\", gamma=", gamma, ",\n", sep="")
                cat("     Periodicity=1))\n\n", sep="")
+               }
+          else if(Alg == "RDMH") {
+               ### RDMH
+               cat(oname, " <- LaplacesDemon(Model, Data=", dname,
+                    ", Initial.Values,\n", sep="")
+               cat("     Covar=", oname, "$Covar, Iterations=",
+                    Rec.Iterations, ", Status=", Rec.Status, ", ",
+                    "Thinning=", Rec.Thinning, ",\n", sep="")
+               cat("     Algorithm=\"RDMH\", ",
+                    "Specs=NULL)\n\n", sep="")
                }
           else if(Alg == "Refractive") {
                ### Refractive

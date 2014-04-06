@@ -70,8 +70,10 @@ RejectionSampling(Model, Data, mu, S, df=Inf, logc, n=1000, CPUs=1, Type="PSOCK"
   rejection sampling. Rejection sampling is often iterated, then called
   the rejection sampling algorithm, until a sufficient number or
   proportion of \eqn{\theta}{theta} is accepted. An efficient
-  rejection sampling algorithm has a high acceptance rate.
-
+  rejection sampling algorithm has a high acceptance rate. However,
+  rejection sampling becomes less efficient as the number of parameters
+  increases.
+  
   Extensions of rejection sampling include Adaptive Rejection
   Sampling (ARS) (either derivative-based or derivative-free) and
   Adaptive Rejection Metropolis Sampling (ARMS), as in Gilks et

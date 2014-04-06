@@ -103,6 +103,7 @@ Juxtapose <- function(x)
           else if(alg == "Metropolis-within-Gibbs") alg <- "MWG"
           else if(alg == "No-U-Turn Sampler") alg <- "NUTS"
           else if(alg == "Olbique Hyperrectangle Slice Sampler") alg <- "OHSS"
+          else if(alg == "Random Dive Metropolis-Hastings") alg <- "RDMH"
           else if(alg == "Random-Walk Metropolis") alg <- "RWM"
           else if(alg == "Reflective Slice Sampler") alg <- "RSS"
           else if(alg == "Refractive Sampler") alg <- "Refractive"

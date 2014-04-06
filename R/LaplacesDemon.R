@@ -66,8 +66,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      if(Algorithm %in% c("ADMG","AGG","AHMC","AIES","AM","AMM","AMWG",
           "CHARM","DEMC","DRAM","DRM","ESS","Experimental","GG","HARM",
           "HMC","HMCDA","IM","INCA","MALA","MWG","NUTS","OHSS","RAM",
-          "Refractive","RJ","RSS","RWM","SAMWG","SGLD","Slice","SMWG",
-          "THMC","twalk","UESS","USAMWG","USMWG")) {
+          "Refractive","RDMH","RJ","RSS","RWM","SAMWG","SGLD","Slice",
+          "SMWG","THMC","twalk","UESS","USAMWG","USMWG")) {
           if(Algorithm == "ADMG") {
                Algorithm <- "Adaptive Directional Metropolis-within-Gibbs"
                if(missing(Specs))
@@ -502,6 +502,10 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     cat("\ngamma not in (0.5,1]. Changed to 0.66.\n",
                          file=LogFile, append=TRUE)
                     Specs[["gamma"]] <- 0.66}
+               }
+          else if(Algorithm == "RDMH") {
+               Algorithm <- "Random Dive Metropolis-Hastings"
+               Specs <- NULL
                }
           else if(Algorithm == "Refractive") {
                Algorithm <- "Refractive Sampler"
@@ -1118,6 +1122,10 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           mcmc.out <- OHSS(Model, Data, Iterations, Status, Thinning, Specs,
                Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
                VarCov, LogFile)}
+     else if(Algorithm == "Random Dive Metropolis-Hastings") {
+          mcmc.out <- RDMH(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, LogFile)}
      else if(Algorithm == "Random-Walk Metropolis") {
           mcmc.out <- RWM(Model, Data, Iterations, Status, Thinning, Specs,
                Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
@@ -1351,7 +1359,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           {Algorithm == "Hit-And-Run Metropolis"} | 
           {Algorithm == "Independence Metropolis"} |
           {Algorithm == "Metropolis-within-Gibbs"} |
-          {Algorithm == "No-U-Turn Sampler"} | 
+          {Algorithm == "No-U-Turn Sampler"} |
+          {Algorithm == "Random Dive Metropolis-Hastings"} |
           {Algorithm == "Random-Walk Metropolis"} |
           {Algorithm == "Reflective Slice Sampler"} |
           {Algorithm == "Refractive Sampler"} |
@@ -4023,9 +4032,9 @@ RAM <- function(Model, Data, Iterations, Status, Thinning, Specs,
           ### Adaptation
           if({iter >= Adaptive} & {iter %% Periodicity == 0}) {
                eta <- min(1, LIV*iter^(-gamma))
-               VarCov.test <- S %*% (Iden.Mat +
+               VarCov.test <- S %*% {Iden.Mat +
                     eta*(min(1, exp(log.alpha)) - alpha.star) *
-                    U %*% t(U) / sum(U^2)) %*% t(S)
+                    U %*% t(U) / sum(U*U)} %*% t(S)
                if(missing(VarCov.test) || !all(is.finite(VarCov.test)) ||
                     !is.matrix(VarCov.test)) {VarCov.test <- VarCov}
                if(!is.symmetric.matrix(VarCov.test))
@@ -4044,6 +4053,53 @@ RAM <- function(Model, Data, Iterations, Status, Thinning, Specs,
           Mon=Mon,
           thinned=thinned,
           VarCov=VarCov)
+     return(out)
+     }
+RDMH <- function(Model, Data, Iterations, Status, Thinning, Specs,
+     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
+     LogFile)
+     {
+     Acceptance <- matrix(0, 1, LIV)
+     for (iter in 1:Iterations) {
+          ### Print Status
+          if(iter %% Status == 0)
+               cat("Iteration: ", iter, ",   Proposal: Componentwise\n",
+                    sep="", file=LogFile, append=TRUE)
+          ### Save Thinned Samples
+          if(iter %% Thinning == 0) {
+               t.iter <- floor(iter / Thinning) + 1
+               thinned[t.iter,] <- Mo0[["parm"]]
+               Dev[t.iter] <- Mo0[["Dev"]]
+               Mon[t.iter,] <- Mo0[["Monitor"]]}
+          ### Random-Scan Componentwise Estimation
+          for (j in sample(LIV)) {
+               ### Propose new parameter values
+               prop <- Mo0[["parm"]]
+               epsilon <- runif(1,-1,1)^sample(c(-1,1),1)
+               prop[j] <- prop[j]*epsilon
+               ### Log-Posterior of the proposed state
+               Mo1 <- Model(prop, Data)
+               if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
+                    Mo1[["Monitor"]]))))
+                    Mo1 <- Mo0
+               epsilon <- Mo1[["parm"]][j] / Mo0[["parm"]][j]
+               ### Accept/Reject
+               u <- log(runif(1)) < (log(abs(epsilon)) + Mo1[["LP"]] -
+                    Mo0[["LP"]])
+               if(u == TRUE) Mo0 <- Mo1
+               Acceptance[j] <- Acceptance[j] + u}
+          if(iter %% Thinning == 0) {
+               thinned[t.iter,] <- Mo0[["parm"]]
+               Dev[t.iter] <- Mo0[["Dev"]]
+               Mon[t.iter,] <- Mo0[["Monitor"]]}
+          }
+     ### Output
+     out <- list(Acceptance=mean(as.vector(Acceptance)),
+          Dev=Dev,
+          DiagCovar=DiagCovar,
+          Mon=Mon,
+          thinned=thinned,
+          VarCov=apply(thinned,2,var))
      return(out)
      }
 Refractive <- function(Model, Data, Iterations, Status, Thinning, Specs,

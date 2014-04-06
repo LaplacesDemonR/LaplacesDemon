@@ -114,8 +114,14 @@ FUN, ...)
   from batch-level models, such as by using a normal approximation,
   updating from prior to posterior sequentially (the posterior from the
   last batch becomes the prior of the next batch), sample from the full
-  posterior via importance sampling from the batched posteriors, and more.
+  posterior via importance sampling from the batched posteriors, and
+  more.
 
+  Scott et al. (2013) propose a method that they call Consensus Monte
+  Carlo, which consists of breaking the data down into chunks, calling
+  each chunk a shard, and use a many-mini-model approach as well, but
+  propose their own method of weighting the posteriors back together.
+  
   Balakrishnan and Madigan (2006) introduced a Sequential Monte Carlo
   (SMC) sampler, a refinement of an earlier proposal, that was designed
   for big data. It makes one pass through the massive data set, after an
@@ -150,6 +156,9 @@ FUN, ...)
 
   Huang, Z. and Gelman, A. (2005) "Sampling for Bayesian Computation
   with Large Datasets". \emph{SSRN eLibrary}.
+
+  Scott, S.L., Blocker, A.W. and Bonassi, F.V. (2013). "Bayes and Big
+  Data: The Consensus Monte Carlo Algorithm". In \emph{Bayes 250}.
 
   Welling, M. and Teh, Y.W. (2011). "Bayesian Learning via Stochastic
   Gradient Langevin Dynamics". \emph{Proceedings of the 28th

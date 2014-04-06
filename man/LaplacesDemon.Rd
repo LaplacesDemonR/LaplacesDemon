@@ -169,6 +169,7 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     \item Metropolis-within-Gibbs (MWG)
     \item No-U-Turn Sampler (NUTS)
     \item Oblique Hyperrectangle Slice Sampler (OHSS)
+    \item Random Dive Metropolis-Hastings (RDMH)
     \item Random-Walk Metropolis (RWM)
     \item Reflective Slice Sampler (RSS)
     \item Refractive Sampler (Refractive)
@@ -511,9 +512,12 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
   Algorithm for Continuous Distributions (the t-walk)". \emph{Bayesian
   Analysis}, 5(2), p. 263--282.
 
+  Dutta, S. (2012). "Multiplicative Random Walk Metropolis-Hastings
+  on the Real Line". \emph{Sankhya B}, 74(2), p. 315--342.
+
   Duane, S., Kennedy, A.D., Pendleton, B.J., and Roweth, D. (1987).
   "Hybrid Monte Carlo". \emph{Physics Letters}, B, 195, p. 216--222.
-   
+  
   Gelman, A., Carlin, J., Stern, H., and Rubin, D. (2004). "Bayesian
   Data Analysis, Texts in Statistical Science, 2nd ed.". Chapman and
   Hall, London.
@@ -822,6 +826,11 @@ print(Fit)
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
 #     Algorithm="RAM", Specs=list(alpha.star=0.234, Dist="N", gamma=0.66,
 #     Periodicity=1))
+
+###################  Random Dive Metropolis-Hastings  ####################
+#Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
+#     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
+#     Algorithm="RDMH", Specs=NULL)
 
 ##########################  Refractive Sampler  ###########################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
