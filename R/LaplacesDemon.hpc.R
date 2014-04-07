@@ -9,7 +9,7 @@
 #no luck with capture.output, sink, or invisible
 
 LaplacesDemon.hpc <- function(Model, Data, Initial.Values, Covar=NULL,
-     Iterations=100000, Status=1000, Thinning=100, Algorithm="RWM",
+     Iterations=10000, Status=100, Thinning=10, Algorithm="MWG",
      Specs=NULL, LogFile="", Chains=2, CPUs=2, Type="PSOCK", Packages=NULL,
      Dyn.libs=NULL)
      {

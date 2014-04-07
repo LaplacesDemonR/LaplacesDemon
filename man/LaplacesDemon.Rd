@@ -13,11 +13,11 @@
   parallel chains for multicore or cluster high performance computing.
 }
 \usage{
-LaplacesDemon(Model, Data, Initial.Values, Covar=NULL, Iterations=100000,
-     Status=1000, Thinning=100, Algorithm="RWM", Specs=NULL, LogFile="",
+LaplacesDemon(Model, Data, Initial.Values, Covar=NULL, Iterations=10000,
+     Status=100, Thinning=10, Algorithm="MWG", Specs=NULL, LogFile="",
      ...)
 LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
-     Iterations=100000, Status=1000, Thinning=100, Algorithm="RWM",
+     Iterations=10000, Status=100, Thinning=10, Algorithm="MWG",
      Specs=NULL, LogFile="", Chains=2, CPUs=2, Type="PSOCK", Packages=NULL,
      Dyn.libs=NULL)
 }
@@ -420,11 +420,16 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
   \item{LML}{This is an approximation of the logarithm of the marginal
     likelihood of the data (see the \code{\link{LML}} function for more
     information). \code{LML} is estimated only with stationary samples,
-    and only with a non-adaptive algorithm, including Componentwise
-    Hit-And-Run (CHARM), Delayed Rejection Metropolis (DRM),
-    Hamiltonian Monte Carlo (HMC), Hit-And-Run (HARM),
-    Metropolis-within-Gibbs (MWG), No-U-Turn Sampler (NUTS),
-    Random-Walk Metropolis (RWM), Slice Sampler (Slice), Stochastic
+    and only with a non-adaptive algorithm, including Adaptive
+    Griddy-Gibbs (AGG), Affine-Invariant Ensemble Sampler (AIES),
+    Componentwise Hit-And-Run (CHARM), Delayed Rejection Metropolis
+    (DRM), Elliptical Slice Sampling (ESS), Griddy-Gibbs (GG),
+    Hamiltonian Monte Carlo (HMC), Hit-And-Run Metropolis (HARM),
+    Independence Metropolis (IM), Metropolis-within-Gibbs (MWG),
+    No-U-Turn Sampler (NUTS), Random Dive Metropolis-Hastings (RDMH),
+    Random-Walk Metropolis (RWM), Reflective Slice Sampler (RSS),
+    Refractive Sampler (Refractive), Reversible-Jump (RJ), Sequential
+    Metropolis-within-Gibbs (SMWG), Slice Sampler (Slice), Stochastic
     Gradient Langevin Dynamics (SGLD), Tempered Hamiltonian Monte Carlo
     (THMC), or t-walk (twalk). \code{LML} is estimated with
     nonparametric self-normalized importance sampling (NSIS), given LL

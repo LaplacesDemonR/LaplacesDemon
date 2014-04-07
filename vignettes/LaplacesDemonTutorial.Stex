@@ -1319,6 +1319,6 @@ Many additional resources may be found at \url{http://www.bayesian-inference.com
 
 The \pkg{LaplacesDemon} package is a significant contribution toward Bayesian inference in \proglang{R}. In turn, contributions toward the development of Laplace's Demon are welcome. Please send an email to \email{software@bayesian-inference.com} with constructive criticism, reports of software bugs, or offers to contribute to Laplace's Demon.
 
-\bibliography{/home/laplacesdemon/cache1/Probability/LaTeX/References/References}
+\bibliography{References}
 
 \end{document}

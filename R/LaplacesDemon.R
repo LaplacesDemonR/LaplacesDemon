@@ -7,7 +7,7 @@
 ###########################################################################
 
 LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
-     Iterations=100000, Status=1000, Thinning=100, Algorithm="RWM",
+     Iterations=10000, Status=100, Thinning=10, Algorithm="MWG",
      Specs=NULL, LogFile="", ...)
      {
      cat("\nLaplace's Demon was called on ", date(), "\n", sep="",
@@ -815,10 +815,10 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     Specs[["Dyn"]] <- as.matrix(Specs[["Dyn"]])
                }
           }
-     else {cat("Unknown algorithm has been changed to Random-Walk Metropolis.\n",
+     else {cat("Unknown algorithm has been changed to Metropolis-within-Gibbs.\n",
                 file=LogFile, append=TRUE)
-          Algorithm <- "Random-Walk Metropolis"
-          Specs <- list(B=list())}
+          Algorithm <- "Metropolis-within-Gibbs"
+          Specs <- NULL}
      if(!is.null(Specs[["Adaptive"]])) {
           Specs[["Adaptive"]] <- abs(Specs[["Adaptive"]])
           if({Specs[["Adaptive"]] < 1} |
