@@ -41,7 +41,7 @@ LaplaceApproximation(Model, parm, Data, Interval=1.0E-6,
     variable \code{y} or \code{Y}, and attempt to take its number of
     rows as sample size. \code{LaplaceApproximation} needs to determine
     sample size due to the asymptotic nature of this method. Sample size
-    should be at least \eqn{\sqrt{N}}{sqrt(N)} with exchangeable
+    should be at least \eqn{\sqrt{J}}{sqrt(J)} with \eqn{J} exchangeable
     parameters.}
   \item{Interval}{This argument receives an interval for estimating
     approximate gradients. The logarithm of the unnormalized joint
@@ -128,11 +128,10 @@ LaplaceApproximation(Model, parm, Data, Interval=1.0E-6,
     the current iteration. Often, multiple criteria are used, in
     which case the maximum of all criteria becomes the tolerance. For
     example, when partial derivatives are taken, it is commonly required
-    that the square root of the sum of the squared partial derivatives
-    is a criterion, and another common criterion is the square root of
-    the sum of the squared differences between the current and previous
-    parameter values. Several algorithms have other, specific
-    tolerances.}
+    that the Euclidean norm of the partial derivatives is a criterion,
+    and another common criterion is the Euclidean norm of the
+    differences between the current and previous parameter values.
+    Several algorithms have other, specific tolerances.}
   \item{CPUs}{This argument accepts an integer that specifies the number
     of central processing units (CPUs) of the multicore computer or
     computer cluster. This argument defaults to \code{CPUs=1}, in which

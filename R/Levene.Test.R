@@ -89,6 +89,7 @@ Levene.Test <- function(x, Method="U", G=NULL, Data=NULL)
           plot(d.W.obs, xlim=c(min(d.W.obs$x, d.W.rep$x),
                     max(d.W.obs$x, d.W.rep$x)),
                ylim=c(0, max(d.W.obs$y, d.W.rep$y)),
+               col=rgb(0,0,0,50,maxColorValue=255),
                main="Levene's Test",
                xlab="W",
                sub=paste("W.obs=", round(mean(W.obs, na.rm=TRUE),2),
@@ -97,8 +98,9 @@ Levene.Test <- function(x, Method="U", G=NULL, Data=NULL)
                     probs=0.975, na.rm=TRUE)),2), "), p(W.obs > W.rep) = ",
                     p, " = ", result, sep=""),
                ylab="Density")
-          polygon(d.W.obs, col="black", border="black")
-          lines(d.W.rep, col="red")}
+          polygon(d.W.obs, col=rgb(0,0,0,50,maxColorValue=255), border=NA)
+          polygon(d.W.rep, col=rgb(255,0,0,50,maxColorValue=255),
+               border=NA)}
      if(Method == "C") {
           par(mfrow=c(1,1), ask=TRUE)
           p <- rep(0, ncol(Data$Y))
@@ -137,6 +139,8 @@ Levene.Test <- function(x, Method="U", G=NULL, Data=NULL)
                plot(d.W.obs, xlim=c(min(d.W.obs$x, d.W.rep$x),
                          max(d.W.obs$x, d.W.rep$x)),
                     ylim=c(0, max(d.W.obs$y, d.W.rep$y)),
+                    col=rgb(col2rgb(j)[1], col2rgb(j)[2], col2rgb(j)[3],
+                         50, maxColorValue=255),
                     main="Levene's Test",
                     xlab=paste("W.obs=", round(mean(W.obs, na.rm=TRUE),2),
                          " (", round(as.vector(quantile(W.obs, probs=0.025,
@@ -146,8 +150,10 @@ Levene.Test <- function(x, Method="U", G=NULL, Data=NULL)
                          p[j], " = ", result, sep=""),
                     sub=paste("Y[,", j, "]", sep=""),
                     ylab="Density")
-               polygon(d.W.obs, col="black", border="black")
-               lines(d.W.rep, col="red")}}
+               polygon(d.W.obs, col=rgb(0,0,0,50,maxColorValue=255),
+                    border=NA)
+               polygon(d.W.rep, col=rgb(255,0,0,50,maxColorValue=255),
+                    border=NA)}}
      if(Method == "R") {
           par(mfrow=c(1,1), ask=TRUE)
           p <- rep(0, nrow(Data$Y))
@@ -188,6 +194,8 @@ Levene.Test <- function(x, Method="U", G=NULL, Data=NULL)
                plot(d.W.obs, xlim=c(min(d.W.obs$x, d.W.rep$x),
                          max(d.W.obs$x, d.W.rep$x)),
                     ylim=c(0, max(d.W.obs$y, d.W.rep$y)),
+                    col=rgb(col2rgb(j)[1], col2rgb(j)[2], col2rgb(j)[3],
+                         50, maxColorValue=255),
                     main="Levene's Test",
                     xlab=paste("W.obs=", round(mean(W.obs, na.rm=TRUE),2),
                          " (", round(as.vector(quantile(W.obs, probs=0.025,
@@ -197,8 +205,10 @@ Levene.Test <- function(x, Method="U", G=NULL, Data=NULL)
                          p[i], " = ", result, sep=""),
                     sub=paste("Y[", i, ",]", sep=""),
                     ylab="Density")
-               polygon(d.W.obs, col="black", border="black")
-               lines(d.W.rep, col="red")}}
+               polygon(d.W.obs, col=rgb(0,0,0,50,maxColorValue=255),
+                    border=NA)
+               polygon(d.W.rep, col=rgb(255,0,0,50,maxColorValue=255),
+                    border=NA)}}
      return(p)
      }
 

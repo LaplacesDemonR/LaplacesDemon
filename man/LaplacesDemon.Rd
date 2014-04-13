@@ -166,7 +166,9 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     \item Independence Metropolis (IM)
     \item Interchain Adaptation (INCA)
     \item Metropolis-Adjusted Langevin Algorithm (MALA)
+    \item Metropolis-Coupled Markov Chain Monte Carlo (MCMCMC)
     \item Metropolis-within-Gibbs (MWG)
+    \item Multiple-Try Metropolis (MTM)
     \item No-U-Turn Sampler (NUTS)
     \item Oblique Hyperrectangle Slice Sampler (OHSS)
     \item Random Dive Metropolis-Hastings (RDMH)
@@ -274,10 +276,13 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     value plus each point in the grid, or each discrete parameter (see
     \code{dparm}) at each grid point (which should be each discrete
     value).
+    \item \code{K} is a scalar number of proposals in MTM.
     \item \code{L} is a scalar number of leapfrog steps in AHMC, HMC, and
     THMC. When \code{L=1}, the algorithm reduces to Langevin Monte Carlo
     (LMC).
-    \item \code{lambda} is a scalar trajectory length in HMCDA.
+    \item \code{lambda} is used in HMCDA and MCMCMC. In HMCDA, it is a
+    scalar trajectory length. In MCMCMC, it is either a scalar that
+    controls temperature spacing, or a vector of temperature spacings.
     \item \code{Lmax} is a scalar maximum for \code{L} (see above) in
     HMCDA.
     \item \code{m} is used in the Refractive, RSS, Slice, and UESS
@@ -425,17 +430,18 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     Componentwise Hit-And-Run (CHARM), Delayed Rejection Metropolis
     (DRM), Elliptical Slice Sampling (ESS), Griddy-Gibbs (GG),
     Hamiltonian Monte Carlo (HMC), Hit-And-Run Metropolis (HARM),
-    Independence Metropolis (IM), Metropolis-within-Gibbs (MWG),
-    No-U-Turn Sampler (NUTS), Random Dive Metropolis-Hastings (RDMH),
-    Random-Walk Metropolis (RWM), Reflective Slice Sampler (RSS),
-    Refractive Sampler (Refractive), Reversible-Jump (RJ), Sequential
-    Metropolis-within-Gibbs (SMWG), Slice Sampler (Slice), Stochastic
-    Gradient Langevin Dynamics (SGLD), Tempered Hamiltonian Monte Carlo
-    (THMC), or t-walk (twalk). \code{LML} is estimated with
-    nonparametric self-normalized importance sampling (NSIS), given LL
-    and the marginal posterior samples of the parameters. \code{LML} is
-    useful for comparing multiple models with the
-    \code{\link{BayesFactor}} function.}
+    Independence Metropolis (IM), Metropolis-Coupled Markov Chain Monte
+    Carlo (MCMCMC), Metropolis-within-Gibbs (MWG), Multiple-Try
+    Metropolis, No-U-Turn Sampler (NUTS), Random Dive
+    Metropolis-Hastings (RDMH), Random-Walk Metropolis (RWM), Reflective
+    Slice Sampler (RSS), Refractive Sampler (Refractive),
+    Reversible-Jump (RJ), Sequential Metropolis-within-Gibbs (SMWG),
+    Slice Sampler (Slice), Stochastic Gradient Langevin Dynamics (SGLD),
+    Tempered Hamiltonian Monte Carlo (THMC), or t-walk (twalk).
+    \code{LML} is estimated with nonparametric self-normalized
+    importance sampling (NSIS), given LL and the marginal posterior
+    samples of the parameters. \code{LML} is useful for comparing
+    multiple models with the \code{\link{BayesFactor}} function.}
   \item{Minutes}{This indicates the number of minutes that
     \code{LaplacesDemon} was running, and includes the initial checks as
     well as time it took the \code{\link{LaplaceApproximation}}
@@ -527,6 +533,11 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
   Data Analysis, Texts in Statistical Science, 2nd ed.". Chapman and
   Hall, London.
 
+  Geyer, C.J. (1991). "Markov Chain Monte Carlo Maximum Likelihood". In
+  Keramidas, E.M. Computing Science and Statistics: Proceedings of the
+  23rd Symposium of the Interface. Fairfax Station VA: Interface
+  Foundation. p. 156--163.
+
   Goodman J, and Weare, J. (2010). "Ensemble Samplers with Affine
   Invariance". \emph{Communications in Applied Mathematics and
   Computational Science}, 5(1), p. 65--80.
@@ -553,6 +564,10 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
   Posterior Simulation with the Laplace-Metropolis Estimator".
   \emph{Journal of the American Statistical Association}, 92,
   p. 648--655.
+
+  Liu, J., Liang, F., and Wong, W. (2000). "The Multiple-Try Method and
+  Local Optimization in Metropolis Sampling". \emph{Journal of the
+  American Statistical Association}, 95, p. 121--134.
 
   Metropolis, N., Rosenbluth, A.W., Rosenbluth, M.N., and Teller,
   E. (1953). "Equation of State Calculations by Fast Computing
@@ -811,10 +826,21 @@ print(Fit)
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
 #     Algorithm="MALA", Specs=list(Periodicity=1))
 
+#############  Metropolis-Coupled Markov Chain Monte Carlo  ###############
+#Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
+#     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
+#     Algorithm="MCMCMC", Specs=list(lambda=1, CPUs=2, Packages=NULL,
+#     Dyn.libs=NULL))
+
 #######################  Metropolis-within-Gibbs  #########################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
 #     Algorithm="MWG", Specs=NULL)
+
+########################  Multiple-Try Metropolis  ########################
+#Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
+#     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
+#     Algorithm="MTM", Specs=list(K=4, CPUs=1, Packages=NULL, Dyn.libs=NULL))
 
 ##########################  No-U-Turn Sampler  ############################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
@@ -939,7 +965,9 @@ print(Fit)
 \keyword{Interchain Adaptation}
 \keyword{MCMC}
 \keyword{Metropolis-Adjusted Langevin Algorithm}
+\keyword{Metropolis-Coupled Markov Chain Monte Carlo}
 \keyword{Metropolis-within-Gibbs}
+\keyword{Multiple-Try Metropolis}
 \keyword{Multiple Chains}
 \keyword{No-U-Turn Sampler}
 \keyword{Oblique Hyperrectangle Slice Sampler}

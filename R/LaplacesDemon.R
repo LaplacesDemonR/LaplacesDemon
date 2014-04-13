@@ -65,14 +65,12 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                sep="", file=LogFile, append=TRUE)}
      if(Algorithm %in% c("ADMG","AGG","AHMC","AIES","AM","AMM","AMWG",
           "CHARM","DEMC","DRAM","DRM","ESS","Experimental","GG","HARM",
-          "HMC","HMCDA","IM","INCA","MALA","MWG","NUTS","OHSS","RAM",
-          "Refractive","RDMH","RJ","RSS","RWM","SAMWG","SGLD","Slice",
-          "SMWG","THMC","twalk","UESS","USAMWG","USMWG")) {
+          "HMC","HMCDA","IM","INCA","MALA","MCMCMC","MTM","MWG","NUTS",
+          "OHSS","RAM","Refractive","RDMH","RJ","RSS","RWM","SAMWG",
+          "SGLD","Slice","SMWG","THMC","twalk","UESS","USAMWG","USMWG")) {
           if(Algorithm == "ADMG") {
                Algorithm <- "Adaptive Directional Metropolis-within-Gibbs"
-               if(missing(Specs))
-                    stop("The Specs argument is required.", file=LogFile,
-                          append=TRUE)
+               if(missing(Specs)) Specs <- list(Periodicity=1)
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
@@ -448,6 +446,39 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(!identical(names(Specs), "Periodicity"))
                     stop("The Specs argument is incorrect.", file=LogFile,
                          append=TRUE)
+               }
+          else if(Algorithm == "MCMCMC") {
+               Algorithm <- "Metropolis-Coupled Markov Chain Monte Carlo"
+               if(missing(Specs) | is.null(Specs))
+                    Specs <- list(lambda=1, CPUs=1, Packages=NULL,
+                         Dyn.libs=NULL)
+               if(!is.list(Specs))
+                    stop("The Specs argument is not a list.", file=LogFile,
+                         append=TRUE)
+               if(!identical(names(Specs),
+                    c("lambda","CPUs","Packages","Dyn.libs")))
+                    stop("The Specs argument is incorrect.", file=LogFile,
+                         append=TRUE)
+               Specs[["lambda"]] <- abs(Specs[["lambda"]])
+               if(Specs[["CPUs"]] <= 1)
+                    cat("\nCPUs must be at least 2. Attempting 2 CPUs...\n")
+               Specs[["CPUs"]] <- max(2, abs(round(Specs[["CPUs"]])))
+               }
+          else if(Algorithm == "MTM") {
+               Algorithm <- "Multiple-Try Metropolis"
+               if(missing(Specs) | is.null(Specs))
+                    Specs <- list(K=4, CPUs=1, Packages=NULL, Dyn.libs=NULL)
+               if(!is.list(Specs))
+                    stop("The Specs argument is not a list.", file=LogFile,
+                         append=TRUE)
+               if(!identical(names(Specs),
+                    c("K","CPUs","Packages","Dyn.libs")))
+                    stop("The Specs argument is incorrect.", file=LogFile,
+                         append=TRUE)
+               Specs[["K"]] <- abs(round(Specs[["K"]]))
+               if(Specs[["CPUs"]] < 1)
+                    cat("\nCPUs must be at least 1.\n")
+               Specs[["CPUs"]] <- max(1, abs(round(Specs[["CPUs"]])))
                }
           else if(Algorithm == "MWG") {
                Algorithm <- "Metropolis-within-Gibbs"
@@ -939,6 +970,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           "Adaptive-Mixture Metropolis",
           "Delayed Rejection Adaptive Metropolis",
           "Delayed Rejection Metropolis", "Interchain Adaptation",
+          "Metropolis-Coupled Markov Chain Monte Carlo",
           "Random-Walk Metropolis")) {
           ### Algorithms that require both VarCov and tuning
           if(is.list(Covar) & Algorithm != "Adaptive-Mixture Metropolis" &
@@ -997,6 +1029,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      else if(Algorithm %in% c("Adaptive Griddy-Gibbs",
           "Adaptive Metropolis-within-Gibbs",
           "Metropolis-within-Gibbs",
+          "Multiple-Try Metropolis",
           "Sequential Adaptive Metropolis-within-Gibbs",
           "Sequential Metropolis-within-Gibbs",
           "Updating Sequential Adaptive Metropolis-within-Gibbs",
@@ -1110,6 +1143,14 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           mcmc.out <- MALA(Model, Data, Iterations, Status, Thinning, Specs,
                Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
                VarCov, LogFile)}
+     else if(Algorithm == "Metropolis-Coupled Markov Chain Monte Carlo") {
+          mcmc.out <- MCMCMC(Model, Data, Iterations, Status, Thinning, Specs,
+               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
+               tuning, VarCov, LogFile)}
+     else if(Algorithm == "Multiple-Try Metropolis") {
+          mcmc.out <- MTM(Model, Data, Iterations, Status, Thinning, Specs,
+               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, thinned, tuning,
+               LogFile)}
      else if(Algorithm == "Metropolis-within-Gibbs") {
           mcmc.out <- MWG(Model, Data, Iterations, Status, Thinning, Specs,
                Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
@@ -1358,7 +1399,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           {Algorithm == "Hamiltonian Monte Carlo"} |
           {Algorithm == "Hit-And-Run Metropolis"} | 
           {Algorithm == "Independence Metropolis"} |
+          {Algorithm == "Metropolis-Coupled Markov Chain Monte Carlo"} |
           {Algorithm == "Metropolis-within-Gibbs"} |
+          {Algorithm == "Multiple-Try Metropolis"} |
           {Algorithm == "No-U-Turn Sampler"} |
           {Algorithm == "Random Dive Metropolis-Hastings"} |
           {Algorithm == "Random-Walk Metropolis"} |
@@ -3572,6 +3615,235 @@ MALA <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=VarCov)
      return(out)
      }
+MCMCMC <- function(Model, Data, Iterations, Status, Thinning, Specs,
+     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
+     VarCov, LogFile)
+     {
+     lambda <- Specs[["lambda"]]
+     CPUs <- Specs[["CPUs"]]
+     Packages <- Specs[["Packages"]]
+     Dyn.libs <- Specs[["Dyn.libs"]]
+     detectedCores <- detectCores()
+     cat("\n\nCPUs Detected:", detectedCores, "\n", file=LogFile,
+          append=TRUE)
+     if(CPUs > detectedCores) {
+          cat("\nOnly", detectedCores, "will be used.\n",
+               file=LogFile, append=TRUE)
+          CPUs <- detectedCores}
+     cat("\nLaplace's Demon is preparing environments for CPUs...",
+          file=LogFile, append=TRUE)
+     cat("\n##################################################\n",
+          file=LogFile, append=TRUE)
+     cl <- makeCluster(CPUs)
+     cat("\n##################################################\n",
+          file=LogFile, append=TRUE)
+     on.exit(stopCluster(cl))
+     varlist <- unique(c(ls(), ls(envir=.GlobalEnv),
+          ls(envir=parent.env(environment()))))
+     clusterExport(cl, varlist=varlist, envir=environment())
+     clusterSetRNGStream(cl)
+     wd <- getwd()
+     clusterExport(cl, varlist=c("Packages", "Dyn.libs", "wd"),
+          envir=environment())
+     if(length(lambda) == 1) Temperature <- 1/(1 + lambda*(c(1:CPUs) - 1))
+     else if(length(lambda) == LIV) Temperature <- lambda
+     else Temperature <- 1/(1 + lambda[1]*(c(1:CPUs) - 1))
+     coolest <- which.max(Temperature)[1]
+     temp <- Mo0
+     Mo0 <- list()
+     for (i in 1:CPUs) Mo0[[i]] <- temp
+     prop <- matrix(Mo0[[1]][["parm"]], CPUs, LIV, byrow=TRUE)
+     Acceptance.swap <- 0
+     U <- chol(VarCov)
+     for (iter in 1:Iterations) {
+          ### Print Status
+          if(iter %% Status == 0)
+               cat("Iteration: ", iter, sep="", file=LogFile, append=TRUE)
+          ### Save Thinned Samples
+          if(iter %% Thinning == 0) {
+               t.iter <- floor(iter / Thinning) + 1
+               thinned[t.iter,] <- Mo0[[coolest]][["parm"]]
+               Dev[t.iter] <- Mo0[[coolest]][["Dev"]]
+               Mon[t.iter,] <- Mo0[[coolest]][["Monitor"]]}
+          ### Propose new parameter values
+          for (i in 1:CPUs)
+               prop[i,] <- Mo0[[i]][["parm"]] +
+                    as.vector(matrix(rnorm(LIV) %*% U))
+          if(iter %% Status == 0) 
+               cat(",   Proposal: Multivariate\n", file=LogFile,
+                    append=TRUE)
+          ### Log-Posterior of the proposed state
+          Mo1 <- parLapply(cl, 1:CPUs, function(x) Model(prop[x,], Data))
+          for (i in 1:CPUs) {
+               if(any(!is.finite(c(Mo1[[i]][["LP"]], Mo1[[i]][["Dev"]],
+                    Mo1[[i]][["Monitor"]]))))
+                    Mo1[[i]] <- Mo0[[i]]}
+          ### Accept/Reject
+          for (i in 1:CPUs) {
+               log.u <- log(runif(1))
+               log.alpha <- (Mo1[[i]][["LP"]] - Mo0[[i]][["LP"]]) /
+                    Temperature[i]
+               if(!is.finite(log.alpha)) log.alpha <- 0
+               if(log.u < log.alpha) {
+                    Mo0[[i]] <- Mo1[[i]]
+                    if(i == coolest) {
+                         Acceptance <- Acceptance + 1
+                         if(iter %% Thinning == 0) {
+                              thinned[t.iter,] <- Mo1[[i]][["parm"]]
+                              Dev[t.iter] <- Mo1[[i]][["Dev"]]
+                              Mon[t.iter,] <- Mo1[[i]][["Monitor"]]}}}}
+          ### Swap
+          swap <- sample.int(CPUs, 2)
+          log.u <- log(runif(1))
+          log.alpha <- {(Mo0[[swap[1]]][["LP"]] - Mo0[[swap[2]]][["LP"]]) /
+               Temperature[swap[2]]} +
+               {(Mo0[[swap[2]]][["LP"]] - Mo0[[swap[1]]][["LP"]]) /
+               Temperature[swap[1]]}
+          if(!is.finite(log.alpha)) log.alpha <- 0
+          if(log.u < log.alpha) {
+               Acceptance.swap <- Acceptance.swap + 1
+               temp <- Mo0[[swap[2]]]
+               Mo0[[swap[2]]] <- Mo0[[swap[1]]]
+               Mo0[[swap[1]]] <- temp
+               if({swap[1] == coolest} & {iter %% Thinning == 0}) {
+                    thinned[t.iter,] <- Mo0[[swap[1]]][["parm"]]
+                    Dev[t.iter] <- Mo0[[swap[1]]][["Dev"]]
+                    Mon[t.iter,] <- Mo0[[swap[1]]][["Monitor"]]}}
+          }
+     cat("\nSwap Acceptance Rate:", round(Acceptance.swap / Iterations, 5), "\n")
+     ### Output
+     out <- list(Acceptance=Acceptance,
+          Dev=Dev,
+          DiagCovar=DiagCovar,
+          Mon=Mon,
+          thinned=thinned,
+          VarCov=VarCov)
+     return(out)
+     }
+MTM <- function(Model, Data, Iterations, Status, Thinning, Specs,
+     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, thinned, tuning, LogFile)
+     {
+     K <- Specs[["K"]]
+     CPUs <- Specs[["CPUs"]]
+     Packages <- Specs[["Packages"]]
+     Dyn.libs <- Specs[["Dyn.libs"]]
+     if(CPUs > 1) {
+          detectedCores <- detectCores()
+          cat("\n\nCPUs Detected:", detectedCores, "\n", file=LogFile,
+               append=TRUE)
+          if(CPUs > detectedCores) {
+               cat("\nOnly", detectedCores, "will be used.\n",
+                    file=LogFile, append=TRUE)
+               CPUs <- detectedCores}
+          cat("\nLaplace's Demon is preparing environments for CPUs...",
+               file=LogFile, append=TRUE)
+          cat("\n##################################################\n",
+               file=LogFile, append=TRUE)
+          cl <- makeCluster(CPUs)
+          cat("\n##################################################\n",
+               file=LogFile, append=TRUE)
+          on.exit(stopCluster(cl))
+          varlist <- unique(c(ls(), ls(envir=.GlobalEnv),
+               ls(envir=parent.env(environment()))))
+          clusterExport(cl, varlist=varlist, envir=environment())
+          clusterSetRNGStream(cl)
+          wd <- getwd()
+          clusterExport(cl, varlist=c("Packages", "Dyn.libs", "wd"),
+               envir=environment())}
+     Acceptance <- matrix(0, 1, LIV)
+     Mo1 <- list()
+     for (k in 1:K) Mo1[[k]] <- Mo0
+     LW <- LP <- rep(0, K)
+     for (iter in 1:Iterations) {
+          ### Print Status
+          if(iter %% Status == 0)
+               cat("Iteration: ", iter,
+                    ",   Proposal: Componentwise\n", sep="")
+          ### Save Thinned Samples
+          if(iter %% Thinning == 0) {
+               t.iter <- floor(iter / Thinning) + 1
+               thinned[t.iter,] <- Mo0[["parm"]]
+               Dev[t.iter] <- Mo0[["Dev"]]
+               Mon[t.iter,] <- Mo0[["Monitor"]]}
+          ### Random-Scan Componentwise Estimation
+          for (j in sample.int(LIV)) {
+               ### Propose new parameter values
+               prop1 <- matrix(Mo0[["parm"]], K, LIV, byrow=TRUE)
+               prop1[,j] <- rnorm(K, prop1[,j], tuning[j])
+               ### Log-Posterior of the proposed states
+               if(CPUs == 1) {
+                    ### Non-parallel
+                    for (k in 1:K) {
+                         Mo1[[k]] <- Model(prop1[k,], Data)
+                         if(any(!is.finite(c(Mo1[[k]][["LP"]],
+                              Mo1[[k]][["Dev"]], Mo1[[k]][["Monitor"]]))))
+                              Mo1[[k]] <- Mo0
+                         LP[k] <- LW[k] <- Mo1[[k]][["LP"]]
+                         prop1[k,] <- Mo1[[k]][["parm"]]}
+                    }
+               else {
+                    ### Parallel
+                    Mo1 <- parLapply(cl, 1:K, function(x)
+                         Model(prop1[x,], Data))
+                    for (k in 1:K) {
+                         if(any(!is.finite(c(Mo1[[k]][["LP"]],
+                              Mo1[[k]][["Dev"]], Mo1[[k]][["Monitor"]]))))
+                              Mo1[[k]] <- Mo0
+                         LP[k] <- LW[k] <- Mo1[[k]][["LP"]]
+                         prop1[k,] <- Mo1[[k]][["parm"]]}
+                    }
+               ### Normalize Weights
+               w <- exp(LW - logadd(LW))
+               if(all(w == 0)) w <- rep(1/K, K)
+               ### Sample a Proposal
+               prop5 <- Mo0[["parm"]]
+               prop2 <- sample(prop1[,j], size=1, prob=w)
+               prop5[j] <- prop2
+               ### Create Reference Set
+               Mo2 <- Model(prop5, Data)
+               prop3 <- c(rnorm(K-1, Mo2[["parm"]][j], tuning[j]),
+                    Mo2[["parm"]][j])
+               prop4 <- prop1
+               prop4[,j] <- prop3
+               ### Calculate Acceptance Probability
+               numerator <- denom <- logadd(LP)
+               if(CPUs == 1) {
+                    ### Non-parallel
+                    for (k in 1:K) {
+                         Mo1[[k]] <- Model(prop4[k,], Data)
+                         if(any(!is.finite(c(Mo1[[k]][["LP"]],
+                              Mo1[[k]][["Dev"]], Mo1[[k]][["Monitor"]]))))
+                              Mo1[[k]] <- Mo0
+                         denom[k] <- Mo1[[k]][["LP"]]}
+                    }
+               else {
+                    ### Parallel
+                    Mo1 <- parLapply(cl, 1:K, function(x)
+                         Model(prop4[x,], Data))
+                    for (k in 1:K) {
+                         if(any(!is.finite(c(Mo1[[k]][["LP"]],
+                              Mo1[[k]][["Dev"]], Mo1[[k]][["Monitor"]]))))
+                              Mo1[[k]] <- Mo0
+                         denom[k] <- Mo1[[k]][["LP"]]}}
+               denom <- logadd(denom)
+               ### Accept/Reject
+               u <- log(runif(1)) < (numerator - denom)
+               if(u == TRUE) Mo0 <- Mo2
+               Acceptance[j] <- Acceptance[j] + u}
+          if(iter %% Thinning == 0) {
+               thinned[t.iter,] <- Mo0[["parm"]]
+               Dev[t.iter] <- Mo0[["Dev"]]
+               Mon[t.iter,] <- Mo0[["Monitor"]]}
+          }
+     ### Output
+     out <- list(Acceptance=mean(as.vector(Acceptance)),
+          Dev=Dev,
+          DiagCovar=DiagCovar,
+          Mon=Mon,
+          thinned=thinned,
+          VarCov=apply(thinned, 2, var))
+     return(out)
+     }
 MWG <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
      LogFile)
@@ -4082,10 +4354,10 @@ RDMH <- function(Model, Data, Iterations, Status, Thinning, Specs,
                if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
                     Mo1 <- Mo0
-               epsilon <- Mo1[["parm"]][j] / Mo0[["parm"]][j]
+               epsilon <- log(abs(Mo1[["parm"]][j] / Mo0[["parm"]][j]))
+               if(!is.finite(epsilon)) epsilon <- 0
                ### Accept/Reject
-               u <- log(runif(1)) < (log(abs(epsilon)) + Mo1[["LP"]] -
-                    Mo0[["LP"]])
+               u <- log(runif(1)) < (epsilon + Mo1[["LP"]] - Mo0[["LP"]])
                if(u == TRUE) Mo0 <- Mo1
                Acceptance[j] <- Acceptance[j] + u}
           if(iter %% Thinning == 0) {

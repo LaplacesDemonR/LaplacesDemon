@@ -40,10 +40,6 @@ Consort <- function(object=NULL)
           Acc.Rate.Low <- 0.40
           Acc.Rate.High <- 0.80
           }
-     else if((object$Algorithm == "Reversible-Jump")) {
-          Acc.Rate.Low <- 0.10
-          Acc.Rate.High <- 0.90
-          }
      else if(object$Algorithm == "Hamiltonian Monte Carlo") {
           L <- object$Specs[["L"]]
           if(L == 1) {
@@ -72,6 +68,10 @@ Consort <- function(object=NULL)
           m <- object$Specs[["m"]]
           Acc.Rate.Low <- 0.6
           Acc.Rate.High <- 0.7
+          }
+     else if((object$Algorithm == "Reversible-Jump")) {
+          Acc.Rate.Low <- 0.10
+          Acc.Rate.High <- 0.90
           }
      else {
           Acc.Rate.Low <- 0.15
@@ -195,6 +195,7 @@ Consort <- function(object=NULL)
                "Componentwise Hit-And-Run Metropolis",
                "Griddy-Gibbs",
                "Metropolis-within-Gibbs",
+               "Multiple-Try Metropolis",
                "Random Dive Metropolis-Hastings",
                "Reversible-Jump",
                "Sequential Adaptive Metropolis-within-Gibbs",
@@ -277,15 +278,21 @@ Consort <- function(object=NULL)
                Alg <- "INCA"
           else if(object$Algorithm == "Metropolis-Adjusted Langevin Algorithm")
                Alg <- "MALA"
+          else if(object$Algorithm == "Metropolis-Coupled Markov Chain Monte Carlo")
+               Alg <- "MCMCMC"
           else if(object$Algorithm == "Metropolis-within-Gibbs")
                Alg <- "MWG"
+          else if(object$Algorithm == "Multiple-Try Metropolis")
+               Alg <- "MTM"
           else if(object$Algorithm == "No-U-Turn Sampler") Alg <- "NUTS"
-          else if(object$Algorithm == "Oblique Hyperrectangle Slice Sampler") Alg <- "OHSS"
+          else if(object$Algorithm == "Oblique Hyperrectangle Slice Sampler")
+               Alg <- "OHSS"
           else if(object$Algorithm == "Robust Adaptive Metropolis")
                Alg <- "RAM"
           else if(object$Algorithm == "Random Dive Metropolis-Hastings")
                Alg <- "RDMH"
-          else if(object$Algorithm == "Refractive Sampler") Alg <- "Refractive"
+          else if(object$Algorithm == "Refractive Sampler")
+               Alg <- "Refractive"
           else if(object$Algorithm == "Reflective Slice Sampler")
                Alg <- "RSS"
           else if(object$Algorithm == "Random-Walk Metropolis")
@@ -636,6 +643,36 @@ Consort <- function(object=NULL)
                cat("     Algorithm=\"MALA\", ",
                     "Specs=list(Periodicity=", Rec.Periodicity,
                     "))\n\n", sep="")
+               }
+          else if(Alg == "MCMCMC") {
+               ### MCMCMC
+               lambda <- object$Specs[["lambda"]]
+               CPUs <- object$Specs[["CPUs"]]
+               Packages <- object$Specs[["Packages"]]
+               Dyn.libs <- object$Specs[["Dyn.libs"]]
+               cat(oname, " <- LaplacesDemon(Model, Data=", dname,
+                    ", Initial.Values,\n", sep="")
+               cat("     Covar=", oname,"$Covar, Iterations=",
+                    Rec.Iterations, ", Status=", Rec.Status, ", ",
+                    "Thinning=", Rec.Thinning, ",\n", sep="")
+               cat("     Algorithm=\"MCMCMC\", Specs=list(lambda=",
+                    lambda, ", CPUs=", CPUs,
+                   ", Packages=NULL, Dyn.libs=NULL))\n\n", sep="")
+               }
+          else if(Alg == "MTM") {
+               ### MTM
+               K <- object$Specs[["K"]]
+               CPUs <- object$Specs[["CPUs"]]
+               Packages <- object$Specs[["Packages"]]
+               Dyn.libs <- object$Specs[["Dyn.libs"]]
+               cat(oname, " <- LaplacesDemon(Model, Data=", dname,
+                    ", Initial.Values,\n", sep="")
+               cat("     Covar=", oname,"$Covar, Iterations=",
+                    Rec.Iterations, ", Status=", Rec.Status, ", ",
+                    "Thinning=", Rec.Thinning, ",\n", sep="")
+               cat("     Algorithm=\"MTM\", Specs=list(K=", K,
+                    ", CPUs=", CPUs,
+                    ", Packages=NULL, Dyn.libs=NULL))\n\n", sep="")
                }
           else if({(Alg == "ADMG") & Dim.Adapt & Fast & Ready} |
              {(Alg == "ADMG") & Dim.Adapt & !Fast & Ready} |

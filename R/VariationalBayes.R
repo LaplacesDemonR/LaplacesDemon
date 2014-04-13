@@ -81,10 +81,6 @@ VariationalBayes <- function(Model, parm, Data, Covar=NULL,
      parm <- m.old[["parm"]]
      #####################  Begin Variational Bayes  #####################
      cat("Variational Bayes begins...\n")
-     #if(Method == "Salimans1") {
-     #     VB <- Salimans1(Model, parm, Data, Covar, Iterations, Interval,
-     #          Stop.Tolerance, m.old)
-     #     }
      if(Method == "Salimans2") {
           VB <- Salimans2(Model, parm, Data, Covar, Iterations, Interval,
                Stop.Tolerance, m.old)
@@ -232,32 +228,51 @@ Salimans2 <- function(Model, parm, Data, Covar, Iterations, Interval,
      post[1,,1] <- m
      post[1,,2] <- diag(V)
      Dev <- matrix(m.old[["Dev"]],1,1)
-     count <- 0
      ### Stochastic Approximation
      for (iter in 1:Iterations) {
-          mbar.best <- m #mean
-          Vbar.best <- V #variance
+          mbar <- mbar.last <- m #mean
+          Vbar <- Vbar.last <- V #variance
           m.old <- m.new #model
           ### Print Status
           if(iter %% round(Iterations / 10) == 0) {
                cat("Iteration: ", iter, " of ", Iterations, "\n")}
-          xstar <- try(m +
-               as.vector(matrix(rnorm(LIV,0,1),1,LIV) %*% chol(V)),
-               silent=TRUE)
-          if(inherits(xstar, "try-error"))
-               xstar <- rnorm(LIV,m,abs(diag(V)))
+          ### Draw a sample from the approximating distribution q
+          xstar <- m
+          while(identical(xstar, m)) {
+               xstar <- try(m +
+                    as.vector(matrix(rnorm(LIV),1,LIV) %*% chol(V)),
+                    silent=TRUE)
+               if(inherits(xstar, "try-error"))
+                    xstar <- rnorm(LIV,m,abs(diag(V)))
+               m.temp <- try(Model(xstar, Data), silent=TRUE)
+               if(inherits(xstar, "try-error")) xstar <- m
+               else xstar <- m.temp[["parm"]]
+               if(any(!is.finite(c(m.temp[["LP"]], m.temp[["Dev"]],
+                    m.temp[["Monitor"]]))))
+                    xstar <- m}
+          ### Gradient and Hessian
           g <- partial(Model, xstar, Data, Interval=Interval)
           H <- Hessian(Model, xstar, Data, Interval=Interval)
+          ### Stochastic Approx.
           a <- (1 - w)*a + w*g
           P <- (1 - w)*P - w*H
           z <- (1 - w)*z + w*xstar
+          if(any(!is.finite(P))) P <- diag(LIV)
+          if(!is.symmetric.matrix(P))
+               P <- as.symmetric.matrix(P)
+          diag(P) <- abs(diag(P))
+          if(!is.positive.definite(P))
+               P <- as.positive.definite(P)
           V <- as.inverse(P)
-          if(!is.positive.definite(V)) {
-               V <- as.positive.definite(V)
-               P <- as.inverse(V)}
           m <- as.vector(V %*% a + z)
-          m.new <- Model(m, Data)
-          if(m.old[["LP"]] >= m.new[["LP"]]) m.new <- m.old
+          ### Evaluate Proposal
+          m.new <- try(Model(m, Data), silent=TRUE)
+          if(inherits(m.new, "try-error")) m.new <- m.old
+          else if(any(!is.finite(c(m.new[["LP"]], m.new[["Dev"]],
+               m.new[["Monitor"]]))))
+               m.new <- m.old
+          else if(log(runif(1)) >= (m.new[["LP"]] - m.old[["LP"]]))
+               m.new <- m.old
           m <- m.new[["parm"]]
           ### Storage
           post[iter,,1] <- m
@@ -268,21 +283,27 @@ Salimans2 <- function(Model, parm, Data, Covar, Iterations, Interval,
                abar <- abar + half2*g
                Pbar <- Pbar - half2*H
                zbar <- zbar + half2*xstar
+               if(any(!is.finite(Pbar))) Pbar <- diag(LIV)
+               if(!is.symmetric.matrix(Pbar))
+                    Pbar <- as.symmetric.matrix(Pbar)
+               diag(Pbar) <- abs(diag(Pbar))
+               if(!is.positive.definite(Pbar))
+                    Pbar <- as.positive.definite(Pbar)
                Vbar <- as.inverse(Pbar)
-               if(any(diag(Vbar) < 0))
-                    diag(Vbar)[which(diag(Vbar) < 0)] <- 1e-10
                mbar <- as.vector(Vbar %*% abar + zbar)
                mbar <- Model(mbar, Data)[["parm"]]
                ### Tolerance
-               tol.new <- max({mbar - mbar.best}^2,
-                    {diag(Vbar) - diag(Vbar.best)}^2)
-               if(identical(post[1,,1], post[iter,,1])) tol.new <- 0
+               tol.new <- sum(sqrt(sum({mbar - mbar.last} *
+                    {mbar - mbar.last})),
+                    sqrt(sum({diag(Vbar) - diag(Vbar.last)} *
+                    {diag(Vbar) - diag(Vbar.last)})))
                if(tol.new <= Stop.Tolerance) {
                     post <- post[1:iter,,]
                     break}
                }
           }
      Dev <- Dev[-1,]
+     #mbar and Vbar should be returned, but not if wildly different...
      LB <- mbar - 3*diag(Vbar)
      UB <- mbar + 3*diag(Vbar)
      if(any((m < LB) | (m > UB))) {

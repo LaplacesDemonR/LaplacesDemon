@@ -1,3 +1,7 @@
+2014-04-10 LaplacesDemon: Added the MTM algorithm
+2014-04-09 Levene.Test: Changed colors to transparent colors
+2014-04-09 plot.demonoid.hpc: Changed colors to transparent colors
+2014-04-07 LaplacesDemon: Added the MCMCMC algorithm
 2014-04-06 LaplacesDemon: Added the RDMH algorithm
 2014-04-05 Vignette Examples: Added Multiple Discrete-Continuous Choice (MDCC)
 2014-03-26 LaplacesDemon: Added the OHSS, Refractive, RSS, and UESS algorithms

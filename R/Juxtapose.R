@@ -100,7 +100,9 @@ Juxtapose <- function(x)
           else if(alg == "Interchain Adaptation") alg <- "INCA"
           else if(alg == "Metropolis-Adjusted Langevin Algorithm")
                alg <- "MALA"
+          else if(alg == "Metropolis-Coupled Markov Chain Monte Carlo") alg <- "MCMCMC"
           else if(alg == "Metropolis-within-Gibbs") alg <- "MWG"
+          else if(alg == "Multiple-Try Metropolis") alg <- "MTM"
           else if(alg == "No-U-Turn Sampler") alg <- "NUTS"
           else if(alg == "Olbique Hyperrectangle Slice Sampler") alg <- "OHSS"
           else if(alg == "Random Dive Metropolis-Hastings") alg <- "RDMH"

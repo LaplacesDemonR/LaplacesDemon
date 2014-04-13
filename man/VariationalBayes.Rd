@@ -38,7 +38,7 @@ VariationalBayes(Model, parm, Data, Covar=NULL, Interval=1.0E-6,
     variable \code{y} or \code{Y}, and attempt to take its number of
     rows as sample size. \code{VariationalBayes} needs to determine
     sample size due to the asymptotic nature of this method. Sample size
-    should be at least \eqn{\sqrt{N}}{sqrt(N)} with exchangeable
+    should be at least \eqn{\sqrt{J}}{sqrt(J)} with \eqn{J} exchangeable
     parameters.}
   \item{Covar}{This argument defaults to \code{NULL}, but may otherwise
     accept a \eqn{K \times K}{K x K} covariance matrix (where \eqn{K}
@@ -84,7 +84,7 @@ VariationalBayes(Model, parm, Data, Covar=NULL, Interval=1.0E-6,
     sampling. Less time can be spent on sampling by increasing
     \code{CPUs}, which parallelizes the sampling.}
   \item{Stop.Tolerance}{This argument accepts any positive number and
-    defaults to 1.0E-5. Tolerance is calculated each iteration, and the
+    defaults to 1.0E-3. Tolerance is calculated each iteration, and the
     criteria varies by algorithm. The algorithm is considered to have
     converged to the user-specified \code{Stop.Tolerance} when the
     tolerance is less than or equal to the value of
@@ -92,11 +92,10 @@ VariationalBayes(Model, parm, Data, Covar=NULL, Interval=1.0E-6,
     the current iteration. Often, multiple criteria are used, in
     which case the maximum of all criteria becomes the tolerance. For
     example, when partial derivatives are taken, it is commonly required
-    that the square root of the sum of the squared partial derivatives
-    is a criterion, and another common criterion is the square root of
-    the sum of the squared differences between the current and previous
-    parameter values. Several algorithms have other, specific
-    tolerances.}
+    that the Euclidean norm of the partial derivatives is a criterion,
+    and another common criterion is the Euclidean norm of the
+    differences between the current and previous parameter
+    values. Several algorithms have other, specific tolerances.}
   \item{CPUs}{This argument accepts an integer that specifies the number
     of central processing units (CPUs) of the multicore computer or
     computer cluster. This argument defaults to \code{CPUs=1}, in which
@@ -113,7 +112,7 @@ VariationalBayes(Model, parm, Data, Covar=NULL, Interval=1.0E-6,
   mean-field approximation, loopy belief propagation, tree-reweighted
   belief propagation, and expectation propagation (EP).
 
-  Variational inference for probabilistic models were introduced in the
+  Variational inference for probabilistic models was introduced in the
   field of machine learning, influenced by statistical physics
   literature (Saul et al., 1996; Saul and Jordan, 1996; Jaakkola, 1997).
   The mean-field methods in Neal and Hinton (1999) led to variational

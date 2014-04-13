@@ -54,22 +54,28 @@ plot.demonoid.hpc <- function(x, BurnIn=0, Data=NULL, PDF=FALSE,
                          min = min(x[,j])}), nn, Chains)[Stat.at:nn,]),
                     max(matrix(sapply(Posterior, function(x) {
                          max = max(x[,j])}), nn, Chains)[Stat.at:nn,])),
-               col=1, type="l", xlab="Iterations", ylab="Value",
+               col=rgb(0,0,0,50,maxColorValue=255), type="l",
+               xlab="Iterations", ylab="Value",
                main=colnames(Posterior[[1]])[j])
           for (n in 2:Chains) {
-               lines(Stat.at:nn, Posterior[[n]][Stat.at:nn,j], col=n)}
-          plot(density(Posterior[[1]][Stat.at:nn,j]),
-               col=1, xlab="Value", main=colnames(Posterior[[1]])[j])
+               lines(Stat.at:nn, Posterior[[n]][Stat.at:nn,j],
+                    col=rgb(col2rgb(n)[1],col2rgb(n)[2],col2rgb(n)[3],50,
+                    maxColorValue=255))}
+          plot(density(Posterior[[1]][Stat.at:nn,j]), col="white",
+               xlab="Value", main=colnames(Posterior[[1]])[j])
           polygon(density(Posterior[[1]][Stat.at:nn,j]),
-               col="black", border="black")
+               col=rgb(0,0,0,50,maxColorValue=255), border=NA)
           for (n in 2:Chains) {
-               lines(density(Posterior[[n]][Stat.at:nn,j]), col=n)}
+               polygon(density(Posterior[[n]][Stat.at:nn,j]),
+               col=rgb(col2rgb(n)[1],col2rgb(n)[2],col2rgb(n)[3],50,
+                    maxColorValue=255), border=NA)}
           abline(v=0, col="red", lty=2)
           ### Only plot an ACF if there's > 1 unique values
           if(!is.constant(Posterior[[1]][Stat.at:nn,j])) {
                z <- acf(Posterior[[1]][Stat.at:nn,j], plot=FALSE)
                se <- 1/sqrt(length(Posterior[[1]][Stat.at:nn,j]))
-               plot(z$lag, z$acf, ylim=c(min(z$acf,-2*se),1), type="h",
+               plot(z$lag, z$acf, ylim=c(min(z$acf,-2*se),1),
+                    col=rgb(0,0,0,50,maxColorValue=255), type="h",
                     main=colnames(Posterior[[1]])[j], xlab="Lag",
                     ylab="Correlation")
                abline(h=(2*se), col="red", lty=2)
@@ -77,7 +83,9 @@ plot.demonoid.hpc <- function(x, BurnIn=0, Data=NULL, PDF=FALSE,
                for (n in 2:Chains) {
                     z <- acf(Posterior[[n]][Stat.at:nn,j], plot=FALSE)
                     se <- 1/sqrt(length(Posterior[[n]][Stat.at:nn,j]))
-                    lines(z$lag, z$acf, col=n)}
+                    lines(z$lag, z$acf, col=rgb(col2rgb(n)[1],
+                         col2rgb(n)[2],col2rgb(n)[3],50,
+                         maxColorValue=255))}
                }
           else {plot(0,0, main=paste(colnames(Posterior[[1]])[j],
                "is a constant."))}
@@ -89,28 +97,36 @@ plot.demonoid.hpc <- function(x, BurnIn=0, Data=NULL, PDF=FALSE,
      plot(Stat.at:nn, Deviance[[1]][Stat.at:nn],
           ylim=c(min(sapply(Deviance, function(x) {min(x[Stat.at:nn])})),
                max(sapply(Deviance, function(x) {max(x[Stat.at:nn])}))),
+          col=rgb(0,0,0,50,maxColorValue=255),
           type="l", xlab="Iterations", ylab="Value", main="Deviance")
      for (n in 2:Chains) {
-          lines(Stat.at:nn, Deviance[[n]][Stat.at:nn], col=n)}
-     plot(density(Deviance[[1]][Stat.at:nn]),
+          lines(Stat.at:nn, Deviance[[n]][Stat.at:nn],
+               col=rgb(col2rgb(n)[1], col2rgb(n)[2],col2rgb(n)[3],50,
+                    maxColorValue=255))}
+     plot(density(Deviance[[1]][Stat.at:nn]), col="white",
           xlab="Value", main="Deviance")
      polygon(density(Deviance[[1]][Stat.at:nn]),
-          col="black", border="black")
+          col=rgb(0,0,0,50,maxColorValue=255), border=NA)
      for (n in 2:Chains) {
-          lines(density(Deviance[[n]][Stat.at:nn]), col=n)}
+          polygon(density(Deviance[[n]][Stat.at:nn]),
+               col=rgb(col2rgb(n)[1], col2rgb(n)[2],col2rgb(n)[3],50,
+                    maxColorValue=255), border=NA)}
      abline(v=0, col="red", lty=2)
      #### Only plot an ACF if there's > 1 unique values
      if(!is.constant(Deviance[[1]][Stat.at:nn])) {
           z <- acf(Deviance[[1]][Stat.at:nn], plot=FALSE)
           se <- 1/sqrt(length(Deviance[[1]][Stat.at:nn]))
-          plot(z$lag, z$acf, ylim=c(min(z$acf,-2*se),1), type="h",
+          plot(z$lag, z$acf, ylim=c(min(z$acf,-2*se),1),
+               col=rgb(0,0,0,50,maxColorValue=255), type="h",
                main="Deviance", xlab="Lag", ylab="Correlation")
           abline(h=(2*se), col="red", lty=2)
           abline(h=(-2*se), col="red", lty=2)
           for (n in 2:Chains) {
                z <- acf(Deviance[[n]][Stat.at:nn], plot=FALSE)
                se <- 1/sqrt(length(Deviance[[n]][Stat.at:nn]))
-               lines(z$lag, z$acf, col=n)}
+               lines(z$lag, z$acf, col=rgb(col2rgb(n)[1],
+                      col2rgb(n)[2],col2rgb(n)[3],50,
+                      maxColorValue=255))}
           }
      else {plot(0,0, main="Deviance is a constant.")}
      rm(Deviance)
@@ -123,29 +139,37 @@ plot.demonoid.hpc <- function(x, BurnIn=0, Data=NULL, PDF=FALSE,
           plot(Stat.at:nn, Monitor[[1]][Stat.at:nn,j],
                ylim=c(min(sapply(Monitor, function(x) {min(x[Stat.at:nn,j])})),
                     max(sapply(Monitor, function(x) {max(x[Stat.at:nn,j])}))),
+               col=rgb(0,0,0,50,maxColorValue=255),
                type="l", xlab="Iterations", ylab="Value",
                main=Data$mon.names[j])
           for (n in 2:Chains) {
-               lines(Stat.at:nn, Monitor[[n]][Stat.at:nn,j], col=n)}
-          plot(density(Monitor[[1]][Stat.at:nn,j]),
+               lines(Stat.at:nn, Monitor[[n]][Stat.at:nn,j],
+                    col=rgb(col2rgb(n)[1],col2rgb(n)[2],col2rgb(n)[3],50,
+                    maxColorValue=255))}
+          plot(density(Monitor[[1]][Stat.at:nn,j]), col="white",
                xlab="Value", main=Data$mon.names[j])
-          polygon(density(Monitor[[1]][Stat.at:nn,j]), col="black",
-               border="black")
+          polygon(density(Monitor[[1]][Stat.at:nn,j]),
+               col=rgb(0,0,0,50,maxColorValue=255), border=NA)
           for (n in 2:Chains) {
-               lines(density(Monitor[[n]][Stat.at:nn,j]), col=n)}
+               polygon(density(Monitor[[n]][Stat.at:nn,j]),
+                    col=rgb(col2rgb(n)[1],col2rgb(n)[2],col2rgb(n)[3],50,
+                         maxColorValue=255), border=NA)}
           abline(v=0, col="red", lty=2)
           ### Only plot an ACF if there's > 1 unique values
           if(!is.constant(Monitor[[1]][Stat.at:nn,j])) {
                z <- acf(Monitor[[1]][Stat.at:nn,j], plot=FALSE)
                se <- 1/sqrt(length(Monitor[[1]][Stat.at:nn,j]))
-               plot(z$lag, z$acf, ylim=c(min(z$acf,-2*se),1), type="h",
+               plot(z$lag, z$acf, ylim=c(min(z$acf,-2*se),1),
+                    col=rgb(0,0,0,50,maxColorValue=255), type="h",
                     main=Data$mon.names[j], xlab="Lag", ylab="Correlation")
                abline(h=(2*se), col="red", lty=2)
                abline(h=(-2*se), col="red", lty=2)
                for (n in 2:Chains) {
                     z <- acf(Monitor[[n]][Stat.at:nn,j], plot=FALSE)
                     se <- 1/sqrt(length(Monitor[[n]][Stat.at:nn,j]))
-                    lines(z$lag, z$acf, col=n)}
+                    lines(z$lag, z$acf, col=rgb(col2rgb(n)[1],
+                         col2rgb(n)[2],col2rgb(n)[3],50,
+                         maxColorValue=255))}
                }
           else {plot(0,0, main=paste(Data$mon.names[j], "is a constant."))}
           }
@@ -158,16 +182,17 @@ plot.demonoid.hpc <- function(x, BurnIn=0, Data=NULL, PDF=FALSE,
                adaptchange[i,1:3] <- as.vector(quantile(Diff[i,],
                     probs=c(0.025, 0.500, 0.975)))}
           plot(adaptchange[,2], ylim=c(min(adaptchange), max(adaptchange)),
-               type="l", col=1, xlab="Adaptations",
-               ylab="Absolute Difference", main="Proposal Variance",
-               sub="Median=Red, 95% Bounds=Gray")
+               type="l", col=rgb(0,0,0,50,maxColorValue=255),
+               xlab="Adaptations", ylab="Absolute Difference",
+               main="Proposal Variance", sub="Median=Red, 95% Bounds=Gray")
           for (n in 2:Chains) {
                Diff <- abs(diff(x[[n]]$CovarDHis))
                adaptchange <- matrix(NA, nrow(Diff), 3)
                for (i in 1:nrow(Diff)) {
                     adaptchange[i,1:3] <- as.vector(quantile(Diff[i,],
                          probs=c(0.025, 0.500, 0.975)))}
-               lines(adaptchange[,2], col=n)}
+               lines(adaptchange[,2], col=rgb(col2rgb(n)[1],
+                    col2rgb(n)[2],col2rgb(n)[3],50, maxColorValue=255))}
           }
      if(PDF == TRUE) dev.off()
      }
