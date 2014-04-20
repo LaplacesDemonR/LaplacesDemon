@@ -107,8 +107,10 @@ upper.triangle(x, diag=FALSE)
     differentiation is not currently available here, but should be more
     accurate, though even slower to calculate. For \code{CovEstim}, this
     accepts \code{Method="Hessian"}, \code{Method="Identity"} (which
-    simply assigns an identity matrix), or \code{Method="OPG"} (which
-    calculates the sum of outer products of record-level gradients).}
+    simply assigns an identity matrix), \code{Method="OPG"} (which
+    calculates the sum of outer products of record-level gradients), or
+    \code{Method="Sandwich"}, which is the sandwich estimator and
+    combines the Hessian and OPG estimates.}
   \item{nrow}{This is the number of rows of the numeric matrix, and
     defaults to \code{nrow=0}. If the number is known, the function will
     perform noticeably faster when it does not have to check.}

@@ -1,3 +1,7 @@
+2014-04-20 LaplaceApproximation: Added the DFP and SR1 algorithms
+2014-04-20 LaplaceApproximation: Revised the BFGS and BHHH algorithms
+2014-04-19 CovEstim: Added the Sandwich estimator as a method
+2014-04-18 plot.demonoid: Changed colors to transparent for diminishing adapt.
 2014-04-10 LaplacesDemon: Added the MTM algorithm
 2014-04-09 Levene.Test: Changed colors to transparent colors
 2014-04-09 plot.demonoid.hpc: Changed colors to transparent colors

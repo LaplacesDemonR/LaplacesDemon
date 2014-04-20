@@ -141,18 +141,22 @@ VariationalBayes(Model, parm, Data, Covar=NULL, Interval=1.0E-6,
   distributions. In this case, both the mean and variance of the
   parameters are estimated.
   
-  Like the Laplace Approximation, Variational Bayes (VB) is valuable for
-  estimating the parameters of Bayesian models faster than with
-  Monte Carlo algorithms, such as Markov chain Monte Carlo (MCMC). VB
-  often provides solutions with comparable accuracy to MCMC in less
-  time. Though Monte Carlo algorithms provide a numerical approximation
-  to the exact posterior using a set of samples, VB provides a
-  locally-optimal, exact analytical solution to an approximation of the
-  posterior. VB is often more applicable than MCMC to big data or
-  large-dimensional models.
+  Usually, a VB algorithm is slower to convergence than a Laplace
+  Approximation algorithm, and faster to convergence than a Monte Carlo
+  algorithm such as Markov chain Monte Carlo (MCMC). VB often provides
+  solutions with comparable accuracy to MCMC in less time. Though Monte
+  Carlo algorithms provide a numerical approximation to the exact
+  posterior using a set of samples, VB provides a locally-optimal,
+  exact analytical solution to an approximation of the posterior. VB is
+  often more applicable than MCMC to big data or large-dimensional
+  models.
 
   Since VB is deterministic, it is asymptotic and subject to the same
   limitations with respect to sample size as Laplace Approximation.
+  However, VB estimates more parameters than Laplace Approximation,
+  such as when Laplace Approximation optimizes the posterior mode of a
+  Gaussian distribution, while VB optimizes both the Gaussian mean and
+  variance.
 
   Traditionally, VB algorithms required customized equations. The
   \code{VariationalBayes} function uses general-purpose algorithms. A

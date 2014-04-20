@@ -123,12 +123,16 @@ plot.demonoid <- function(x, BurnIn=0, Data=NULL, PDF=FALSE,
                for (i in 1:nrow(Diff)) {
                     adaptchange[i,1:3] <- as.vector(quantile(Diff[i,],
                          probs=c(0.025, 0.500, 0.975)))}
-               plot(adaptchange[,2], ylim=c(min(adaptchange), max(adaptchange)),
+               plot(1:nrow(Diff), adaptchange[,2],
+                    ylim=c(min(adaptchange), max(adaptchange)),
                     type="l", col="red", xlab="Adaptations",
                     ylab="Absolute Difference", main="Proposal Variance",
-                    sub="Median=Red, 95% Bounds=Gray")
-               lines(adaptchange[,1], col="gray")
-               lines(adaptchange[,3], col="gray")}
+                    sub="Median=Red, Interval=Transparent Red")
+               polygon(c(1:nrow(Diff),rev(1:nrow(Diff))),
+                    c(adaptchange[,1], rev(adaptchange[,3])),
+                    col=rgb(255, 0, 0, 50, maxColorValue=255),
+                    border=FALSE)
+               lines(adaptchange[,2], col="red")}
           }
      if(PDF == TRUE) dev.off()
      }

@@ -30,8 +30,8 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
      if({Interval <= 0} | {Interval > 1}) Interval <- 1.0E-6
      Iterations <- min(max(round(Iterations), 10), 1000000)
      "%!in%" <- function(x,table) return(match(x, table, nomatch=0) == 0)
-     if(Method %!in% c("AGA","BFGS","BHHH","CG","HAR","HJ","LBFGS","LM",
-          "NM","NR","PSO","Rprop","SGD","SOMA","SPG","TR"))
+     if(Method %!in% c("AGA","BFGS","BHHH","CG","DFP","HAR","HJ","LBFGS",
+          "LM","NM","NR","PSO","Rprop","SGD","SOMA","SPG","SR1","TR"))
           stop("Method is unknown.")
      if(Stop.Tolerance <= 0) Stop.Tolerance <- 1.0E-5
      as.character.function <- function(x, ... )
@@ -98,6 +98,10 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
      else if(Method == "CG") {
           LA <- CG(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
           }
+     else if(Method == "DFP") {
+          LA <- DFP(Model, parm, Data, Interval, Iterations,
+               Stop.Tolerance, m.old)
+          }
      else if(Method == "HAR") {
           LA <- HAR(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
           }
@@ -134,6 +138,10 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
           }
      else if(Method == "SPG") {
           LA <- SPG(Model, parm, Data, Interval, Iterations,
+               Stop.Tolerance, m.old)
+          }
+     else if(Method == "SR1") {
+          LA <- SR1(Model, parm, Data, Interval, Iterations,
                Stop.Tolerance, m.old)
           }
      else if(Method == "TR") {
@@ -320,94 +328,69 @@ AGA <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
      }
 BFGS <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
      m.old) {
+     m.new <- m.old
      Dev <- matrix(m.old[["Dev"]],1,1)
-     parm.len <- length(as.vector(parm))
      parm.old <- parm
-     post <- matrix(parm, 1, parm.len)
+     parm.len <- length(as.vector(parm))
+     post <- matrix(m.old[["parm"]], 1, parm.len)
      tol.new <- 1
-     prop <- parm
-     stepredn <- 0.2 # Step reduction in line search
-     f <- fmin <- m.old[["LP"]] * -1
      keepgoing <- TRUE
-     ig <- ilast <- 1
-     g <- partial(Model, prop, Data, Interval) * -1
-     oldstep <- steplength <- 0.8
-     B <- diag(parm.len)
-     iter <- 0
+     g.old <- g.new <- rep(0, parm.len)
+     B <- diag(parm.len) #Approximate Hessian
      options(warn=-1)
-     while ({iter <= (Iterations - 1)} & {keepgoing == TRUE}) {
-          iter <- iter + 1
+     for (iter in 2:Iterations) {
           ### Print Status
           if(iter %% round(Iterations / 10) == 0) {
                cat("Iteration: ", iter, " of ", Iterations, "\n")}
-          if(ilast == ig) B <- diag(parm.len)
-          fmin <- f
-          parm <- prop <- m.old[["parm"]]
-          post <- rbind(post, parm)
-          Dev <- rbind(Dev, m.old[["Dev"]])
-          c <- g
-          t <- as.vector(-B %*% g)
-          if(!all(is.numeric(t))) t <- rep(0, parm.len)
-          t[which(!is.finite(t))] <- 0
-          gradproj <- sum(t * g)
-          accpoint <- FALSE
-          if(!is.finite(gradproj)) gradproj <- 0
-          if(gradproj < 0) {
-               changed <- TRUE
-               steplength <- oldstep
-               while ({f >= fmin} & {changed == TRUE} &
-                    {accpoint == FALSE}) {
-                    prop <- parm + steplength * t
-                    changed <- !identical(parm, prop)
-                    if(changed == TRUE) {
-                         m.new <- Model(prop, Data)
-                         if(all(is.finite(c(m.new[["LP"]], m.new[["Dev"]],
-                              m.new[["Monitor"]])))) {
-                              m.old <- m.new
-                              f <- m.old[["LP"]] * -1
-                              prop <- m.old[["parm"]]
-                              }
-                         else f <- .Machine$double.xmax
-                         if(f < fmin)
-                              accpoint <- f <= fmin + gradproj *
-                                   steplength * Stop.Tolerance
-                         else steplength <- steplength * stepredn
-                         }
-                    }
+          ### Gradient and Direction p
+          g.old <- g.new
+          g.new <- -1*partial(Model, m.old[["parm"]], Data, Interval)
+          p <- as.vector(tcrossprod(g.new, -B))
+          p[which(!is.finite(p))] <- 0
+          ### Step-size Line Search
+          Step.Size <- 0.8
+          changed <- TRUE
+          while(m.new[["LP"]] <= m.old[["LP"]] & changed == TRUE) {
+               Step.Size <- Step.Size * 0.2
+               s <- Step.Size*p
+               prop <- m.old[["parm"]] + s
+               changed <- !identical(m.old[["parm"]], prop)
+               m.new <- Model(prop, Data)
+               if(any(!is.finite(c(m.new[["LP"]], m.new[["Dev"]],
+                    m.new[["Monitor"]]))))
+                    m.new <- m.old
                }
-          if(accpoint == TRUE) {
-               g <- partial(Model, m.old[["parm"]], Data, Interval) * -1
-               ig <- ig + 1
-               t <- as.vector(steplength * t)
-               c <- as.vector(g - c)
-               D1 <- sum(t * c)
+          ### BFGS Update to Approximate Hessian B
+          if(m.new[["LP"]] > m.old[["LP"]]) {
+               m.old <- m.new
+               g <- g.new - g.old
+               D1 <- sum(s*g)
                if(D1 > 0) {
-                    y <- as.vector(crossprod(B, c))
-                    D2 <- as.double(1 + crossprod(c,y)/D1)
-                    B <- B - (outer(t, y) + outer(y, t) - D2 *
-                         outer(t, t))/D1
-                    }
-               else ilast <- ig
+                    y <- as.vector(crossprod(B, g))
+                    D2 <- as.double(1 + crossprod(g, y)/D1)
+                    B <- B - (tcrossprod(s, y) + tcrossprod(y, s) -
+                         D2 * tcrossprod(s, s))/D1}
+               if(any(!is.finite(B))) B <- diag(parm.len)
                }
-          else {
-               if(ig == ilast) {
-                    tol.new <- 0
-                    keepgoing <- FALSE
-                    }
-               else ilast <- ig
-               }
+          ### Storage
+          post <- rbind(post, m.old[["parm"]])
+          Dev <- rbind(Dev, m.old[["Dev"]])
+          ### Tolerance
+          tol.new <- sqrt(sum(s*s))
+          if(keepgoing == FALSE) tol.new <- 0
+          if(tol.new <= Stop.Tolerance) break
           }
      options(warn=0)
-     Dev <- Dev[-1,]; post <- post[-1,]
      ### Output
-     LA <- list(Dev=Dev, iter=iter, parm.len=parm.len, parm.new=parm,
-          parm.old=parm.old, post=post, Step.Size=steplength,
-          tol.new=tol.new)
+     LA <- list(Dev=Dev, iter=iter, parm.len=parm.len,
+          parm.new=m.old[["parm"]], parm.old=parm.old, post=post,
+          Step.Size=Step.Size, tol.new=tol.new)
      return(LA)
      }
 BHHH <- function(Model, parm, Data, Interval, Iterations=100,
      Stop.Tolerance, m.old)
      {
+     ### Check data for X and y or Y
      if(is.null(Data$X)) stop("X is required in the data.")
      y <- TRUE
      if(is.null(Data$y)) {
@@ -422,17 +405,16 @@ BHHH <- function(Model, parm, Data, Interval, Iterations=100,
                stop("The number of rows differs in y and X.")}
      m.new <- m.old
      Dev <- matrix(m.old[["Dev"]],1,1)
-     Step.Size <- 1 / length(parm)
      parm.old <- parm
      parm.len <- length(parm)
-     converged <- FALSE
      post <- matrix(parm, 1, parm.len)
-     for (iter in 1:Iterations) {
+     tol.new <- 1
+     options(warn=-1)
+     for (iter in 2:Iterations) {
           ### Print Status
           if(iter %% round(Iterations / 10) == 0) {
                cat("Iteration: ", iter, " of ", Iterations, "\n")}
-          check1 <- TRUE; check2 <- FALSE
-          m.old <- Model(parm, Data)
+          ### Gradient p, OPG A from gradient g, and direction delta
           p <- partial(Model, m.old[["parm"]], Data, Interval)
           A <- matrix(0, parm.len, parm.len)
           for (i in 1:nrow(Data$X)) {
@@ -443,78 +425,33 @@ BHHH <- function(Model, parm, Data, Interval, Iterations=100,
                g <- partial(Model, m.old[["parm"]], Data.temp, Interval)
                A <- A + tcrossprod(g,g)}
           A <- -as.inverse(as.symmetric.matrix(A))
-          delta <- as.vector(tcrossprod(p, A))
-          if(any(!is.finite(delta))) check1 <- FALSE
-          if(check1 == TRUE) {
-               temp1 <- temp2 <- temp3 <- parm
-               Step.Size1 <- Step.Size / 2
-               Step.Size3 <- Step.Size * 2
-               temp1 <- temp1 - Step.Size1 * delta
-               temp2 <- temp2 - Step.Size * delta
-               temp3 <- temp3 - Step.Size3 * delta
-               Mo1 <- Model(temp1, Data)
-               Mo2 <- Model(temp2, Data)
-               Mo3 <- Model(temp3, Data)
-               check2 <- FALSE
-               if({Mo1[["LP"]] == max(Mo1[["LP"]], Mo2[["LP"]],
-                    Mo3[["LP"]])} & Mo1[["LP"]] > m.old[["LP"]]) {
-                    Step.Size <- Step.Size1
-                    parm <- parm - Step.Size * delta
-                    m.old <- m.new <- Mo1
-                    }
-               else if({Mo2[["LP"]] == max(Mo1[["LP"]], Mo2[["LP"]],
-                    Mo3[["LP"]])} & Mo2[["LP"]] > m.old[["LP"]]) {
-                    parm <- parm - Step.Size * delta
-                    m.old <- m.new <- Mo2
-                    }
-               else if({Mo3[["LP"]] == max(Mo1[["LP"]], Mo2[["LP"]],
-                    Mo3[["LP"]])} & Mo3[["LP"]] > m.old[["LP"]]) {
-                    Step.Size <- Step.Size3
-                    parm <- parm - Step.Size * delta
-                    m.old <- m.new <- Mo3
-                    }
-               else check2 <- TRUE}
-          if({check1 == FALSE} | {check2 == TRUE}) {
-               delta <- p
-               temp1 <- temp2 <- temp3 <- parm
-               Step.Size1 <- Step.Size / 2
-               Step.Size3 <- Step.Size * 2
-               temp1 <- temp1 - Step.Size1 * delta
-               temp2 <- temp2 - Step.Size * delta
-               temp3 <- temp3 - Step.Size3 * delta
-               Mo1 <- Model(temp1, Data)
-               Mo2 <- Model(temp2, Data)
-               Mo3 <- Model(temp3, Data)
-               if({Mo1[["LP"]] == max(Mo1[["LP"]], Mo2[["LP"]],
-                    Mo3[["LP"]])} & Mo1[["LP"]] > m.old[["LP"]]) {
-                    Step.Size <- Step.Size1
-                    parm <- parm - Step.Size * delta
-                    m.old <- m.new <- Mo1
-                    }
-               else if({Mo2[["LP"]] == max(Mo1[["LP"]], Mo2[["LP"]],
-                    Mo3[["LP"]])} & Mo2[["LP"]] > m.old[["LP"]]) {
-                    parm <- parm - Step.Size * delta
-                    f <- Mo2
-                    }
-               else if({Mo3[["LP"]] == max(Mo1[["LP"]], Mo2[["LP"]],
-                    Mo3[["LP"]])} & Mo3[["LP"]] > m.old[["LP"]]) {
-                    Step.Size <- Step.Size3
-                    parm <- parm - Step.Size * delta
-                    m.old <- m.new <- Mo3
-                    }
-               else { #Jitter in case of failure
-                    Step.Size <- Step.Size / 2
-                    parm <- parm + Step.Size * rnorm(length(parm))}}
-          post <- rbind(post, parm)
-          Dev <- rbind(Dev, m.new[["Dev"]])
-          Step.Size <- max(Step.Size, .Machine$double.eps)
-          tol.new <- sqrt(sum(delta^2))
-          if(tol.new < Stop.Tolerance) {converged <- TRUE; break}
+          delta <- as.vector(tcrossprod(p, -A))
+          ### Step-size Line Search
+          Step.Size <- 0.8
+          changed <- TRUE
+          while(m.new[["LP"]] <= m.old[["LP"]] & changed == TRUE) {
+               Step.Size <- Step.Size * 0.2
+               s <- Step.Size*delta
+               prop <- m.old[["parm"]] + s
+               changed <- !identical(m.old[["parm"]], prop)
+               m.new <- Model(prop, Data)
+               if(any(!is.finite(c(m.new[["LP"]], m.new[["Dev"]],
+                    m.new[["Monitor"]]))))
+                    m.new <- m.old
+               }
+          if(m.new[["LP"]] > m.old[["LP"]]) m.old <- m.new
+          ### Storage
+          post <- rbind(post, m.old[["parm"]])
+          Dev <- rbind(Dev, m.old[["Dev"]])
+          ### Tolerance
+          tol.new <- sqrt(sum(delta*delta))
+          if(tol.new < Stop.Tolerance) break
           }
-     Dev <- Dev[-1,]; post <- post[-1,]
-     LA <- list(Dev=Dev, iter=iter, parm.len=parm.len, parm.new=parm,
-          parm.old=parm.old, post=post, Step.Size=Step.Size,
-          tol.new=tol.new)
+     options(warn=0)
+     ### Output
+     LA <- list(Dev=Dev, iter=iter, parm.len=parm.len,
+          parm.new=m.old[["parm"]], parm.old=parm.old, post=post,
+          Step.Size=Step.Size, tol.new=tol.new)
      return(LA)
      }
 CG <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
@@ -682,6 +619,66 @@ CG <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
      LA <- list(Dev=Dev, iter=ig, parm.len=parm.len,
           parm.new=m.best[["parm"]], parm.old=parm.old, post=post,
           Step.Size=steplength, tol.new=tol.new)
+     return(LA)
+     }
+DFP <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
+     m.old) {
+     m.new <- m.old
+     Dev <- matrix(m.old[["Dev"]],1,1)
+     parm.old <- parm
+     parm.len <- length(as.vector(parm))
+     post <- matrix(m.old[["parm"]], 1, parm.len)
+     tol.new <- 1
+     keepgoing <- TRUE
+     g.old <- g.new <- -1*partial(Model, m.old[["parm"]], Data, Interval)
+     B <- Iden <- diag(parm.len) #Approximate Hessian
+     options(warn=-1)
+     for (iter in 2:Iterations) {
+          ### Print Status
+          if(iter %% round(Iterations / 10) == 0) {
+               cat("Iteration: ", iter, " of ", Iterations, "\n")}
+          ### Gradient and Direction p
+          g.old <- g.new
+          p <- as.vector(tcrossprod(g.old, -B))
+          p[which(!is.finite(p))] <- 0
+          ### Step-size Line Search
+          Step.Size <- 0.8
+          changed <- TRUE
+          while(m.new[["LP"]] <= m.old[["LP"]] & changed == TRUE) {
+               Step.Size <- Step.Size * 0.2
+               s <- Step.Size*p
+               prop <- m.old[["parm"]] + s
+               changed <- !identical(m.old[["parm"]], prop)
+               m.new <- Model(prop, Data)
+               if(any(!is.finite(c(m.new[["LP"]], m.new[["Dev"]],
+                    m.new[["Monitor"]]))))
+                    m.new <- m.old
+               }
+          g.new <- -1*partial(Model, m.new[["parm"]], Data, Interval)
+          ### DFP Update to Approximate Hessian B
+          if(m.new[["LP"]] > m.old[["LP"]]) {
+               m.old <- m.new
+               g <- g.new - g.old
+               if(sum(s*g) > 0) {
+                    denom <- as.vector(t(g) %*% s)
+                    B <- (Iden - ((g %*% t(s)) / denom)) %*% B %*%
+                         (Iden - ((s %*% t(g)) / denom)) +
+                         ((g %*% t(g)) / denom)}
+               if(any(!is.finite(B))) B <- diag(parm.len)
+               }
+          ### Storage
+          post <- rbind(post, m.old[["parm"]])
+          Dev <- rbind(Dev, m.old[["Dev"]])
+          ### Tolerance
+          tol.new <- sqrt(sum(g.new*g.new))
+          if(keepgoing == FALSE) tol.new <- 0
+          if(tol.new <= Stop.Tolerance) break
+          }
+     options(warn=0)
+     ### Output
+     LA <- list(Dev=Dev, iter=iter, parm.len=parm.len,
+          parm.new=m.old[["parm"]], parm.old=parm.old, post=post,
+          Step.Size=Step.Size, tol.new=tol.new)
      return(LA)
      }
 HAR <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
@@ -1589,6 +1586,67 @@ SPG <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
      LA <- list(Dev=Dev, iter=iter, parm.len=parm.len, parm.new=parm,
           parm.old=parm.old, post=post, Step.Size=1,
           tol.new=pginfn)
+     return(LA)
+     }
+SR1 <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
+     m.old) {
+     m.new <- m.old
+     Dev <- matrix(m.old[["Dev"]],1,1)
+     parm.old <- parm
+     parm.len <- length(as.vector(parm))
+     post <- matrix(m.old[["parm"]], 1, parm.len)
+     tol.new <- 1
+     keepgoing <- TRUE
+     g.old <- g.new <- -1*partial(Model, m.old[["parm"]], Data, Interval)
+     B <- diag(parm.len) #Approximate Hessian
+     options(warn=-1)
+     for (iter in 2:Iterations) {
+          ### Print Status
+          if(iter %% round(Iterations / 10) == 0) {
+               cat("Iteration: ", iter, " of ", Iterations, "\n")}
+          ### Gradient and Direction p
+          g.old <- g.new
+          p <- as.vector(tcrossprod(g.old, -as.inverse(B)))
+          p[which(!is.finite(p))] <- 0
+          ### Step-size Line Search
+          Step.Size <- 0.8
+          changed <- TRUE
+          while(m.new[["LP"]] <= m.old[["LP"]] & changed == TRUE) {
+               Step.Size <- Step.Size * 0.2
+               s <- Step.Size*p
+               prop <- m.old[["parm"]] + s
+               changed <- !identical(m.old[["parm"]], prop)
+               m.new <- Model(prop, Data)
+               if(any(!is.finite(c(m.new[["LP"]], m.new[["Dev"]],
+                    m.new[["Monitor"]]))))
+                    m.new <- m.old
+               }
+          g.new <- -1*partial(Model, m.old[["parm"]], Data, Interval)
+          ### SR1 Update to B, the Secant Approximation of the Hessian
+          if(m.new[["LP"]] > m.old[["LP"]]) {
+               m.old <- m.new
+               g <- g.new - g.old
+               if(sum(s*g) > 0) {
+                    part1 <- g - B %*% s
+                    if(abs(t(s) %*% part1) >=
+                         1e-8*sqrt(sum(s*s))*sqrt(sum(part1*part1)))
+                         B <- B + (part1 %*% t(part1)) /
+                              as.vector(t(part1) %*% s)}
+               if(any(!is.finite(B))) B <- diag(parm.len)
+               }
+          ### Storage
+          post <- rbind(post, m.old[["parm"]])
+          Dev <- rbind(Dev, m.old[["Dev"]])
+          ### Tolerance
+          tol.new <- sqrt(sum(g.new*g.new))
+          if(keepgoing == FALSE) tol.new <- 0
+          if(tol.new <= Stop.Tolerance) break
+          }
+     options(warn=0)
+     ### Output
+     LA <- list(Dev=Dev, iter=iter, parm.len=parm.len,
+          parm.new=m.old[["parm"]], parm.old=parm.old, post=post,
+          Step.Size=Step.Size, tol.new=tol.new)
      return(LA)
      }
 TR <- function(Model, parm, Data, Iterations, m.old)

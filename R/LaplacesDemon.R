@@ -70,7 +70,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           "SGLD","Slice","SMWG","THMC","twalk","UESS","USAMWG","USMWG")) {
           if(Algorithm == "ADMG") {
                Algorithm <- "Adaptive Directional Metropolis-within-Gibbs"
-               if(missing(Specs)) Specs <- list(Periodicity=1)
+               if(missing(Specs) | is.null(Specs))
+                    Specs <- list(Periodicity=1)
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
@@ -113,9 +114,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                }
           else if(Algorithm == "AHMC") {
                Algorithm <- "Adaptive Hamiltonian Monte Carlo"
-               if(missing(Specs))
-                    stop("The Specs argument is required.", file=LogFile,
-                          append=TRUE)
+               if(missing(Specs) | is.null(Specs))
+                    Specs=list(epsilon=rep(1/length(Initial.Values),
+                         length(Initial.Values)), L=2, Periodicity=1)
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
@@ -171,9 +172,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                }
           else if(Algorithm == "AM") {
                Algorithm <- "Adaptive Metropolis"
-               if(missing(Specs))
-                    stop("The Specs argument is required.", file=LogFile,
-                         append=TRUE)
+               if(missing(Specs) | is.null(Specs))
+                    Specs=list(Adaptive=floor(Iterations/2),
+                         Periodicity=1)
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
@@ -183,9 +184,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                }
           else if(Algorithm == "AMM") {
                Algorithm <- "Adaptive-Mixture Metropolis"
-               if(missing(Specs))
-                    stop("The Specs argument is required.", file=LogFile,
-                         append=TRUE)
+               if(missing(Specs) | is.null(Specs))
+                    Specs=list(Adaptive=floor(Iterations/2), B=NULL,
+                         Periodicity=1, w=0.05)
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
@@ -206,9 +207,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                }
           else if(Algorithm == "AMWG") {
                Algorithm <- "Adaptive Metropolis-within-Gibbs"
-               if(missing(Specs))
-                    stop("The Specs argument is required.", file=LogFile,
-                         append=TRUE)
+               if(missing(Specs) | is.null(Specs))
+                    Specs=list(Periodicity=1)
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
@@ -279,9 +279,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                }
           else if(Algorithm == "DRAM") {
                Algorithm <- "Delayed Rejection Adaptive Metropolis"
-               if(missing(Specs))
-                    stop("The Specs argument is required.", file=LogFile,
-                         append=TRUE)
+               if(missing(Specs) | is.null(Specs))
+                    Specs=list(Adaptive=floor(Iterations/2),
+                         Periodicity=1)
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
@@ -295,9 +295,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                }
           else if(Algorithm == "ESS") {
                Algorithm <- "Elliptical Slice Sampler"
-               if(missing(Specs))
-                    stop("The Specs argument is required.", file=LogFile,
-                         append=TRUE)
+               if(missing(Specs) | is.null(Specs))
+                    Specs=list(B=NULL)
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
@@ -307,8 +306,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(is.null(Specs[["B"]])) Specs[["B"]] <- list()
                }
           else if(Algorithm == "Experimental") {
-               Adaptive <- Iterations + 1
-               Periodicity <- Iterations + 1
+               Specs=NULL
                }
           else if(Algorithm == "GG") {
                Algorithm <- "Griddy-Gibbs"
@@ -364,9 +362,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                }
           else if(Algorithm == "HMC") {
                Algorithm <- "Hamiltonian Monte Carlo"
-               if(missing(Specs))
-                    stop("The Specs argument is required.", file=LogFile,
-                         append=TRUE)
+               if(missing(Specs) | is.null(Specs))
+                    Specs=list(epsilon=rep(1/length(Initial.Values),
+                         length(Initial.Values)), L=2)
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
@@ -424,9 +422,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                }
           else if(Algorithm == "INCA") {
                Algorithm <- "Interchain Adaptation"
-               if(missing(Specs))
-                    stop("The Specs argument is required.", file=LogFile,
-                         append=TRUE)
+               if(missing(Specs) | is.null(Specs))
+                    Specs=list(Adaptive=floor(Iterations/2),
+                         Periodicity=1)
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
@@ -436,10 +434,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                }
           else if(Algorithm == "MALA") {
                Algorithm <- "Metropolis-Adjusted Langevin Algorithm"
-               Adaptive <- Iterations + 1
-               if(missing(Specs))
-                    stop("The Specs argument is required.", file=LogFile,
-                         append=TRUE)
+               if(missing(Specs) | is.null(Specs))
+                    Specs=list(Periodicity=1)
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
@@ -508,9 +504,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                }
           else if(Algorithm == "RAM") {
                Algorithm <- "Robust Adaptive Metropolis"
-               if(missing(Specs))
-                    stop("The Specs argument is required.", file=LogFile,
-                         append=TRUE)
+               if(missing(Specs) | is.null(Specs))
+                    Specs=list(alpha.star=0.234, Dist="N", gamma=0.66,
+                         Periodicity=1)
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
@@ -540,9 +536,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                }
           else if(Algorithm == "Refractive") {
                Algorithm <- "Refractive Sampler"
-               if(missing(Specs))
-                    stop("The Specs argument is required.", file=LogFile,
-                         append=TRUE)
+               if(missing(Specs) | is.null(Specs))
+                    Specs=list(Adaptive=1, m=2, w=0.1, r=1.3)
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
@@ -682,9 +677,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                }
           else if(Algorithm == "Slice") {
                Algorithm <- "Slice Sampler"
-               if(missing(Specs))
-                    stop("The Specs argument is required.", file=LogFile,
-                         append=TRUE)
+               if(missing(Specs) | is.null(Specs))
+                    Specs <- list(m=Inf, w=1)
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
@@ -760,9 +754,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                }
           else if(Algorithm == "twalk") {
                Algorithm <- "t-walk"
-               if(missing(Specs))
-                    stop("The Specs argument is required.", file=LogFile,
-                         append=TRUE)
+               if(missing(Specs) | is.null(Specs))
+                    Specs=list(SIV=NULL, n1=4, at=6, aw=1.5)
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
@@ -805,9 +798,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                }
           else if(Algorithm == "UESS") {
                Algorithm = "Univariate Eigenvector Slice Sampler"
-               if(missing(Specs))
-                    stop("The Specs argument is required.", file=LogFile,
-                          append=TRUE)
+               if(missing(Specs) | is.null(Specs))
+                    Specs=list(m=100)
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
@@ -1390,30 +1382,29 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           colnames(thinned) <- Data$parm.names}
      ### Logarithm of the Marginal Likelihood
      LML <- list(LML=NA, VarCov=NA)
-     if(({Algorithm == "Adaptive Griddy-Gibbs"} |
-          {Algorithm == "Affine-Invariant Ensemble Sampler"} |
-          {Algorithm == "Componentwise Hit-And-Run Metropolis"} |
-          {Algorithm == "Delayed Rejection Metropolis"} |
-          {Algorithm == "Elliptical Slice Sampler"} |
-          {Algorithm == "Griddy-Gibbs"} | 
-          {Algorithm == "Hamiltonian Monte Carlo"} |
-          {Algorithm == "Hit-And-Run Metropolis"} | 
-          {Algorithm == "Independence Metropolis"} |
-          {Algorithm == "Metropolis-Coupled Markov Chain Monte Carlo"} |
-          {Algorithm == "Metropolis-within-Gibbs"} |
-          {Algorithm == "Multiple-Try Metropolis"} |
-          {Algorithm == "No-U-Turn Sampler"} |
-          {Algorithm == "Random Dive Metropolis-Hastings"} |
-          {Algorithm == "Random-Walk Metropolis"} |
-          {Algorithm == "Reflective Slice Sampler"} |
-          {Algorithm == "Refractive Sampler"} |
-          {Algorithm == "Reversible-Jump"} |
-          {Algorithm == "Sequential Metropolis-within-Gibbs"} |
-          {Algorithm == "Slice Sampler"} |
-          {Algorithm == "Stochastic Gradient Langevin Dynamics"} |
-          {Algorithm == "Tempered Hamiltonian Monte Carlo"} | 
-          {Algorithm == "t-walk"}) & 
-          {Stat.at < thinned.rows}) {
+     if(Algorithm %in% c("Adaptive Griddy-Gibbs",
+          "Affine-Invariant Ensemble Sampler",
+          "Componentwise Hit-And-Run Metropolis",
+          "Delayed Rejection Metropolis",
+          "Elliptical Slice Sampler",
+          "Griddy-Gibbs",
+          "Hamiltonian Monte Carlo",
+          "Hit-And-Run Metropolis",
+          "Independence Metropolis",
+          "Metropolis-Coupled Markov Chain Monte Carlo",
+          "Metropolis-within-Gibbs",
+          "Multiple-Try Metropolis",
+          "No-U-Turn Sampler",
+          "Random Dive Metropolis-Hastings",
+          "Random-Walk Metropolis",
+          "Reflective Slice Sampler",
+          "Refractive Sampler",
+          "Reversible-Jump",
+          "Sequential Metropolis-within-Gibbs",
+          "Slice Sampler",
+          "Stochastic Gradient Langevin Dynamics",
+          "Tempered Hamiltonian Monte Carlo",
+          "t-walk") & {Stat.at < thinned.rows}) {
           cat("Estimating Log of the Marginal Likelihood\n", file=LogFile,
                append=TRUE)
           LML <- LML(theta=thinned2, LL=as.vector(Dev2)*(-1/2),
@@ -3806,7 +3797,8 @@ MTM <- function(Model, Data, Iterations, Status, Thinning, Specs,
                prop4 <- prop1
                prop4[,j] <- prop3
                ### Calculate Acceptance Probability
-               numerator <- denom <- logadd(LP)
+               numerator <- logadd(LP)
+               denom <- rep(0, K)
                if(CPUs == 1) {
                     ### Non-parallel
                     for (k in 1:K) {

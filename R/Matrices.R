@@ -237,9 +237,7 @@ CovEstim <- function(Model, parm, Data, Method="Hessian")
                     VarCov <- diag(length(parm))}
           }
      else if(Method == "Identity") VarCov <- diag(length(parm))
-     else if(Method != "OPG")
-          cat("\nWARNING: CovEst is unrecognized, changing to OPG.")
-     else { ### OPG
+     else if(Method == "OPG") {
           if(is.null(Data$X)) stop("X is required in the data.")
           y <- TRUE
           if(is.null(Data$y)) {
@@ -263,6 +261,34 @@ CovEstim <- function(Model, parm, Data, Method="Hessian")
                VarCov <- VarCov + tcrossprod(g,g)}
           VarCov <- as.inverse(as.symmetric.matrix(VarCov))
           }
+     else if(Method == "Sandwich") {
+          B <- as.inverse(Hessian(Model, parm, Data))
+          if(is.null(Data$X)) stop("X is required in the data.")
+          y <- TRUE
+          if(is.null(Data$y)) {
+               y <- FALSE
+               if(is.null(Data$Y)) stop("y or Y is required in the data.")}
+          if(y == TRUE) {
+               if(length(Data$y) != nrow(Data$X))
+                    stop("length of y differs from rows in X.")
+               }
+          else {
+               if(nrow(Data$Y) != nrow(Data$X))
+                    stop("The number of rows differs in y and X.")}
+          LIV <- length(parm)
+          M <- matrix(0, LIV, LIV)
+          n <- nrow(Data$X)
+          for (i in 1:n) {
+               Data.temp <- Data
+               Data.temp$X <- Data.temp$X[i,,drop=FALSE]
+               if(y == TRUE) Data.temp$y <- Data.temp$y[i]
+               else Data.temp$Y <- Data.temp$Y[i,]
+               g <- partial(Model, parm, Data.temp)
+               M <- M + tcrossprod(g,g)}
+          M <- as.symmetric.matrix(M)
+          VarCov <- B %*% M %*% B #Bread, Meat, Bread
+          }
+     else cat("\nWARNING: CovEst Method is unrecognized.")
      return(VarCov)
      }
 GaussHermiteCubeRule <- function(N, dims, rule)

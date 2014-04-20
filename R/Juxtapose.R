@@ -73,59 +73,47 @@ Juxtapose <- function(x)
           if(!identical(class(x[[i]]), "demonoid"))
                stop("A component of x was found not be of class demonoid.")
           ### Use the abbreviated name of the algorithm
-          alg <- x[[i]][["Algorithm"]]
-          if(alg == "Adaptive Directional Metropolis-within-Gibbs")
-               alg <- "ADMG"
-          else if(alg == "Adaptive Griddy-Gibbs") alg <- "AGG"
-          else if(alg == "Adaptive Hamiltonian Monte Carlo") alg <- "AHMC"
-          else if(alg == "Adaptive Metropolis") alg <- "AM"
-          else if(alg == "Adaptive-Mixture Metropolis") alg <- "AMM"
-          else if(alg == "Adaptive Metropolis-within-Gibbs") alg <- "AMWG"
-          else if(alg == "Affine-Invariant Ensemble Sampler") alg <- "AIES"
-          else if(alg == "Componentwise Hit-And-Run Metropolis")
-               alg <- "CHARM"
-          else if(alg == "Delayed Rejection Adaptive Metropolis")
-               alg <- "DRAM"
-          else if(alg == "Delayed Rejection Metropolis") alg <- "DRM"
-          else if(alg == "Differential Evolution Markov Chain")
-               alg <- "DEMC"
-          else if(alg == "Elliptical Slice Sampler") alg <- "ESS"
-          else if(alg == "Experimental") alg <- "Exper"
-          else if(alg == "Griddy-Gibbs") alg <- "GG"
-          else if(alg == "Hamiltonian Monte Carlo") alg <- "HMC"
-          else if(alg == "Hamiltonian Monte Carlo with Dual-Averaging")
-               alg <- "HMCDA"
-          else if(alg == "Hit-And-Run Metropolis") alg <- "HARM"
-          else if(alg == "Independence Metropolis") alg <- "IM"
-          else if(alg == "Interchain Adaptation") alg <- "INCA"
-          else if(alg == "Metropolis-Adjusted Langevin Algorithm")
-               alg <- "MALA"
-          else if(alg == "Metropolis-Coupled Markov Chain Monte Carlo") alg <- "MCMCMC"
-          else if(alg == "Metropolis-within-Gibbs") alg <- "MWG"
-          else if(alg == "Multiple-Try Metropolis") alg <- "MTM"
-          else if(alg == "No-U-Turn Sampler") alg <- "NUTS"
-          else if(alg == "Olbique Hyperrectangle Slice Sampler") alg <- "OHSS"
-          else if(alg == "Random Dive Metropolis-Hastings") alg <- "RDMH"
-          else if(alg == "Random-Walk Metropolis") alg <- "RWM"
-          else if(alg == "Reflective Slice Sampler") alg <- "RSS"
-          else if(alg == "Refractive Sampler") alg <- "Refractive"
-          else if(alg == "Reversible-Jump") alg <- "RJ"
-          else if(alg == "Robust Adaptive Metropolis") alg <- "RAM"
-          else if(alg == "Sequential Adaptive Metropolis-within-Gibbs")
-               alg <- "SAMWG"
-          else if(alg == "Sequential Metropolis-within-Gibbs")
-               alg <- "SMWG"
-          else if(alg == "Slice Sampler") alg <- "Slice"
-          else if(alg == "Stochastic Gradient Langevin Dynamics")
-               alg <- "SGLD"
-          else if(alg == "Tempered Hamiltonian Monte Carlo") alg <- "THMC"
-          else if(alg == "t-walk") alg <- "twalk"
-          else if(alg == "UESS") alg <- "Univariate Eigenvector Slice Sampler"
-          else if(alg == "Updating Sequential Adaptive Metropolis-within-Gibbs")
-               alg <- "USAMWG"
-          else if(alg == "Updating Sequential Metropolis-within-Gibbs")
-               alg <- "USMWG"
-          algs[i] <- alg
+          algs[i] <- switch(x[[i]][["Algorithm"]],
+               "Adaptive Directional Metropolis-within-Gibbs"="ADMG",
+               "Adaptive Griddy-Gibbs"="AGG",
+               "Adaptive Hamiltonian Monte Carlo"="AHMC",
+               "Adaptive Metropolis"="AM",
+               "Adaptive Metropolis-within-Gibbs"="AMWG",
+               "Adaptive-Mixture Metropolis"="AMM",
+               "Affine-Invariant Ensemble Sampler"="AIES",
+               "Componentwise Hit-And-Run Metropolis"="CHARM",
+               "Delayed Rejection Adaptive Metropolis"="DRAM",
+               "Delayed Rejection Metropolis"="DRM",
+               "Differential Evolution Markov Chain"="DEMC",
+               "Elliptical Slice Sampler"="ESS",
+               "Experimental"="Exper",
+               "Griddy-Gibbs"="GG",
+               "Hamiltonian Monte Carlo"="HMC",
+               "Hamiltonian Monte Carlo with Dual-Averaging"="HMCDA",
+               "Hit-And-Run Metropolis"="HARM",
+               "Independence Metropolis"="IM",
+               "Interchain Adaptation"="INCA",
+               "Metropolis-Adjusted Langevin Algorithm"="MALA",
+               "Metropolis-Coupled Markov Chain Monte Carlo"="MCMCMC",
+               "Metropolis-within-Gibbs"="MWG",
+               "Multiple-Try Metropolis"="MTM",
+               "No-U-Turn Sampler"="NUTS",
+               "Oblique Hyperrectangle Slice Sampler"="OHSS",
+               "Random Dive Metropolis-Hastings"="RDMH",
+               "Random-Walk Metropolis"="RWM",
+               "Reflective Slice Sampler"="RSS",
+               "Refractive Sampler"="Refractive",
+               "Reversible-Jump"="RJ",
+               "Robust Adaptive Metropolis"="RAM",
+               "Sequential Adaptive Metropolis-within-Gibbs"="SAMWG",
+               "Sequential Metropolis-within-Gibbs"="SMWG",
+               "Slice Sampler"="Slice",
+               "Stochastic Gradient Langevin Dynamics"="SGLD",
+               "Tempered Hamiltonian Monte Carlo"="THMC",
+               "t-walk"="t-walk",
+               "Univariate Eigenvector Slice Sampler"="UESS",
+               "Updating Sequential Adaptive Metropolis-within-Gibbs"="USAMWG",
+               "Updating Sequential Metropolis-within-Gibbs"="USMWG")
           }
      colnames(out) <- algs
      rownames(out) <- c("iter.min","t.iter.min","prop.stat","IAT.025",

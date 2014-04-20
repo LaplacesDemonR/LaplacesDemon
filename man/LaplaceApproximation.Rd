@@ -28,10 +28,10 @@ LaplaceApproximation(Model, parm, Data, Interval=1.0E-6,
     length to the number of parameters. \code{LaplaceApproximation} will
     attempt to optimize these initial values for the parameters, where
     the optimized values are the posterior modes, for later use with the
-    \code{\link{IterativeQuadrature}}, \code{\link{LaplacesDemon}}, or
-    \code{\link{PMC}} function. The \code{\link{GIV}} function may be
-    used to randomly generate initial values. Parameters must be
-    continuous.}
+    \code{\link{IterativeQuadrature}}, \code{\link{LaplacesDemon}},
+    \code{\link{PMC}}, or the \code{\link{VariationalBayes}} function.
+    The \code{\link{GIV}} function may be used to randomly generate
+    initial values. Parameters must be continuous.}
   \item{Data}{This required argument accepts a list of data. The list of
     data must include \code{mon.names} which contains monitored variable
     names, and \code{parm.names} which contains parameter
@@ -63,6 +63,7 @@ LaplaceApproximation(Model, parm, Data, Interval=1.0E-6,
     adaptive gradient ascent, \code{"BFGS"} for the
     Broyden-Fletcher-Goldfarb-Shanno algorithm, \code{"BHHH"} for the
     algorithm of Berndt et al., \code{"CG"} for conjugate gradient,
+    \code{"DFP"} for the Davidon-Fletcher-Powell algorithm,
     \code{"HAR"} for adaptive hit-and-run, \code{"HJ"} for
     Hooke-Jeeves, \code{"LBFGS"} for limited-memory BFGS, \code{"LM"}
     for Levenberg-Marquardt, \code{"NM"} for Nelder-Mead, \code{"NR"}
@@ -70,7 +71,8 @@ LaplaceApproximation(Model, parm, Data, Interval=1.0E-6,
     \code{"Rprop"} for resilient backpropagation, \code{"SGD"} for
     Stochastic Gradient Descent, \code{"SOMA"} for the Self-Organizing
     Migration Algorithm, \code{"SPG"} for Spectral Projected Gradient,
-    and \code{"TR"} for Trust Region.}
+    \code{"SR1"} for Symmetric Rank-One, and \code{"TR"} for Trust
+    Region.}
   \item{Samples}{This argument indicates the number of posterior samples
     to be taken with sampling importance resampling via the
     \code{\link{SIR}} function, which occurs only when
@@ -84,7 +86,7 @@ LaplaceApproximation(Model, parm, Data, Interval=1.0E-6,
     converged. By default, the covariance matrix is approximated as the
     negative inverse of the \code{"Hessian"} matrix of second
     derivatives, estimated with Richardson extrapolation. Alternatives
-    include \code{CovEst="Identity"} or \code{CovEst="OPG"}. When
+    include \code{CovEst="Identity"}, or \code{CovEst="OPG"}. When
     \code{CovEst="Identity"}, the covariance matrix is not estimated,
     and is merely assigned an identity matrix. When
     \code{\link{LaplaceApproximation}} is performed internally by
@@ -166,8 +168,8 @@ LaplaceApproximation(Model, parm, Data, Interval=1.0E-6,
   toward replacing Markov chain Monte Carlo (MCMC) algorithms as the
   dominant form of numerical approximation in Bayesian inference. The
   run-time of Laplace Approximation is a little longer than Maximum
-  Likelihood Estimation (MLE), and much shorter than MCMC (Azevedo and
-  Shachter, 1994).
+  Likelihood Estimation (MLE), usually shorter than variational Bayes,
+  and much shorter than MCMC (Azevedo and Shachter, 1994).
 
   The speed of Laplace Approximation depends on the optimization
   algorithm selected, and typically involves many evaluations of the
@@ -175,15 +177,16 @@ LaplaceApproximation(Model, parm, Data, Interval=1.0E-6,
   multivariate proposal usually evaluates once per iteration), making
   many MCMC algorithms faster per iteration. The attractiveness
   of Laplace Approximation is that it typically improves the objective
-  function better than MCMC when the parameters are in low-probability
-  regions (in which MCMC algorithms may suffer unreasonably low
-  acceptance rates). Laplace Approximation is also typically faster
-  because it is seeking point-estimates, rather than attempting to
-  represent the target distribution with enough simulation draws.
-  Laplace Approximation extends MLE, but shares similar limitations,
-  such as its asymptotic nature with respect to sample size. Bernardo
-  and Smith (2000) note that Laplace Approximation is an attractive
-  numerical approximation algorithm, and will continue to develop.
+  function better than iterative quadrature, MCMC, and PMC when the
+  parameters are in low-probability regions. Laplace Approximation is
+  also typically faster than MCMC and PMC because it is seeking
+  point-estimates, rather than attempting to represent the target
+  distribution with enough simulation draws. Laplace Approximation
+  extends MLE, but shares similar limitations, such as its asymptotic
+  nature with respect to sample size and that marginal posterior
+  distributions are Gaussian. Bernardo and Smith (2000) note that
+  Laplace Approximation is an attractive family of numerical
+  approximation algorithms, and will continue to develop.
 
   \code{LaplaceApproximation} seeks a global maximum of the logarithm of
   the unnormalized joint posterior density. The approach differs by
@@ -259,6 +262,15 @@ LaplaceApproximation(Model, parm, Data, Interval=1.0E-6,
   matrix for the final covariance matrix. CG was originally developed by
   Hestenes and Stiefel (1952), though this version is adapted from the
   \code{Rcgminu} function in package Rcgmin.
+
+  When \code{Method="DFP"}, the Davidon-Fletcher-Powell algorithm is
+  used. DFP was the first popular, multidimensional, quasi-Newton
+  optimization algorithm. The DFP update of an approximate Hessian
+  matrix maintains symmetry and positive-definiteness. The approximate
+  Hessian is not guaranteed to converge to the Hessian. When DFP is
+  used, the approximate Hessian is not used to calculate the final
+  covariance matrix. Although DFP is very effective, it was superseded
+  by the BFGS algorithm.
 
   When \code{Method="HAR"}, a hit-and-run algorithm with a multivariate
   proposal and adaptive length is used. The length parameter is adapted
@@ -364,6 +376,18 @@ LaplaceApproximation(Model, parm, Data, Interval=1.0E-6,
   Hessian matrix is not. When used with large models,
   \code{Covest="Hessian"} should be avoided. SPG has been adapted from
   the \code{spg} function in package BB.
+
+  When \code{Method="SR1"}, the Symmetric Rank-One (SR1) algorithm is
+  used. SR1 is a quasi-Newton algorithm, and the Hessian matrix is
+  approximated, often without being positive-definite. At the posterior
+  modes, the true Hessian is usually positive-definite, but this is
+  often not the case during optimization when the parameters have not
+  yet reached the posterior modes. Other restrictions, including
+  constraints, often result in the true Hessian being indefinite at the
+  solution. For these reasons, SR1 often outperforms BFGS. The
+  approximate Hessian is not guaranteed to converge to the Hessian. When
+  SR1 is used, the approximate Hessian is not used to calculate the
+  final covariance matrix.
 
   When \code{Method="TR"}, the Trust Region algorithm of Nocedal and
   Wright (1999) is used. The TR algorithm attempts to reach its
@@ -625,6 +649,7 @@ print(Fit)
 \keyword{BFGS}
 \keyword{BHHH}
 \keyword{Conjugate Gradient}
+\keyword{DFP}
 \keyword{Gradient Ascent}
 \keyword{High Performance Computing}
 \keyword{Hit-And-Run}
@@ -640,4 +665,5 @@ print(Fit)
 \keyword{Self-Organizing Migration Algorithm}
 \keyword{Spectral Projected Gradient}
 \keyword{Stochastic Gradient Descent}
+\keyword{Symmetric Rank-One}
 \keyword{Trust Region}
