@@ -10,8 +10,8 @@
   \tabular{ll}{
     Package: \tab LaplacesDemon\cr
     Type: \tab Package\cr
-    Version: \tab 14.04.05\cr
-    Date: \tab 2014-04-05\cr
+    Version: \tab 14.04.23\cr
+    Date: \tab 2014-04-23\cr
     License: \tab MIT\cr
   }
   The goal of LaplacesDemon, often referred to as Laplace's Demon, is to

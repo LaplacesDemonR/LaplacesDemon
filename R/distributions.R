@@ -2007,8 +2007,8 @@ dwishart <- function(Omega, nu, S, log=FALSE)
      k <- nrow(Omega)
      gamsum <- 0
      for (i in 1:k) {gamsum <- gamsum + lgamma((nu + 1 - i)/2)}
-     dens <- -((nu*k)/2) * log(2) - ((k*(k-1))/4) * log(pi) - gamsum -
-          (nu/2) * log(det(S)) + ((nu-k-1)/2) * log(det(Omega)) -
+     dens <- -((nu*k)/2) * log(2) - ((k*(k - 1))/4) * log(pi) - gamsum -
+          (nu/2) * log(det(S)) + ((nu - k - 1)/2) * log(det(Omega)) -
           (tr(as.inverse(S) %*% Omega)/2)
      if(log == FALSE) dens <- exp(dens)
      return(dens)
@@ -2028,7 +2028,7 @@ rwishart <- function(nu, S)
      if(k > 1) {
           kseq <- 1:(k-1)
           Z[rep(k*kseq, kseq) +
-               unlist(lapply(kseq, seq))] <- rnorm(k*{k-1}/2)}
+               unlist(lapply(kseq, seq))] <- rnorm(k*{k - 1}/2)}
      return(crossprod(Z %*% chol(S)))
      }
 
@@ -2050,8 +2050,8 @@ dwishartc <- function(U, nu, S, log=FALSE)
      k <- nrow(Omega)
      gamsum <- 0
      for (i in 1:k) {gamsum <- gamsum + lgamma((nu + 1 - i)/2)}
-     dens <- -((nu*k)/2) * log(2) - ((k*(k-1))/4) * log(pi) - gamsum -
-          (nu/2) * log(det(S)) + ((nu-k-1)/2) * log(det(Omega)) -
+     dens <- -((nu*k)/2) * log(2) - ((k*(k - 1))/4) * log(pi) - gamsum -
+          (nu/2) * log(det(S)) + ((nu - k - 1)/2) * log(det(Omega)) -
           (tr(as.inverse(S) %*% Omega)/2)
      if(log == FALSE) dens <- exp(dens)
      return(dens)
@@ -2071,7 +2071,7 @@ rwishartc <- function(nu, S)
      if(k > 1) {
           kseq <- 1:(k-1)
           Z[rep(k*kseq, kseq) +
-               unlist(lapply(kseq, seq))] <- rnorm(k*{k-1}/2)}
+               unlist(lapply(kseq, seq))] <- rnorm(k*{k - 1}/2)}
      return(chol(crossprod(Z %*% chol(S))))
      }
 

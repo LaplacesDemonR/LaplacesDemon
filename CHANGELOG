@@ -1,3 +1,4 @@
+2014-04-21 BayesianBootstrap: Added example of marginal posterior covariance
 2014-04-20 LaplaceApproximation: Added the DFP and SR1 algorithms
 2014-04-20 LaplaceApproximation: Revised the BFGS and BHHH algorithms
 2014-04-19 CovEstim: Added the Sandwich estimator as a method

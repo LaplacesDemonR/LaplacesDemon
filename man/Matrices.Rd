@@ -105,12 +105,13 @@ upper.triangle(x, diag=FALSE)
     derivatives, finite-differencing should not be used when
     approximating a Hessian matrix. Another method called automatic
     differentiation is not currently available here, but should be more
-    accurate, though even slower to calculate. For \code{CovEstim}, this
-    accepts \code{Method="Hessian"}, \code{Method="Identity"} (which
-    simply assigns an identity matrix), \code{Method="OPG"} (which
-    calculates the sum of outer products of record-level gradients), or
-    \code{Method="Sandwich"}, which is the sandwich estimator and
-    combines the Hessian and OPG estimates.}
+    accurate, though even slower to calculate. Another popular
+    alternative is to use the \code{\link{BayesianBootstrap}} on the
+    data. For \code{CovEstim}, this accepts \code{Method="Hessian"},
+    \code{Method="Identity"} (which simply assigns an identity matrix),
+    \code{Method="OPG"} (which calculates the sum of outer products of
+    record-level gradients), or \code{Method="Sandwich"}, which is the
+    sandwich estimator and combines the Hessian and OPG estimates.}
   \item{nrow}{This is the number of rows of the numeric matrix, and
     defaults to \code{nrow=0}. If the number is known, the function will
     perform noticeably faster when it does not have to check.}
@@ -311,6 +312,7 @@ upper.triangle(x, diag=FALSE)
 }
 \author{Statisticat, LLC. \email{software@bayesian-inference.com}}
 \seealso{
+  \code{\link{BayesianBootstrap}},
   \code{\link{Cov2Prec}},
   \code{\link{cov2cor}},
   \code{\link{GaussHermiteQuadRule}},

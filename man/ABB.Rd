@@ -116,6 +116,8 @@ ABB(X, K=1)
   \code{\link{MISS}}.
 }
 \examples{
+library(LaplacesDemon)
+
 ### Create Data
 J <- 10 #Number of variables
 m <- 20 #Number of missings

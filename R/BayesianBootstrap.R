@@ -21,13 +21,11 @@ BayesianBootstrap <- function(X, n=1000, Method="weights", Status=NULL)
      J <- ncol(X)
      if(identical(Method, "weights")) {
           BB <- replicate(S, diff(c(0, sort(runif(N-1)), 1)))
-          cat("\n\nThe Bayesian Bootstrap has finished.\n\n")
           return(BB)}
      ### Bayesian Bootstrap: Statistics
      BB <- vector("list", S)
      for (s in 1:S) {
-          if(s %% Status == 0) 
-               cat("\nBootstrapped Samples:", s)
+          if(s %% Status == 0) cat("\nBootstrapped Samples:", s)
           u <- c(0, sort(runif(N - 1)), 1)
           g <- diff(u)
           BB[[s]] <- Method(X, g)}

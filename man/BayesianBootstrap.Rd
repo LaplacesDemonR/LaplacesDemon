@@ -2,7 +2,7 @@
 \alias{BayesianBootstrap}
 \title{The Bayesian Bootstrap}
 \description{
-  This function performs the Bayesian Bootstrap of Rubin (1981),
+  This function performs the Bayesian bootstrap of Rubin (1981),
   returning either bootstrapped weights or statistics.
 }
 \usage{
@@ -44,6 +44,13 @@ BayesianBootstrap(X, n=1000, Method="weights", Status=NULL)
   many samples of weights are interpretable as posterior distributions
   on that parameter.
 
+  The Bayesian bootstrap is useful for estimating marginal posterior
+  covariance and standard deviations for the posterior modes of
+  \code{\link{LaplaceApproximation}}, especially when the model
+  dimension (the number of parameters) is large enough that estimating
+  the \code{\link{Hessian}} matrix of second partial derivatives is too
+  computationally demanding.
+
   Just as with the frequentist bootstrap, inappropriate use of the
   Bayesian bootstrap can lead to inappropriate inferences. The Bayesian
   bootstrap violates the likelihood principle, because the evaluation of
@@ -73,10 +80,13 @@ BayesianBootstrap(X, n=1000, Method="weights", Status=NULL)
   Statisticat, LLC. \email{software@bayesian-inference.com}}
 \seealso{
   \code{\link{ABB}},
+  \code{\link{Hessian}},
   \code{\link{LaplaceApproximation}}, and
   \code{\link{LaplacesDemon}}.
 }
 \examples{
+library(LaplacesDemon)
+
 #Example 1: Samples
 x <- 1:2
 BB <- BayesianBootstrap(X=x, n=100, Method="weights"); BB
@@ -97,5 +107,36 @@ X <- matrix(c(dye,efp), length(dye), 2)
 colnames(X) <- c("dye","efp")
 BB <- BayesianBootstrap(X=X, n=100,
      Method=function(x,w) cov.wt(x, w, cor=TRUE)$cor); BB
+
+#Example 5: Marginal Posterior Covariance
+#The following example is commented out due to package build time.
+#To run the following example, use the code from the examples in
+#the LaplaceApproximation function for the data, model specification
+#function, and initial values. Then perform the Laplace
+#Approximation as below (with CovEst="Identity" and sir=FALSE) until
+#convergence, set the latest initial values, then use the Bayesian
+#bootstrap on the data, run the Laplace Approximation again to
+#convergence, save the posterior modes, and repeat until S samples
+#of the posterior modes are collected. Finally, calculate the
+#parameter covariance or standard deviation.
+
+#Fit <- LaplaceApproximation(Model, Initial.Values, Data=MyData,
+#     Iterations=1000, Method="SPG",  CovEst="Identity", sir=FALSE)
+#Initial.Values <- as.initial.values(Fit)
+#S <- 100 #Number of bootstrapped sets of posterior modes (parameters)
+#Z <- rbind(Fit$Summary1[,1]) #Bootstrapped parameters collected here
+#N <- nrow(MyData$X) #Number of records
+#MyData.B <- MyData
+#for (s in 1:S) {
+#     cat("\nIter:", s, "\n")
+#     BB <- BayesianBootstrap(MyData$y, n=N)
+#     z <- apply(BB, 2, function(x) sample.int(N, size=1, prob=x))
+#     MyData.B$y <- MyData$y[z]
+#     MyData.B$X <- MyData$X[z,]
+#     Fit <- LaplaceApproximation(Model, Initial.Values, Data=MyData.B,
+#          Iterations=1000, Method="SPG", CovEst="Identity", sir=FALSE)
+#     Z <- rbind(Z, Fit$Summary1[,1])}
+#cov(Z) #Bootstrapped marginal posterior covariance
+#sqrt(diag(cov(Z))) #Bootstrapped marginal posterior standard deviations
 }
 \keyword{Utility}

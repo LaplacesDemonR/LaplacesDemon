@@ -62,7 +62,7 @@ upper-triangular Cholesky factor \eqn{\textbf{U}}{U}, as per
 The integral is finite when \eqn{\nu \ge k}{nu >= k}, where
 \eqn{\nu}{nu} is the scalar degrees of freedom parameter, and \eqn{k} is
 the dimension of scale matrix \eqn{\textbf{S}}{S}. The density is finite
-is finite when \eqn{\nu ge k + 1}{nu >= k + 1}, which is recommended.
+when \eqn{\nu ge k + 1}{nu >= k + 1}, which is recommended.
 
 The degrees of freedom, \eqn{\nu}{nu}, is equivalent to specifying a
 prior sample size, indicating the confidence in \eqn{\textbf{S}}{S},

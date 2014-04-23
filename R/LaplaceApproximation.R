@@ -364,12 +364,12 @@ BFGS <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
           if(m.new[["LP"]] > m.old[["LP"]]) {
                m.old <- m.new
                g <- g.new - g.old
-               D1 <- sum(s*g)
-               if(D1 > 0) {
+               CC <- sum(s*g) #Curvature condition
+               if(CC > 0) {
                     y <- as.vector(crossprod(B, g))
-                    D2 <- as.double(1 + crossprod(g, y)/D1)
+                    D <- as.double(1 + crossprod(g, y)/CC)
                     B <- B - (tcrossprod(s, y) + tcrossprod(y, s) -
-                         D2 * tcrossprod(s, s))/D1}
+                         D * tcrossprod(s, s))/CC}
                if(any(!is.finite(B))) B <- diag(parm.len)
                }
           ### Storage
@@ -663,9 +663,8 @@ DFP <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
                     denom <- as.vector(t(g) %*% s)
                     B <- (Iden - ((g %*% t(s)) / denom)) %*% B %*%
                          (Iden - ((s %*% t(g)) / denom)) +
-                         ((g %*% t(g)) / denom)}
-               if(any(!is.finite(B))) B <- diag(parm.len)
-               }
+                         ((g %*% t(g)) / denom)
+                    if(any(!is.finite(B))) B <- diag(parm.len)}}
           ### Storage
           post <- rbind(post, m.old[["parm"]])
           Dev <- rbind(Dev, m.old[["Dev"]])
@@ -1573,6 +1572,7 @@ SPG <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
                gbest <- pginfn}
           }
      ### Output
+     if(iter < Iterations) pginfn <- max(fchg, pginfn)
      if(is.null(lsflag)) lsflag <- 0
      if(lsflag == 0) parm <- pbest
      else {
@@ -1631,9 +1631,9 @@ SR1 <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
                     if(abs(t(s) %*% part1) >=
                          1e-8*sqrt(sum(s*s))*sqrt(sum(part1*part1)))
                          B <- B + (part1 %*% t(part1)) /
-                              as.vector(t(part1) %*% s)}
-               if(any(!is.finite(B))) B <- diag(parm.len)
-               }
+                              as.vector(t(part1) %*% s)
+                    if(any(!is.finite(B))) B <- diag(parm.len)}
+               else B <- diag(parm.len)}
           ### Storage
           post <- rbind(post, m.old[["parm"]])
           Dev <- rbind(Dev, m.old[["Dev"]])

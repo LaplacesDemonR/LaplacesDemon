@@ -86,26 +86,27 @@ LaplaceApproximation(Model, parm, Data, Interval=1.0E-6,
     converged. By default, the covariance matrix is approximated as the
     negative inverse of the \code{"Hessian"} matrix of second
     derivatives, estimated with Richardson extrapolation. Alternatives
-    include \code{CovEst="Identity"}, or \code{CovEst="OPG"}. When
-    \code{CovEst="Identity"}, the covariance matrix is not estimated,
-    and is merely assigned an identity matrix. When
-    \code{\link{LaplaceApproximation}} is performed internally by
-    \code{\link{LaplacesDemon}}, an identity matrix is returned and
-    scaled. When \code{CovEst="OPG"}, the covariance matrix is
-    approximated with the inverse of the sum of the outer products of
-    the gradient, which requires \code{X}, and either \code{y} or
-    \code{Y} in the list of data. For OPG, a partial derivative is
-    taken for each row in \code{X}, and each element in \code{y} or
-    row in \code{Y}. Therefore, this requires \eqn{N + NJ} model
-    evaluations for a data set with \eqn{N} records and \eqn{J}
+    include \code{CovEst="Identity"}, \code{CovEst="OPG"}, or
+    \code{CovEst="Sandwich"}. When \code{CovEst="Identity"}, the
+    covariance matrix is not estimated, and is merely assigned an
+    identity matrix. When \code{\link{LaplaceApproximation}} is
+    performed internally by \code{\link{LaplacesDemon}}, an identity
+    matrix is returned and scaled. When \code{CovEst="OPG"}, the
+    covariance matrix is approximated with the inverse of the sum of the
+    outer products of the gradient, which requires \code{X}, and either
+    \code{y} or \code{Y} in the list of data. For OPG, a partial
+    derivative is taken for each row in \code{X}, and each element in
+    \code{y} or row in \code{Y}. Therefore, this requires \eqn{N + NJ}
+    model evaluations for a data set with \eqn{N} records and \eqn{J}
     variables. The OPG method is an asymptotic approximation of
-    the Hessian, and usually requires fewer calculations, but this
-    depends on the size of the data set. Both methods require a matrix
-    inversion, which becomes costly as dimension grows. The
-    Richardson-based method is more accurate, but requires more
+    the Hessian, and usually requires fewer calculations with a small
+    data set, or more with large data sets. Both methods require a
+    matrix inversion, which becomes costly as dimension grows. The
+    Richardson-based Hessian method is more accurate, but requires more
     calculation in large dimensions. An alternative approach to
-    obtaining covariance is to sample the posterior with iterative
-    quadrature (\code{\link{IterativeQuadrature}}), MCMC
+    obtaining covariance is to use the \code{\link{BayesianBootstrap}}
+    on the data, or sample the posterior with iterative quadrature
+    (\code{\link{IterativeQuadrature}}), MCMC
     (\code{\link{LaplacesDemon}}), or \code{\link{VariationalBayes}}.}
   \item{sir}{This logical argument indicates whether or not Sampling
     Importance Resampling (SIR) is conducted via the \code{\link{SIR}}
@@ -257,11 +258,10 @@ LaplaceApproximation(Model, parm, Data, Interval=1.0E-6,
   reach convergence than other algorithms that use the Hessian or an
   approximation. However, since the Hessian becomes computationally
   expensive as the dimension of the model grows, CG is applicable to
-  large dimensional models. When CG is used for large models,
-  \code{Covest="OPG"} may be used to avoid calculating the Hessian
-  matrix for the final covariance matrix. CG was originally developed by
-  Hestenes and Stiefel (1952), though this version is adapted from the
-  \code{Rcgminu} function in package Rcgmin.
+  large dimensional models when \code{CovEst="Hessian"} is avoided.
+  CG was originally developed by Hestenes and Stiefel (1952), though
+  this version is adapted from the \code{Rcgminu} function in package
+  Rcgmin.
 
   When \code{Method="DFP"}, the Davidon-Fletcher-Powell algorithm is
   used. DFP was the first popular, multidimensional, quasi-Newton
@@ -374,7 +374,7 @@ LaplaceApproximation(Model, parm, Data, Interval=1.0E-6,
   is used. SPG is a non-monotone algorithm that is suitable for
   high-dimensional models. The approximate gradient is used, but the
   Hessian matrix is not. When used with large models,
-  \code{Covest="Hessian"} should be avoided. SPG has been adapted from
+  \code{CovEst="Hessian"} should be avoided. SPG has been adapted from
   the \code{spg} function in package BB.
 
   When \code{Method="SR1"}, the Symmetric Rank-One (SR1) algorithm is
@@ -569,6 +569,7 @@ LaplaceApproximation(Model, parm, Data, Interval=1.0E-6,
 \author{Statisticat, LLC \email{software@bayesian-inference.com}}
 \seealso{
   \code{\link{BayesFactor}},
+  \code{\link{BayesianBootstrap}},
   \code{\link{IterativeQuadrature}},
   \code{\link{LaplacesDemon}},
   \code{\link{GIV}},

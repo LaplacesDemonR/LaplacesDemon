@@ -1443,7 +1443,7 @@ MyData <- list(J=J, PGF=PGF, X=X, mon.names=mon.names, \\
 \code{Initial.Values <- c(rep(0,J), 1)}
 
 \section{Contingency Table} \label{contingency.table}
-The two-way contingency table, matrix $\textbf{Y}$, can easily be extended to more dimensions. For this example, it is vectorized as $y$, and used like an ANOVA data set. Contingency table $\textbf{Y}$ has J rows and K columns. The cell counts are fit with Poisson regression, according to intercept $\alpha$, main effects $\beta_j$ for each row, main effects $\gamma_k$ for each column, and interaction effects $\delta_{j,k}$ for dependence effects. An omnibus (all cells) test of independence is done by estimating two models (one with $\delta$, and one without), and a large enough Bayes Factor indicates a violation of independence when the model with $\delta$ fits better than the model without $\delta$. In an ANOVA-like style, main effects contrasts can be used to distinguish rows or groups of rows from each other, as well as with columns. Likewise, interaction effects contrasts can be used to test independence in groups of $\delta_{j,k}$ elements. Finally, single-cell interactions can be used to indicate violations of independence for a given cell, such as when zero is not within its 95\% probability interval.
+The two-way contingency table, matrix $\textbf{Y}$, can easily be extended to more dimensions. Contingency table $\textbf{Y}$ has J rows and K columns. The cell counts are fit with Poisson regression, according to intercept $\alpha$, main effects $\beta_j$ for each row, main effects $\gamma_k$ for each column, and interaction effects $\delta_{j,k}$ for dependence effects. An omnibus (all cells) test of independence is done by estimating two models (one with $\delta$, and one without), and a large enough Bayes Factor indicates a violation of independence when the model with $\delta$ fits better than the model without $\delta$. In an ANOVA-like style, main effects contrasts can be used to distinguish rows or groups of rows from each other, as well as with columns. Likewise, interaction effects contrasts can be used to test independence in groups of $\delta_{j,k}$ elements. Finally, single-cell interactions can be used to indicate violations of independence for a given cell, such as when zero is not within its 95\% probability interval.
 \subsection{Form}
 $$\textbf{Y}_{j,k} \sim \mathcal{P}(\lambda_{j,k}), \quad j=1,\dots,J, \quad k=1,\dots,K$$
 $$\lambda_{j,k} = \exp(\alpha + \beta_j + \gamma_k + \delta_{j,k}), \quad j=1,\dots,J, \quad k=1,\dots,K$$
@@ -1460,19 +1460,13 @@ $$\delta_\sigma \sim \mathcal{HC}(25)$$
 \subsection{Data}
 \code{J <- 3 \#Rows \\
 K <- 3 \#Columns \\
-log.alpha <- log(runif(1, 100, 200)) \\
-beta <- rnorm(J-1, 3); beta <- c(beta, -sum(beta)) \\
-gamma <- rnorm(J-1, 3); gamma <- c(gamma, -sum(gamma)) \\
-delta <- rnorm(J*K-1, 2); delta <- c(delta, -sum(delta)) \\
-Y <- matrix(exp(log.alpha), J, K) + matrix(beta, J, K, byrow=TRUE) + \\
-\hspace*{0.27 in} matrix(gamma, J, K) + matrix(delta, J, K) + \\
-\hspace*{0.27 in} matrix(rnorm(J*K,0,0.1), J, K) \\
+alpha <- runif(1,10,20) \\
+beta <- rnorm(J-1, 0, 2); beta <- c(beta, -sum(beta)) \\
+gamma <- rnorm(K-1, 0, 2); gamma <- c(gamma, -sum(gamma)) \\
+delta <- rnorm(J*K-1, 0, 0.5); delta <- c(delta, -sum(delta)) \\
+Y <- matrix(alpha + matrix(beta, J, K) + matrix(gamma, J, K, byrow=TRUE) + \\
+\hspace*{0.27 in} matrix(delta, J, K), J, K) \\
 Y <- round(Y) \\
-y <- as.vector(Y) \\
-N <- length(y) \#Cells \\
-r <- rep(1:J, N/J) \\
-co <- rep(1,K) \\
-for (k in 2:K) \{co <- c(co, rep(k, K))\} \\
 mon.names <- "LP" \\
 parm.names <- as.parm.names(list(alpha=0, beta=rep(0,J-1), \\
 \hspace*{0.27 in} gamma=rep(0,K-1), delta=rep(0,J*K-1), b.sigma=0, g.sigma=0, \\
@@ -1484,15 +1478,12 @@ pos.delta <- grep("delta", parm.names) \\
 pos.b.sigma <- grep("b.sigma", parm.names) \\
 pos.g.sigma <- grep("g.sigma", parm.names) \\
 pos.d.sigma <- grep("d.sigma", parm.names) \\
-PGF <- function(Data) return(c(rnorm(1,mean(Y),1), \\
-\hspace*{0.27 in} rnorm(Data$J-1,0,rhalfcauchy(1,5)), \\
-\hspace*{0.27 in} rnorm(Data$K-1,0,rhalfcauchy(1,5)), \\
-\hspace*{0.27 in} rnorm(Data$J*Data$K-1,0,rhalfcauchy(1,5)), \\
-\hspace*{0.27 in} rhalfcauchy(3,5))) \\
-MyData <- list(J=J, K=K, N=N, PGF=PGF, co=co, mon.names=mon.names, \\
+PGF <- function(Data) return(c(rnorm(1,log(mean(Y)),1), rnorm(Data$J-1), \\
+\hspace*{0.27 in} rnorm(Data$K-1), rnorm(Data$J*Data$K-1), rhalfcauchy(3,5))) \\
+MyData <- list(J=J, K=K, PGF=PGF, Y=Y, mon.names=mon.names, \\
 \hspace*{0.27 in} parm.names=parm.names, pos.alpha=pos.alpha, pos.beta=pos.beta, \\
 \hspace*{0.27 in} pos.gamma=pos.gamma, pos.delta=pos.delta, pos.b.sigma=pos.b.sigma, \\
-\hspace*{0.27 in} pos.g.sigma=pos.g.sigma, pos.d.sigma=pos.d.sigma, r=r, y=y) \\
+\hspace*{0.27 in} pos.g.sigma=pos.g.sigma, pos.d.sigma=pos.d.sigma) \\
 }
 \subsection{Model}
 \code{Model <- function(parm, Data) \\
@@ -1505,15 +1496,14 @@ MyData <- list(J=J, K=K, N=N, PGF=PGF, co=co, mon.names=mon.names, \\
 \hspace*{0.27 in} delta.sigma <- interval(parm[Data$pos.d.sigma], 1e-100, Inf) \\
 \hspace*{0.27 in} parm[Data$pos.d.sigma] <- delta.sigma \\
 \hspace*{0.27 in} \#\#\# Parameters \\
-\hspace*{0.27 in} alpha <- interval(parm[Data$pos.alpha], 1e-100, Inf) \\
-\hspace*{0.27 in} parm[Data$pos.alpha] <- alpha \\
+\hspace*{0.27 in} alpha <- parm[Data$pos.alpha] \\
 \hspace*{0.27 in} beta <- parm[Data$pos.beta] \\
-\hspace*{0.27 in} beta <- c(beta, -sum(beta))
+\hspace*{0.27 in} beta <- c(beta, -sum(beta)) \\
 \hspace*{0.27 in} gamma <- parm[Data$pos.gamma] \\
-\hspace*{0.27 in} gamma <- c(gamma, -sum(gamma))
+\hspace*{0.27 in} gamma <- c(gamma, -sum(gamma)) \\
 \hspace*{0.27 in} delta <- parm[Data$pos.delta] \\
-\hspace*{0.27 in} c(delta, -sum(delta)) \\
-\hspace*{0.62 in} delta <- matrix(delta, Data$J, Data$K) \\
+\hspace*{0.27 in} delta <- c(delta, -sum(delta)) \\
+\hspace*{0.27 in} delta <- matrix(delta, Data$J, Data$K) \\
 \hspace*{0.27 in} \#\#\# Log(Hyperprior Densities) \\
 \hspace*{0.27 in} beta.sigma.prior <- dhalfcauchy(beta.sigma, 25, log=TRUE) \\
 \hspace*{0.27 in} gamma.sigma.prior <- dhalfcauchy(gamma.sigma, 25, log=TRUE) \\
@@ -1524,9 +1514,10 @@ MyData <- list(J=J, K=K, N=N, PGF=PGF, co=co, mon.names=mon.names, \\
 \hspace*{0.27 in} gamma.prior <- sum(dnorm(gamma, 0, gamma.sigma, log=TRUE)) \\
 \hspace*{0.27 in} delta.prior <- sum(dnorm(delta, 0, delta.sigma, log=TRUE)) \\
 \hspace*{0.27 in} \#\#\# Log-Likelihood \\
-\hspace*{0.27 in} lambda <- exp(alpha + beta[Data$r] + gamma[Data$co] + \\
-\hspace*{0.62 in} diag(delta[Data$r,Data$co])) \\
-\hspace*{0.27 in} LL <- sum(dpois(Data$y, lambda, log=TRUE)) \\
+\hspace*{0.27 in} beta <- matrix(beta, Data$J, Data$K) \\
+\hspace*{0.27 in} gamma <- matrix(gamma, Data$J, Data$K, byrow=TRUE) \\
+\hspace*{0.27 in} lambda <- exp(alpha + beta + gamma + delta) \\
+\hspace*{0.27 in} LL <- sum(dpois(Data$Y, lambda, log=TRUE)) \\
 \hspace*{0.27 in} \#\#\# Log-Posterior \\
 \hspace*{0.27 in} LP <- LL + alpha.prior + beta.prior + beta.sigma.prior + \\
 \hspace*{0.62 in} gamma.prior + gamma.sigma.prior + delta.prior + \\
@@ -1538,8 +1529,8 @@ MyData <- list(J=J, K=K, N=N, PGF=PGF, co=co, mon.names=mon.names, \\
 \hspace*{0.27 in} \} \\
 }
 \subsection{Initial Values}
-\code{Initial.Values <- c(log(mean(y)), rep(0,J-1), rep(0,K-1), rep(0,J*K-1) \\
-\hspace*{0.27 in} rep(0,3)) \\}
+\code{Initial.Values <- c(log(mean(Y)), rep(0,J-1), rep(0,K-1), rep(0,J*K-1), \\
+\hspace*{0.27 in} rep(1,3)) \\}
 
 \section{Covariance Separation Strategy} \label{cov.sep.strat}
 A Seemingly Unrelated Regression (SUR) model is used to provide an example of a flexible way to estimate covariance or precision matrices with the ``separation strategy'' decomposition of \citet{barnard00}. For more information on SUR models, see section \ref{sur}.
