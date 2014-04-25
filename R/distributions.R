@@ -184,8 +184,8 @@ dcat <- function(x, p, log=FALSE)
           x.temp <- matrix(0, nrow(p), ncol(p))
           x.temp[,as.numeric(colnames(x))] <- x
           x <- x.temp}
-     dens <- x*p
-     if(log == TRUE) dens <- x*log(p)
+     dens <- x*log(p)
+     if(log == FALSE) dens <- x*p
      dens <- as.vector(rowSums(dens))
      return(dens)
      }

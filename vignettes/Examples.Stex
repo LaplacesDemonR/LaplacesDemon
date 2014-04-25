@@ -88,6 +88,7 @@ This vignette will grow over time as examples of more methods become included. C
 \item Factor Analysis, Confirmatory (CFA) \ref{cfa}
 \item Factor Analysis, Dynamic (DFA) \ref{dfa}
 \item Factor Analysis, Exploratory (EFA) \ref{efa}
+\item Factor Analysis, Exploratory Ordinal (EOFA) \ref{eofa}
 \item Factor Regression \ref{factor.reg}
 \item Gamma Regression \ref{gamma.reg}
 \item GARCH(1,1) \ref{garch}
@@ -2277,7 +2278,7 @@ MyData <- list(M=M, N=N, P=P, PGF=PGF, S=S, Y=Y, gamma=gamma, \\
 \hspace*{0.27 in} Sigma <- matrix(sigma, Data$N, Data$M, byrow=TRUE) \\
 \hspace*{0.27 in} LL <- sum(dnorm(Data$Y, mu, Sigma, log=TRUE)) \\
 \hspace*{0.27 in} \#\#\# Log-Posterior \\
-\hspace*{0.27 in} LP <- LL + F.prior + Lambda.prior + U.prior + alpha.prior +
+\hspace*{0.27 in} LP <- LL + F.prior + Lambda.prior + U.prior + alpha.prior + \\
 \hspace*{0.62 in} sigma.prior \\
 \hspace*{0.27 in} Modelout <- list(LP=LP, Dev=-2*LL, Monitor=LP, \\
 \hspace*{0.27 in} yhat=rnorm(prod(dim(mu)), mu, Sigma), parm=parm) \\
@@ -2287,6 +2288,94 @@ MyData <- list(M=M, N=N, P=P, PGF=PGF, S=S, Y=Y, gamma=gamma, \\
 \subsection{Initial Values}
 \code{Initial.Values <- c(rep(0,N*P), rep(0,P*M), upper.triangle(S, diag=TRUE), \\
 \hspace*{0.27 in} rep(0,M), rep(1,M))}
+
+\section{Factor Analysis, Exploratory Ordinal} \label{eofa}
+\subsection{Form}
+$$\textbf{Y}_{i,m} \sim \mathcal{CAT}(P_{i,m,1:K}), \quad i=1,\dots,N, \quad m=1,\dots,M$$
+$$P_{,,K} = 1 - Q_{,,(K-1)}$$
+$$P_{,,k} = |Q_{,,k} - Q_{,,(k-1)}|, \quad k=2,\dots,(K-1)$$
+$$P_{,,1} = Q_{,,1}$$
+$$Q = \phi(\mu)$$
+$$\mu_{,,k} = Z + \alpha_k - \textbf{F} \Lambda, \quad k=1,\dots,(K-1)$$
+$$\textbf{F}_{i,1:P} \sim \mathcal{N}_P(\gamma, \Omega^{-1}), \quad i=1,\dots,N$$
+$$\gamma_p = 0, \quad p=1,\dots,P$$
+$$\Lambda_{p,m} \sim \mathcal{N}(0, 1000), \quad p=1,\dots,P, \quad m=1,\dots,M$$
+$$\Omega \sim \mathcal{W}_N(\textbf{S}), \quad \textbf{S} = \textbf{I}_P$$
+$$\alpha_k \sim \mathcal{N}(0, 1) \in [(k-1),k] \in [-5,5], \quad k=2,\dots,(K-1)$$
+\subsection{Data}
+\code{M <- 10 \#Number of variables \\
+N <- 20 \#Number of records \\
+K <- 3 \#Number of discrete values \\
+P <- 3 \#Number of factors \\
+Z <- mean(Y) \\
+alpha <- sort(rnorm(K-1)) \\
+Lambda <- matrix(runif(M*P,-1,1), P, M) \\
+U <- diag(P) \\
+U[upper.tri(U, diag=TRUE)] <- runif(length(upper.triangle(U, diag=TRUE))) \\
+F <- rmvnc(N, rep(0,P), U) \\
+mu <- aperm(array(alpha, dim=c(K-1, M, N)), perm=c(3,2,1)) \\
+mu <- mu + array(Z + tcrossprod(F, t(Lambda)), dim=c(N, M, K-1)) \\
+Pr <- Q <- pnorm(mu) \\
+Pr[ , , -1] <- abs(Q[ , , -1] - Q[ , , -(K-1)]) \\
+Pr <- array(Pr, dim=c(N, M, K)) \\
+Pr[ , , K] <- 1 - Q[ , , (K-1)] \\
+dim(Pr) <- c(N*M, K) \\
+Y <- matrix(rcat(nrow(Pr), Pr), N, M) \#Make sure Y has all values \\
+gamma <- rep(0,P) \\
+Y <- matrix(rcat(N*M, rep(1/K,K)), N, M) \\
+S <- diag(P) \\
+mon.names <- "LP" \\
+parm.names <- as.parm.names(list(F=matrix(0,N,P), Lambda=matrix(0,P,M), \\
+\hspace*{0.27 in} U=diag(P), alpha=rep(0,K-1)), uppertri=c(0,0,1,0)) \\
+pos.F <- grep("F", parm.names) \\
+pos.Lambda <- grep("Lambda", parm.names) \\
+pos.alpha <- grep("alpha", parm.names) \\
+PGF <- function(Data) return(c(rmvnpc(Data$N, Data$gamma, \\
+\hspace*{0.27 in} rwishartc(Data$N, Data$S)), rnormv(Data$P*Data$M,0,1000), \\
+\hspace*{0.27 in} upper.triangle(rwishartc(Data$N, Data$S), diag=TRUE), \\
+\hspace*{0.27 in} sort(rnorm(Data$K-1,0,1)))) \\
+MyData <- list(K=K, M=M, N=N, P=P, PGF=PGF, S=S, Y=Y, Z=Z, gamma=gamma, \\
+\hspace*{0.27 in} mon.names=mon.names, parm.names=parm.names, pos.F=pos.F, \\
+\hspace*{0.27 in} pos.Lambda=pos.Lambda, pos.alpha=pos.alpha) \\
+}
+\subsection{Model}
+\code{Model <- function(parm, Data) \\
+\hspace*{0.27 in} \{ \\
+\hspace*{0.27 in} \#\#\# Parameters \\
+\hspace*{0.27 in} F <- matrix(parm[Data$pos.F], Data$N, Data$P) \\
+\hspace*{0.27 in} Lambda <- matrix(parm[Data$pos.Lambda], Data$P, Data$M) \\
+\hspace*{0.27 in} U <- as.parm.matrix(U, Data$P, parm, Data, chol=TRUE) \\
+\hspace*{0.27 in} diag(U) <- exp(diag(U)) \\
+\hspace*{0.27 in} alpha <- sort(interval(parm[Data$pos.alpha], -5, 5)) \\
+\hspace*{0.27 in} parm[Data$pos.alpha] <- alpha \\
+\hspace*{0.27 in} \#\#\# Log(Prior Densities) \\
+\hspace*{0.27 in} F.prior <- sum(dmvnpc(F, Data$gamma, U, log=TRUE)) \\
+\hspace*{0.27 in} Lambda.prior <- sum(dnormv(Lambda, 0, 1000, log=TRUE)) \\
+\hspace*{0.27 in} U.prior <- dwishartc(U, Data$N, Data$S, log=TRUE) \\
+\hspace*{0.27 in} alpha.prior <- sum(dnormv(alpha, 0, 1000, log=TRUE)) \\
+\hspace*{0.27 in} \#\#\# Log-Likelihood \\
+\hspace*{0.27 in} mu <- aperm(array(alpha, dim=c(Data$K-1, Data$M, Data$N)), \\
+\hspace*{0.62 in} perm=c(3,2,1)) \\
+\hspace*{0.27 in} mu <- mu + array(Data$Z + tcrossprod(F, t(Lambda)), \\
+\hspace*{0.62 in} dim=c(Data$N, Data$M, Data$K-1)) \\
+\hspace*{0.27 in} P <- Q <- pnorm(mu) \\
+\hspace*{0.27 in} P[ , , -1] <- abs(Q[ , , -1] - Q[ , , -(Data$K-1)]) \\
+\hspace*{0.27 in} P <- array(P, dim=c(Data$N, Data$M, Data$K)) \\
+\hspace*{0.27 in} P[ , , Data$K] <- 1 - Q[ , , (Data$K-1)] \\
+\hspace*{0.27 in} y <- as.vector(Data$Y) \\
+\hspace*{0.27 in} dim(P) <- c(Data$N*Data$M, Data$K) \\
+\hspace*{0.27 in} LL <- sum(dcat(y, P, log=TRUE)) \\
+\hspace*{0.27 in} \#\#\# Log-Posterior \\
+\hspace*{0.27 in} LP <- LL + F.prior + Lambda.prior + U.prior + alpha.prior \\
+\hspace*{0.27 in} Modelout <- list(LP=LP, Dev=-2*LL, Monitor=LP, \\
+\hspace*{0.62 in} yhat=matrix(rcat(nrow(P), P), Data$N, Data$M), parm=parm) \\
+\hspace*{0.27 in} return(Modelout) \\
+\hspace*{0.27 in} \}
+}
+\subsection{Initial Values}
+\code{Initial.Values <- c(rep(0,N*P), rep(0,P*M), upper.triangle(S, diag=TRUE), \\
+\hspace*{0.27 in} seq(from=-1, to=1, len=K-1))
+}
 
 \section{Factor Regression} \label{factor.reg}
 This example of factor regression is constrained to the case where the number of factors is equal to the number of independent variables (IVs) less the intercept. The purpose of this form of factor regression is to orthogonalize the IVs with respect to $\textbf{y}$, rather than variable reduction. This method is the combination of confirmatory factor analysis in section \ref{cfa} and linear regression in section \ref{linear.reg}.
@@ -4509,8 +4598,8 @@ MyData <- list(J=J, K=K, N=N, PGF=PGF, S=S, X=X, Y=Y, \\
 \hspace*{0.27 in} Sigma <- t(U) \%*\% U \\
 \hspace*{0.27 in} Sigma[1,] <- Sigma[,1] <- U[1,] \\
 \hspace*{0.27 in} W <- matrix(parm[Data$pos.W], Data$N, Data$J) \\
-\hspace*{0.27 in} W <- ifelse(Y == 1, interval(W, 0, 10), \\
-\hspace*{0.62 in} interval(W, -10, 0)) \\
+\hspace*{0.27 in} W[Data$Y == 0] <- interval(W[Data$Y == 0], -10, 0) \\
+\hspace*{0.27 in} W[Data$Y == 1] <- interval(W[Data$Y == 1], 0, 10) \\
 \hspace*{0.27 in} parm[Data$pos.W] <- as.vector(W) \\
 \hspace*{0.27 in} \#\#\# Log(Prior Densities) \\
 \hspace*{0.27 in} beta.prior <- sum(dnormv(beta, 0, 1000, log=TRUE)) \\
@@ -6574,7 +6663,7 @@ selectable=c(0, rep(1,J-1), 0) \\
 \code{Initial.Values <- GIV(Model, MyData, PGF=TRUE)}
 
 \section{Variable Selection, SSVS} \label{ssvs}
-This example uses a modified form of the random-effects (or global adaptation) Stochastic Search Variable Selection (SSVS) algorithm presented in \citet{ohara09}, which selects variables according to practical significance rather than statistical significance. Here, SSVS is applied to linear regression, though this method is widely applicable. For $J$ variables, each regression effects vector $\beta_j$ is conditional on $\gamma_j$, a binary inclusion variable. Each $\beta_j$ is a discrete mixture distribution with respect to $\gamma_j = 0$ or $\gamma_j = 1$, with precision 100 or $\beta_\sigma = 0.1$, respectively. As with other representations of SSVS, these precisions may require tuning.
+This example uses a modified form of the random-effects (or global adaptation) Stochastic Search Variable Selection (SSVS) algorithm presented in \citet{ohara09}, which selects variables according to practical significance rather than statistical significance. Here, SSVS is applied to linear regression, though this method is widely applicable. For $J$ variables, each regression effect $\beta_j$ is conditional on $\gamma_j$, a binary inclusion variable. Each $\beta_j$ is a discrete mixture distribution with respect to $\gamma_j = 0$ or $\gamma_j = 1$, with precision 100 or $\beta_\sigma = 0.1$, respectively. As with other representations of SSVS, these precisions may require tuning.
 
 The binary inclusion variables are discrete parameters, and discrete parameters are not supported in all algorithms. The example below is updated with the Griddy-Gibbs sampler.
 
@@ -6615,7 +6704,8 @@ MyData <- list(J=J, PGF=PGF, X=X, mon.names=mon.names, \\
 \hspace*{0.27 in} \#\#\# Parameters \\
 \hspace*{0.27 in} beta <- parm[Data$pos.beta] \\
 \hspace*{0.27 in} gamma <- parm[Data$pos.gamma] \\
-\hspace*{0.27 in} beta.sigma <- ifelse(gamma == 0, 0.1, beta.sigma) \\
+\hspace*{0.27 in} beta.sigma <- rep(beta.sigma, Data$J-1) \\
+\hspace*{0.27 in} beta.sigma[gamma == 0] <- 0.1 \\
 \hspace*{0.27 in} sigma <- interval(parm[Data$pos.sigma], 1e-100, Inf) \\
 \hspace*{0.27 in} \#\#\# Log(Hyperprior Densities) \\
 \hspace*{0.27 in} beta.sigma.prior <- sum(dhalfcauchy(beta.sigma, 25, log=TRUE)) \\
@@ -6624,7 +6714,7 @@ MyData <- list(J=J, PGF=PGF, X=X, mon.names=mon.names, \\
 \hspace*{0.27 in} gamma.prior <- sum(dbern(gamma, 1/(Data$J-1), log=TRUE)) \\
 \hspace*{0.27 in} sigma.prior <- dhalfcauchy(sigma, 25, log=TRUE) \\
 \hspace*{0.27 in} \#\#\# Log-Likelihood \\
-\hspace*{0.27 in} mu <- tcrossprod(beta*c(1,gamma), Data$X) \\
+\hspace*{0.27 in} mu <- tcrossprod(Data$X, t(beta*c(1,gamma))) \\
 \hspace*{0.27 in} LL <- sum(dnorm(y, mu, sigma, log=TRUE)) \\
 \hspace*{0.27 in} \#\#\# Log-Posterior \\
 \hspace*{0.27 in} LP <- LL + beta.prior + beta.sigma.prior + gamma.prior + sigma.prior \\
