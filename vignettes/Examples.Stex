@@ -73,7 +73,7 @@ This vignette will grow over time as examples of more methods become included. C
 \item Change Point Regression \ref{changepoint}
 \item Cluster Analysis, Confirmatory (CCA) \ref{cca}
 \item Cluster Analysis, Exploratory (ECA) \ref{eca}
-\item Collaborative Filtering (CF) \ref{efa}
+\item Collaborative Filtering (CF) \ref{eofa}
 \item Conditional Autoregression (CAR), Poisson \ref{car.poisson}
 \item Conditional Predictive Ordinate (CPO) \ref{cpo}
 \item Contingency Table \ref{contingency.table}
@@ -2218,7 +2218,7 @@ for (t in 1:T) \{for (p in 1:P) \{ \\
 }
 
 \section{Factor Analysis, Exploratory} \label{efa}
-Factor scores are in matrix \textbf{F} and factor loadings are in matrix $\Lambda$. This exploratory factor analysis (EFA) model form is also suitable for collaborative filtering, and automatically handles missing values.
+Factor scores are in matrix \textbf{F} and factor loadings are in matrix $\Lambda$.
 \subsection{Form}
 $$\textbf{Y}_{i,m} \sim \mathcal{N}(\mu_{i,m}, \sigma^2_m), \quad i=1,\dots,N, \quad m=1,\dots,M$$
 $$\mu = \alpha^T + \textbf{F} \Lambda$$
@@ -2290,11 +2290,12 @@ MyData <- list(M=M, N=N, P=P, PGF=PGF, S=S, Y=Y, gamma=gamma, \\
 \hspace*{0.27 in} rep(0,M), rep(1,M))}
 
 \section{Factor Analysis, Exploratory Ordinal} \label{eofa}
+This exploratory ordinal factor analysis (EOFA) model form is also suitable for collaborative filtering, and automatically handles missing values.
 \subsection{Form}
-$$\textbf{Y}_{i,m} \sim \mathcal{CAT}(P_{i,m,1:K}), \quad i=1,\dots,N, \quad m=1,\dots,M$$
-$$P_{,,K} = 1 - Q_{,,(K-1)}$$
-$$P_{,,k} = |Q_{,,k} - Q_{,,(k-1)}|, \quad k=2,\dots,(K-1)$$
-$$P_{,,1} = Q_{,,1}$$
+$$\textbf{Y}_{i,m} \sim \mathcal{CAT}(\textbf{P}_{i,m,1:K}), \quad i=1,\dots,N, \quad m=1,\dots,M$$
+$$\textbf{P}_{,,K} = 1 - Q_{,,(K-1)}$$
+$$\textbf{P}_{,,k} = |Q_{,,k} - Q_{,,(k-1)}|, \quad k=2,\dots,(K-1)$$
+$$\textbf{P}_{,,1} = Q_{,,1}$$
 $$Q = \phi(\mu)$$
 $$\mu_{,,k} = Z + \alpha_k - \textbf{F} \Lambda, \quad k=1,\dots,(K-1)$$
 $$\textbf{F}_{i,1:P} \sim \mathcal{N}_P(\gamma, \Omega^{-1}), \quad i=1,\dots,N$$
@@ -2307,7 +2308,6 @@ $$\alpha_k \sim \mathcal{N}(0, 1) \in [(k-1),k] \in [-5,5], \quad k=2,\dots,(K-1
 N <- 20 \#Number of records \\
 K <- 3 \#Number of discrete values \\
 P <- 3 \#Number of factors \\
-Z <- mean(Y) \\
 alpha <- sort(rnorm(K-1)) \\
 Lambda <- matrix(runif(M*P,-1,1), P, M) \\
 U <- diag(P) \\
@@ -2321,6 +2321,7 @@ Pr <- array(Pr, dim=c(N, M, K)) \\
 Pr[ , , K] <- 1 - Q[ , , (K-1)] \\
 dim(Pr) <- c(N*M, K) \\
 Y <- matrix(rcat(nrow(Pr), Pr), N, M) \#Make sure Y has all values \\
+Z <- mean(Y) \\
 gamma <- rep(0,P) \\
 Y <- matrix(rcat(N*M, rep(1/K,K)), N, M) \\
 S <- diag(P) \\

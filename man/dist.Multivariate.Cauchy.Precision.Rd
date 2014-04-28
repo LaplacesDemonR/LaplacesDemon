@@ -52,6 +52,10 @@ linear combination of its components has a univariate Cauchy
 distribution. The multivariate Cauchy distribution is equivalent to a
 multivariate t distribution with 1 degree of freedom.
 
+The Cauchy distribution is known as a pathological distribution because
+its mean and variance are undefined, and it does not satisfy the central
+limit theorem.
+
 It is usually parameterized with mean and a covariance matrix, or in
 Bayesian inference, with mean and a precision matrix, where the
 precision matrix is the matrix inverse of the covariance matrix. These

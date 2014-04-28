@@ -44,6 +44,10 @@ parameter. Otherwise, the scale, \eqn{\alpha}{alpha}, is recommended to
 be set to be just a little larger than the expected standard deviation,
 as a weakly informative prior distribution on a standard deviation
 parameter.
+
+The Cauchy distribution is known as a pathological distribution because
+its mean and variance are undefined, and it does not satisfy the central
+limit theorem.
 }
 \value{
   \code{dhalfcauchy} gives the density,

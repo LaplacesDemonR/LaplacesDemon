@@ -62,8 +62,14 @@ precision matrix \eqn{\Omega}{Omega}, which must be positive-definite.
 
 In practice, \eqn{\textbf{U}}{U} is fully unconstrained for proposals
 when its diagonal is log-transformed. The diagonal is exponentiated
-after a proposal and before other calculations. The Cholesky
+after a proposal and before other calculations. Overall, Cholesky
 parameterization is faster than the traditional parameterization.
+Compared with \code{dmvnp}, \code{dmvnpc} must additionally
+matrix-multiply the Cholesky back to the covariance matrix, but it
+does not have to check for or correct the precision matrix to
+positive-definiteness, which overall is slower. Compared with
+\code{rmvnp}, \code{rmvnpc} is faster because the Cholesky decomposition
+has already been performed.
 
 For models where the dependent variable, Y, is specified to be
 distributed multivariate normal given the model, the Mardia test (see

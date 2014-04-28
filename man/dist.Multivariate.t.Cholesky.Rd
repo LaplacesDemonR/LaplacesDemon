@@ -70,8 +70,13 @@ function for Cholesky decomposition. When degrees of freedom
 
 In practice, \eqn{\textbf{U}}{U} is fully unconstrained for proposals
 when its diagonal is log-transformed. The diagonal is exponentiated
-after a proposal and before other calculations. The Cholesky
+after a proposal and before other calculations. Overall, the Cholesky
 parameterization is faster than the traditional parameterization.
+Compared with \code{dmvt}, \code{dmvtc} must additionally
+matrix-multiply the Cholesky back to the scale matrix, but it
+does not have to check for or correct the scale matrix to
+positive-definiteness, which overall is slower. The same is true when
+comparing \code{rmvt} and \code{rmvtc}.
 }
 \value{
   \code{dmvtc} gives the density and 

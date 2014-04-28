@@ -77,8 +77,14 @@ multivariate normal distribution.
 
 In practice, \eqn{\textbf{U}}{U} is fully unconstrained for proposals
 when its diagonal is log-transformed. The diagonal is exponentiated
-after a proposal and before other calculations. The Cholesky
+after a proposal and before other calculations. Overall, the Cholesky
 parameterization is faster than the traditional parameterization.
+Compared with \code{dmvl}, \code{dmvlc} must additionally
+matrix-multiply the Cholesky back to the covariance matrix, but it
+does not have to check for or correct the covariance matrix to
+positive-definiteness, which overall is slower. Compared with
+\code{rmvl}, \code{rmvlc} is faster because the Cholesky decomposition
+has already been performed.
 }
 \value{
   \code{dmvlc} gives the density, and

@@ -72,8 +72,14 @@ obtained as \eqn{\nu \rightarrow 0}{nu -> 0}.
 
 In practice, \eqn{\textbf{U}}{U} is fully unconstrained for proposals
 when its diagonal is log-transformed. The diagonal is exponentiated
-after a proposal and before other calculations. The Cholesky
-parameterization is faster than the traditional parameterization.
+after a proposal and before other calculations. Overall, the
+Cholesky parameterization is faster than the traditional
+parameterization. Compared with \code{dwishart}, \code{dwishartc}
+must additionally matrix-multiply the Cholesky back to the precision
+matrix, but it does not have to check for or correct the precision
+matrix to positive-semidefiniteness, which overall is slower. Compared
+with \code{rwishart}, \code{rwishartc} must additionally
+calculate a Cholesky decomposition, and is therefore slower.
 
 The Wishart prior lacks flexibility, having only one parameter,
 \eqn{\nu}{nu}, to control the variability for all \eqn{k(k + 1)/2}

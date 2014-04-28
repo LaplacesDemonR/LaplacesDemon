@@ -49,6 +49,10 @@ Cauchy distribution is equivalent to a multivariate t distribution with
 1 degree of freedom. A random vector is considered to be multivariate
 Cauchy-distributed if every linear combination of its components has a
 univariate Cauchy distribution.
+
+The Cauchy distribution is known as a pathological distribution because
+its mean and variance are undefined, and it does not satisfy the central
+limit theorem.
 }
 \value{
   \code{dmvc} gives the density and 

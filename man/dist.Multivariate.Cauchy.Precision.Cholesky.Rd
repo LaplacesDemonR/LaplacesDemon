@@ -53,6 +53,10 @@ linear combination of its components has a univariate Cauchy
 distribution. The multivariate Cauchy distribution is equivalent to a
 multivariate t distribution with 1 degree of freedom.
 
+The Cauchy distribution is known as a pathological distribution because
+its mean and variance are undefined, and it does not satisfy the central
+limit theorem.
+
 It is usually parameterized with mean and a covariance matrix, or in
 Bayesian inference, with mean and a precision matrix, where the
 precision matrix is the matrix inverse of the covariance matrix. These
@@ -69,8 +73,14 @@ matrix is replaced with the upper-triangular Cholesky factor, as in
 
 In practice, \eqn{\textbf{U}}{U} is fully unconstrained for proposals
 when its diagonal is log-transformed. The diagonal is exponentiated
-after a proposal and before other calculations. The Cholesky
+after a proposal and before other calculations. Overall, Cholesky
 parameterization is faster than the traditional parameterization.
+Compared with \code{dmvcp}, \code{dmvcpc} must additionally
+matrix-multiply the Cholesky back to the covariance matrix, but it
+does not have to check for or correct the precision matrix to
+positive-definiteness, which overall is slower. Compared with
+\code{rmvcp}, \code{rmvcpc} is faster because the Cholesky decomposition
+has already been performed.
 }
 \value{
   \code{dmvcpc} gives the density and 

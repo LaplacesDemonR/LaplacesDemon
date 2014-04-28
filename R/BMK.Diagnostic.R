@@ -35,7 +35,9 @@ BMK.Diagnostic <- function(X, batches=10)
           for (i in 1:(length(batch.list)-1)) {
                batch.label1 <- batch.list[i]:(batch.list[i+1]-1)
                batch.label2 <- batch.list[i+1]:((i+1)*batch.size)
-               HD <- HD.Batch(x[batch.label1], x[batch.label2])
+               HD <- try(HD.Batch(x[batch.label1], x[batch.label2]),
+                    silent=TRUE)
+               if(inherits(HD, "try-error")) HD <- 0
                c1 <- c(c1, HD)}
           c1 <- c1[-1]
           return(c1)

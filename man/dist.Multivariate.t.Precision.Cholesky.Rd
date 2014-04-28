@@ -23,7 +23,7 @@ rmvtpc(n=1, mu, U, nu=Inf)
        represented as \eqn{\nu > 1}{nu > 1}). It must be of length
        \eqn{k}, as defined above.}
   \item{U}{This is a \eqn{k \times k}{k x k} upper-triangular of the
-    precision matrix that is Cholesky fator \eqn{\textbf{U}}{U} of
+       precision matrix that is Cholesky fator \eqn{\textbf{U}}{U} of
        precision matrix \eqn{\Omega}{Omega}.}
   \item{nu}{This is the degrees of freedom \eqn{\nu}{nu}, which must be
        positive.}
@@ -80,8 +80,14 @@ freedom \eqn{\nu=1}{nu=1}, this is the multivariate Cauchy distribution.
 
 In practice, \eqn{\textbf{U}}{U} is fully unconstrained for proposals
 when its diagonal is log-transformed. The diagonal is exponentiated
-after a proposal and before other calculations. The Cholesky
+after a proposal and before other calculations. Overall, the Cholesky
 parameterization is faster than the traditional parameterization.
+Compared with \code{dmvtp}, \code{dmvtpc} must additionally
+matrix-multiply the Cholesky back to the precision matrix, but it
+does not have to check for or correct the precision matrix to
+positive-definiteness, which overall is slower. Compared with
+\code{rmvtp}, \code{rmvtpc} is faster because the Cholesky decomposition
+has already been performed.
 }
 \value{
   \code{dmvtpc} gives the density and 

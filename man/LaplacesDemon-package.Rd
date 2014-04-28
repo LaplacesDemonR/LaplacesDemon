@@ -18,7 +18,7 @@
   provide a complete and self-contained Bayesian environment within R.
   For example, this package includes dozens of MCMC algorithms, Laplace
   Approximation, iterative quadrature, variational Bayes,
-  parallelization, big data, PMC, over 90 examples in the ``Examples''
+  parallelization, big data, PMC, over 100 examples in the ``Examples''
   vignette, dozens of additional probability distributions, numerous
   MCMC diagnostics, Bayes factors, posterior predictive checks, a
   variety of plots, elicitation, parameter and variable importance,

@@ -57,8 +57,14 @@ finite. A degenerate form occurs when \eqn{\nu < k}{nu < k}.
 
 In practice, \eqn{\textbf{U}}{U} is fully unconstrained for proposals
 when its diagonal is log-transformed. The diagonal is exponentiated
-after a proposal and before other calculations. The Cholesky
-parameterization is faster than the traditional parameterization.
+after a proposal and before other calculations. Overall, the
+Cholesky parameterization is faster than the traditional
+parameterization. Compared with \code{dinvwishart}, \code{dinvwishartc}
+must additionally matrix-multiply the Cholesky back to the covariance
+matrix, but it does not have to check for or correct the covariance
+matrix to positive-semidefiniteness, which overall is slower. Compared
+with \code{rinvwishart}, \code{rinvwishartc} must additionally
+calculate a Cholesky decomposition, and is therefore slower.
 
 The inverse Wishart prior lacks flexibility, having only one parameter,
 \eqn{\nu}{nu}, to control the variability for all \eqn{k(k + 1)/2}

@@ -3562,7 +3562,8 @@ MALA <- function(Model, Data, Iterations, Status, Thinning, Specs,
           if(is.null(prop.R))
                prop <- rnorm(LIV, Mo0[["parm"]] + sqrt(0.0001*ScaleF)*dx,
                     sqrt(0.0001 * ScaleF))
-          else prop <- Mo0[["parm"]] + sigma2*dx + t(prop.R) %*% rnorm(LIV)
+          else prop <- Mo0[["parm"]] + sigma2*dx +
+                    rbind(rnorm(LIV)) %*% prop.R
           ### Log-Posterior of the proposed state
           Mo1 <- Model(prop, Data)
           if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
@@ -4193,8 +4194,10 @@ OHSS <- function(Model, Data, Iterations, Status, Thinning, Specs,
                cat("Iteration: ", iter, ",   Proposal: Multivariate\n",
                     sep="")
           ### Eigenvectors of the Sample Covariance Matrix
-          if({iter %% decomp.freq == 0} & {iter > 1})
-               S.eig <- eigen(cov(thinned[1:(t.iter-1),,drop=FALSE]))
+          if({iter %% decomp.freq == 0} & {iter > 1}) {
+               S.eig <- try(eigen(cov(thinned[1:(t.iter-1),,drop=FALSE])),
+                    silent=TRUE)
+               if(inherits(S.eig, "try-error")) S.eig <- eigen(diag(LIV))}
           ### Hypercube or Eigenvector
           if(runif(1) < w || is.null(S.eig)) {
                vals <- rep(tuning, LIV)
@@ -4272,7 +4275,7 @@ RAM <- function(Model, Data, Iterations, Status, Thinning, Specs,
           ### Propose New Parameter Values
           if(Dist == "t") U <- qt(runif(LIV), df=5, lower.tail=TRUE)
           else U <- rnorm(LIV)
-          prop <- Mo0[["parm"]] + S %*% U
+          prop <- Mo0[["parm"]] + rbind(U) %*% S
           if(iter %% Status == 0)
                cat(",   Proposal: Multivariate\n", file=LogFile,
                     append=TRUE)

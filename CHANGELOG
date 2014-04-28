@@ -1,3 +1,4 @@
+2014-04-27 LaplacesDemon: Fixed bug with RAM proposals
 2014-04-25 Vignette Examples: Added Exploratory Ordinal Factor Analysis (EOFA)
 2014-04-21 BayesianBootstrap: Added example of marginal posterior covariance
 2014-04-20 LaplaceApproximation: Added the DFP and SR1 algorithms

@@ -109,7 +109,8 @@ Consort <- function(object=NULL)
           Stationarity <- TRUE
      ### Check Diminishing Adaptation (If Adaptive)
      if(nrow(object$CovarDHis) > 1) {
-          Dim.Adapt <- as.vector(lm(rowMeans(diff(object$CovarDHis)) ~ c(1:nrow(diff(object$CovarDHis))))$coef[2]) <= 0
+          Dim.Adapt <- as.vector(lm(rowMeans(diff(object$CovarDHis)) ~
+               c(1:nrow(diff(object$CovarDHis))))$coef[2]) <= 0
           }
      else Dim.Adapt <- TRUE
      ### Suggested Values
@@ -367,8 +368,8 @@ Consort <- function(object=NULL)
              {(Alg == "DRAM") & !Dim.Adapt & !Fast & Ready} |
              {(Alg == "DRM") & Dim.Adapt & Fast & !Ready} |
              {(Alg == "DRM") & Dim.Adapt & !Fast & !Ready} |
-             {(Alg == "RAM") & !Dim.Adapt & !Fast & Ready} |
              {(Alg == "RAM") & !Dim.Adapt & !Fast & !Ready} |
+             {(Alg == "RAM") & !Dim.Adapt & Fast & !Ready} |
              {(Alg == "RWM") & Dim.Adapt & Fast & !Ready} |
              {(Alg == "RWM") & Dim.Adapt & !Fast & !Ready}) {
                ### AMM
@@ -398,9 +399,7 @@ Consort <- function(object=NULL)
              {(Alg == "DRAM") & !Dim.Adapt & Fast & Ready} |
              {(Alg == "DRAM") & !Dim.Adapt & Fast & !Ready} |
              {(Alg == "MWG") & Dim.Adapt & Fast & !Ready} |
-             {(Alg == "MWG") & Dim.Adapt & !Fast & !Ready} |
-             {(Alg == "RAM") & !Dim.Adapt & Fast & Ready} |
-             {(Alg == "RAM") & !Dim.Adapt & Fast & !Ready}) {
+             {(Alg == "MWG") & Dim.Adapt & !Fast & !Ready}) {
                ### AMWG
                if(Componentwise == 0) {
                     Rec.Iterations <- max(nrow(object$Posterior1),
@@ -773,6 +772,8 @@ Consort <- function(object=NULL)
              {(Alg == "AMM") & Dim.Adapt & !Fast & Ready} |
              {(Alg == "DRAM") & Dim.Adapt & Fast & Ready} |
              {(Alg == "DRAM") & Dim.Adapt & !Fast & Ready} |
+             {(Alg == "RAM") & !Dim.Adapt & !Fast & Ready} |
+             {(Alg == "RAM") & !Dim.Adapt & Fast & Ready} |
              {(Alg == "RAM") & Dim.Adapt & Fast & Ready} |
              {(Alg == "RAM") & Dim.Adapt & !Fast & Ready} |
              {(Alg == "RWM") & Dim.Adapt & Fast & Ready} |

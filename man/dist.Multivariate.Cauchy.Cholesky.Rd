@@ -52,10 +52,20 @@ Cauchy distribution is equivalent to a multivariate t distribution with
 Cauchy-distributed if every linear combination of its components has a
 univariate Cauchy distribution.
 
+The Cauchy distribution is known as a pathological distribution because
+its mean and variance are undefined, and it does not satisfy the central
+limit theorem.
+
 In practice, \eqn{\textbf{U}}{U} is fully unconstrained for proposals
 when its diagonal is log-transformed. The diagonal is exponentiated
-after a proposal and before other calculations. The Cholesky
+after a proposal and before other calculations. Overall, the Cholesky
 parameterization is faster than the traditional parameterization.
+Compared with \code{dmvc}, \code{dmvcc} must additionally
+matrix-multiply the Cholesky back to the scake matrix, but it
+does not have to check for or correct the scale matrix to
+positive-definiteness, which overall is slower. Compared with
+\code{rmvc}, \code{rmvcc} is faster because the Cholesky decomposition
+has already been performed.
 }
 \value{
   \code{dmvcc} gives the density and 
