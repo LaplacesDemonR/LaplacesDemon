@@ -2297,7 +2297,7 @@ $$\textbf{P}_{,,K} = 1 - Q_{,,(K-1)}$$
 $$\textbf{P}_{,,k} = |Q_{,,k} - Q_{,,(k-1)}|, \quad k=2,\dots,(K-1)$$
 $$\textbf{P}_{,,1} = Q_{,,1}$$
 $$Q = \phi(\mu)$$
-$$\mu_{,,k} = Z + \alpha_k - \textbf{F} \Lambda, \quad k=1,\dots,(K-1)$$
+$$\mu_{,,k} = \alpha_k - \textbf{F} \Lambda, \quad k=1,\dots,(K-1)$$
 $$\textbf{F}_{i,1:P} \sim \mathcal{N}_P(\gamma, \Omega^{-1}), \quad i=1,\dots,N$$
 $$\gamma_p = 0, \quad p=1,\dots,P$$
 $$\Lambda_{p,m} \sim \mathcal{N}(0, 1000), \quad p=1,\dots,P, \quad m=1,\dots,M$$
@@ -2314,14 +2314,13 @@ U <- diag(P) \\
 U[upper.tri(U, diag=TRUE)] <- runif(length(upper.triangle(U, diag=TRUE))) \\
 F <- rmvnc(N, rep(0,P), U) \\
 mu <- aperm(array(alpha, dim=c(K-1, M, N)), perm=c(3,2,1)) \\
-mu <- mu + array(Z + tcrossprod(F, t(Lambda)), dim=c(N, M, K-1)) \\
+mu <- mu - array(tcrossprod(F, t(Lambda)), dim=c(N, M, K-1)) \\
 Pr <- Q <- pnorm(mu) \\
 Pr[ , , -1] <- abs(Q[ , , -1] - Q[ , , -(K-1)]) \\
 Pr <- array(Pr, dim=c(N, M, K)) \\
 Pr[ , , K] <- 1 - Q[ , , (K-1)] \\
 dim(Pr) <- c(N*M, K) \\
 Y <- matrix(rcat(nrow(Pr), Pr), N, M) \#Make sure Y has all values \\
-Z <- mean(Y) \\
 gamma <- rep(0,P) \\
 Y <- matrix(rcat(N*M, rep(1/K,K)), N, M) \\
 S <- diag(P) \\
@@ -2332,10 +2331,10 @@ pos.F <- grep("F", parm.names) \\
 pos.Lambda <- grep("Lambda", parm.names) \\
 pos.alpha <- grep("alpha", parm.names) \\
 PGF <- function(Data) return(c(rmvnpc(Data$N, Data$gamma, \\
-\hspace*{0.27 in} rwishartc(Data$N, Data$S)), rnormv(Data$P*Data$M,0,1000), \\
+\hspace*{0.27 in} rwishartc(Data$N, Data$S)), rnorm(Data$P*Data$M), \\
 \hspace*{0.27 in} upper.triangle(rwishartc(Data$N, Data$S), diag=TRUE), \\
-\hspace*{0.27 in} sort(rnorm(Data$K-1,0,1)))) \\
-MyData <- list(K=K, M=M, N=N, P=P, PGF=PGF, S=S, Y=Y, Z=Z, gamma=gamma, \\
+\hspace*{0.27 in} sort(rnorm(Data$K-1)))) \\
+MyData <- list(K=K, M=M, N=N, P=P, PGF=PGF, S=S, Y=Y, gamma=gamma, \\
 \hspace*{0.27 in} mon.names=mon.names, parm.names=parm.names, pos.F=pos.F, \\
 \hspace*{0.27 in} pos.Lambda=pos.Lambda, pos.alpha=pos.alpha) \\
 }
@@ -2357,7 +2356,7 @@ MyData <- list(K=K, M=M, N=N, P=P, PGF=PGF, S=S, Y=Y, Z=Z, gamma=gamma, \\
 \hspace*{0.27 in} \#\#\# Log-Likelihood \\
 \hspace*{0.27 in} mu <- aperm(array(alpha, dim=c(Data$K-1, Data$M, Data$N)), \\
 \hspace*{0.62 in} perm=c(3,2,1)) \\
-\hspace*{0.27 in} mu <- mu + array(Data$Z + tcrossprod(F, t(Lambda)), \\
+\hspace*{0.27 in} mu <- mu - array(tcrossprod(F, t(Lambda)), \\
 \hspace*{0.62 in} dim=c(Data$N, Data$M, Data$K-1)) \\
 \hspace*{0.27 in} P <- Q <- pnorm(mu) \\
 \hspace*{0.27 in} P[ , , -1] <- abs(Q[ , , -1] - Q[ , , -(Data$K-1)]) \\

@@ -287,8 +287,9 @@ AGA <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
      for (iter in 1:Iterations) {
           parm.old <- parm.new
           ### Print Status
-          if(iter %% round(Iterations / 10) == 0) {
-               cat("Iteration: ", iter, " of ", Iterations, "\n")}
+          if(iter %% round(Iterations / 10) == 0)
+               cat("Iteration: ", iter, " of ", Iterations,
+                    ",   LP: ", round(m.old[["LP"]],1), "\n")
           ### Approximate Truncated Gradient
           approx.grad <- partial(Model, parm.old, Data, Interval)
           approx.grad <- interval(approx.grad, -1000, 1000, reflect=FALSE)
@@ -340,8 +341,9 @@ BFGS <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
      options(warn=-1)
      for (iter in 2:Iterations) {
           ### Print Status
-          if(iter %% round(Iterations / 10) == 0) {
-               cat("Iteration: ", iter, " of ", Iterations, "\n")}
+          if(iter %% round(Iterations / 10) == 0)
+               cat("Iteration: ", iter, " of ", Iterations,
+                    ",   LP: ", round(m.old[["LP"]],1), "\n")
           ### Gradient and Direction p
           g.old <- g.new
           g.new <- -1*partial(Model, m.old[["parm"]], Data, Interval)
@@ -412,8 +414,9 @@ BHHH <- function(Model, parm, Data, Interval, Iterations=100,
      options(warn=-1)
      for (iter in 2:Iterations) {
           ### Print Status
-          if(iter %% round(Iterations / 10) == 0) {
-               cat("Iteration: ", iter, " of ", Iterations, "\n")}
+          if(iter %% round(Iterations / 10) == 0)
+               cat("Iteration: ", iter, " of ", Iterations,
+                    ",   LP: ", round(m.old[["LP"]],1), "\n")
           ### Gradient p, OPG A from gradient g, and direction delta
           p <- partial(Model, m.old[["parm"]], Data, Interval)
           A <- matrix(0, parm.len, parm.len)
@@ -488,8 +491,9 @@ CG <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
                post <- rbind(post, m.best[["parm"]])
                Dev <- rbind(Dev, m.best[["Dev"]])
                ### Print Status
-               if(ig %% round(Iterations / 10) == 0) {
-                    cat("Iteration: ", ig, " of ", Iterations, "\n")}
+               if(ig %% round(Iterations / 10) == 0)
+                    cat("Iteration: ", ig, " of ", Iterations,
+                         ",   LP: ", round(m.old[["LP"]],1), "\n")
                if(ig > Iterations) {
                     ig <- Iterations
                     LA <- list(Dev=Dev, iter=ig, parm.len=parm.len,
@@ -635,8 +639,9 @@ DFP <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
      options(warn=-1)
      for (iter in 2:Iterations) {
           ### Print Status
-          if(iter %% round(Iterations / 10) == 0) {
-               cat("Iteration: ", iter, " of ", Iterations, "\n")}
+          if(iter %% round(Iterations / 10) == 0)
+               cat("Iteration: ", iter, " of ", Iterations,
+                    ",   LP: ", round(m.old[["LP"]],1), "\n")
           ### Gradient and Direction p
           g.old <- g.new
           p <- as.vector(tcrossprod(g.old, -B))
@@ -693,8 +698,9 @@ HAR <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
      for (iter in 1:Iterations) {
           parm.old <- parm.new
           ### Print Status
-          if(iter %% round(Iterations / 10) == 0) {
-               cat("Iteration: ", iter, " of ", Iterations, "\n")}
+          if(iter %% round(Iterations / 10) == 0)
+               cat("Iteration: ", iter, " of ", Iterations,
+                    ",   LP: ", round(m.old[["LP"]],1), "\n")
           ### Propose new parameter values
           theta <- rnorm(parm.len)
           d <- theta / sqrt(sum(theta*theta))
@@ -821,8 +827,9 @@ HJ <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
      ### Start the main loop
      for (iter in 1:Iterations) {
           ### Print Status
-          if(iter %% round(Iterations / 10) == 0) {
-               cat("Iteration: ", iter, " of ", Iterations, "\n")}
+          if(iter %% round(Iterations / 10) == 0)
+               cat("Iteration: ", iter, " of ", Iterations,
+                    ",   LP: ", round(fx[["LP"]],1), "\n")
           hjs <- .hjsearch(x, f, steps[iter], dir, fcount, Data)
           x <- hjs$x
           fx <- hjs$fx
@@ -855,8 +862,9 @@ LBFGS <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
      for (iter in 1:Iterations) {
           parm.old <- parm.new
           ### Print Status
-          if(iter %% round(Iterations / 10) == 0) {
-               cat("Iteration: ", iter, " of ", Iterations, "\n")}
+          if(iter %% round(Iterations / 10) == 0)
+               cat("Iteration: ", iter, " of ", Iterations,
+                    ",   LP: ", round(m.old[["LP"]],1), "\n")
           ### LBFGS
           Fit <- optim(par=parm.new, fn=ModelWrapper,
                method="L-BFGS-B", control=list(fnscale=-1, maxit=1))
@@ -911,8 +919,9 @@ LMA <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
      iter <- 1
      while (iter < Iterations) {
           ### Print Status
-          if(iter %% round(Iterations / 10) == 0) {
-               cat("Iteration: ", iter, " of ", Iterations, "\n")}
+          if(iter %% round(Iterations / 10) == 0)
+               cat("Iteration: ", iter, " of ", Iterations,
+                    ",   LP: ", round(mod[["LP"]],1), "\n")
           iter <- iter + 1
           R <- chol(A + mu*diag(n))
           h <- c(-t(g) %*% chol2inv(R))
@@ -1083,8 +1092,9 @@ NR <- function(Model, parm, Data, Interval, Iterations=100, Stop.Tolerance,
      post <- matrix(parm, 1, parm.len)
      for (iter in 1:Iterations) {
           ### Print Status
-          if(iter %% round(Iterations / 10) == 0) {
-               cat("Iteration: ", iter, " of ", Iterations, "\n")}
+          if(iter %% round(Iterations / 10) == 0)
+               cat("Iteration: ", iter, " of ", Iterations,
+                    ",   LP: ", round(m.old[["LP"]],1), "\n")
           check1 <- TRUE; check2 <- FALSE
           m.old <- Model(parm, Data)
           p <- partial(Model, m.old[["parm"]], Data, Interval)
@@ -1206,8 +1216,9 @@ PSO <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
      while (iter < Iterations && tol.new > Stop.Tolerance) {
           iter <- iter + 1
           ### Print Status
-          if(iter %% round(Iterations / 10) == 0) {
-               cat("Iteration: ", iter, " of ", Iterations, "\n")}
+          if(iter %% round(Iterations / 10) == 0)
+               cat("Iteration: ", iter, " of ", Iterations,
+                    ",   LP: ", round(mod[["LP"]],1), "\n")
           if(p.p != 1 && init.links == TRUE) {
                links <- matrix(runif(p.s*p.s, 0, 1) <= p.p, p.s, p.s)
                diag(links) <- TRUE}
@@ -1261,8 +1272,9 @@ Rprop <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
           approx.grad.old <- approx.grad.new
           parm.old <- parm.new
           ### Print Status
-          if(iter %% round(Iterations / 10) == 0) {
-               cat("Iteration: ", iter, " of ", Iterations, "\n")}
+          if(iter %% round(Iterations / 10) == 0)
+               cat("Iteration: ", iter, " of ", Iterations,
+                    ",   LP: ", round(m.old[["LP"]],1), "\n")
           ### Approximate Truncated Gradient
           approx.grad.new <- partial(Model, parm.old, Data, Interval)
           approx.grad.new <- interval(approx.grad.new, -1000, 1000,
@@ -1323,8 +1335,9 @@ SGD <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
      for (iter in 1:Iterations) {
           parm.old <- parm.new
           ### Print Status
-          if(iter %% round(Iterations / 10) == 0) {
-               cat("Iteration: ", iter, " of ", Iterations, "\n")}
+          if(iter %% round(Iterations / 10) == 0)
+               cat("Iteration: ", iter, " of ", Iterations,
+                    ",   LP: ", round(m.old[["LP"]],1), "\n")
           ### Sample Data
           seek(con, 0)
           skip.rows <- sample.int(Data$Nr - Data$size, size=1)
@@ -1527,8 +1540,6 @@ SPG <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
      while ({iter <= Iterations} &
           ({pginfn > Stop.Tolerance} | {fchg > ftol})) {
           iter <- iter + 1
-          if(iter %% round(Iterations / 10) == 0) {
-               cat("Iteration: ", iter, " of ", Iterations, "\n")}
           d <- parm - lambda * g
           d <- d - parm
           gtd <- sum(g * d)
@@ -1558,6 +1569,9 @@ SPG <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
           sty <- sum(s*y)
           if(sts == 0 | yty == 0) lambda <- lmax
           else lambda <- min(lmax, max(lmin, sqrt(sts/yty)))
+          if(iter %% round(Iterations / 10) == 0)
+               cat("Iteration: ", iter, " of ", Iterations,
+                    ",   LP: ", round(m.new[["LP"]],1), "\n")
           post <- rbind(post, pnew)
           Dev <- rbind(Dev, m.new[["Dev"]])
           parm <- pnew
@@ -1602,8 +1616,9 @@ SR1 <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
      options(warn=-1)
      for (iter in 2:Iterations) {
           ### Print Status
-          if(iter %% round(Iterations / 10) == 0) {
-               cat("Iteration: ", iter, " of ", Iterations, "\n")}
+          if(iter %% round(Iterations / 10) == 0)
+               cat("Iteration: ", iter, " of ", Iterations,
+                    ",   LP: ", round(m.old[["LP"]],1), "\n")
           ### Gradient and Direction p
           g.old <- g.new
           p <- as.vector(tcrossprod(g.old, -as.inverse(B)))
@@ -1668,8 +1683,9 @@ TR <- function(Model, parm, Data, Iterations, m.old)
      accept <- TRUE
      for (iter in 1:Iterations) {
           ### Print Status
-          if(iter %% round(Iterations / 10) == 0) {
-               cat("Iteration: ", iter, " of ", Iterations, "\n")}
+          if(iter %% round(Iterations / 10) == 0)
+               cat("Iteration: ", iter, " of ", Iterations,
+                    ",   LP: ", round(Mo[["LP"]],1), "\n")
           if(accept == TRUE) {
                B <- H
                g <- grad

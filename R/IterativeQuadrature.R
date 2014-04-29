@@ -793,6 +793,7 @@ CAGH <- function(Model, parm, Data, Covar, Iterations, Stop.Tolerance,
           clusterExport(cl, varlist=c("Packages", "Dyn.libs", "wd"),
                envir=environment())
           Dev <- matrix(m.old[["Dev"]],1,1)
+          LPworst <- m.old[["LP"]]
           parm.len <- length(parm)
           mu <- rbind(parm)
           parm.old <- parm

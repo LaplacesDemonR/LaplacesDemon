@@ -435,13 +435,19 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           else if(Algorithm == "MALA") {
                Algorithm <- "Metropolis-Adjusted Langevin Algorithm"
                if(missing(Specs) | is.null(Specs))
-                    Specs=list(Periodicity=1)
+                    Specs=list(A=1000, alpha.star=0.574, delta=1,
+                         epsilon=c(1e-5,1e-5))
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
-               if(!identical(names(Specs), "Periodicity"))
+               if(!identical(names(Specs),
+                    c("A","alpha.star","delta","epsilon")))
                     stop("The Specs argument is incorrect.", file=LogFile,
                          append=TRUE)
+               Specs[["A"]] <- abs(Specs[["A"]][1])
+               Specs[["delta"]] <- min(max(abs(Specs[["delta"]][1]), 1e-10),
+                    1000)
+               Specs[["epsilon"]] <- abs(Specs[["epsilon"]][1:2])
                }
           else if(Algorithm == "MCMCMC") {
                Algorithm <- "Metropolis-Coupled Markov Chain Monte Carlo"
@@ -1466,8 +1472,10 @@ ADMG <- function(Model, Data, Iterations, Status, Thinning, Specs,
      for (iter in 1:Iterations) {
           ### Print Status
           if(iter %% Status == 0)
-               cat("Iteration: ", iter, ",   Proposal: Componentwise\n",
-                    sep="", file=LogFile, append=TRUE)
+               cat("Iteration: ", iter,
+                    ",   Proposal: Componentwise,   LP:",
+                    round(Mo0[["LP"]],1), "\n", sep="",
+                    file=LogFile, append=TRUE)
           ### Save Thinned Samples
           if(iter %% Thinning == 0) {
                t.iter <- floor(iter / Thinning) + 1
@@ -1599,7 +1607,8 @@ AGG <- function(Model, Data, Iterations, Status, Thinning, Specs,
           for (iter in 1:Iterations) {
                if(iter %% Status == 0)
                     cat("Iteration: ", iter,
-                         ",   Proposal: Componentwise\n", sep="",
+                         ",   Proposal: Componentwise,   LP:",
+                         round(Mo0[["LP"]],1), "\n", sep="",
                          file=LogFile, append=TRUE)
                for (j in sample(LIV)) {
                     if(j %in% dparm) Mo0 <- GGDP(Model, Data, j, Mo0, Grid)
@@ -1641,7 +1650,8 @@ AGG <- function(Model, Data, Iterations, Status, Thinning, Specs,
           for (iter in 1:Iterations) {
                if(iter %% Status == 0)
                     cat("Iteration: ", iter,
-                         ",   Proposal: Componentwise\n", sep="",
+                         ",   Proposal: Componentwise,   LP:",
+                         round(Mo0[["LP"]],1), "\n", sep="",
                          file=LogFile, append=TRUE)
                for (j in sample(LIV)) {
                     if(j %in% dparm)
@@ -1674,9 +1684,11 @@ AHMC <- function(Model, Data, Iterations, Status, Thinning, Specs,
      gr0 <- partial(Model, post[1,], Data)
      for (iter in 1:Iterations) {
           ### Print Status
-          if(iter %% Status == 0) cat("Iteration: ", iter,
-               ",   Proposal: Multivariate\n", sep="", file=LogFile,
-               append=TRUE)
+          if(iter %% Status == 0)
+               cat("Iteration: ", iter,
+                    ",   Proposal: Multivariate,   LP:",
+                    round(Mo0[["LP"]],1), "\n", sep="",
+                    file=LogFile, append=TRUE)
           ### Current Posterior
           if(iter > 1) post[iter,] <- post[iter-1,]
           ### Save Thinned Samples
@@ -1921,20 +1933,21 @@ AM <- function(Model, Data, Iterations, Status, Thinning, Specs,
                Dev[t.iter] <- Mo0[["Dev"]]
                Mon[t.iter,] <- Mo0[["Monitor"]]}
           ### Propose new parameter values
-          MVN.rand <- rnorm(LIV, 0, 1)
-          MVNz <- try(matrix(MVN.rand,1,LIV) %*% chol(VarCov),
+          MVNz <- try(rbind(rnorm(LIV)) %*% chol(VarCov),
                silent=TRUE)
           if(!inherits(MVNz, "try-error") &
                ((Acceptance / iter) >= 0.05)) {
                if(iter %% Status == 0) 
-                    cat(",   Proposal: Multivariate\n", file=LogFile,
-                         append=TRUE)
+                    cat(",   Proposal: Multivariate,   LP:",
+                         round(Mo0[["LP"]],1), "\n", sep="",
+                         file=LogFile, append=TRUE)
                MVNz <- as.vector(MVNz)
                prop <- t(post[iter,] + t(MVNz))}
           else {
                if(iter %% Status == 0) 
-                    cat(",   Proposal: Single-Component\n", file=LogFile,
-                         append=TRUE)
+                    cat(",   Proposal: Single-Component,   LP:",
+                         round(Mo0[["LP"]],1), "\n", sep="",
+                         file=LogFile, append=TRUE)
                prop <- post[iter,]
                j <- ceiling(runif(1,0,LIV))
                prop[j] <- rnorm(1, post[iter,j], tuning[j])}
@@ -2008,13 +2021,16 @@ AMM <- function(Model, Data, Iterations, Status, Thinning, Specs,
           if(is.null(prop.R) || runif(1) < w) {
                prop <- rnorm(LIV, Mo0[["parm"]], tuning)
                if(iter %% Status == 0) 
-                    cat(",   Proposal: Non-Adaptive Component\n",
+                    cat(",   Proposal: Non-Adaptive Component,   LP:",
+                         round(Mo0[["LP"]],1), "\n", sep="",
                          file=LogFile, append=TRUE)}
           else {
-               prop <- t(prop.R) %*% rnorm(LIV) + Mo0[["parm"]]
+               prop <- Mo0[["parm"]] +
+                    as.vector(rbind(rnorm(LIV)) %*% prop.R)
                if(iter %% Status == 0) 
-                    cat(",   Proposal: Adaptive Component\n", file=LogFile,
-                         append=TRUE)}
+                    cat(",   Proposal: Adaptive Component,   LP:",
+                         round(Mo0[["LP"]],1), "\n", sep="",
+                         file=LogFile, append=TRUE)}
           ### Log-Posterior of the proposed state
           Mo1 <- Model(prop, Data)
           if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
@@ -2089,14 +2105,16 @@ AMM.B <- function(Model, Data, Iterations, Status, Thinning, Specs,
                     prop[Block[[b]]] <- rnorm(length(Block[[b]]),
                          Mo0[["parm"]][Block[[b]]], tuning)
                     if(b == 1 & iter %% Status == 0) 
-                         cat(",   Proposal: Non-Adaptive Component\n",
+                         cat(",   Proposal: Non-Adaptive Component,   LP:",
+                              round(Mo0[["LP"]],1), "\n", sep="",
                               file=LogFile, append=TRUE)}
                else {
-                    prop[Block[[b]]] <- t(prop.R[[b]]) %*%
-                         rnorm(length(Block[[b]])) +
-                         Mo0[["parm"]][Block[[b]]]
+                    prop[Block[[b]]] <- Mo0[["parm"]][[Block[[b]]]] +
+                         as.vector(rbind(rnorm(length(Block[[b]]))) %*%
+                              prop.R[[b]])
                     if(b == 1 & iter %% Status == 0) 
-                         cat(",   Proposal: Adaptive Component\n",
+                         cat(",   Proposal: Adaptive Component,   LP:",
+                              round(Mo0[["LP"]],1), "\n", sep="",
                               file=LogFile, append=TRUE)}
                ### Log-Posterior of the proposed state
                Mo1 <- Model(prop, Data)
@@ -2147,8 +2165,10 @@ AMWG <- function(Model, Data, Iterations, Status, Thinning, Specs,
      for (iter in 1:Iterations) {
           ### Print Status
           if(iter %% Status == 0)
-               cat("Iteration: ", iter, ",   Proposal: Componentwise\n",
-                    sep="", file=LogFile, append=TRUE)
+               cat("Iteration: ", iter,
+                    ",   Proposal: Componentwise,   LP:",
+                    round(Mo0[["LP"]],1), "\n", sep="",
+                    file=LogFile, append=TRUE)
           ### Save Thinned Samples
           if(iter %% Thinning == 0) {
                t.iter <- floor(iter / Thinning) + 1
@@ -2203,8 +2223,9 @@ CHARM <- function(Model, Data, Iterations, Status, Thinning, Specs,
                ### Print Status
                if(iter %% Status == 0)
                     cat("Iteration: ", iter,
-                         ",   Proposal: Componentwise\n", sep="",
-                         file=LogFile, append=TRUE)
+                    ",   Proposal: Componentwise,   LP:",
+                    round(Mo0[["LP"]],1), "\n", sep="",
+                    file=LogFile, append=TRUE)
                ### Save Thinned Samples
                if(iter %% Thinning == 0) {
                     t.iter <- floor(iter / Thinning) + 1
@@ -2250,8 +2271,9 @@ CHARM <- function(Model, Data, Iterations, Status, Thinning, Specs,
                ### Print Status
                if(iter %% Status == 0)
                     cat("Iteration: ", iter,
-                         ",   Proposal: Componentwise\n", sep="",
-                         file=LogFile, append=TRUE)
+                    ",   Proposal: Componentwise,   LP:",
+                    round(Mo0[["LP"]],1), "\n", sep="",
+                    file=LogFile, append=TRUE)
                ### Save Thinned Samples
                if(iter %% Thinning == 0) {
                     t.iter <- floor(iter / Thinning) + 1
@@ -2355,8 +2377,9 @@ DEMC <- function(Model, Data, Iterations, Status, Thinning, Specs,
                          ({Mo0[[si]][["parm"]] - Z[r[1],,s[1]]} -
                           {Mo0[[si]][["parm"]] - Z[r[2],,s[2]]})}
                if(i == 1 & iter %% Status == 0) 
-                    cat(",   Proposal: Multivariate\n", file=LogFile,
-                         append=TRUE)
+                    cat(",   Proposal: Multivariate,   LP:",
+                         round(Mo0[[1]][["LP"]],1), "\n", sep="",
+                         file=LogFile, append=TRUE)
                ### Log-Posterior of the proposed state
                Mo1 <- Model(prop, Data)
                if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
@@ -2410,19 +2433,20 @@ DRAM <- function(Model, Data, Iterations, Status, Thinning, Specs,
                Dev[t.iter] <- Mo0[["Dev"]]
                Mon[t.iter,] <- Mo0[["Monitor"]]}
           ### Propose new parameter values
-          MVN.rand <- rnorm(LIV, 0, 1)
-          MVNz <- try(matrix(MVN.rand,1,LIV) %*% chol(VarCov), silent=TRUE)
+          MVNz <- try(rbind(rnorm(LIV)) %*% chol(VarCov), silent=TRUE)
           if(!inherits(MVNz, "try-error") &
                ((Acceptance / iter) >= 0.05)) {
                if(iter %% Status == 0) 
-                    cat(",   Proposal: Multivariate\n", file=LogFile,
-                         append=TRUE)
+                    cat(",   Proposal: Multivariate,   LP:",
+                         round(Mo0[["LP"]],1), "\n", sep="",
+                         file=LogFile, append=TRUE)
                MVNz <- as.vector(MVNz)
                prop <- t(post[iter,] + t(MVNz))}
           else {
                if(iter %% Status == 0) 
-                    cat(",   Proposal: Single-Component\n", file=LogFile,
-                         append=TRUE)
+                    cat(",   Proposal: Single-Component,   LP:",
+                         round(Mo0[["LP"]],1), "\n", sep="",
+                         file=LogFile, append=TRUE)
                prop <- post[iter,]
                j <- ceiling(runif(1,0,LIV))
                prop[j] <- rnorm(1, post[iter,j], tuning[j])}
@@ -2446,8 +2470,7 @@ DRAM <- function(Model, Data, Iterations, Status, Thinning, Specs,
                }
           ### Delayed Rejection: Second Stage Proposals
           else if(log.u >= log.alpha) {
-               MVN.rand <- rnorm(LIV, 0, 1)
-               MVNz <- try(matrix(MVN.rand,1,LIV) %*%
+               MVNz <- try(rbind(rnorm(LIV)) %*%
                     chol(VarCov * 0.5), silent=TRUE)
                if(!inherits(MVNz, "try-error") &
                     ((Acceptance / iter) >= 0.05)) {
@@ -2524,20 +2547,21 @@ DRM <- function(Model, Data, Iterations, Status, Thinning, Specs,
                Dev[t.iter] <- Mo0[["Dev"]]
                Mon[t.iter,] <- Mo0[["Monitor"]]}
           ### Propose new parameter values
-          MVN.rand <- rnorm(LIV, 0, 1)
-          MVNz <- try(matrix(MVN.rand,1,LIV) %*% U,
+          MVNz <- try(rbind(rnorm(LIV)) %*% U,
                silent=TRUE)
           if(!inherits(MVNz, "try-error") &
                ((Acceptance / iter) >= 0.05)) {
                if(iter %% Status == 0) 
-                    cat(",   Proposal: Multivariate\n", file=LogFile,
-                         append=TRUE)
+                    cat(",   Proposal: Multivariate,   LP:",
+                         round(Mo0[["LP"]],1), "\n", sep="",
+                         file=LogFile, append=TRUE)
                MVNz <- as.vector(MVNz)
                prop <- t(as.vector(Mo0[["parm"]]) + t(MVNz))}
           else {
                if(iter %% Status == 0) 
-                    cat(",   Proposal: Single-Component\n", file=LogFile,
-                         append=TRUE)
+                    cat(",   Proposal: Single-Component,   LP:",
+                         round(Mo0[["LP"]],1), "\n", sep="",
+                         file=LogFile, append=TRUE)
                prop <- Mo0[["parm"]]
                j <- ceiling(runif(1,0,LIV))
                prop[j] <- rnorm(1, Mo0[["parm"]][j], tuning[j])}
@@ -2560,8 +2584,7 @@ DRM <- function(Model, Data, Iterations, Status, Thinning, Specs,
                }
           ### Delayed Rejection: Second Stage Proposals
           else if(log.u >= log.alpha) {
-               MVN.rand <- rnorm(LIV, 0, 1)
-               MVNz <- try(matrix(MVN.rand,1,LIV) %*%
+               MVNz <- try(rbind(rnorm(LIV)) %*%
                     chol(VarCov * 0.5), silent=TRUE)
                if(!inherits(MVNz, "try-error") &
                     ((Acceptance / iter) >= 0.05)) {
@@ -2623,18 +2646,19 @@ Ess <- function(Model, Data, Iterations, Status, Thinning, Specs,
                     Dev[t.iter] <- Mo0[["Dev"]]
                     Mon[t.iter,] <- Mo0[["Monitor"]]}
                ### Propose new parameter values
-               MVN.rand <- rnorm(LIV, 0, 1)
-               MVNz <- try(matrix(MVN.rand,1,LIV) %*% U, silent=TRUE)
+               MVNz <- try(rbind(rnorm(LIV)) %*% U, silent=TRUE)
                if(!inherits(MVNz, "try-error")) {
                     if(iter %% Status == 0) 
-                         cat(",   Proposal: Multivariate\n", file=LogFile,
-                              append=TRUE)
+                         cat(",   Proposal: Multivariate,   LP:",
+                              round(Mo0[["LP"]],1), "\n", sep="",
+                              file=LogFile, append=TRUE)
                     nu <- as.vector(MVNz)
                     }
                else {
                     if(iter %% Status == 0) 
-                         cat(",   Proposal: Single-Component\n", file=LogFile,
-                              append=TRUE)
+                         cat(",   Proposal: Single-Component,   LP:",
+                              round(Mo0[["LP"]],1), "\n", sep="",
+                              file=LogFile, append=TRUE)
                     j <- ceiling(runif(1,0,LIV))
                     nu[j] <- rnorm(1, 0, sqrt(diag(VarCov)[j]))}
                theta <- theta.max <- runif(1, 0, 2*pi)
@@ -2690,19 +2714,19 @@ Ess <- function(Model, Data, Iterations, Status, Thinning, Specs,
                ### Proceed by Block
                for (b in 1:B) {
                     ### Propose new parameter values
-                    MVN.rand <- rnorm(length(Block[[b]]), 0, 1)
-                    MVNz <- try(matrix(MVN.rand,1,
-                         length(Block[[b]])) %*% chol(VarCov[[b]]),
-                         silent=TRUE)
+                    MVNz <- try(rbind(rnorm(length(Block[[b]]))) %*%
+                         chol(VarCov[[b]]), silent=TRUE)
                     if(!inherits(MVNz, "try-error")) {
                          if({b == 1} & {iter %% Status == 0}) 
-                              cat(",   Proposal: Multivariate\n",
+                              cat(",   Proposal: Multivariate,  LP:",
+                                   round(Mo0[["LP"]],1), "\n", sep="",
                                    file=LogFile, append=TRUE)
                          nu[Block[[b]]] <- as.vector(MVNz)
                          }
                     else {
                          if({b == 1} & {iter %% Status == 0})
-                              cat(",   Proposal: Single-Component\n",
+                              cat(",   Proposal: Single-Component,   LP:",
+                                   round(Mo0[["LP"]],1), "\n", sep="",
                                    file=LogFile, append=TRUE)
                          j <- sample(Block[[b]], 1)
                          nu[j] <- rnorm(1, 0, 1)}
@@ -2758,7 +2782,8 @@ GG <- function(Model, Data, Iterations, Status, Thinning, Specs,
           for (iter in 1:Iterations) {
                if(iter %% Status == 0)
                     cat("Iteration: ", iter,
-                         ",   Proposal: Componentwise\n", sep="",
+                         ",   Proposal: Componentwise,   LP:",
+                         round(Mo0[["LP"]],1), "\n", sep="",
                          file=LogFile, append=TRUE)
                for (j in sample(LIV)) {
                     if(j %in% dparm) Mo0 <- GGDP(Model, Data, j, Mo0, Grid)
@@ -2796,7 +2821,8 @@ GG <- function(Model, Data, Iterations, Status, Thinning, Specs,
           for (iter in 1:Iterations) {
                if(iter %% Status == 0)
                     cat("Iteration: ", iter,
-                         ",   Proposal: Componentwise\n", sep="",
+                         ",   Proposal: Componentwise,   LP:",
+                         round(Mo0[["LP"]],1), "\n", sep="",
                          file=LogFile, append=TRUE)
                for (j in sample(LIV)) {
                     if(j %in% dparm)
@@ -2943,9 +2969,11 @@ HARM <- function(Model, Data, Iterations, Status, Thinning, Specs,
                theta <- rnorm(LIV)
                d <- theta / sqrt(sum(theta*theta))
                prop <- Mo0[["parm"]] + runif(1) * d
-               if(iter %% Status == 0) 
-                    cat(",   Proposal: Multivariate\n", file=LogFile,
-                         append=TRUE)
+               if(iter %% Status == 0)
+                    cat("Iteration: ", iter,
+                         ",   Proposal: Multivariate,   LP:",
+                         round(Mo0[["LP"]],1), "\n", sep="",
+                         file=LogFile, append=TRUE)
                ### Log-Posterior of the proposed state
                Mo1 <- Model(prop, Data)
                if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
@@ -2994,8 +3022,9 @@ HARM <- function(Model, Data, Iterations, Status, Thinning, Specs,
                     prop <- Mo0[["parm"]]
                     prop[Block[[b]]] <- prop[Block[[b]]] + runif(1) * d
                     if({b == 1} & {iter %% Status == 0}) 
-                         cat(",   Proposal: Multivariate\n", file=LogFile,
-                              append=TRUE)
+                         cat(",   Proposal: Multivariate,   LP:",
+                              round(Mo0[["LP"]],1), "\n", sep="",
+                              file=LogFile, append=TRUE)
                     ### Log-Posterior of the proposed state
                     Mo1 <- Model(prop, Data)
                     if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
@@ -3043,8 +3072,9 @@ HARM <- function(Model, Data, Iterations, Status, Thinning, Specs,
                d <- theta / sqrt(sum(theta*theta))
                prop <- Mo0[["parm"]] + runif(1,0,tau) * d
                if(iter %% Status == 0) 
-                    cat(",   Proposal: Multivariate\n", file=LogFile,
-                         append=TRUE)
+                    cat(",   Proposal: Multivariate,   LP:",
+                         round(Mo0[["LP"]],1), "\n", sep="",
+                         file=LogFile, append=TRUE)
                ### Log-Posterior of the proposed state
                Mo1 <- Model(prop, Data)
                if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
@@ -3103,8 +3133,9 @@ HARM <- function(Model, Data, Iterations, Status, Thinning, Specs,
                     prop[Block[[b]]] <- prop[Block[[b]]] +
                          runif(1,0,tau[b]) * d
                     if({b == 1} & {iter %% Status == 0}) 
-                         cat(",   Proposal: Multivariate\n", file=LogFile,
-                              append=TRUE)
+                         cat(",   Proposal: Multivariate,   LP:",
+                              round(Mo0[["LP"]],1), "\n", sep="",
+                              file=LogFile, append=TRUE)
                     ### Log-Posterior of the proposed state
                     Mo1 <- Model(prop, Data)
                     if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
@@ -3152,8 +3183,10 @@ HMC <- function(Model, Data, Iterations, Status, Thinning, Specs,
      for (iter in 1:Iterations) {
           ### Print Status
           if(iter %% Status == 0)
-               cat("Iteration: ", iter, ",   Proposal: Multivariate\n",
-               sep="", file=LogFile, append=TRUE)
+               cat("Iteration: ", iter,
+                    ",   Proposal: Multivariate,   LP:",
+                    round(Mo0[["LP"]],1), "\n", sep="",
+                    file=LogFile, append=TRUE)
           ### Save Thinned Samples
           if(iter %% Thinning == 0) {
                t.iter <- floor(iter / Thinning) + 1
@@ -3294,7 +3327,8 @@ HMCDA <- function(Model, Data, Iterations, Status, Thinning, Specs,
           ### Print Status
           if(iter %% Status == 0)
                cat("Iteration: ", iter,
-                    ",   Proposal: Multivariate,   L: ", L, "\n", sep="",
+                    ",   Proposal: Multivariate,   LP:",
+                    round(Mo0[["LP"]],1), "\n", sep="",
                     file=LogFile, append=TRUE)
           ### Leapfrog Function
           for (l in 1:L) {
@@ -3364,15 +3398,13 @@ IM <- function(Model, Data, Iterations, Status, Thinning, Specs,
                Dev[t.iter] <- Mo0[["Dev"]]
                Mon[t.iter,] <- Mo0[["Monitor"]]}
           ### Propose new parameter values
-          MVN.rand <- rnorm(LIV, 0, 1)
-          MVNz <- try(matrix(MVN.rand,1,LIV) %*% U,
-               silent=TRUE)
+          MVNz <- try(rbind(rnorm(LIV)) %*% U, silent=TRUE)
           if(!inherits(MVNz, "try-error")) {
                if(iter %% Status == 0) 
-                   cat(",   Proposal: Multivariate\n", file=LogFile,
-                        append=TRUE)
-               MVNz <- as.vector(MVNz)
-               prop <- as.vector(t(mu + t(MVNz)))}
+                   cat(",   Proposal: Multivariate,   LP:",
+                        round(Mo0[["LP"]],1), "\n", sep="",
+                        file=LogFile, append=TRUE)
+               prop <- as.vector(mu) + as.vector(MVNz)}
           else {prop <- as.vector(Mo0[["parm"]])}
           ### Log-Posterior of the proposed state
           Mo1 <- Model(prop, Data)
@@ -3439,20 +3471,19 @@ INCA <- function(Model, Data, Iterations, Status, Thinning, Specs,
                Dev[t.iter] <- Mo0[["Dev"]]
                Mon[t.iter,] <- Mo0[["Monitor"]]}
           ### Propose new parameter values
-          MVN.rand <- rnorm(LIV, 0, 1)
-          MVNz <- try(matrix(MVN.rand,1,LIV) %*% chol(VarCov),
-               silent=TRUE)
+          MVNz <- try(rbind(rnorm(LIV)) %*% chol(VarCov), silent=TRUE)
           if(!inherits(MVNz, "try-error") &
                ((Acceptance / iter) >= 0.05)) {
                if(iter %% Status == 0) 
-                    cat(",   Proposal: Multivariate\n", file=LogFile,
-                         append=TRUE)
-               MVNz <- as.vector(MVNz)
-               prop <- t(post[iter,] + t(MVNz))}
+                    cat(",   Proposal: Multivariate,   LP:",
+                         round(Mo0[["LP"]],1), "\n", sep="",
+                         file=LogFile, append=TRUE)
+               prop <- as.vector(post[iter,]) + as.vector(MVNz)}
           else {
                if(iter %% Status == 0) 
-                    cat(",   Proposal: Single-Component\n", file=LogFile,
-                         append=TRUE)
+                    cat(",   Proposal: Single-Component,   LP:",
+                         round(Mo0[["LP"]],1), "\n", sep="",
+                         file=LogFile, append=TRUE)
                prop <- post[iter,]
                j <- ceiling(runif(1,0,LIV))
                prop[j] <- rnorm(1, post[iter,j], tuning[j])}
@@ -3515,7 +3546,7 @@ INCA <- function(Model, Data, Iterations, Status, Thinning, Specs,
                               (post[i, ]-tmpMean)
                          tmpCov <- (INCA_iter-1)/INCA_iter * tmpCov +
                               1/INCA_iter * 
-                              tcrossprod(post[i, ]-tmpMean)
+                              tcrossprod(post[i, ] - tmpMean)
                          INCA_iter <- INCA_iter + 1}
                     INCA_first <- FALSE}
                VarCov <- lambda * (tmpCov + 1e-9 * Iden.Mat)
@@ -3536,17 +3567,22 @@ MALA <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
      VarCov, LogFile)
      {
-     Periodicity <- Specs[["Periodicity"]]
-     alpha.star <- 0.574
-     obs.sum <- matrix(0, LIV, 1)
-     obs.scatter <- matrix(0, LIV, LIV)
-     sigma2 <- ScaleF <- 2.38^2 / LIV^(1/3)
-     if(all(upper.triangle(VarCov) == 0)) prop.R <- NULL
-     else prop.R <- sigma2 * chol(VarCov)
+     A <- Specs[["A"]]
+     alpha.star <- Specs[["alpha.star"]]
+     delta <- Specs[["delta"]]
+     epsilon <- Specs[["epsilon"]]
+     Gamm <- VarCov
+     mu <- Mo0[["parm"]]
+     sigma2 <- 1 / LIV
+     DiagCovar <- matrix(diag(Gamm), nrow(thinned), LIV)
+     Iden <- diag(LIV)
      for (iter in 1:Iterations) {
           ### Print Status
           if(iter %% Status == 0)
-               cat("Iteration: ", iter, sep="", file=LogFile, append=TRUE)
+               cat("Iteration: ", iter,
+                    ",   Proposal: Multivariate,   LP:",
+                    round(Mo0[["LP"]],1), "\n", sep="",
+                    file=LogFile, append=TRUE)
           ### Save Thinned Samples
           if(iter %% Thinning == 0) {
                t.iter <- floor(iter / Thinning) + 1
@@ -3554,16 +3590,13 @@ MALA <- function(Model, Data, Iterations, Status, Thinning, Specs,
                Dev[t.iter] <- Mo0[["Dev"]]
                Mon[t.iter,] <- Mo0[["Monitor"]]}
           ### Propose new parameter values
-          if(iter %% Status == 0) 
-               cat(",   Proposal: Multivariate\n", file=LogFile,
-                    append=TRUE)
           gr <- partial(Model, Mo0[["parm"]], Data)
-          dx <- (1 / max(1, abs(gr)))*gr
-          if(is.null(prop.R))
-               prop <- rnorm(LIV, Mo0[["parm"]] + sqrt(0.0001*ScaleF)*dx,
-                    sqrt(0.0001 * ScaleF))
-          else prop <- Mo0[["parm"]] + sigma2*dx +
-                    rbind(rnorm(LIV)) %*% prop.R
+          Dx <- {delta/max(delta, abs(gr))}*gr
+          gamm <- 1/iter
+          Lambda <- Gamm + epsilon[2]*Iden
+          prop <- as.vector(rmvn(1, Mo0[["parm"]] + {sigma2/2}*
+               as.vector(tcrossprod(Lambda, t(Dx)))*Dx,
+               sigma2*Lambda))
           ### Log-Posterior of the proposed state
           Mo1 <- Model(prop, Data)
           if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
@@ -3579,24 +3612,23 @@ MALA <- function(Model, Data, Iterations, Status, Thinning, Specs,
                if(iter %% Thinning == 0) {
                     thinned[t.iter,] <- Mo1[["parm"]]
                     Dev[t.iter] <- Mo1[["Dev"]]
-                    Mon[t.iter,] <- Mo1[["Monitor"]]}}
-          ### Update Sample and Scatter Sum
-          obs.sum <- obs.sum + Mo0[["parm"]]
-          obs.scatter <- obs.scatter + tcrossprod(Mo0[["parm"]])
-          ### Adapt the Drift Parameter
-          sigma2 <- exp(log(sigma2) +
-               (1/iter^0.8)*(Acceptance/iter - alpha.star))
-          ### Adapt the Variance
-          if(iter %% Periodicity == 0) {
-               VarCov.temp <- VarCov
-               VarCov <- obs.scatter/iter - tcrossprod(obs.sum/iter)
-               diag(VarCov) <- diag(VarCov) + 1e-05
-               DiagCovar <- rbind(DiagCovar, rep(sigma2, LIV))
-               prop.R <- try(sigma2 * chol(VarCov), silent=TRUE)
-               if(!is.matrix(prop.R)) {
-                    VarCov <- VarCov.temp
-                    prop.R <- try(sigma2 * chol(VarCov), silent=TRUE)
-                    if(!is.matrix(prop.R)) prop.R <- NULL}}
+                    Mon[t.iter,] <- Mo1[["Monitor"]]
+                    DiagCovar[t.iter,] <- diag(Lambda)}}
+          ### Adapt Gamma (first, since it uses mu[t] not [t+1])
+          xmu <- Mo0[["parm"]] - mu
+          Gamm.prop <- Gamm + gamm*{xmu %*% t(xmu) - Gamm}
+          norm.Gamm <- norm(Gamm.prop, type="F")
+          if(norm.Gamm <= A) Gamm <- Gamm.prop               
+          else Gamm <- {A/Gamm.prop}*Gamm.prop
+          ### Adapt mu
+          mu.prop <- mu + gamm*(Mo0[["parm"]] - mu)
+          norm.mu <- sqrt(sum(mu.prop*mu.prop))
+          if(norm.mu <= A) mu <- mu.prop
+          else mu <- {A/norm.mu}*mu.prop
+          ### Adapt sigma
+          sigma2 <- interval(sqrt(sigma2) +
+               gamm*(min(exp(log.alpha),1) - alpha.star),
+               epsilon[1], A, reflect=FALSE)^2
           }
      ### Output
      out <- list(Acceptance=Acceptance,
@@ -3604,7 +3636,7 @@ MALA <- function(Model, Data, Iterations, Status, Thinning, Specs,
           DiagCovar=DiagCovar,
           Mon=Mon,
           thinned=thinned,
-          VarCov=VarCov)
+          VarCov=Lambda)
      return(out)
      }
 MCMCMC <- function(Model, Data, Iterations, Status, Thinning, Specs,
@@ -3650,7 +3682,10 @@ MCMCMC <- function(Model, Data, Iterations, Status, Thinning, Specs,
      for (iter in 1:Iterations) {
           ### Print Status
           if(iter %% Status == 0)
-               cat("Iteration: ", iter, sep="", file=LogFile, append=TRUE)
+               cat("Iteration: ", iter,
+                    ",   Proposal: Multivariate,   LP:",
+                    round(Mo0[[coolest]][["LP"]],1), "\n", sep="",
+                    file=LogFile, append=TRUE)
           ### Save Thinned Samples
           if(iter %% Thinning == 0) {
                t.iter <- floor(iter / Thinning) + 1
@@ -3659,11 +3694,7 @@ MCMCMC <- function(Model, Data, Iterations, Status, Thinning, Specs,
                Mon[t.iter,] <- Mo0[[coolest]][["Monitor"]]}
           ### Propose new parameter values
           for (i in 1:CPUs)
-               prop[i,] <- Mo0[[i]][["parm"]] +
-                    as.vector(matrix(rnorm(LIV) %*% U))
-          if(iter %% Status == 0) 
-               cat(",   Proposal: Multivariate\n", file=LogFile,
-                    append=TRUE)
+               prop[i,] <- Mo0[[i]][["parm"]] + rbind(rnorm(LIV)) %*% U
           ### Log-Posterior of the proposed state
           Mo1 <- parLapply(cl, 1:CPUs, function(x) Model(prop[x,], Data))
           for (i in 1:CPUs) {
@@ -3750,7 +3781,9 @@ MTM <- function(Model, Data, Iterations, Status, Thinning, Specs,
           ### Print Status
           if(iter %% Status == 0)
                cat("Iteration: ", iter,
-                    ",   Proposal: Componentwise\n", sep="")
+                    ",   Proposal: Componentwise,   LP:",
+                    round(Mo0[["LP"]],1), "\n", sep="",
+                    file=LogFile, append=TRUE)
           ### Save Thinned Samples
           if(iter %% Thinning == 0) {
                t.iter <- floor(iter / Thinning) + 1
@@ -3845,8 +3878,10 @@ MWG <- function(Model, Data, Iterations, Status, Thinning, Specs,
      for (iter in 1:Iterations) {
           ### Print Status
           if(iter %% Status == 0)
-               cat("Iteration: ", iter, ",   Proposal: Componentwise\n",
-                    sep="", file=LogFile, append=TRUE)
+               cat("Iteration: ", iter,
+                    ",   Proposal: Componentwise,   LP:",
+                    round(Mo0[["LP"]],1), "\n", sep="",
+                    file=LogFile, append=TRUE)
           ### Save Thinned Samples
           if(iter %% Thinning == 0) {
                t.iter <- floor(iter / Thinning) + 1
@@ -4070,8 +4105,10 @@ NUTS <- function(Model, Data, Iterations, Status, Thinning, Specs,
      for (iter in 2:Iterations) {
           ### Print Status
           if(iter %% Status == 0)
-               cat("Iteration: ", iter, ",   Proposal: Multivariate\n",
-                    sep="", file=LogFile, append=TRUE)
+               cat("Iteration: ", iter,
+                    ",   Proposal: Multivariate,   LP:",
+                    round(Mo0[["LP"]],1), "\n", sep="",
+                    file=LogFile, append=TRUE)
           ### Current Posterior
           if(iter > 1) post[iter,] <- post[iter-1,]
           ### Save Thinned Samples
@@ -4191,8 +4228,10 @@ OHSS <- function(Model, Data, Iterations, Status, Thinning, Specs,
      for (iter in 1:Iterations) {
           ### Print Status
           if(iter %% Status == 0)
-               cat("Iteration: ", iter, ",   Proposal: Multivariate\n",
-                    sep="")
+               cat("Iteration: ", iter,
+                    ",   Proposal: Multivariate,   LP:",
+                    round(Mo0[["LP"]],1), "\n", sep="",
+                    file=LogFile, append=TRUE)
           ### Eigenvectors of the Sample Covariance Matrix
           if({iter %% decomp.freq == 0} & {iter > 1}) {
                S.eig <- try(eigen(cov(thinned[1:(t.iter-1),,drop=FALSE])),
@@ -4265,7 +4304,10 @@ RAM <- function(Model, Data, Iterations, Status, Thinning, Specs,
      for (iter in 1:Iterations) {
           ### Print Status
           if(iter %% Status == 0)
-               cat("Iteration: ", iter, sep="", file=LogFile, append=TRUE)
+               cat("Iteration: ", iter,
+                    ",   Proposal: Multivariate,   LP:",
+                    round(Mo0[["LP"]],1), "\n", sep="",
+                    file=LogFile, append=TRUE)
           ### Save Thinned Samples
           if(iter %% Thinning == 0) {
                t.iter <- floor(iter / Thinning) + 1
@@ -4276,9 +4318,6 @@ RAM <- function(Model, Data, Iterations, Status, Thinning, Specs,
           if(Dist == "t") U <- qt(runif(LIV), df=5, lower.tail=TRUE)
           else U <- rnorm(LIV)
           prop <- Mo0[["parm"]] + rbind(U) %*% S
-          if(iter %% Status == 0)
-               cat(",   Proposal: Multivariate\n", file=LogFile,
-                    append=TRUE)
           ### Log-Posterior
           Mo1 <- try(Model(prop, Data), silent=TRUE)
           if(inherits(Mo1, "try-error")) Mo1 <- Mo0
@@ -4330,8 +4369,10 @@ RDMH <- function(Model, Data, Iterations, Status, Thinning, Specs,
      for (iter in 1:Iterations) {
           ### Print Status
           if(iter %% Status == 0)
-               cat("Iteration: ", iter, ",   Proposal: Componentwise\n",
-                    sep="", file=LogFile, append=TRUE)
+               cat("Iteration: ", iter,
+                    ",   Proposal: Componentwise,   LP:",
+                    round(Mo0[["LP"]],1), "\n", sep="",
+                    file=LogFile, append=TRUE)
           ### Save Thinned Samples
           if(iter %% Thinning == 0) {
                t.iter <- floor(iter / Thinning) + 1
@@ -4381,8 +4422,10 @@ Refractive <- function(Model, Data, Iterations, Status, Thinning, Specs,
      for (iter in 1:Iterations) {
           ### Print Status
           if(iter %% Status == 0)
-               cat("Iteration: ", iter, ",   Proposal: Multivariate\n",
-                    sep="")
+               cat("Iteration: ", iter,
+                    ",   Proposal: Multivariate,   LP:",
+                    round(Mo0[["LP"]],1), "\n", sep="",
+                    file=LogFile, append=TRUE)
           ### Save Thinned Samples
           if(iter %% Thinning == 0) {
                t.iter <- floor(iter / Thinning) + 1
@@ -4464,8 +4507,10 @@ RJ <- function(Model, Data, Iterations, Status, Thinning, Specs,
      for (iter in 1:Iterations) {
           ### Print Status
           if(iter %% Status == 0)
-               cat("Iteration: ", iter, ",   Proposal: Componentwise\n",
-                    sep="", file=LogFile, append=TRUE)
+               cat("Iteration: ", iter,
+                    ",   Proposal: Componentwise,   LP:",
+                    round(Mo0[["LP"]],1), "\n", sep="",
+                    file=LogFile, append=TRUE)
           ### Save Thinned Samples
           if(iter %% Thinning == 0) {
                t.iter <- floor(iter / Thinning) + 1
@@ -4552,8 +4597,9 @@ RSS <- function(Model, Data, Iterations, Status, Thinning, Specs,
           ### Print Status
           if(iter %% Status == 0)
                cat("Iteration: ", iter,
-                    ",   Proposal: Multivariate, r:", reflections,
-                    "\n", sep="")
+                    ",   Proposal: Multivariate,   LP:",
+                    round(Mo0[["LP"]],1), "\n", sep="",
+                    file=LogFile, append=TRUE)
           ### Save Thinned Samples
           if(iter %% Thinning == 0) {
                t.iter <- floor(iter / Thinning) + 1
@@ -4606,7 +4652,10 @@ RWM <- function(Model, Data, Iterations, Status, Thinning, Specs,
           for (iter in 1:Iterations) {
                ### Print Status
                if(iter %% Status == 0)
-                    cat("Iteration: ", iter, sep="", file=LogFile, append=TRUE)
+                    cat("Iteration: ", iter,
+                    ",   Proposal: Multivariate,   LP:",
+                    round(Mo0[["LP"]],1), "\n", sep="",
+                    file=LogFile, append=TRUE)
                ### Save Thinned Samples
                if(iter %% Thinning == 0) {
                     t.iter <- floor(iter / Thinning) + 1
@@ -4614,12 +4663,8 @@ RWM <- function(Model, Data, Iterations, Status, Thinning, Specs,
                     Dev[t.iter] <- Mo0[["Dev"]]
                     Mon[t.iter,] <- Mo0[["Monitor"]]}
                ### Propose new parameter values
-               MVN.rand <- rnorm(LIV, 0, 1)
-               MVNz <- as.vector(matrix(MVN.rand,1,LIV) %*% U)
-               prop <- as.vector(Mo0[["parm"]]) + MVNz
-               if(iter %% Status == 0) 
-                    cat(",   Proposal: Multivariate\n", file=LogFile,
-                         append=TRUE)
+               prop <- as.vector(Mo0[["parm"]] +
+                    rbind(rnorm(LIV)) %*% U)
                ### Log-Posterior of the proposed state
                Mo1 <- Model(prop, Data)
                if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
@@ -4660,14 +4705,14 @@ RWM <- function(Model, Data, Iterations, Status, Thinning, Specs,
                ### Proceed by Block
                for (b in 1:B) {
                     ### Propose new parameter values
-                    MVN.rand <- rnorm(length(Block[[b]]), 0, 1)
-                    MVNz <- as.vector(matrix(MVN.rand, 1,
-                         length(Block[[b]])) %*% chol(VarCov[[b]]))
-                    prop <- as.vector(Mo0[["parm"]])
-                    prop[Block[[b]]] <- prop[Block[[b]]] + MVNz
+                    prop <- Mo0[["parm"]]
+                    prop[Block[[b]]] <- Mo0[["parm"]][[Block[[b]]]] +
+                         rbind(rnorm(length(Block[[b]]))) %*%
+                         chol(VarCov[[b]])
                     if({b == 1} & {iter %% Status == 0})
-                         cat(",   Proposal: Multivariate\n", file=LogFile,
-                              append=TRUE)
+                         cat(",   Proposal: Multivariate,   LP:",
+                              round(Mo0[["LP"]],1), "\n", sep="",
+                              file=LogFile, append=TRUE)
                     ### Log-Posterior of the proposed state
                     Mo1 <- Model(prop, Data)
                     if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
@@ -4711,8 +4756,10 @@ SAMWG <- function(Model, Data, Iterations, Status, Thinning, Specs,
      for (iter in 1:Iterations) {
           ### Print Status
           if(iter %% Status == 0)
-               cat("Iteration: ", iter, ",   Proposal: Componentwise\n",
-                    sep="", file=LogFile, append=TRUE)
+               cat("Iteration: ", iter,
+                    ",   Proposal: Componentwise,   LP:",
+                    round(Mo0[["LP"]],1), "\n", sep="",
+                    file=LogFile, append=TRUE)
           ### Save Thinned Samples
           if(iter %% Thinning == 0) {
                t.iter <- floor(iter / Thinning) + 1
@@ -4777,7 +4824,10 @@ SGLD <- function(Model, Data, Iterations, Status, Thinning, Specs,
      for (iter in 1:Iterations) {
           ### Print Status
           if(iter %% Status == 0)
-               cat("Iteration: ", iter, sep="", file=LogFile, append=TRUE)
+               cat("Iteration: ", iter,
+                    ",   Proposal: Multivariate,   LP:",
+                    round(Mo0[["LP"]],1), "\n", sep="",
+                    file=LogFile, append=TRUE)
           ### Save Thinned Samples
           if(iter %% Thinning == 0) {
                t.iter <- floor(iter / Thinning) + 1
@@ -4790,12 +4840,9 @@ SGLD <- function(Model, Data, Iterations, Status, Thinning, Specs,
           Data$X <- matrix(scan(file=con, sep=",", skip=skip.rows,
                nlines=size, quiet=TRUE), size, Nc, byrow=TRUE)
           ### Propose new parameter values
-          if(iter %% Status == 0) 
-               cat(",   Proposal: Multivariate\n", file=LogFile,
-                    append=TRUE)
           g <- partial(Model, Mo0[["parm"]], Data)
           eta <- rnorm(LIV, 0, epsilon[iter])
-          prop <- Mo0[["parm"]] + {epsilon[iter] / 2} * g + eta
+          prop <- Mo0[["parm"]] + {epsilon[iter]/2}*g + eta
           ### Log-Posterior of the proposed state
           Mo1 <- Model(prop, Data)
           if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
@@ -4899,8 +4946,10 @@ Slice <- function(Model, Data, Iterations, Status, Thinning, Specs,
      for (iter in 1:Iterations) {
           ### Print Status
           if(iter %% Status == 0)
-               cat("Iteration: ", iter, ",   Proposal: Componentwise\n",
-                    sep="")
+               cat("Iteration: ", iter,
+                    ",   Proposal: Componentwise,   LP:",
+                    round(Mo0[["LP"]],1), "\n", sep="",
+                    file=LogFile, append=TRUE)
           ### Save Thinned Samples
           if(iter %% Thinning == 0) {
                t.iter <- floor(iter / Thinning) + 1
@@ -4940,8 +4989,10 @@ SMWG <- function(Model, Data, Iterations, Status, Thinning, Specs,
      for (iter in 1:Iterations) {
           ### Print Status
           if(iter %% Status == 0)
-               cat("Iteration: ", iter, ",   Proposal: Componentwise\n",
-                    sep="", file=LogFile, append=TRUE)
+               cat("Iteration: ", iter,
+                    ",   Proposal: Componentwise,   LP:",
+                    round(Mo0[["LP"]],1), "\n", sep="",
+                    file=LogFile, append=TRUE)
           ### Save Thinned Samples
           if(iter %% Thinning == 0) {
                t.iter <- floor(iter / Thinning) + 1
@@ -4993,8 +5044,10 @@ THMC <- function(Model, Data, Iterations, Status, Thinning, Specs,
      for (iter in 1:Iterations) {
           ### Print Status
           if(iter %% Status == 0)
-               cat("Iteration: ", iter, ",   Proposal: Multivariate\n",
-                    sep="", file=LogFile, append=TRUE)
+               cat("Iteration: ", iter,
+                    ",   Proposal: Multivariate,   LP:",
+                    round(Mo0[["LP"]],1), "\n", sep="",
+                    file=LogFile, append=TRUE)
           ### Save Thinned Samples
           if(iter %% Thinning == 0) {
                t.iter <- floor(iter / Thinning) + 1
@@ -5379,7 +5432,8 @@ twalk <- function(Model, Data, Iterations, Status, Thinning, Specs,
                ### Print Status
                if(iter %% Status == 0)
                     cat("Iteration: ", iter,
-                         ",   Proposal: Multivariate Subset\n", sep="",
+                         ",   Proposal: Multivariate Subset,   LP:",
+                         round(Mo0.1[["LP"]],1), "\n", sep="",
                          file=LogFile, append=TRUE)
                ### Save Thinned Samples
                if(iter %% Thinning == 0) {
@@ -5441,8 +5495,10 @@ UESS <- function(Model, Data, Iterations, Status, Thinning, Specs,
      for (iter in 1:Iterations) {
           ### Print Status
           if(iter %% Status == 0)
-               cat("Iteration: ", iter, ",   Proposal: Multivariate\n",
-                    sep="")
+               cat("Iteration: ", iter,
+                    ",   Proposal: Componentwise,   LP:",
+                    round(Mo0[["LP"]],1), "\n", sep="",
+                    file=LogFile, append=TRUE)
           ### Eigenvectors of the Sample Covariance Matrix
           if({iter %% decomp.freq == 0} & {iter > 1})
                S.eig <- eigen(obs.scatter/scatter.N -
@@ -5531,8 +5587,10 @@ USAMWG <- function(Model, Data, Iterations, Status, Thinning, Specs,
      for (iter in 1:Iterations) {
           ### Print Status
           if(iter %% Status == 0)
-               cat("Iteration: ", iter, ",   Proposal: Componentwise\n",
-                    sep="", file=LogFile, append=TRUE)
+               cat("Iteration: ", iter,
+                    ",   Proposal: Componentwise,   LP:",
+                    round(Mo0[["LP"]],1), "\n", sep="",
+                    file=LogFile, append=TRUE)
           ### Store Current Posterior
           if(iter > 1) post[iter,as.vector(Dyn)] <- post[iter-1,as.vector(Dyn)]
           ### Save Thinned Samples
@@ -5608,8 +5666,10 @@ USMWG <- function(Model, Data, Iterations, Status, Thinning, Specs,
      for (iter in 1:Iterations) {
           ### Print Status
           if(iter %% Status == 0)
-               cat("Iteration: ", iter, ",   Proposal: Componentwise\n",
-                    sep="", file=LogFile, append=TRUE)
+               cat("Iteration: ", iter,
+                    ",   Proposal: Componentwise,   LP:",
+                    round(Mo0[["LP"]],1), "\n", sep="",
+                    file=LogFile, append=TRUE)
           ### Store Current Posterior
           if(iter > 1) post[iter,as.vector(Dyn)] <- post[iter-1,as.vector(Dyn)]
           ### Save Thinned Samples

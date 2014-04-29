@@ -63,7 +63,6 @@ Combine <- function(x, Data, Thinning=1)
      Iterations <- sum(sapply(x, with, Iterations))
      Model <- x[[1]]$Model
      Minutes <- max(sapply(x, with, Minutes))
-     Periodicity <- round(mean(sapply(x, with, Periodicity)))
      Status <- round(mean(sapply(x, with, Status)))
      LIV <- x[[1]]$Parameters
      ### Combine

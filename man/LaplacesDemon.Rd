@@ -196,18 +196,20 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
   listed below:
 
   \itemize{
-    \item \code{A} is the number of initial, adaptive iterations to be
-    discarded as burn-in, and is used in HMCDA and NUTS.
+    \item \code{A} is used in HMCDA, MALA, and NUTS. In MALA, it is the
+    maximum acceptable value of the Euclidean norm of the adaptive
+    parameters mu and sigma, and the Frobenius norm of the covariance
+    matrix. In HMCDA and NUTS, it is the number of initial, adaptive
+    iterations to be discarded as burn-in.
     \item \code{Adaptive} is the iteration in which adaptation begins,
     and is used in AM, AMM, DRAM, INCA, and Refractive. Most of these
     algorithms adapt according to an observed covariance matrix, and
     should sample before beginning to adapt.
-    \item \code{alpha.star} is the desired acceptance rate(s) in RAM,
-    and is optional in CHARM and HARM. It is a scalar in CHARM or HARM,
-    and in RAM it may be a scalar or a vector equal in length to the
-    number of targets. The recommended value for multivariate proposals
-    is \code{alpha.star=0.234}, or for componentwise proposals it is
-    \code{alpha.star=0.44}.
+    \item \code{alpha.star} is the target acceptance rate in MALA and
+    RAM, and is optional in CHARM and HARM. The recommended value for
+    multivariate proposals is \code{alpha.star=0.234}, for componentwise
+    proposals is \code{alpha.star=0.44}, and for MALA is
+    \code{alpha.star=0.574}.
     \item \code{at} affects the traverse move in twalk. \code{at=6} is
     recommended. It helps when some parameters are highly correlated,
     and the correlation structure may change through the
@@ -233,8 +235,11 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     \item \code{Begin} indicates the time-period in which to begin
     updating (filtering or predicting) in the USAMWG and USMWG
     algorithms.
-    \item \code{delta} is the target acceptance rate in HMCDA and
-    NUTS. The recommended value is 0.65 in HMCDA and 0.6 in NUTS.
+    \item \code{delta} is used in HMCDA, MALA, and NUTS. In HMCDA and
+    NUTS, it is the target acceptance rate, and the recommended value is
+    0.65 in HMCDA and 0.6 in NUTS. In MALA, it is a constant in the
+    bounded drift function, may be in the interval [1e-10,1000], and 1
+    is the default.
     \item \code{Dist} is the proposal distribution in RAM, and may
     either be \code{Dist="t"} for t-distributed or \code{Dist="N"} for
     normally-distributed.
@@ -247,12 +252,17 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     SMWG, USAMWG, and USMWG. Non-dynamic parameters are updated first in
     each sampler iteration, then dynamic parameters are updated in a
     random order in each time-period, and sequentially by time-period.
-    \item \code{epsilon} is the step-size in AHMC, HMC, HMCDA, NUTS,
-    SGLD, and THMC. It is a vector equal in length to the number of
-    parameters in AHMC, HMC, and THMC. It is a scalar in HMCDA and
-    NUTS. It is either a scalar or a vector equal in length to the
-    number of iterations in SGLD. When \code{epsilon=NULL} in HMCDA or
-    NUTS (only), a reasonable initial value is found.
+    \item \code{epsilon} is used in AHMC, HMC, HMCDA, MALA, NUTS, SGLD,
+    and THMC. It is the step-size in all algorithms except MALA. It is
+    a vector equal in length to the number of parameters in AHMC, HMC,
+    and THMC. It is a scalar in HMCDA and NUTS. It is either a scalar
+    or a vector equal in length to the number of iterations in SGLD.
+    When \code{epsilon=NULL} in HMCDA or NUTS (only), a reasonable
+    initial value is found. In MALA, it is a vector of length two, and
+    the default values are both 1e-5. The first element is the
+    acceptable minimum of adaptive scale sigma, and the second element
+    is added to the diagonal of the covariance matrix for
+    regularization.
     \item \code{file} is the quoted name of a numeric matrix of data,
     without headers, for SGLD. The big data set must be a .csv
     file. This matrix has \code{Nr} rows and \code{Nc} columns. Each
@@ -824,7 +834,8 @@ print(Fit)
 ################  Metropolis-Adjusted Langevin Algorithm  #################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
-#     Algorithm="MALA", Specs=list(Periodicity=1))
+#     Algorithm="MALA", Specs=list(A=1000, alpha.star=0.574, delta=1,
+#          epsilon=rep(1e-5,2)))
 
 #############  Metropolis-Coupled Markov Chain Monte Carlo  ###############
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
@@ -865,7 +876,7 @@ print(Fit)
 
 ##########################  Refractive Sampler  ###########################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
-#     Covar=NULL, Iterations=1000, Status=10, Thinning=1,
+#     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
 #     Algorithm="Refractive", Specs=list(Adaptive=1, m=2, w=0.1, r=1.3))
 
 ###########################  Reversible-Jump  #############################
