@@ -601,14 +601,21 @@ Consort <- function(object=NULL)
                {(Alg == "MALA") & !Dim.Adapt & Ready} |
                {(Alg == "MALA") & !Dim.Adapt & !Ready}) {
                ### MALA
+               A <- object$Specs[["A"]]
+               alpha.star <- object$Specs[["alpha.star"]]
+               gamma <- object$Specs[["gamma"]]
+               delta <- object$Specs[["delta"]]
                cat(oname, " <- LaplacesDemon(Model, Data=", dname,
                     ", Initial.Values,\n", sep="")
                cat("     Covar=", oname, "$Covar, Iterations=",
                     Rec.Iterations, ", Status=", Rec.Status, ", ",
                     "Thinning=", Rec.Thinning, ",\n", sep="")
                cat("     Algorithm=\"MALA\", ",
-                    "Specs=list(Periodicity=", Rec.Periodicity,
-                    "))\n\n", sep="")
+                    "Specs=list(A=", A, ", alpha.star=", alpha.star,
+                    ",\n", sep="")
+               cat("          gamma=", gamma,
+                    ", delta=", delta, ", epsilon=c(1e-6, 1e-7)))\n\n",
+                    sep="")
                }
           else if(Alg == "MCMCMC") {
                ### MCMCMC

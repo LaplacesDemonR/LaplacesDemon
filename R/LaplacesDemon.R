@@ -435,17 +435,19 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           else if(Algorithm == "MALA") {
                Algorithm <- "Metropolis-Adjusted Langevin Algorithm"
                if(missing(Specs) | is.null(Specs))
-                    Specs=list(A=1000, alpha.star=0.574, delta=1,
-                         epsilon=c(1e-5,1e-5))
+                    Specs=list(A=1e7, alpha.star=0.574, delta=1,
+                         epsilon=c(1e-6,1e-7))
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
                if(!identical(names(Specs),
-                    c("A","alpha.star","delta","epsilon")))
+                    c("A","alpha.star","gamma","delta","epsilon")))
                     stop("The Specs argument is incorrect.", file=LogFile,
                          append=TRUE)
                Specs[["A"]] <- abs(Specs[["A"]][1])
-               Specs[["delta"]] <- min(max(abs(Specs[["delta"]][1]), 1e-10),
+               Specs[["gamma"]] <- min(max(Specs[["gamma"]][1], 1),
+                    Iterations)
+               Specs[["delta"]] <- min(max(Specs[["delta"]][1], 1e-10),
                     1000)
                Specs[["epsilon"]] <- abs(Specs[["epsilon"]][1:2])
                }
@@ -1319,7 +1321,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           Monitor[4] <- ESS3[j]
           Monitor[5] <- as.numeric(quantile(Mon[,j], probs=0.025,
                na.rm=TRUE))
-          Monitor[6] <- as.numeric(quantile(Mon[,j], probs=0.5,
+          Monitor[6] <- as.numeric(quantile(Mon[,j], probs=0.500,
                na.rm=TRUE))
           Monitor[7] <- as.numeric(quantile(Mon[,j], probs=0.975,
                na.rm=TRUE))
@@ -2638,7 +2640,10 @@ Ess <- function(Model, Data, Iterations, Status, Thinning, Specs,
           for (iter in 1:Iterations) {
                ### Print Status
                if(iter %% Status == 0)
-                    cat("Iteration: ", iter, sep="", file=LogFile, append=TRUE)
+                    cat("Iteration: ", iter,
+                         ",   Proposal: Multivariate,   LP:",
+                         round(Mo0[["LP"]],1), "\n", sep="",
+                         file=LogFile, append=TRUE)
                ### Save Thinned Samples
                if(iter %% Thinning == 0) {
                     t.iter <- floor(iter / Thinning) + 1
@@ -2646,21 +2651,7 @@ Ess <- function(Model, Data, Iterations, Status, Thinning, Specs,
                     Dev[t.iter] <- Mo0[["Dev"]]
                     Mon[t.iter,] <- Mo0[["Monitor"]]}
                ### Propose new parameter values
-               MVNz <- try(rbind(rnorm(LIV)) %*% U, silent=TRUE)
-               if(!inherits(MVNz, "try-error")) {
-                    if(iter %% Status == 0) 
-                         cat(",   Proposal: Multivariate,   LP:",
-                              round(Mo0[["LP"]],1), "\n", sep="",
-                              file=LogFile, append=TRUE)
-                    nu <- as.vector(MVNz)
-                    }
-               else {
-                    if(iter %% Status == 0) 
-                         cat(",   Proposal: Single-Component,   LP:",
-                              round(Mo0[["LP"]],1), "\n", sep="",
-                              file=LogFile, append=TRUE)
-                    j <- ceiling(runif(1,0,LIV))
-                    nu[j] <- rnorm(1, 0, sqrt(diag(VarCov)[j]))}
+               nu <- as.vector(rbind(rnorm(LIV)) %*% U)
                theta <- theta.max <- runif(1, 0, 2*pi)
                theta.min <- theta - 2*pi
                shrink <- TRUE
@@ -2703,8 +2694,10 @@ Ess <- function(Model, Data, Iterations, Status, Thinning, Specs,
           for (iter in 1:Iterations) {
                ### Print Status
                if(iter %% Status == 0)
-                    cat("Iteration: ", iter, sep="", file=LogFile,
-                         append=TRUE)
+                    cat("Iteration: ", iter,
+                         ",   Proposal: Multivariate,   LP:",
+                         round(Mo0[["LP"]],1), "\n", sep="",
+                         file=LogFile, append=TRUE)
                ### Save Thinned Samples
                if(iter %% Thinning == 0) {
                     t.iter <- floor(iter / Thinning) + 1
@@ -2714,22 +2707,9 @@ Ess <- function(Model, Data, Iterations, Status, Thinning, Specs,
                ### Proceed by Block
                for (b in 1:B) {
                     ### Propose new parameter values
-                    MVNz <- try(rbind(rnorm(length(Block[[b]]))) %*%
-                         chol(VarCov[[b]]), silent=TRUE)
-                    if(!inherits(MVNz, "try-error")) {
-                         if({b == 1} & {iter %% Status == 0}) 
-                              cat(",   Proposal: Multivariate,  LP:",
-                                   round(Mo0[["LP"]],1), "\n", sep="",
-                                   file=LogFile, append=TRUE)
-                         nu[Block[[b]]] <- as.vector(MVNz)
-                         }
-                    else {
-                         if({b == 1} & {iter %% Status == 0})
-                              cat(",   Proposal: Single-Component,   LP:",
-                                   round(Mo0[["LP"]],1), "\n", sep="",
-                                   file=LogFile, append=TRUE)
-                         j <- sample(Block[[b]], 1)
-                         nu[j] <- rnorm(1, 0, 1)}
+                    blen <- length(Block[[b]])
+                    nu[Block[[b]]] <- as.vector(rbind(rnorm(blen)) %*%
+                         chol(VarCov[[b]]))
                     theta <- theta.max <- runif(1, 0, 2*pi)
                     theta.min <- theta - 2*pi
                     shrink <- TRUE
@@ -3570,10 +3550,11 @@ MALA <- function(Model, Data, Iterations, Status, Thinning, Specs,
      A <- Specs[["A"]]
      alpha.star <- Specs[["alpha.star"]]
      delta <- Specs[["delta"]]
+     gamma.const <- Specs[["gamma"]]
      epsilon <- Specs[["epsilon"]]
      Gamm <- VarCov
      mu <- Mo0[["parm"]]
-     sigma2 <- 1 / LIV
+     sigma2 <- 1 / (LIV*LIV)
      DiagCovar <- matrix(diag(Gamm), nrow(thinned), LIV)
      Iden <- diag(LIV)
      for (iter in 1:Iterations) {
@@ -3592,7 +3573,7 @@ MALA <- function(Model, Data, Iterations, Status, Thinning, Specs,
           ### Propose new parameter values
           gr <- partial(Model, Mo0[["parm"]], Data)
           Dx <- {delta/max(delta, abs(gr))}*gr
-          gamm <- 1/iter
+          gamm <- min(gamma.const/iter, 1)
           Lambda <- Gamm + epsilon[2]*Iden
           prop <- as.vector(rmvn(1, Mo0[["parm"]] + {sigma2/2}*
                as.vector(tcrossprod(Lambda, t(Dx)))*Dx,
@@ -4284,17 +4265,16 @@ RAM <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, VarCov,
      LogFile)
      {
-     Adaptive <- 2
      alpha.star <- Specs[["alpha.star"]]
      Dist <- Specs[["Dist"]]
      gamma <- Specs[["gamma"]]
      Periodicity <- Specs[["Periodicity"]]
      if(!is.symmetric.matrix(VarCov)) {
-          cat("\nAsymmetric VarCov, correcting now...\n", file=LogFile,
+          cat("\nAsymmetric Covar, correcting now...\n", file=LogFile,
                append=TRUE)
           VarCov <- as.symmetric.matrix(VarCov)}
      if(!is.positive.definite(VarCov)) {
-          cat("\nNon-Positive-Definite VarCov, correcting now...\n",
+          cat("\nNon-Positive-Definite Covar, correcting now...\n",
                file=LogFile, append=TRUE)
           VarCov <- as.positive.definite(VarCov)}
      Iden.Mat <- diag(LIV)
@@ -4315,7 +4295,7 @@ RAM <- function(Model, Data, Iterations, Status, Thinning, Specs,
                Dev[t.iter] <- Mo0[["Dev"]]
                Mon[t.iter,] <- Mo0[["Monitor"]]}
           ### Propose New Parameter Values
-          if(Dist == "t") U <- qt(runif(LIV), df=5, lower.tail=TRUE)
+          if(Dist == "t") U <- rt(LIV, df=5)
           else U <- rnorm(LIV)
           prop <- Mo0[["parm"]] + rbind(U) %*% S
           ### Log-Posterior
@@ -4336,7 +4316,7 @@ RAM <- function(Model, Data, Iterations, Status, Thinning, Specs,
                     Dev[t.iter] <- Mo1[["Dev"]]
                     Mon[t.iter,] <- Mo1[["Monitor"]]}}
           ### Adaptation
-          if({iter >= Adaptive} & {iter %% Periodicity == 0}) {
+          if(iter %% Periodicity == 0) {
                eta <- min(1, LIV*iter^(-gamma))
                VarCov.test <- S %*% {Iden.Mat +
                     eta*(min(1, exp(log.alpha)) - alpha.star) *

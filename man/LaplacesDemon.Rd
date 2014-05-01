@@ -258,11 +258,10 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     and THMC. It is a scalar in HMCDA and NUTS. It is either a scalar
     or a vector equal in length to the number of iterations in SGLD.
     When \code{epsilon=NULL} in HMCDA or NUTS (only), a reasonable
-    initial value is found. In MALA, it is a vector of length two, and
-    the default values are both 1e-5. The first element is the
-    acceptable minimum of adaptive scale sigma, and the second element
-    is added to the diagonal of the covariance matrix for
-    regularization.
+    initial value is found. In MALA, it is a vector of length two. The
+    first element is the acceptable minimum of adaptive scale sigma, and
+    the second element is added to the diagonal of the covariance matrix
+    for regularization.
     \item \code{file} is the quoted name of a numeric matrix of data,
     without headers, for SGLD. The big data set must be a .csv
     file. This matrix has \code{Nr} rows and \code{Nc} columns. Each
@@ -273,10 +272,11 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     specified in the \code{Begin} argument are not updated, and are used
     instead from \code{Fit}.
     \item \code{gamma} controls the step size in DEMC or the decay of
-    adaptation in RAM. In DEMC, it is positive and defaults to
+    adaptation in MALA and RAM. In DEMC, it is positive and defaults to
     \eqn{2.38 / \sqrt{2J}}{2.38/sqrt(2J)} when \code{NULL}, where
     \eqn{J} is the length of initial values. For RAM, it is in the
-    interval (0.5,1], and 0.66 is recommended.
+    interval (0.5,1], and 0.66 is recommended. For MALA, it  is in the
+    interval (1,\code{Iterations}), and defaults to 1.
     \item \code{Grid} accepts either a vector or a list of vectors of
     evenly-spaced points on a grid for the AGG or GG algorithm. When the
     argument is a vector, the same grid is applied to all
@@ -834,8 +834,8 @@ print(Fit)
 ################  Metropolis-Adjusted Langevin Algorithm  #################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
-#     Algorithm="MALA", Specs=list(A=1000, alpha.star=0.574, delta=1,
-#          epsilon=rep(1e-5,2)))
+#     Algorithm="MALA", Specs=list(A=1e7, alpha.star=0.574, gamma=1,
+#          delta=1, epsilon=c(1e-6,1e-7)))
 
 #############  Metropolis-Coupled Markov Chain Monte Carlo  ###############
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,

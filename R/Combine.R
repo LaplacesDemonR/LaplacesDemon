@@ -32,9 +32,11 @@ Combine <- function(x, Data, Thinning=1)
                }
           }
      else if(is.vector(x[[1]]$Covar)) {
-          Covar <- sum(sapply(x, with, Covar) *
-               sapply(x, with, Iterations)) /
-               sum(sapply(x, with, Iterations))
+          temp1 <- sapply(x, with, Covar)
+          temp2 <- matrix(sapply(x, with, Iterations), nrow(temp1),
+               ncol(temp1), byrow=TRUE)
+          Covar <- rowSums(temp1 * temp2) / rowSums(temp2)
+          rm(temp1, temp2)
           }
      else {
           Covar <- list(NULL)
@@ -54,15 +56,17 @@ Combine <- function(x, Data, Thinning=1)
                          }
                     }
                else if(is.vector(x[[1]]$Covar[[i]])) {
-                    Covar[[i]] <- sum(sapply(x, with, Covar[[i]]) *
-                         sapply(x, with, Iterations)) /
-                         sum(sapply(x, with, Iterations))
+                    temp1 <- sapply(x, with, Covar[[i]])
+                    temp2 <- matrix(sapply(x, with, Iterations),
+                         nrow(temp1), ncol(temp1), byrow=TRUE)
+                    Covar[[i]] <- rowSums(temp1 * temp2) / rowSums(temp2)
+                    rm(temp1, temp2)
                     }
                }
           }
      Iterations <- sum(sapply(x, with, Iterations))
      Model <- x[[1]]$Model
-     Minutes <- max(sapply(x, with, Minutes))
+     Minutes <- sum(sapply(x, with, Minutes))
      Status <- round(mean(sapply(x, with, Status)))
      LIV <- x[[1]]$Parameters
      ### Combine
@@ -223,25 +227,32 @@ Combine <- function(x, Data, Thinning=1)
           colnames(thinned) <- Data$parm.names}
      ### Logarithm of the Marginal Likelihood
      LML <- list(LML=NA, VarCov=NA)
-     if(({Algorithm == "Affine-Invariant Ensemble Sampler"} |
-          {Algorithm == "Componentwise Hit-And-Run Metropolis"} |
-          {Algorithm == "Componentwise Slice"} |
-          {Algorithm == "Delayed Rejection Metropolis"} |
-          {Algorithm == "Hit-And-Run Metropolis"} | 
-          {Algorithm == "Hamiltonian Monte Carlo"} |
-          {Algorithm == "Independence Metropolis"} |
-          {Algorithm == "Metropolis-within-Gibbs"} |
-          {Algorithm == "No-U-Turn Sampler"} | 
-          {Algorithm == "Random-Walk Metropolis"} |
-          {Algorithm == "Reversible-Jump"} |
-          {Algorithm == "Sequential Metropolis-within-Gibbs"} |
-          {Algorithm == "Slice Sampler"} | 
-          {Algorithm == "Tempered Hamiltonian Monte Carlo"} | 
-          {Algorithm == "t-walk"}) & 
-          {Stat.at < thinned.rows}) {
+     if(Algorithm %in% c("Adaptive Griddy-Gibbs",
+          "Affine-Invariant Ensemble Sampler",
+          "Componentwise Hit-And-Run Metropolis",
+          "Delayed Rejection Metropolis",
+          "Elliptical Slice Sampler",
+          "Griddy-Gibbs",
+          "Hamiltonian Monte Carlo",
+          "Hit-And-Run Metropolis",
+          "Independence Metropolis",
+          "Metropolis-Coupled Markov Chain Monte Carlo",
+          "Metropolis-within-Gibbs",
+          "Multiple-Try Metropolis",
+          "No-U-Turn Sampler",
+          "Random Dive Metropolis-Hastings",
+          "Random-Walk Metropolis",
+          "Reflective Slice Sampler",
+          "Refractive Sampler",
+          "Reversible-Jump",
+          "Sequential Metropolis-within-Gibbs",
+          "Slice Sampler",
+          "Stochastic Gradient Langevin Dynamics",
+          "Tempered Hamiltonian Monte Carlo",
+          "t-walk") & {Stat.at < thinned.rows}) {
           cat("Estimating Log of the Marginal Likelihood\n")
-          LML <- LML(theta=thinned2,
-               LL=as.vector(Dev2)*(-1/2), method="NSIS")}
+          LML <- LML(theta=thinned2, LL=as.vector(Dev2)*(-1/2),
+               method="NSIS")}
      ### Compile Output
      cat("Creating Output\n")
      LaplacesDemon.out <- list(Acceptance.Rate=Acceptance.Rate,

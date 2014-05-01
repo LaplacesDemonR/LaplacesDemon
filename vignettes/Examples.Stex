@@ -2322,7 +2322,6 @@ Pr[ , , K] <- 1 - Q[ , , (K-1)] \\
 dim(Pr) <- c(N*M, K) \\
 Y <- matrix(rcat(nrow(Pr), Pr), N, M) \#Make sure Y has all values \\
 gamma <- rep(0,P) \\
-Y <- matrix(rcat(N*M, rep(1/K,K)), N, M) \\
 S <- diag(P) \\
 mon.names <- "LP" \\
 parm.names <- as.parm.names(list(F=matrix(0,N,P), Lambda=matrix(0,P,M), \\
