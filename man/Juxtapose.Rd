@@ -141,6 +141,10 @@ Juxtapose(x)
   \code{\link{plot.juxtapose}} function, which displays \code{ISM} by
   default, or optionally \code{IAT}. For more information, see the
   \code{\link{plot.juxtapose}} function.
+
+  Independent samples per minute, calculated as \code{\link{ESS}}
+  divided by minutes of run-time, are also available by parameter in the
+  \code{\link{PosteriorChecks}} function.
 }
 \value{
   This function returns an object of class \code{juxtapose}. It is a
@@ -155,8 +159,9 @@ Juxtapose(x)
   \code{\link{IAT}},
   \code{\link{is.juxtapose}},
   \code{\link{LaplacesDemon}},
-  \code{\link{LaplacesDemon.hpc}}, and
-  \code{\link{plot.juxtapose}}.
+  \code{\link{LaplacesDemon.hpc}},
+  \code{\link{plot.juxtapose}}, and
+  \code{\link{PosteriorChecks}}.
 }
 \examples{
 ### Update three demonoid objects, each from different MCMC algorithms.

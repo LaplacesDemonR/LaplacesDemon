@@ -9,9 +9,9 @@
   greater than zero [\eqn{p(\theta > 0)}{p(theta > 0)}], the estimated
   number of modes, the kurtosis and skewness of the posterior
   distributions, the burn-in of each chain (for MCMC only), 
-  integrated autocorrelation time, and acceptance rate. A posterior
-  correlation matrix is provided only for objects of class
-  \code{demonoid} or \code{pmc}.
+  integrated autocorrelation time, independent samples per minute, and
+  acceptance rate. A posterior correlation matrix is provided only for
+  objects of class \code{demonoid} or \code{pmc}.
 }
 \usage{
 PosteriorChecks(x, Parms)
@@ -40,7 +40,8 @@ PosteriorChecks(x, Parms)
   \code{PosteriorChecks} function is often used to find the two MCMC
   chains with the highest \code{\link{IAT}}, and these chains are
   studied for non-randomness with a joint trace plot, via the
-  \code{\link{joint.density.plot}} function.
+  \code{\link{joint.density.plot}} function. The best algorithm has the
+  chains with the highest independent samples per minute (ISM).
 
   Posterior correlation may be studied between model updates as well as
   after a model seems to have converged. While frequentists consider
@@ -90,8 +91,8 @@ PosteriorChecks(x, Parms)
     \code{Parms} argument. This component is returned as \code{NA} for
     objects of classes \code{"laplace"} or \code{"vb"}.}
   \item{Posterior.Summary}{This is a matrix in which each row is a
-    parameter and there are seven columns: p(theta > 0), N.Modes,
-    Kurtosis, Skewness, Burn-In, IAT, and AR. The first column,
+    parameter and there are eight columns: p(theta > 0), N.Modes,
+    Kurtosis, Skewness, Burn-In, IAT, ISM, and AR. The first column,
     p(theta > 0), indicates parameter importance by reporting how much
     of the distribution is greater than zero. An important parameter
     distribution will have a result at least as extreme as 0.025 or
@@ -106,8 +107,10 @@ PosteriorChecks(x, Parms)
     assumption exists, which it may not. The burn-in is estimated for
     each chain (only for objects of class \code{demonoid} with the
     \code{\link{burnin}} function. The integrated autocorrelation
-    time is estimated with \code{\link{IAT}}. Lastly, the local
-    acceptance rate of each MCMC chain is calculated with the
+    time is estimated with \code{\link{IAT}}. The number of independent
+    samples per minute (ISM) is calculated for objects of class
+    \code{"demonoid"} as \code{\link{ESS}} divided by minutes. Lastly,
+    the local acceptance rate of each MCMC chain is calculated with the
     \code{\link{AcceptanceRate}} function, and is set to 1 for objects
     of class \code{iterquad}, \code{laplace}, \code{pmc}, or \code{vb}.}
 }

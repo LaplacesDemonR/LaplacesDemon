@@ -14,9 +14,9 @@
     Date: \tab 2014-04-23\cr
     License: \tab MIT\cr
   }
-  The goal of LaplacesDemon, often referred to as Laplace's Demon, is to
-  provide a complete and self-contained Bayesian environment within R.
-  For example, this package includes dozens of MCMC algorithms, Laplace
+  The goal of LaplacesDemon, often referred to as LD, is to provide a
+  complete and self-contained Bayesian environment within R. For
+  example, this package includes dozens of MCMC algorithms, Laplace
   Approximation, iterative quadrature, variational Bayes,
   parallelization, big data, PMC, over 100 examples in the ``Examples''
   vignette, dozens of additional probability distributions, numerous
