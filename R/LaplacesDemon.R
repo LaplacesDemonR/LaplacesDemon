@@ -368,11 +368,11 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     if(length(FCtest) != length(Initial.Values))
                          stop("Length of parameters to/from FC differs.",
                               file=LogFile, append=TRUE)
-                    #if(!is.null(MWG) & !is.vector(MWG) & !is.numeric(MWG))
-                    #     stop("MWG must be a numeric vector.",
-                    #          file=LogFile, append=TRUE)
-                    }
-               
+                    if(!is.null(Specs[["MWG"]]) &
+                         !is.vector(Specs[["MWG"]]) &
+                         !is.numeric(Specs[["MWG"]]))
+                         stop("MWG must be a numeric vector.",
+                              file=LogFile, append=TRUE)}               
                }
           else if(Algorithm == "HARM") {
                Algorithm <- "Hit-And-Run Metropolis"

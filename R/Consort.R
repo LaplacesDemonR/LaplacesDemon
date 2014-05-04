@@ -36,6 +36,13 @@ Consort <- function(object=NULL)
           Acc.Rate.Low <- 1
           Acc.Rate.High <- 1
           }
+     else if(object$Algorithm == "Gibbs Sampler") {
+          if(is.null(object$Specs[["MWG"]]))
+               Acc.Rate.Low <- Acc.Rate.High <- 1
+          else {
+               Acc.Rate.Low <- 0.15
+               Acc.Rate.High <- 0.5}
+          }
      else if((object$Algorithm == "Metropolis-Adjusted Langevin Algorithm")) {
           Acc.Rate.Low <- 0.40
           Acc.Rate.High <- 0.80

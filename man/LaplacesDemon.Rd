@@ -808,11 +808,27 @@ print(Fit)
 #     Algorithm="ESS", Specs=list(B=NULL))
 
 #############################  Gibbs Sampler  #############################
-### NOTE: Unlike the other samplers, Gibbs requires specifying full
-### conditionals as functions, which is not done here.
+### NOTE: Unlike the other samplers, Gibbs requires specifying a
+### function (FC) that draws from full conditionals.
+#FC <- function(parm, Data)
+#     {
+#     beta <- parm[Data$pos.beta]
+#     sigma <- interval(parm[Data$pos.sigma], 1e-100, Inf)
+#     sigma2 <- sigma*sigma
+#     XX <- crossprod(Data$X)
+#     Xy <- crossprod(Data$X, Data$y)
+#     ### Priors
+#     betamu <- rep(0,length(beta))
+#     betaprec <- diag(length(beta))/1000
+#     ### Update beta
+#     IR <- backsolve(chol(XX/sigma2 + betaprec), diag(length(beta)))
+#     btilde <- crossprod(t(IR)) %*% (Xy/sigma2 + betaprec %*% betamu)
+#     beta <- btilde + IR %*% rnorm(length(beta))
+#     return(c(beta,sigma))
+#     }
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
-#     Algorithm="Gibbs", Specs=list(FC=FC, MWG=NULL))
+#     Algorithm="Gibbs", Specs=list(FC=FC, MWG=5))
 
 #############################  Griddy-Gibbs  ##############################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
