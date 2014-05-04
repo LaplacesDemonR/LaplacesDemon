@@ -64,9 +64,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           cat("'Thinning' has been changed to ", Thinning, ".\n",
                sep="", file=LogFile, append=TRUE)}
      if(Algorithm %in% c("ADMG","AGG","AHMC","AIES","AM","AMM","AMWG",
-          "CHARM","DEMC","DRAM","DRM","ESS","Experimental","GG","HARM",
-          "HMC","HMCDA","IM","INCA","MALA","MCMCMC","MTM","MWG","NUTS",
-          "OHSS","RAM","Refractive","RDMH","RJ","RSS","RWM","SAMWG",
+          "CHARM","DEMC","DRAM","DRM","ESS","Experimental","GG","Gibbs",
+          "HARM","HMC","HMCDA","IM","INCA","MALA","MCMCMC","MTM","MWG",
+          "NUTS","OHSS","RAM","Refractive","RDMH","RJ","RSS","RWM","SAMWG",
           "SGLD","Slice","SMWG","THMC","twalk","UESS","USAMWG","USMWG")) {
           if(Algorithm == "ADMG") {
                Algorithm <- "Adaptive Directional Metropolis-within-Gibbs"
@@ -339,6 +339,40 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     Specs[["dparm"]] <- Specs[["dparm"]][order(Specs[["dparm"]])]}
                else Specs[["dparm"]] <- 0
                Specs[["CPUs"]] <- max(1, abs(round(Specs[["CPUs"]])))
+               }
+          else if(Algorithm == "Gibbs") {
+               Algorithm <- "Gibbs Sampler"
+               if(missing(Specs) | is.null(Specs)) {
+                    cat("\nSpecs missing or null, Algorithm changed to MWG.\n",
+                         file=LogFile, append=TRUE)                         
+                    Algorithm == "MWG"
+                    Specs <- NULL
+                    }
+               else {
+                    if(!is.list(Specs))
+                         stop("The Specs argument is not a list.",
+                              file=LogFile, append=TRUE)
+                    if(!identical(names(Specs), c("FC","MWG")))
+                         stop("The Specs argument is incorrect",
+                              file=LogFile, append=TRUE)
+                    if(!is.function(Specs[["FC"]]))
+                         stop("FC must be a function.", file=LogFile,
+                              append=TRUE)
+                    FCtest <- try(Specs[["FC"]](Initial.Values, Data),
+                         silent=TRUE)
+                    if(inherits(FCtest, "try-error"))
+                         stop("Error in FC.", file=LogFile, append=TRUE)
+                    if(!is.vector(FCtest))
+                         stop("FC must return a vector.", file=LogFile,
+                              append=TRUE)
+                    if(length(FCtest) != length(Initial.Values))
+                         stop("Length of parameters to/from FC differs.",
+                              file=LogFile, append=TRUE)
+                    #if(!is.null(MWG) & !is.vector(MWG) & !is.numeric(MWG))
+                    #     stop("MWG must be a numeric vector.",
+                    #          file=LogFile, append=TRUE)
+                    }
+               
                }
           else if(Algorithm == "HARM") {
                Algorithm <- "Hit-And-Run Metropolis"
@@ -1028,6 +1062,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           }
      else if(Algorithm %in% c("Adaptive Griddy-Gibbs",
           "Adaptive Metropolis-within-Gibbs",
+          "Gibbs Sampler",
           "Metropolis-within-Gibbs",
           "Multiple-Try Metropolis",
           "Sequential Adaptive Metropolis-within-Gibbs",
@@ -1115,6 +1150,10 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
 #               ScaleF, thinned, LogFile)}
           stop("Experimental function not found.", file=LogFile,
                append=TRUE)}
+     else if(Algorithm == "Gibbs Sampler") {
+          mcmc.out <- Gibbs(Model, Data, Iterations, Status, Thinning, Specs,
+               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
+               tuning, LogFile)}
      else if(Algorithm == "Griddy-Gibbs") {
           mcmc.out <- GG(Model, Data, Iterations, Status, Thinning, Specs,
                Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
@@ -1395,6 +1434,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           "Componentwise Hit-And-Run Metropolis",
           "Delayed Rejection Metropolis",
           "Elliptical Slice Sampler",
+          "Gibbs Sampler",
           "Griddy-Gibbs",
           "Hamiltonian Monte Carlo",
           "Hit-And-Run Metropolis",
@@ -1795,8 +1835,9 @@ AIES <- function(Model, Data, Iterations, Status, Thinning, Specs,
                     prop <- Mo0[[s]][["parm"]] +
                          z*(Mo0[[i]][["parm"]] - Mo0[[s]][["parm"]])
                     if(i == 1 & iter %% Status == 0) 
-                         cat(",   Proposal: Multivariate\n", file=LogFile,
-                              append=TRUE)
+                         cat(",   Proposal: Multivariate,   LP:",
+                              round(Mo0[[1]][["LP"]],1), "\n", sep="",
+                              file=LogFile, append=TRUE)
                     ### Log-Posterior of the proposed state
                     Mo1 <- Model(prop, Data)
                     if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
@@ -2748,6 +2789,66 @@ Ess <- function(Model, Data, Iterations, Status, Thinning, Specs,
           Mon=Mon,
           thinned=thinned,
           VarCov=cov(thinned))
+     return(out)
+     }
+Gibbs <- function(Model, Data, Iterations, Status, Thinning, Specs,
+     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
+     LogFile)
+     {
+     FC <- Specs[["FC"]]
+     MWG <- Specs[["MWG"]]
+     if(is.null(MWG)) {
+          Acceptance <- Iterations
+          MWGlen <- 0}
+     else {
+          MWGlen <- length(MWG)
+          Acceptance <- matrix(0, 1, LIV)}
+     for (iter in 1:Iterations) {
+          ### Print Status
+          if(iter %% Status == 0)
+               cat("Iteration: ", iter,
+                    ",   Proposal: Componentwise,   LP:",
+                    round(Mo0[["LP"]],1), "\n", sep="",
+                    file=LogFile, append=TRUE)
+          ### Save Thinned Samples
+          if(iter %% Thinning == 0) {
+               t.iter <- floor(iter / Thinning) + 1
+               thinned[t.iter,] <- Mo0[["parm"]]
+               Dev[t.iter] <- Mo0[["Dev"]]
+               Mon[t.iter,] <- Mo0[["Monitor"]]}
+          ### Gibbs Sampling of Full Conditionals
+          prop <- FC(Mo0[["parm"]], Data)
+          Mo0 <- Model(prop, Data)
+          ### Metropolis-within-Gibbs
+          if(MWGlen > 0) {
+               ### Random-Scan Componentwise Estimation
+               for (j in sample(MWG)) {
+                    ### Propose new parameter values
+                    prop <- Mo0[["parm"]]
+                    prop[j] <- rnorm(1, prop[j], tuning[j])
+                    ### Log-Posterior of the proposed state
+                    Mo1 <- Model(prop, Data)
+                    if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
+                         Mo1[["Monitor"]]))))
+                         Mo1 <- Mo0
+                    ### Accept/Reject
+                    u <- log(runif(1)) < (Mo1[["LP"]] - Mo0[["LP"]])
+                    if(u == TRUE) Mo0 <- Mo1
+                    Acceptance[j] <- Acceptance[j] + u}
+               if(iter %% Thinning == 0) {
+                    thinned[t.iter,] <- Mo0[["parm"]]
+                    Dev[t.iter] <- Mo0[["Dev"]]
+                    Mon[t.iter,] <- Mo0[["Monitor"]]}
+               }
+          }
+     if(MWGlen > 0) Acceptance <- mean(as.vector(Acceptance[,MWG]))
+     ### Output
+     out <- list(Acceptance=Acceptance,
+          Dev=Dev,
+          DiagCovar=DiagCovar,
+          Mon=Mon,
+          thinned=thinned,
+          VarCov=tuning)
      return(out)
      }
 GG <- function(Model, Data, Iterations, Status, Thinning, Specs,

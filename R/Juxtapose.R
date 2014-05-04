@@ -87,6 +87,7 @@ Juxtapose <- function(x)
                "Differential Evolution Markov Chain"="DEMC",
                "Elliptical Slice Sampler"="ESS",
                "Experimental"="Exper",
+               "Gibbs Sampler"="Gibbs",
                "Griddy-Gibbs"="GG",
                "Hamiltonian Monte Carlo"="HMC",
                "Hamiltonian Monte Carlo with Dual-Averaging"="HMCDA",

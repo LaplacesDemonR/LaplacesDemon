@@ -1,3 +1,4 @@
+2014-05-04 LaplacesDemon: Added Gibbs
 2014-05-03 PosteriorChecks: Added ISM (Independent Samples per Minute)
 2014-05-01 Combine: Fixed bug when Covar is a vector
 2014-04-29 Combine: Fixed bug where Periodicity no longer exists now

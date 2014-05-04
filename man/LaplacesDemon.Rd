@@ -159,6 +159,7 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     \item Delayed Rejection Metropolis (DRM)
     \item Differential Evolution Markov Chain (DEMC)
     \item Elliptical Slice Sampler (ESS)
+    \item Gibbs Sampler (Gibbs)
     \item Griddy-Gibbs (GG)
     \item Hamiltonian Monte Carlo (HMC)
     \item Hamiltonian Monte Carlo with Dual-Averaging (HMCDA)
@@ -262,6 +263,12 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     first element is the acceptable minimum of adaptive scale sigma, and
     the second element is added to the diagonal of the covariance matrix
     for regularization.
+    \item \code{FC} is used in Gibbs and accepts a function that
+    receives two arguments: the vector of all parameters and the list of
+    data (similar to the Model specification function). FC must return
+    the updated vector of all parameters. The user specifies FC to
+    calculate the full conditional distribution of one or more
+    parameters.
     \item \code{file} is the quoted name of a numeric matrix of data,
     without headers, for SGLD. The big data set must be a .csv
     file. This matrix has \code{Nr} rows and \code{Nc} columns. Each
@@ -305,6 +312,9 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     values. This vector will be used as the mean of the proposal
     distribution, and is usually the posterior mode of a
     previously-updated \code{\link{LaplaceApproximation}}.
+    \item \code{MWG} is used in Gibbs to specify a vector of parameters
+    that are to receive Metropolis-within-Gibbs updates. Each element is
+    an integer that indicates the parameter.
     \item \code{Nc} is either the number of (un-parallelized) parallel
     chains in DEMC (and must be at least 3) or the number of columns of
     big data in SGLD.
@@ -438,11 +448,11 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     and only with a non-adaptive algorithm, including Adaptive
     Griddy-Gibbs (AGG), Affine-Invariant Ensemble Sampler (AIES),
     Componentwise Hit-And-Run (CHARM), Delayed Rejection Metropolis
-    (DRM), Elliptical Slice Sampling (ESS), Griddy-Gibbs (GG),
-    Hamiltonian Monte Carlo (HMC), Hit-And-Run Metropolis (HARM),
-    Independence Metropolis (IM), Metropolis-Coupled Markov Chain Monte
-    Carlo (MCMCMC), Metropolis-within-Gibbs (MWG), Multiple-Try
-    Metropolis, No-U-Turn Sampler (NUTS), Random Dive
+    (DRM), Elliptical Slice Sampling (ESS), Gibbs Sampler (Gibbs),
+    Griddy-Gibbs (GG), Hamiltonian Monte Carlo (HMC), Hit-And-Run
+    Metropolis (HARM), Independence Metropolis (IM), Metropolis-Coupled
+    Markov Chain Monte Carlo (MCMCMC), Metropolis-within-Gibbs (MWG),
+    Multiple-Try Metropolis, No-U-Turn Sampler (NUTS), Random Dive
     Metropolis-Hastings (RDMH), Random-Walk Metropolis (RWM), Reflective
     Slice Sampler (RSS), Refractive Sampler (Refractive),
     Reversible-Jump (RJ), Sequential Metropolis-within-Gibbs (SMWG),
@@ -542,6 +552,11 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
   Gelman, A., Carlin, J., Stern, H., and Rubin, D. (2004). "Bayesian
   Data Analysis, Texts in Statistical Science, 2nd ed.". Chapman and
   Hall, London.
+
+  Geman, S. and Geman, D. (1984). "Stochastic Relaxation, Gibbs
+  Distributions, and the Bayesian Restoration of Images". \emph{IEEE
+  Transactions on Pattern Analysis and Machine Intelligence}, 6(6),
+  p. 721--741.
 
   Geyer, C.J. (1991). "Markov Chain Monte Carlo Maximum Likelihood". In
   Keramidas, E.M. Computing Science and Statistics: Proceedings of the
@@ -792,6 +807,13 @@ print(Fit)
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
 #     Algorithm="ESS", Specs=list(B=NULL))
 
+#############################  Gibbs Sampler  #############################
+### NOTE: Unlike the other samplers, Gibbs requires specifying full
+### conditionals as functions, which is not done here.
+#Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
+#     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
+#     Algorithm="Gibbs", Specs=list(FC=FC, MWG=NULL))
+
 #############################  Griddy-Gibbs  ##############################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
@@ -968,6 +990,7 @@ print(Fit)
 \keyword{Delayed Rejection Metropolis}
 \keyword{Differential Evolution Markov Chain}
 \keyword{Elliptical Slice Sampler}
+\keyword{Gibbs Sampler}
 \keyword{Griddy-Gibbs}
 \keyword{Hamiltonian Monte Carlo}
 \keyword{High Performance Computing}

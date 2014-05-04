@@ -232,6 +232,7 @@ Combine <- function(x, Data, Thinning=1)
           "Componentwise Hit-And-Run Metropolis",
           "Delayed Rejection Metropolis",
           "Elliptical Slice Sampler",
+          "Gibbs Sampler",
           "Griddy-Gibbs",
           "Hamiltonian Monte Carlo",
           "Hit-And-Run Metropolis",

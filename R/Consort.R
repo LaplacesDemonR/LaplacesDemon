@@ -195,6 +195,7 @@ Consort <- function(object=NULL)
                "Adaptive Griddy-Gibbs",
                "Adaptive Metropolis-within-Gibbs",
                "Componentwise Hit-And-Run Metropolis",
+               "Gibbs Sampler",
                "Griddy-Gibbs",
                "Metropolis-within-Gibbs",
                "Multiple-Try Metropolis",
@@ -254,6 +255,7 @@ Consort <- function(object=NULL)
                "Differential Evolution Markov Chain"="DEMC",
                "Elliptical Slice Sampler"="ESS",
                "Experimental"="Exper",
+               "Gibbs Sampler"="Gibbs",
                "Griddy-Gibbs"="GG",
                "Hamiltonian Monte Carlo"="HMC",
                "Hamiltonian Monte Carlo with Dual-Averaging"="HMCDA",
@@ -283,8 +285,8 @@ Consort <- function(object=NULL)
                "Updating Sequential Metropolis-within-Gibbs"="USMWG")
 
           Componentwise <- 0
-          if(Alg %in% c("ADMG","AGG","AMWG","CHARM","GG","MWG","RJ",
-               "SAMWG","SMWG","Slice","USAMWG","USMWG"))
+          if(Alg %in% c("ADMG","AGG","AMWG","CHARM","GG","Gibbs","MWG",
+               "RJ","SAMWG","SMWG","Slice","USAMWG","USMWG"))
                Componentwise <- 1
           if({(Alg == "ADMG") & !Dim.Adapt} |
              {(Alg == "ADMG") & !Ready}) {
@@ -515,6 +517,16 @@ Consort <- function(object=NULL)
                     "Thinning=", Rec.Thinning, ",\n", sep="")
                cat("     Algorithm=\"GG\", Specs=", oname,
                     "$Specs)\n\n", sep="")
+               }
+          else if(Alg == "Gibbs") {
+               ### Gibbs
+               cat(oname, " <- LaplacesDemon(Model, Data=", dname,
+                    ", Initial.Values,\n", sep="")
+               cat("     Covar=", oname, "$Covar, Iterations=",
+                    Rec.Iterations, ", Status=", Rec.Status, ", ",
+                    "Thinning=", Rec.Thinning, ",\n", sep="")
+               cat("     Algorithm=\"Gibbs\", ",
+                    "Specs=", oname, "$Specs)\n\n", sep="")
                }
           else if(Alg == "HARM") {
                ### HARM
