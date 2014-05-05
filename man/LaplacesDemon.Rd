@@ -703,6 +703,8 @@ Model <- function(parm, Data)
           yhat=rnorm(length(mu), mu, sigma), parm=parm)
      return(Modelout)
      }
+#library(compiler)
+#Model <- cmpfun(Model) #Consider byte-compiling for more speed
 
 set.seed(666)
 
@@ -812,20 +814,23 @@ print(Fit)
 ### function (FC) that draws from full conditionals.
 #FC <- function(parm, Data)
 #     {
+#     ### Parameters
 #     beta <- parm[Data$pos.beta]
 #     sigma <- interval(parm[Data$pos.sigma], 1e-100, Inf)
 #     sigma2 <- sigma*sigma
-#     XX <- crossprod(Data$X)
-#     Xy <- crossprod(Data$X, Data$y)
-#     ### Priors
+#     ### Hyperparameters
 #     betamu <- rep(0,length(beta))
 #     betaprec <- diag(length(beta))/1000
 #     ### Update beta
+#     XX <- crossprod(Data$X)
+#     Xy <- crossprod(Data$X, Data$y)
 #     IR <- backsolve(chol(XX/sigma2 + betaprec), diag(length(beta)))
 #     btilde <- crossprod(t(IR)) %*% (Xy/sigma2 + betaprec %*% betamu)
 #     beta <- btilde + IR %*% rnorm(length(beta))
 #     return(c(beta,sigma))
 #     }
+##library(compiler)
+##FC <- cmpfun(FC) #Consider byte-compiling for more speed
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
 #     Algorithm="Gibbs", Specs=list(FC=FC, MWG=5))

@@ -4350,7 +4350,7 @@ OHSS <- function(Model, Data, Iterations, Status, Thinning, Specs,
                thinned[t.iter,] <- Mo1[["parm"]]
                Dev[t.iter] <- Mo1[["Dev"]]
                Mon[t.iter,] <- Mo1[["Monitor"]]
-               DiagCovar <- rbind(DiagCovar, S.eig$vectors)}
+               DiagCovar <- rbind(DiagCovar, diag(S.eig$vectors))}
           Mo0 <- Mo1
           }
      ### Output
