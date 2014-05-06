@@ -50,9 +50,9 @@
     multivariate quadrature, there are often multiple weights at a given
     node, and the average normalized and weighted LP is shown. Vertical
     red lines indicate the nodes.
-    \item The transparent blue density is the normal density implied
+    \item The transparent green density is the normal density implied
     given the conditional mean and conditional variance.
-    \item The transparent green density is the kernel density estimate
+    \item The transparent blue density is the kernel density estimate
     of posterior samples generated with Sampling Importance Resampling.
     This is plotted only if the algorithm converged, and if
     \code{sir=TRUE}.

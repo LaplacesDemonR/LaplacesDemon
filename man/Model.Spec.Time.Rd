@@ -68,14 +68,10 @@ Model.Spec.Time(Model, Initial.Values, Data, n=1000)
 
   When speed is of paramount importance, a user is encouraged to
   experiment with writing the model specification function in another
-  language such as \code{C} or \code{Fortran}, and calling the new
-  function from within the \code{Model} function with the \code{.C} or
-  \code{.Fortran} function. This experimentation has not yet been done,
-  but should generally be worth the effort only when the model
-  specification is vectorized in the faster language as well. One
-  suggestion may be to browse for \code{R} packages on CRAN that enable
-  a user to speed up \code{R} code by incorporating \code{C} and other
-  languages.
+  language such as in \code{C++} with the \code{Rcpp} package, and
+  calling the new function from within the \code{Model} function. This
+  experimentation has not yet been done, but should generally be worth
+  the effort.
 
   When a model specification function is computationally expensive,
   another approach to reduce run-time may be for the user to write

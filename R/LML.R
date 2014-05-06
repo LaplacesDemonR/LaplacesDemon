@@ -32,9 +32,8 @@ LML <- function(Model=NULL, Data=NULL, Modes=NULL, theta=NULL, LL=NULL,
                eps <- Interval * Modes
                Approx.Hessian <- Hessian(Model, Modes, Data)
                VarCov <- try(-as.inverse(Approx.Hessian), silent=TRUE)
-               if(!inherits(VarCov, "try-error")) {
-                    diag(VarCov) <- ifelse(diag(VarCov) <= 0,
-                         .Machine$double.eps, diag(VarCov))}
+               if(!inherits(VarCov, "try-error"))
+                    diag(VarCov)[which(diag(VarCov) <= 0)] <- .Machine$double.eps
                else {
                     cat("\nWARNING: Failure to solve matrix inversion of ",
                          "Approx. Hessian in LML.\n", sep="")
@@ -215,14 +214,13 @@ LML <- function(Model=NULL, Data=NULL, Modes=NULL, theta=NULL, LL=NULL,
           ml.out <- .MargLL(hist, comps$theta.imp, comps$LL.imp)
           ml.out$samples <- ml.out$samples[is.finite(ml.out$samples)]
           sd.samples <- sd(ml.out$samples) / sqrt(length(ml.out$samples))
-          conf.interval <- qnorm(c(.975, .025)) * sd.samples +
+          conf.interval <- qnorm(c(0.975, 0.025)) * sd.samples +
                mean(ml.out$samples)
-          conf.interval <- ifelse(conf.interval < .Machine$double.eps,
-               .Machine$double.eps, conf.interval)
+          conf.interval[which(conf.interval < .Machine$double.eps)] <- .Machine$double.eps
           conf.interval <- -log(conf.interval)
           options(warn=0)
           LML <- ml.out$mll + hist$norm
-          LML <- ifelse(is.finite(LML), LML, NA)
+          LML[which(!is.finite(LML))] <- NA
           ### Output
           LML.out <- list(LML=LML, VarCov=NA)
           }

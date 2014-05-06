@@ -664,8 +664,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(any(Specs[["w"]] <= 0)) {
                     cat("\nw was misspecified, and is replaced with 1.\n",
                          file=LogFile, append=TRUE)
-                    Specs[["w"]] <- ifelse(Specs[["w"]] <= 0, 1,
-                         Specs[["w"]])}
+                    Specs[["w"]][which(Specs[["w"]] <= 0)] <- 1}
                }
           else if(Algorithm == "RWM") {
                Algorithm <- "Random-Walk Metropolis"
@@ -737,8 +736,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(any(Specs[["m"]] < 1)) {
                     cat("\nm was misspecified, and is replaced with 1.\n",
                          file=LogFile, append=TRUE)
-                    Specs[["m"]] <- ifelse(Specs[["m"]] < 1, 1,
-                         Specs[["m"]])}
+                    Specs[["m"]][which(Specs[["m"]] < 1)] <- 1}
                Specs[["w"]] <- abs(Specs[["w"]])
                if(length(Specs[["w"]]) == 1)
                     Specs[["w"]] <- rep(Specs[["w"]],
@@ -750,8 +748,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(any(Specs[["w"]] <= 0)) {
                     cat("\nw was misspecified, and is replaced with 1.\n",
                          file=LogFile, append=TRUE)
-                    Specs[["w"]] <- ifelse(Specs[["w"]] <= 0, 1,
-                         Specs[["w"]])}
+                    Specs[["w"]][which(Specs[["w"]] <= 0)] <- 1}
                }
           else if(Algorithm == "SMWG") {
                Algorithm <- "Sequential Metropolis-within-Gibbs"
@@ -1286,9 +1283,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           cat("\nWARNING: All proposals were rejected.\n", file=LogFile,
                append=TRUE)
      ### Real Values
-     thinned <- ifelse(!is.finite(thinned), 0, thinned)
-     Dev <- ifelse(!is.finite(Dev), 0, Dev)
-     Mon <- ifelse(!is.finite(Mon), 0, Mon)
+     thinned[which(!is.finite(thinned))] <- 0
+     Dev[which(!is.finite(Dev))] <- 0
+     Mon[which(!is.finite(Mon))] <- 0
      ### Assess Stationarity
      cat("\nAssessing Stationarity\n", file=LogFile, append=TRUE)
      if(thinned.rows %% 10 == 0) thinned2 <- thinned
@@ -1312,7 +1309,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           acf.temp[,j] <- abs(temp0$acf[2:{nrow(acf.temp)+1},,1])
           ESS1[j] <- ESS(thinned[,j])
           Rec.Thin[j] <- which(acf.temp[,j] <= 0.1)[1]*Thinning}
-     Rec.Thin <- ifelse(is.na(Rec.Thin), nrow(acf.temp), Rec.Thin)
+     Rec.Thin[which(is.na(Rec.Thin))] <- nrow(acf.temp)
      ### Assess ESS for all deviance and monitor samples
      ESS2 <- ESS(Dev)
      ESS3 <- ESS(Mon)

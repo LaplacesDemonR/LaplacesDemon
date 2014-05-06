@@ -14,8 +14,8 @@ dalaplace <- function(x, location=0, scale=1, kappa=1, log=FALSE)
      x <- rep(x, len=NN); location <- rep(location, len=NN)
      scale <- rep(scale, len=NN); kappa <- rep(kappa, len=NN)
      logconst <- 0.5 * log(2) - log(scale) + log(kappa) - log1p(kappa^2)
-     exponent <- -(sqrt(2) / scale) * abs(x - location) *
-          ifelse(x >= location, kappa, 1/kappa)
+     temp <- which(x < location); kappa[temp] <- 1/kappa[temp]
+     exponent <- -(sqrt(2) / scale) * abs(x - location) * kappa
      dens <- logconst + exponent
      if(log == FALSE) dens <- exp(logconst + exponent)
      return(dens)
@@ -28,9 +28,9 @@ palaplace <- function(q, location=0, scale=1, kappa=1)
      if((kappa <= 0)) stop("The kappa parameter must be positive.")
      NN <- max(length(q), length(location), length(scale), length(kappa))
      q <- rep(q, len=NN); location <- rep(location, len=NN)
-     scale <- rep(scale, len=NN); kappa <- rep(kappa, len=NN)
-     exponent <- -(sqrt(2) / scale) * abs(q - location) *
-          ifelse(q >= location, kappa, 1/kappa)
+     scale <- rep(scale, len=NN); kappa <- k2 <- rep(kappa, len=NN)
+     temp <- which(q < location); k2[temp] <- 1/kappa[temp]
+     exponent <- -(sqrt(2) / scale) * abs(q - location) * k2
      temp <- exp(exponent) / (1 + kappa^2)
      p <- 1 - temp
      index1 <- (q < location)
@@ -89,8 +89,9 @@ dallaplace <- function(x, location=0, scale=1, kappa=1, log=FALSE)
      Alpha <- sqrt(2) * kappa / scale
      Beta  <- sqrt(2) / (scale * kappa)
      Delta <- exp(location)
-     exponent <- ifelse(x >= Delta, -(Alpha+1),
-          (Beta-1)) * (log(x) - location)
+     exponent <- -(Alpha + 1)
+     temp <- which(x >= Delta); exponent[temp] <- Beta[temp] - 1
+     exponent <- exponent * (log(x) - location)
      dens <- -location + log(Alpha) + log(Beta) -
           log(Alpha + Beta) + exponent
      if(log == FALSE) dens <- exp(dens)
@@ -499,7 +500,7 @@ rinvchisq <- function(n, df, scale=1/df)
      if(any(df <= 0)) stop("The df parameter must be positive.")
      if(any(scale <= 0)) stop("The scale parameter must be positive.")
      z <- rchisq(n, df=df)
-     z <- ifelse(z == 0, 1e-100, z)
+     z[which(z == 0)] <- 1e-100
      x <- (df*scale) / z
      return(x)
      }
@@ -556,7 +557,8 @@ rinvgaussian <- function(n, mu, lambda)
      x <- mu + ((mu^2*y)/(2*lambda)) - (mu/(2*lambda)) *
           sqrt(4*mu*lambda*y + mu^2*y^2)
      z <- runif(n)
-     x <- ifelse(z > (mu / (mu+x)), mu^2/x, x)
+     temp <- which(z > {mu / (mu + x)})
+     x[temp] <- mu[temp] * mu[temp] / x[temp]
      return(x)
      }
 
@@ -641,7 +643,9 @@ plaplace <- function(q, location=0, scale=1)
      z <- {q - location} / scale
      NN <- max(length(q), length(location), length(scale))
      q <- rep(q, len=NN); location <- rep(location, len=NN)
-     p <- ifelse(q < location, 0.5 * exp(z), 1 - 0.5 * exp(-z))
+     p <- q
+     temp <- which(q < location); p[temp] <- 0.5 * exp(z[temp])
+     temp <- which(q >= location); p[temp] <- 1 - 0.5 * exp(-z[temp])
      return(p)
      }
 qlaplace <- function(p, location=0, scale=1)
@@ -651,18 +655,18 @@ qlaplace <- function(p, location=0, scale=1)
      if(any(p < 0) || any(p > 1)) stop("p must be in [0,1].")
      if(any(scale <= 0)) stop("The scale parameter must be positive.")
      NN <- max(length(p), length(location), length(scale))
-     p <- rep(p, len=NN); location <- rep(location, len=NN)
-     q <- location - sign(p - 0.5) * scale * log(2 * ifelse(p < 0.5,
-          p, 1 - p))
+     p <- p2 <- rep(p, len=NN); location <- rep(location, len=NN)
+     temp <- which(p > 0.5); p2[temp] <- 1 - p[temp]
+     q <- location - sign(p - 0.5) * scale * log(2 * p2)
      return(q)
      }
 rlaplace <- function(n, location=0, scale=1)
      {
      location <- rep(location, len=n); scale <- rep(scale, len=n)
      if(any(scale <= 0)) stop("The scale parameter must be positive.")
-     r <- runif(n)
-     x <- location - sign(r - 0.5) * scale * log(2 * ifelse(r < 0.5,
-          r, 1 - r))
+     r <- r2 <- runif(n)
+     temp <- which(r > 0.5); r2[temp] <- 1 - r[temp]
+     x <- location - sign(r - 0.5) * scale * log(2 * r2)
      return(x)
      }
 
@@ -722,8 +726,9 @@ dllaplace <- function(x, location=0, scale=1, log=FALSE)
      Alpha <- sqrt(2) * scale
      Beta  <- sqrt(2) / scale
      Delta <- exp(location)
-     exponent <- ifelse(x >= Delta, -(Alpha+1),
-          (Beta-1)) * (log(x) - location)
+     exponent <- -(Alpha + 1)
+     temp <- which(x < Delta); exponent[temp] <- Beta[temp] - 1
+     exponent <- exponent * (log(x) - location)
      dens <- -location + log(Alpha) + log(Beta) -
           log(Alpha + Beta) + exponent
      if(log == FALSE) dens <- exp(dens)
@@ -847,7 +852,7 @@ rmvc <- function(n=1, mu=rep(0,k), S)
      k <- ncol(S)
      if(n > nrow(mu)) mu <- matrix(mu, n, k, byrow=TRUE)
      x <- rchisq(n,1)
-     x <- ifelse(x == 0, 1e-100, x)
+     x[which(x == 0)] <- 1e-100
      z <- rmvn(n, rep(0,k), S)
      x <- mu + z/sqrt(x)
      return(x)
@@ -880,7 +885,7 @@ rmvcc <- function(n=1, mu=rep(0,k), U)
      S <- t(U) %*% U
      if(n > nrow(mu)) mu <- matrix(mu, n, k, byrow=TRUE)
      x <- rchisq(n,1)
-     x <- ifelse(x == 0, 1e-100, x)
+     x[which(x == 0)] <- 1e-100
      z <- rmvnc(n, rep(0,k), U)
      x <- mu + z/sqrt(x)
      return(x)
@@ -918,7 +923,7 @@ rmvcp <- function(n=1, mu, Omega)
      k <- ncol(Sigma)
      if(n > nrow(mu)) mu <- matrix(mu, n, k, byrow=TRUE)
      x <- rchisq(n,1)
-     x <- ifelse(x == 0, 1e-100, x)
+     x[which(x == 0)] <- 1e-100
      z <- rmvn(n, rep(0,k), Sigma)
      x <- mu + z/sqrt(x)
      return(x)
@@ -950,7 +955,7 @@ rmvcpc <- function(n=1, mu, U)
      k <- ncol(U)
      if(n > nrow(mu)) mu <- matrix(mu, n, k, byrow=TRUE)
      x <- rchisq(n,1)
-     x <- ifelse(x == 0, 1e-100, x)
+     x[which(x == 0)] <- 1e-100
      z <- rmvnc(n, rep(0,k), U)
      x <- mu + z/sqrt(x)
      return(x)
@@ -1322,7 +1327,7 @@ rmvt <- function(n=1, mu=rep(0,k), S, df=Inf)
      k <- ncol(S)
      if(n > nrow(mu)) mu <- matrix(mu, n, k, byrow=TRUE)
      if(df==Inf) x <- 1 else x <- rchisq(n,df) / df
-     x <- ifelse(x == 0, 1e-100, x)
+     x[which(x == 0)] <- 1e-100
      z <- rmvn(n, rep(0,k), S)
      x <- mu + z/sqrt(x)
      return(x)
@@ -1357,7 +1362,7 @@ rmvtc <- function(n=1, mu=rep(0,k), U, df=Inf)
      k <- ncol(U)
      if(n > nrow(mu)) mu <- matrix(mu, n, k, byrow=TRUE)
      if(df==Inf) x <- 1 else x <- rchisq(n,df) / df
-     x <- ifelse(x == 0, 1e-100, x)
+     x[which(x == 0)] <- 1e-100
      z <- rmvnc(n, rep(0,k), U)
      x <- mu + z/sqrt(x)
      return(x)
@@ -1399,7 +1404,7 @@ rmvtp <- function(n=1, mu, Omega, nu=Inf)
      k <- ncol(Sigma)
      if(n > nrow(mu)) mu <- matrix(mu, n, k, byrow=TRUE)
      if(nu == Inf) x <- 1 else x <- rchisq(n,nu) / nu
-     x <- ifelse(x == 0, 1e-100, x)
+     x[which(x == 0)] <- 1e-100
      z <- rmvn(n, rep(0,k), Sigma)
      x <- mu + z/sqrt(x)
      return(x)
@@ -1435,7 +1440,7 @@ rmvtpc <- function(n=1, mu, U, nu=Inf)
      k <- ncol(U)
      if(n > nrow(mu)) mu <- matrix(mu, n, k, byrow=TRUE)
      if(nu == Inf) x <- 1 else x <- rchisq(n,nu) / nu
-     x <- ifelse(x == 0, 1e-100, x)
+     x[which(x == 0)] <- 1e-100
      z <- rmvnpc(n, rep(0,k), U)
      x <- mu + z/sqrt(x)
      return(x)
@@ -1551,8 +1556,10 @@ dpareto <- function(x, alpha, log=FALSE)
      x <- as.vector(x); alpha <- as.vector(alpha)
      if(any(alpha <= 0)) stop("The alpha parameter must be positive.")
      NN <- max(length(x), length(alpha))
-     x <- rep(x, len=NN); alpha <- rep(alpha, len=NN)
-     dens <- ifelse(x < 1, -Inf, log(alpha) - (alpha + 1)*log(x))
+     x <- dens <- rep(x, len=NN); alpha <- rep(alpha, len=NN)
+     dens[which(x < 1)] <- -Inf
+     temp <- which(x >= 1)
+     dens[temp] <- log(alpha[temp]) - (alpha[temp] + 1)*log(x[temp])
      if(log == FALSE) dens <- exp(dens)
      return(dens)
      }
@@ -1561,8 +1568,10 @@ ppareto <- function(q, alpha)
      q <- as.vector(q); alpha <- as.vector(alpha)
      if(any(alpha <= 0)) stop("The alpha parameter must be positive.")
      NN <- max(length(q), length(alpha))
-     q <- rep(q, len=NN); alpha <- rep(alpha, len=NN)
-     p <- ifelse(q < 1, 0, 1 - 1/q^alpha)
+     p <- q <- rep(q, len=NN); alpha <- rep(alpha, len=NN)
+     p[which(q < 1)] <- 0
+     temp <- which(q >= 1)
+     p[temp] <- 1 - 1 / q[temp]^alpha[temp]
      return(p)
      }
 qpareto <- function(p, alpha)
@@ -1618,7 +1627,8 @@ ppe <- function(q, mu=0, sigma=1, kappa=2, lower.tail=TRUE, log.p=FALSE)
      zz <- abs(z)^kappa
      p <- pgamma(zz, shape=1/kappa, scale=kappa)
      p <- p / 2
-     p <- ifelse(z < 0, 0.5 - p, 0.5 + p)
+     temp <- which(z < 0); p[temp] <- 0.5 - p[temp]
+     temp <- which(z > 0); p[temp] <- 0.5 + p[temp]
      if(lower.tail == FALSE) p <- 1 - p
      if(log.p == TRUE) p <- log(p)
      return(p)
@@ -1635,11 +1645,12 @@ qpe <- function(p, mu=0, sigma=1, kappa=2, lower.tail=TRUE, log.p=FALSE)
      sigma <- rep(sigma, len=NN); kappa <- rep(kappa, len=NN)
      if(log.p == TRUE) p <- log(p)
      if(lower.tail == FALSE) p <- 1 - p
-     zp <- ifelse(p < 0.5, 0.5 - p, p - 0.5)
+     zp <- 0.5 - p
+     temp <- which(p >= 0.5); zp[temp] <- p[temp] - 0.5
      zp <- 2 * zp
      qg <- qgamma(zp, shape=1/kappa, scale=kappa)
      z <- qg^(1/kappa)
-     z <- ifelse(p < 0.5, -z, z)
+     temp <- which(p < 0.5); z[temp] <- -z[temp]
      q <- mu + z * sigma
      return(q)
      }
@@ -1651,7 +1662,8 @@ rpe <- function(n, mu=0, sigma=1, kappa=2)
      if(any(kappa <= 0)) stop("The kappa parameter must be positive.")
      qg <- rgamma(n, shape=1/kappa, scale=kappa)
      z <- qg^(1/kappa)
-     z <- ifelse(runif(n) < 0.5, -z, z)
+     u <- runif(n)
+     temp <- which(u < 0.5); z[temp] <- -z[temp]
      x <- mu + z * sigma
      return(x)
      }
@@ -1666,8 +1678,10 @@ dsdlaplace <- function(x, p, q, log=FALSE)
      if(any(q < 0) || any(q > 1)) stop("q must be in [0,1].")
      NN <- max(length(x), length(p), length(q))
      x <- rep(x, len=NN); p <- rep(p, len=NN); q <- rep(q, len=NN)
-     dens <- ifelse(x >= 0, log(1-p) + log(1-q) - (log(1-p*q) +
-          x*log(p)), log(1-p) + log(1-q) - (log(1-p*q) + abs(x)*log(q)))
+     dens <- log(1-p) + log(1-q) - (log(1-p*q) + x*log(p))
+     temp <- which(x < 0)
+     dens[temp] <- log(1-p[temp]) + log(1-q[temp]) -
+          (log(1-p[temp]*q[temp]) + abs(x[temp])*log(q[temp]))
      if(log == FALSE) dens <- exp(dens)
      return(dens)
      }
@@ -1677,8 +1691,9 @@ psdlaplace <- function(x, p, q)
      if(any(q < 0) || any(q > 1)) stop("q must be in [0,1].")
      NN <- max(length(x), length(p), length(q))
      x <- rep(x, len=NN); p <- rep(p, len=NN); q <- rep(q, len=NN)
-     pr <- ifelse(x >= 0, 1-(1-q)*p^(floor(x)+1)/(1-p*q),
-          (1-p)*q^(-floor(x))/(1-p*q))
+     pr <- 1-(1-q)*p^(floor(x)+1)/(1-p*q)
+     temp <- which(x < 0)
+     pr[temp] <- (1-p[temp])*q[temp]^(-floor(x[temp]))/(1-p[temp]*q[temp])
      return(pr)
      }
 qsdlaplace <- function(prob, p, q)
@@ -1726,9 +1741,9 @@ dslaplace <- function(x, mu, alpha, beta, log=FALSE)
      x <- rep(x, len=NN); mu <- rep(mu, len=NN)
      alpha <- rep(alpha, len=NN); beta <- rep(beta, len=NN)
      ab <- alpha + beta
-     belowMu <- log(1/ab) + ((x - mu)/alpha)
+     dens <- belowMu <- log(1/ab) + ((x - mu)/alpha)
      aboveMu <- log(1/ab) + ((mu - x)/beta)
-     dens <- ifelse(x <= mu, belowMu, aboveMu)
+     temp <- which(x > mu); dens[temp] <- aboveMu[temp]
      if(log == FALSE) dens <- exp(dens)
      return(dens)
      }
@@ -1742,9 +1757,9 @@ pslaplace <- function(q, mu, alpha, beta)
      q <- rep(q, len=NN); mu <- rep(mu, len=NN)
      alpha <- rep(alpha, len=NN); beta <- rep(beta, len=NN)
      ab <- alpha + beta
-     belowMu <- (alpha/ab) * exp((q - mu)/alpha)
+     p <- belowMu <- (alpha/ab) * exp((q - mu)/alpha)
      aboveMu <- 1 - (beta/ab) * exp((mu - q)/beta)
-     p <- ifelse(q < mu, belowMu, aboveMu)
+     temp <- which(q >= mu); p[temp] <- aboveMu[temp]
      return(p)
      }
 qslaplace <- function(p, mu, alpha, beta)
@@ -1758,9 +1773,9 @@ qslaplace <- function(p, mu, alpha, beta)
      p <- rep(p, len=NN); mu <- rep(mu, len=NN)
      alpha <- rep(alpha, len=NN); beta <- rep(beta, len=NN)
      ab <- alpha + beta
-     belowMu <- alpha*log(p*ab/alpha) + mu
+     q <- belowMu <- alpha*log(p*ab/alpha) + mu
      aboveMu <- mu - beta*log(ab*(1 - p)/beta)
-     q <- ifelse(p < alpha/ab, belowMu, aboveMu)
+     temp <- which(p >= alpha/ab); q[temp] <- aboveMu[temp]
      return(q)
      }
 rslaplace <- function(n, mu, alpha, beta)
@@ -1773,7 +1788,8 @@ rslaplace <- function(n, mu, alpha, beta)
      y <- rexp(n,1)
      probs <- c(alpha,beta) / ab
      signs <- sample(c(-1,1), n, replace=TRUE, prob=probs)
-     mult <- ifelse(signs < 0, signs*alpha, signs*beta)
+     mult <- signs*beta
+     temp <- which(signs < 0); mult[temp] <- signs[temp]*alpha[temp]
      x <- mult*y + mu
      return(x)
      }
@@ -1823,13 +1839,10 @@ pst <- function(q, mu=0, sigma=1, nu=10, lower.tail=TRUE, log.p=FALSE)
      NN <- max(length(q), length(mu), length(sigma), length(nu))
      q <- rep(q, len=NN); mu <- rep(mu, len=NN)
      sigma <- rep(sigma, len=NN); nu <- rep(nu, len=NN)
-     if(length(nu) > 1) p <- ifelse(nu > 1000000,
-          pnorm(q, mu, sigma, lower.tail=lower.tail, log.p=log.p),
-          pt({q-mu}/sigma, df=nu, lower.tail=lower.tail, log.p=log.p))
-     else p <- if(nu > 1000000) {pnorm(q, mu, sigma,
-          lower.tail=lower.tail, log.p=log.p)}
-          else {pt({q-mu}/sigma, df=nu, lower.tail=lower.tail,
-               log.p=log.p)}
+     p <- pt({q-mu}/sigma, df=nu, lower.tail=lower.tail, log.p=log.p)
+     temp <- which(nu > 1e6)
+     p[temp] <- pnorm(q[temp], mu[temp], sigma[temp],
+          lower.tail=lower.tail, log.p=log.p)
      return(p)
      }
 qst <- function(p, mu=0, sigma=1, nu=10, lower.tail=TRUE, log.p=FALSE)
@@ -1842,12 +1855,10 @@ qst <- function(p, mu=0, sigma=1, nu=10, lower.tail=TRUE, log.p=FALSE)
      NN <- max(length(p), length(mu), length(sigma), length(nu))
      p <- rep(p, len=NN); mu <- rep(mu, len=NN)
      sigma <- rep(sigma, len=NN); nu <- rep(nu, len=NN)
-     if(length(nu) > 1) q <- ifelse(nu > 1000000,
-          qnorm(p, mu, sigma, lower.tail=lower.tail, log.p=log.p),
-          mu + sigma * qt(p, df=nu, lower.tail=lower.tail))
-     else q <- if(nu > 1000000) {qnorm(p, mu, sigma,
-          lower.tail=lower.tail, log.p=log.p)}
-          else {mu + sigma * qt(p, df=nu, lower.tail=lower.tail)}
+     q <- mu + sigma * qt(p, df=nu, lower.tail=lower.tail)
+     temp <- which(nu > 1e6)
+     q[temp] <- qnorm(p[temp], mu[temp], sigma[temp],
+          lower.tail=lower.tail, log.p=log.p)
      return(q)
      }
 rst <- function(n, mu=0, sigma=1, nu=10)
@@ -1875,10 +1886,10 @@ dstp <- function(x, mu=0, tau=1, nu=10, log=FALSE)
      NN <- max(length(x), length(mu), length(tau), length(nu))
      x <- rep(x, len=NN); mu <- rep(mu, len=NN)
      tau <- rep(tau, len=NN); nu <- rep(nu, len=NN)
-     dens <- ifelse(nu > 1000000,
-          dnorm(x, mu, sqrt(1/tau), log=TRUE),
-          (lgamma((nu+1)/2) - lgamma(nu/2)) + 0.5*log(tau/(nu*pi)) +
-          (-(nu+1)/2)*log(1 + (tau/nu)*(x-mu)^2))
+     dens <- (lgamma((nu+1)/2) - lgamma(nu/2)) + 0.5*log(tau/(nu*pi)) +
+          (-(nu+1)/2)*log(1 + (tau/nu)*(x-mu)^2)
+     temp <- which(nu > 1e6)
+     dens[temp] <- dnorm(x[temp], mu[temp], sqrt(1/tau[temp]), log=TRUE)
      if(log == FALSE) dens <- exp(dens)
      return(dens)
      }
@@ -2023,7 +2034,7 @@ rwishart <- function(nu, S)
      k <- nrow(S)
      Z <- matrix(0, k, k)
      x <- rchisq(k, nu:{nu - k + 1})
-     x <- ifelse(x == 0, 1e-100, x)
+     x[which(x == 0)] <- 1e-100
      diag(Z) <- sqrt(x)
      if(k > 1) {
           kseq <- 1:(k-1)
@@ -2066,7 +2077,7 @@ rwishartc <- function(nu, S)
      k <- nrow(S)
      Z <- matrix(0, k, k)
      x <- rchisq(k, nu:{nu - k + 1})
-     x <- ifelse(x == 0, 1e-100, x)
+     x[which(x == 0)] <- 1e-100
      diag(Z) <- sqrt(x)
      if(k > 1) {
           kseq <- 1:(k-1)

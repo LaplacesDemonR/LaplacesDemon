@@ -20,7 +20,7 @@ SIR <- function(Model, Data, mu, Sigma, n=1000, CPUs=1, Type="PSOCK")
      ### Sampling
      k <- length(mu)
      theta <- rmvn(n, mu, Sigma)
-     theta <- ifelse(!is.finite(theta), 0, theta)
+     theta[which(!is.finite(theta))] <- 0
      colnames(theta) <- Data$parm.names
      ### Importance
      lf <- matrix(0, n, 1)

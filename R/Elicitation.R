@@ -14,7 +14,8 @@ delicit <- function(theta, x, a=-Inf, b=Inf, log=FALSE)
      if(is.finite(a) & is.infinite(b)) {
           if(a > 0) {theta <- log(theta); x <- log(x)}
           else if(a == 0) {
-               theta <- log(theta + 1e-04); x <- log(x + 1e-04)}
+               theta <- log(theta + 1e-04); x <- log(x + 1e-04)
+               }
           else { #(a < 0)
                theta <- log(theta - a + 1e-04)
                x <- log(x - a + 1e-04)
@@ -22,18 +23,18 @@ delicit <- function(theta, x, a=-Inf, b=Inf, log=FALSE)
           }
      if(is.infinite(a) & is.finite(b)) {
           a <- .Machine$double.xmin
-          theta <- ifelse(theta <= a, a + 1e-04, theta)
-          theta <- ifelse(theta >= b, b - 1e-04, theta)
-          x <- ifelse(x <= a, a + 1e-04, x)
-          x <- ifelse(x >= b, b - 1e-04, x)
+          theta[which(theta <= a)] <- a + 1e-04
+          theta[which(theta >= b)] <- b - 1e-04
+          x[which(x <= a)] <- a + 1e-04
+          x[which(x >= b)] <- b - 1e-04
           theta <- log((theta-a) / (b-theta))
           x <- log((x-a) / (b-x))
           }
      if(is.finite(a) & is.finite(b)) {
-          theta <- ifelse(theta <= a, a + 1e-04, theta)
-          theta <- ifelse(theta >= b, b - 1e-04, theta)
-          x <- ifelse(x <= a, a + 1e-04, x)
-          x <- ifelse(x >= b, b - 1e-04, x)
+          theta[which(theta <= a)] <- a + 1e-04
+          theta[which(theta >= b)] <- b - 1e-04
+          x[which(x <= a)] <- a + 1e-04
+          x[which(x >= b)] <- b - 1e-04
           theta <- log((theta-a) / (b-theta))
           x <- log((x-a) / (b-x))
           }

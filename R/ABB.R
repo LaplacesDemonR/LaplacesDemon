@@ -13,7 +13,8 @@ ABB <- function(X, K=1)
      J <- ncol(X)
      N <- nrow(X)
      ### Missingness Indicator
-     M <- ifelse(is.na(X), 1, 0)
+     M <- X*0
+     M[which(is.na(X))] <- 1
      if(sum(M) == 0) stop("There are no missing values to impute.")
      M.sums <- colSums(M)
      ### Approximate Bayesian Bootstrap

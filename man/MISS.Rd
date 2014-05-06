@@ -7,7 +7,7 @@
   other variables in the data set.
 }
 \usage{
-MISS(X, Iterations=100, Algorithm="ESS", K=10, Fit=NULL, verbose=TRUE)
+MISS(X, Iterations=100, Algorithm="GS", Fit=NULL, verbose=TRUE)
 }
 \arguments{
   \item{X}{This required argument accepts a numeric matrix of data that
@@ -19,11 +19,7 @@ MISS(X, Iterations=100, Algorithm="ESS", K=10, Fit=NULL, verbose=TRUE)
     (MAR).}
   \item{Iterations}{This is the number of iterations to perform
     sequential sampling via MCMC algorithms.}
-  \item{Algorithm}{The MCMC algorithm defaults to the Elliptical Slice
-    Sampler (ESS). A Gibbs Sampler (GS) is also supported.}
-  \item{K}{This is the maximum number of discrete values for multinomial
-    logit. Variables with more discrete values are considered to be
-    continuous.}
+  \item{Algorithm}{The MCMC algorithm defaults to the Gibbs Sampler (GS).}
   \item{Fit}{This optional argument accepts an object of class
     \code{miss}. When supplied, \code{MISS} will continue where it left
     off, provided the user does not change the algorithm (different
@@ -65,21 +61,15 @@ MISS(X, Iterations=100, Algorithm="ESS", K=10, Fit=NULL, verbose=TRUE)
 
   MISS uses the following methods and MCMC algorithms:
 
-  Missing values of continuous variables are estimated either with ridge
-  regression when the ESS algorithm (Murray et al., 2010) is specified,
-  or with a ridge-stabilized linear regression when GS is specified. For
-  ESS, the gamma and sigma parameters are exponentiated during sampling.
+  Missing values of continuous variables are estimated with a
+  ridge-stabilized linear regression Gibbs sampler.
 
   Missing values of binary variables that have only 0 or 1 for values
-  are estimated either with a ridged binary logit model when the ESS
-  algorithm is specified, or with the binary robit (t-link logistic
-  regression model) of Albert and Chib (1993) when GS is specified.
+  are estimated either with a binary robit (t-link logistic
+  regression model) Gibbs sampler of Albert and Chib (1993).
 
-  Missing values of discrete variables with 2-\eqn{K} (ordered or
-  unordered) discrete values are estimated with a multinomial logit
-  model via ESS, regardless of whether ESS or GS is specified. A
-  variable with more than \eqn{K} discrete values is considered by MISS
-  to be a continuous variable.
+  Missing values of discrete variables with 3 or more (ordered or
+  unordered) discrete values are considered continuous.
 
   In the presence of big data, it is suggested that the user
   sequentially read in batches of data that are small enough to be
@@ -107,11 +97,9 @@ MISS(X, Iterations=100, Algorithm="ESS", K=10, Fit=NULL, verbose=TRUE)
   user can easily specify complicated structures such as multilevel,
   spatial or temporal dependence, and more.
 
-  When MISS applies a Gibbs sampler, matrix inversions are
-  required. Matrix inversions become more cumbersome as the number
-  \eqn{J} of variables increases. In contrast, the ESS algorithm scales
-  well to data sets with a large number of variables.
-
+  Matrix inversions are required in the Gibbs sampler. Matrix inversions
+  become more cumbersome as the number \eqn{J} of variables increases.
+  
   If a large number of iterations is used, then the user may consider
   studying the imputations for approximate convergence with the
   \code{\link{BMK.Diagnostic}} function, by supplying the transpose of
@@ -135,19 +123,12 @@ MISS(X, Iterations=100, Algorithm="ESS", K=10, Fit=NULL, verbose=TRUE)
   \item{Type}{This is a vector of length \eqn{J} for \eqn{J} variables
     that indicates the type of each variable, as MISS will consider it.
     When \code{Type=1}, the variable is considered to be continuous.
-    When \code{Type=2}, only two discrete values (0 and 1) were found,
-    and a binary logit or robit model is used. When \code{Type=3},
-    between 2 and 10 discrete values were found, and a multinomial logit
-    model is used.}
+    When \code{Type=2}, only two discrete values (0 and 1) were found.}
 }
 \references{
   Albert, J.H. and Chib, S. (1993). "Bayesian Analysis of Binary and
   Polychotomous Response Data". \emph{Journal of the American
   Statistical Association}, 88(422), p. 669--679.
-
-  Murray, I., Adams, R.P., and MacKay, D.J. (2010). "Elliptical Slice
-  Sampling". \emph{Journal of Machine Learning Research}, 9,
-  p. 541--548.
 
   Rubin, D.B. (1987). "Multiple Imputation for Nonresponse in
   Surveys". John Wiley and Sons: New York, NY.
@@ -180,14 +161,14 @@ MISS(X, Iterations=100, Algorithm="ESS", K=10, Fit=NULL, verbose=TRUE)
 #head(X)
 
 ### Begin Multiple Imputation
-#Fit <- MISS(X, Iterations=100, Algorithm="GS", K=10, verbose=TRUE)
+#Fit <- MISS(X, Iterations=100, Algorithm="GS", verbose=TRUE)
 #Fit
 #summary(Fit)
 #plot(Fit)
 #plot(BMK.Diagnostic(t(Fit$Imp)))
 
 ### Continue Updating if Necessary
-#Fit <- MISS(X, Iterations=100, Algorithm="GS", K=10, Fit, verbose=TRUE)
+#Fit <- MISS(X, Iterations=100, Algorithm="GS", Fit, verbose=TRUE)
 #summary(Fit)
 #plot(Fit)
 #plot(BMK.Diagnostic(t(Fit$Imp)))
@@ -215,7 +196,6 @@ MISS(X, Iterations=100, Algorithm="ESS", K=10, Fit=NULL, verbose=TRUE)
 
 #End
 }
-\keyword{Elliptical Slice Sampler}
 \keyword{Gibbs Sampler}
 \keyword{Imputation}
 \keyword{Utility}

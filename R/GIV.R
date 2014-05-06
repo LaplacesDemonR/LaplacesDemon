@@ -46,7 +46,7 @@ GIV <- function(Model, Data, n=1000, PGF=FALSE)
                ab.mu <- a + ab.range / 2
                ab.mu <- ifelse({a == 0} & {b == high}, 10, ab.mu)
                Scale <- 1 / ab.range
-               Scale <- ifelse(ab.range == 0, 0, Scale)
+               Scale[which(ab.range == 0)] <- 0
                for (i in 1:n) {
                     IV <- rnorm(LIV, ab.mu, ab.range * Scale)
                     M <- try(Model(IV, Data), silent=TRUE)

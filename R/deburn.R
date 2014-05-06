@@ -18,7 +18,7 @@ deburn <- function(x, BurnIn=0)
      ### Remove Burn-in
      x$Posterior1 <- x$Posterior2 <- x$Posterior1[(BurnIn+1):S,]
      x$Deviance <- x$Deviance[(BurnIn+1):S]
-     x$Monitor <- x$Monitor[(BurnIn+1):S,]
+     x$Monitor <- x$Monitor[(BurnIn+1):S,,drop=FALSE]
      x$Rec.BurnIn.Thinned <- 0
      x$Rec.BurnIn.UnThinned <- 0
      ### Summary1

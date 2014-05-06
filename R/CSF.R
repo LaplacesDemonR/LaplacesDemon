@@ -71,8 +71,8 @@ CSF <- function(x, name, method="Quantiles", quantiles=c(.025,.5,.975),
           for (i in 1:length(x)) {
                test <- try(MCSE(x[1:i]), silent=TRUE)
                if(!inherits(test, "try-error")) y[i] <- test}
-          y <- ifelse(is.finite(y), y, 1)
-          y <- ifelse(y > 1, 1, y)
+          y[which(!is.finite(y))] <- 1
+          y[which(y > 1)] <- 1
           plot(y, type="l", xlab="Cumulative Sample", ylab="MCSE")
           if(output == TRUE) return(y)}
      if(method == "MCSE.bm") {
@@ -80,8 +80,8 @@ CSF <- function(x, name, method="Quantiles", quantiles=c(.025,.5,.975),
           for (i in 1:length(x)) {
                test <- try(MCSE(x[1:i], method="batch.means"), silent=TRUE)
                if(!inherits(test, "try-error")) y[i] <- test}
-          y <- ifelse(is.finite(y), y, 1)
-          y <- ifelse(y > 1, 1, y)
+          y[which(!is.finite(y))] <- 1
+          y[which(y > 1)] <- 1
           plot(y, type="l", xlab="Cumulative Sample", ylab="MCSE")
           if(output == TRUE) return(y)}
      if(method == "MCSE.sv") {
@@ -90,8 +90,8 @@ CSF <- function(x, name, method="Quantiles", quantiles=c(.025,.5,.975),
                test <- try(MCSE(x[1:i], method="sample.variance"),
                     silent=TRUE)
                if(!inherits(test, "try-error")) y[i] <- test}
-          y <- ifelse(is.finite(y), y, 1)
-          y <- ifelse(y > 1, 1, y)
+          y[which(!is.finite(y))] <- 1
+          y[which(y > 1)] <- 1
           plot(y, type="l", xlab="Cumulative Sample", ylab="MCSE")
           if(output == TRUE) return(y)}
      if(method == "Mean") {

@@ -4,8 +4,7 @@
 # The MISS function performs multiple imputation via sequential sampling. #
 ###########################################################################
 
-MISS <- function(X, Iterations=100, Algorithm="ESS", K=10, Fit=NULL,
-     verbose=TRUE)
+MISS <- function(X, Iterations=100, Algorithm="GS", Fit=NULL, verbose=TRUE)
      {
      ### Initial Checks
      if(missing(X)) stop("X is a required argument.")
@@ -18,8 +17,7 @@ MISS <- function(X, Iterations=100, Algorithm="ESS", K=10, Fit=NULL,
      cat("\nNumber of Missing Values by Variable:\n")
      print(Nmiss)
      cat("\n")
-     if({Algorithm != "ESS"} & {Algorithm != "GS"})
-          stop("Algorithm unknown.")
+     if(Algorithm != "GS") stop("Algorithm unknown.")
      for (i in 1:N)
           if(sum(is.na(X[i,])) == J) stop("All missing row found.")
      ### Parameters and Variable Type
@@ -33,21 +31,11 @@ MISS <- function(X, Iterations=100, Algorithm="ESS", K=10, Fit=NULL,
                     if(all(c(0,1) == uniq[order(uniq)])) {
                          ### Binary Logit or Robit
                          Type[j] <- 2
-                         if(Algorithm == "ESS")
-                              parm[[j]] <- list(beta=rep(0,J), gamma=0)
-                         else parm[[j]] <- list(z=rep(0, sum(!is.na(X[,j]))),
-                                   beta=rep(0, J),
-                                   lambda=rep(1, sum(!is.na(X[,j]))))
+                         parm[[j]] <- list(z=rep(0, sum(!is.na(X[,j]))),
+                              beta=rep(0, J),
+                              lambda=rep(1, sum(!is.na(X[,j]))))
                          }
-                    else if(Algorithm == "ESS")
-                         parm[[j]] <- list(beta=rep(0,J), gamma=0, sigma=0)
                     else parm[[j]] <- list(beta=rep(0,J), sigma=0)
-                    }
-               else if({length(uniq) >= 2} & {length(uniq) <= K}) {
-                    ### MNL
-                    Type[j] <- 3
-                    parm[[j]] <- list(beta=matrix(runif((length(uniq)-1)*J),
-                         length(uniq)-1,J))
                     }
                else {
                     ### Linear Regression
@@ -81,131 +69,6 @@ MISS <- function(X, Iterations=100, Algorithm="ESS", K=10, Fit=NULL,
           X[which(is.na(X))] <- Fit$Imp[,ncol(Fit$Imp)]}
      Imp <- matrix(0, sum(Nmiss), Iterations)
      ### Multiple Imputation Samplers
-     ESSLinReg <- function(y, obs, X, beta, gamma, sigma) {
-          X <- cbind(1, as.matrix(X))
-          Xobs <- X[obs,]
-          yobs <- y[obs]
-          J <- length(beta)
-          nu <- rnorm(J+2, 0, 2.381204 * 2.381204 / (J+2))
-          theta <- theta.max <- runif(1, 0, 2*pi)
-          theta.min <- theta - 2*pi
-          shrink <- TRUE
-          log.u <- log(runif(1))
-          mu <- tcrossprod(Xobs, t(beta))
-          Mo0 <- sum(dnorm(yobs, mu, exp(sigma), log=TRUE),
-               dnorm(beta, 0, exp(gamma), log=TRUE),
-               dhalfcauchy(exp(c(gamma,sigma)), 25, log=TRUE))
-          while (shrink == TRUE) {
-               beta.p <- beta*cos(theta) + nu[1:J]*sin(theta)
-               gamma.p <- gamma*cos(theta) + nu[J+1]*sin(theta)
-               sigma.p <- sigma*cos(theta) + nu[J+2]*sin(theta)
-               mu <- tcrossprod(Xobs, t(beta.p))
-               Mo1 <- sum(dnorm(yobs, mu, exp(sigma.p), log=TRUE),
-                    dnorm(beta.p, 0, exp(gamma.p), log=TRUE),
-                    dhalfcauchy(exp(c(gamma.p,sigma.p)), 25,
-                    log=TRUE))
-               log.alpha <- Mo1 - Mo0
-               if(!is.finite(log.alpha)) log.alpha <- 0
-               if(log.u < log.alpha) {
-                    beta <- beta.p
-                    gamma <- gamma.p
-                    sigma <- sigma.p
-                    shrink <- FALSE
-                    }
-               else {
-                    if(theta < 0) theta.min <- theta
-                    else theta.max <- theta
-                    theta <- runif(1, theta.min, theta.max)}}
-          mu <- tcrossprod(X[!obs,], t(beta))
-          imp <- rnorm(length(mu), mu, exp(sigma))
-          out <- list(imp=imp, beta=beta, gamma=gamma, sigma=sigma)
-          return(out)
-          }
-     ESSLogit <- function(y, obs, X, beta, gamma) {
-          X <- cbind(1, as.matrix(X))
-          Xobs <- X[obs,]
-          yobs <- y[obs]
-          J <- length(beta)
-          nu <- rnorm(J+1, 0, 2.381204 * 2.381204 / (J+1))
-          theta <- theta.max <- runif(1, 0, 2*pi)
-          theta.min <- theta - 2*pi
-          shrink <- TRUE
-          log.u <- log(runif(1))
-          mu <- tcrossprod(Xobs, t(beta))
-          eta <- invlogit(mu)
-          Mo0 <- sum(dbern(yobs, eta, log=TRUE),
-               dnorm(beta, 0, exp(gamma), log=TRUE),
-               dhalfcauchy(exp(gamma), 25, log=TRUE))
-          while (shrink == TRUE) {
-               beta.p <- beta*cos(theta) + nu[1:J]*sin(theta)
-               gamma.p <- gamma*cos(theta) + nu[J+1]*sin(theta)
-               mu <- tcrossprod(Xobs, t(beta.p))
-               phi <- invlogit(mu)
-               Mo1 <- sum(dbern(yobs, eta, log=TRUE),
-                    dnorm(beta.p, 0, exp(gamma.p), log=TRUE),
-                    dhalfcauchy(exp(gamma.p), 25, log=TRUE))
-               log.alpha <- Mo1 - Mo0
-               if(!is.finite(log.alpha)) log.alpha <- 0
-               if(log.u < log.alpha) {
-                    beta <- beta.p
-                    gamma <- gamma.p
-                    shrink <- FALSE
-                    }
-               else {
-                    if(theta < 0) theta.min <- theta
-                    else theta.max <- theta
-                    theta <- runif(1, theta.min, theta.max)}}
-          mu <- tcrossprod(X[!obs,], t(beta))
-          eta <- invlogit(mu)
-          imp <- rbern(length(eta), eta)
-          out <- list(imp=imp, beta=beta, gamma=gamma)
-          return(out)
-          }
-     ESSMNL <- function(y, obs, X, beta) {
-          X <- cbind(1, as.matrix(X))
-          Xobs <- X[obs,]
-          yobs <- y[obs]
-          J <- length(unique(yobs))
-          L <- length(as.vector(beta))
-          nu <- rnorm(L, 0, 2.381204 * 2.381204 / (L+1))
-          theta <- theta.max <- runif(1, 0, 2*pi)
-          theta.min <- theta - 2*pi
-          shrink <- TRUE
-          log.u <- log(runif(1))
-          mu <- matrix(0, nrow(Xobs), J)
-          mu[,-J] <- tcrossprod(Xobs, beta)
-          mu <- interval(mu, -700, 700, reflect=FALSE)
-          phi <- exp(mu)
-          p <- phi / rowSums(phi)
-          Mo0 <- sum(dcat(yobs, p, log=TRUE),
-               dnormv(beta, 0, 1000, log=TRUE))
-          while (shrink == TRUE) {
-               prop <- beta*cos(theta) + nu*sin(theta)
-               mu[,-J] <- tcrossprod(Xobs, prop)
-               mu <- interval(mu, -700, 700, reflect=FALSE)
-               phi <- exp(mu)
-               p <- phi / rowSums(phi)
-               Mo1 <- sum(dcat(yobs, p, log=TRUE),
-                    dnormv(prop, 0, 1000, log=TRUE))
-               log.alpha <- Mo1 - Mo0
-               if(!is.finite(log.alpha)) log.alpha <- 0
-               if(log.u < log.alpha) {
-                    beta <- prop
-                    shrink <- FALSE
-                    }
-               else {
-                    if(theta < 0) theta.min <- theta
-                    else theta.max <- theta
-                    theta <- runif(1, theta.min, theta.max)}}
-          mu <- matrix(0, sum(!obs), J)
-          mu[,-J] <- tcrossprod(X[!obs,], beta)
-          mu <- interval(mu, -700, 700, reflect=FALSE)
-          phi <- exp(mu)
-          p <- phi / rowSums(phi)
-          imp <- rcat(nrow(p), p)
-          out <- list(imp=imp, beta=beta)
-          return(out)
-          }
      GibbsLinReg <- function(y, obs, X) {
           X <- cbind(1, as.matrix(X))
           Xobs <- X[obs,]
@@ -254,21 +117,7 @@ MISS <- function(X, Iterations=100, Algorithm="ESS", K=10, Fit=NULL,
           for (j in 1:J) {
                if(Nmiss[j] > 0) {
                     if(verbose == TRUE) cat(" V", j, " ", sep="")
-                    if(Algorithm == "ESS" & Type[j] == 1) {
-                         out <- ESSLinReg(y=X[,j], obs=O[,j], X=X[,-j],
-                              beta=parm[[j]]$beta, gamma=parm[[j]]$gamma,
-                              sigma=parm[[j]]$sigma)
-                         parm[[j]]$beta <- out$beta
-                         parm[[j]]$gamma <- out$gamma
-                         parm[[j]]$sigma <- out$sigma
-                         }
-                    else if(Algorithm == "ESS" & Type[j] == 2) {
-                         out <- ESSLogit(y=X[,j], obs=O[,j], X=X[,-j],
-                              beta=parm[[j]]$beta, gamma=parm[[j]]$gamma)
-                         parm[[j]]$beta <- out$beta
-                         parm[[j]]$gamma <- out$gamma
-                         }
-                    else if(Algorithm == "GS" & Type[j] == 1) {
+                    if(Algorithm == "GS" & Type[j] == 1) {
                          out <- GibbsLinReg(y=X[,j], obs=O[,j], X=X[,-j])
                          parm[[j]]$beta <- out$beta
                          parm[[j]]$sigma <- out$sigma
@@ -281,11 +130,6 @@ MISS <- function(X, Iterations=100, Algorithm="ESS", K=10, Fit=NULL,
                          parm[[j]]$z <- out$z
                          parm[[j]]$beta <- out$beta
                          parm[[j]]$sigma <- out$sigma
-                         }
-                    else if(Type[j] == 3) {
-                         out <- ESSMNL(y=X[,j], obs=O[,j], X=X[,-j],
-                              beta=parm[[j]]$beta)
-                         parm[[j]]$beta <- out$beta
                          }
                     X[,j][!O[,j]] <- out$imp
                     imp <- c(imp, out$imp)}

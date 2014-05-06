@@ -64,7 +64,7 @@ Blocks <- function(Initial.Values, N, PostCor=NULL)
                wds[iC,"neighbor"] <- clid[-j][minC]
                s.i <- if(Nj > 1) {
                     a.i <- colSums(dmatrix[iC, iC])/(Nj - 1)
-                    b.i <- diC[cbind(minC, seq(along = minC))]
+                    b.i <- diC[cbind(minC, seq(along=minC))]
                     ifelse(a.i != b.i, (b.i - a.i) / pmax(b.i, a.i), 0)
                     }
                else 0

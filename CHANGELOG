@@ -1,3 +1,5 @@
+2014-05-06 Replaced many ifelse with which
+2014-05-06 MISS: Removed the ESS algorithm
 2014-05-05 LaplacesDemon: Fixed bug with OHSS
 2014-05-04 LaplacesDemon: Added Gibbs
 2014-05-03 PosteriorChecks: Added ISM (Independent Samples per Minute)

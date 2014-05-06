@@ -96,7 +96,8 @@ VariationalBayes <- function(Model, parm, Data, Covar=NULL,
      VarCov <- VB$VarCov
      rm(VB)
      if(iter == 1) stop("VariationalBayes stopped at iteration 1.")
-     converged <- ifelse(tol.new <= Stop.Tolerance, TRUE, FALSE)
+     if(tol.new <= Stop.Tolerance) converged <- TRUE
+     else converged <- FALSE
      ### Column names to samples
      if(dim(post)[2] == length(Data$parm.names))
           dimnames(post) <- list(1:dim(post)[1], Data$parm.names, 1:2)

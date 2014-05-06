@@ -326,8 +326,8 @@ AGH <- function(Model, parm, Data, Covar, Iterations, Stop.Tolerance,
                temp <- cov.wt(Z, wt=LPw[,1])$cov
                if(all(is.finite(temp))) Covar <- as.symmetric.matrix(temp)
                else expand <- TRUE
-               diag(Covar) <- ifelse(abs(diag(Covar)) < .Machine$double.eps,
-                    .Machine$double.eps, abs(diag(Covar)))
+               diag(Covar) <- abs(diag(Covar))
+               diag(Covar)[which(diag(Covar) < .Machine$double.eps)] <- .Machine$double.eps
                M <- W * exp(X) * sqrt(2) *
                     matrix(sigma, n, parm.len, byrow=TRUE)
                sigma <- sqrt(diag(Covar))
@@ -432,8 +432,8 @@ AGH <- function(Model, parm, Data, Covar, Iterations, Stop.Tolerance,
                temp <- cov.wt(Z, wt=LPw[,1])$cov
                if(all(is.finite(temp))) Covar <- as.symmetric.matrix(temp)
                else expand <- TRUE
-               diag(Covar) <- ifelse(abs(diag(Covar)) < .Machine$double.eps,
-                    .Machine$double.eps, abs(diag(Covar)))
+               diag(Covar) <- abs(diag(Covar))
+               diag(Covar)[which(diag(Covar) < .Machine$double.eps)] <- .Machine$double.eps
                M <- W * exp(X) * sqrt(2) *
                     matrix(sigma, n, parm.len, byrow=TRUE)
                sigma <- sqrt(diag(Covar))
@@ -528,8 +528,8 @@ AGHSG <- function(Model, parm, Data, Covar, Iterations, Stop.Tolerance,
                temp <- cov.wt(Z, wt=LPw[,1])$cov
                if(all(is.finite(temp))) Covar <- as.symmetric.matrix(temp)
                else expand <- TRUE
-               diag(Covar) <- ifelse(abs(diag(Covar)) < .Machine$double.eps,
-                    .Machine$double.eps, abs(diag(Covar)))
+               diag(Covar) <- abs(diag(Covar))
+               diag(Covar)[which(diag(Covar) < .Machine$double.eps)] <- .Machine$double.eps
                M <- W * exp(X) * sqrt(2) *
                     matrix(sigma, N, parm.len, byrow=TRUE)
                sigma <- sqrt(diag(Covar))
@@ -632,8 +632,8 @@ AGHSG <- function(Model, parm, Data, Covar, Iterations, Stop.Tolerance,
                temp <- cov.wt(Z, wt=LPw[,1])$cov
                if(all(is.finite(temp))) Covar <- as.symmetric.matrix(temp)
                else expand <- TRUE
-               diag(Covar) <- ifelse(abs(diag(Covar)) < .Machine$double.eps,
-                    .Machine$double.eps, abs(diag(Covar)))
+               diag(Covar) <- abs(diag(Covar))
+               diag(Covar)[which(diag(Covar) < .Machine$double.eps)] <- .Machine$double.eps
                M <- W * exp(X) * sqrt(2) *
                     matrix(sigma, N, parm.len, byrow=TRUE)
                sigma <- sqrt(diag(Covar))

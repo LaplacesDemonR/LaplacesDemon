@@ -60,7 +60,9 @@ Modes <- function(x, min.size=0.1) {
      ### Differentiate kernel density by x
      length(density(x)$y)
      dens.y.diff <- density(x)$y[-1] - density(x)$y[-length(density(x)$y)]
-     incr <- ifelse(dens.y.diff > 0, 1, 0)
+     incr <- dens.y.diff
+     incr[which(dens.y.diff > 0)] <- 1
+     incr[which(dens.y.diff <= 0)] <- 0
      ### Kernel density by increasing/decreasing density regions
      begin <- 1; count <- 1
      for (i in 2:length(incr)) {

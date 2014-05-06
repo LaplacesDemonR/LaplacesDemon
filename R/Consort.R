@@ -101,13 +101,13 @@ Consort <- function(object=NULL)
      MCSE.temp <- object$Summary2[1:object$Parameters,3] /
           object$Summary2[1:LIV,2]
      MCSE.temp2 <- sum(!is.finite(MCSE.temp))
-     MCSE.temp <- ifelse(is.finite(MCSE.temp), MCSE.temp, 0)
+     MCSE.temp[which(!is.finite(MCSE.temp))] <- 0
      MCSE.tot <- 0
      if(MCSE.temp2 < LIV)
           MCSE.tot <- sum(MCSE.temp < MCSE.crit)
      ### Check ESS
      ESS.temp <- object$Summary2[1:LIV,4]
-     ESS.temp <- ifelse(!is.finite(ESS.temp), 0, ESS.temp)
+     ESS.temp[which(!is.finite(ESS.temp))] <- 0
      ESS.min <- min(ESS.temp)
      ESS.crit <- 100
      ### Check Stationarity

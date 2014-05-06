@@ -1869,8 +1869,10 @@ MyData <- list(C=C, J=J, K=K, N=N, PGF=PGF, S=S, X=X, Z=Z, \\
 \hspace*{0.27 in} Sigma[1,] <- Sigma[,1] <- U[1,] \\
 \hspace*{0.27 in} W <- matrix(parm[Data$pos.W], Data$N, Data$J-1) \\
 \hspace*{0.27 in} Y <- as.indicator.matrix(Data$y) \\
-\hspace*{0.27 in} W <- ifelse(Y[,-c(Data$J)] == 1, interval(W, 0, 10), \\
-\hspace*{0.62 in} interval(W, -10, 0)) \\
+\hspace*{0.27 in} temp <- which(Y[,-c(Data$J)] == 1) \\
+\hspace*{0.27 in} W[temp] <- interval(W[temp], 0, 10) \\
+\hspace*{0.27 in} temp <- which(Y[,-c(Data$J)] == 0) \\
+\hspace*{0.27 in} W[temp] <- interval(W[temp], -10, 0) \\
 \hspace*{0.27 in} parm[Data$pos.W] <- as.vector(W) \\
 \hspace*{0.27 in} \#\#\# Log(Prior Densities) \\
 \hspace*{0.27 in} beta.prior <- sum(dnormv(beta, 0, 10, log=TRUE)) \\
@@ -4411,8 +4413,10 @@ MyData <- list(J=J, K=K, N=N, PGF=PGF, S=S, X=X, mon.names=mon.names, \\
 \hspace*{0.27 in} Sigma[1,] <- Sigma[,1] <- U[1,] \\
 \hspace*{0.27 in} W <- matrix(parm[Data$pos.W], Data$N, Data$J-1) \\
 \hspace*{0.27 in} Y <- as.indicator.matrix(Data$y) \\
-\hspace*{0.27 in} W <- ifelse(Y[,-c(Data$J)] == 1, interval(W, 0, 10), \\
-\hspace*{0.62 in} interval(W, -10, 0)) \\
+\hspace*{0.27 in} temp <- which(Y[,-c(Data$J)] == 1) \\
+\hspace*{0.27 in} W[temp] <- interval(W[temp], 0, 10) \\
+\hspace*{0.27 in} temp <- which(Y[,-c(Data$J)] == 0) \\
+\hspace*{0.27 in} W[temp] <- interval(W[temp], -10, 0) \\
 \hspace*{0.27 in} parm[Data$pos.W] <- as.vector(W) \\
 \hspace*{0.27 in} \#\#\# Log(Prior Densities) \\
 \hspace*{0.27 in} beta.prior <- sum(dnormv(beta, 0, 10, log=TRUE)) \\
@@ -6417,7 +6421,8 @@ MyData <- list(PGF=PGF, T=T, mon.names=mon.names, parm.names=parm.names, \\
 \hspace*{0.27 in} mu <- matrix(0, Data$T, 2) \\
 \hspace*{0.27 in} mu[,1] <- c(alpha[1], alpha[1] + phi[1]*Data$y[-Data$T]) \\
 \hspace*{0.27 in} mu[,2] <- c(alpha[2], alpha[2] + phi[2]*Data$y[-Data$T]) \\
-\hspace*{0.27 in} nu <- ifelse(1:Data$T < theta, mu[,1], mu[,2]) \\
+\hspace*{0.27 in} nu <- mu[,2]; temp <- which(1:Data$T < theta) \\
+\hspace*{0.27 in} nu[temp] <- mu[temp,1] \\
 \hspace*{0.27 in} ynew <- rnorm(1, alpha[2] + phi[2]*Data$y[Data$T], sigma) \\
 \hspace*{0.27 in} LL <- sum(dnorm(Data$y, nu, sigma, log=TRUE)) \\
 \hspace*{0.27 in} \#\#\# Log-Posterior \\

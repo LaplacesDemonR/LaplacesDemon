@@ -109,7 +109,7 @@ Combine <- function(x, Data, Thinning=1)
           acf.temp[,j] <- abs(temp0$acf[2:{nrow(acf.temp)+1},,1])
           ESS1[j] <- ESS(thinned[,j])
           Rec.Thin[j] <- which(acf.temp[,j] <= 0.1)[1]*Thinning}
-     Rec.Thin <- ifelse(is.na(Rec.Thin), nrow(acf.temp), Rec.Thin)
+     Rec.Thin[which(is.na(Rec.Thin))] <- nrow(acf.temp)
      ### Assess ESS for all deviance and monitor samples
      ESS2 <- ESS(Dev)
      ESS3 <- ESS(Mon)

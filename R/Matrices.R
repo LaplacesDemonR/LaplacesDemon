@@ -191,10 +191,10 @@ as.symmetric.matrix <- function(x, k=NULL)
           if(x.lower.fin) symm[upper.tri(x)] <- t(x)[upper.tri(x)]
           else if(x.upper.fin) symm[lower.tri(x)] <- t(x)[lower.tri(x)]
           else {
-               new.up <- ifelse(!is.finite(x[upper.tri(x)]),
-                    t(x)[lower.tri(x)], x[upper.tri(x)])
-               new.low <- ifelse(!is.finite(x[lower.tri(x)]),
-                    t(x)[upper.tri(x)], x[lower.tri(x)])
+               new.up <- x[upper.tri(x)]
+               new.low <- x[lower.tri(x)]
+               new.up[which(!is.finite(new.up))] <- t(x)[lower.tri(x)][which(!is.finite(new.up))]
+               new.low[which(!is.finite(new.low))] <- t(x)[upper.tri(x)][which(!is.finite(new.low))]
                if(any(!is.finite(c(new.up, new.low))))
                     stop("Off-diagonals in x must have finite values.")
                else {
@@ -227,9 +227,8 @@ CovEstim <- function(Model, parm, Data, Method="Hessian")
      if(Method == "Hessian") {
           VarCov <- try(-as.inverse(Hessian(Model, parm, Data)),
                silent=TRUE)
-          if(!inherits(VarCov, "try-error")) {
-               diag(VarCov) <- ifelse(diag(VarCov) <= 0,
-                    .Machine$double.eps, diag(VarCov))}
+          if(!inherits(VarCov, "try-error"))
+               diag(VarCov)[which(diag(VarCov) <= 0)] <- .Machine$double.eps
           else {
                cat("\nWARNING: Failure to solve matrix inversion of ",
                     "Approx. Hessian.\n", sep="")

@@ -68,7 +68,7 @@ Heidelberger.Diagnostic <- function(x, eps=0.1, pvalue=0.05)
                     (gamma(k+1) * pi^(3/2) * sqrt(q))
                u <- (4*k + 1)^2/(16*q)
                y[k+1,] <- ifelse(u > -log.eps, 0,
-                    z * exp(-u) * besselK(x = u, nu=1/4))}
+                    z * exp(-u) * besselK(x=u, nu=1/4))}
           return(apply(y,2,sum))
           }
      ### Heidelberger and Welch Diagnostic

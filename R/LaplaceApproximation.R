@@ -159,7 +159,8 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
      tol.new <- LA$tol.new
      rm(LA)
      if(iter == 1) stop("LaplaceApproximation stopped at iteration 1.")
-     converged <- ifelse(tol.new <= Stop.Tolerance, TRUE, FALSE)
+     if(tol.new <= Stop.Tolerance) converged <- TRUE
+     else converged <- FALSE
      ### Column names to samples
      if(ncol(post) == length(Data$parm.names))
           colnames(post) <- Data$parm.names
