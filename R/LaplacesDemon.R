@@ -5562,7 +5562,6 @@ UESS <- function(Model, Data, Iterations, Status, Thinning, Specs,
      VarCov, LogFile)
      {
      m <- Specs[["m"]]
-     Norm <- function(x) return(sqrt(sum(x^2)))
      w <- 0.05
      decomp.freq <- max(LIV * floor(Iterations / Thinning / 100), 10)
      S.eig <-try(eigen(VarCov), silent=TRUE)
@@ -5584,7 +5583,7 @@ UESS <- function(Model, Data, Iterations, Status, Thinning, Specs,
           ### Non-Adaptive or Adaptive
           if(runif(1) < w || is.null(S.eig)) {
                v <- rnorm(LIV)
-               v <- v / Norm(v)
+               v <- v / sqrt(sum(v*v))
                }
           else {
                which.eig <- floor(1 + LIV * runif(1))
@@ -5626,7 +5625,7 @@ UESS <- function(Model, Data, Iterations, Status, Thinning, Specs,
                thinned[t.iter,] <- Mo1[["parm"]]
                Dev[t.iter] <- Mo1[["Dev"]]
                Mon[t.iter,] <- Mo1[["Monitor"]]
-               DiagCovar <- rbind(DiagCovar, S.eig$vectors)
+               DiagCovar <- rbind(DiagCovar, diag(S.eig$vectors))
                obs.sum <- obs.sum + Mo1[["parm"]]
                obs.scatter <- obs.scatter + tcrossprod(Mo1[["parm"]])
                scatter.N <- scatter.N + 1}
