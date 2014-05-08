@@ -69,9 +69,10 @@ Model.Spec.Time(Model, Initial.Values, Data, n=1000)
   When speed is of paramount importance, a user is encouraged to
   experiment with writing the model specification function in another
   language such as in \code{C++} with the \code{Rcpp} package, and
-  calling the new function from within the \code{Model} function. This
-  experimentation has not yet been done, but should generally be worth
-  the effort.
+  calling drop-in replacement functions from within the \code{Model}
+  function, or re-writing the model function entirely in \code{C++}.
+  For an introduction to including \code{C++} in \pkg{LaplacesDemon},
+  see \url{http://www.bayesian-inference.com/softwarearticlescppsugar}.
 
   When a model specification function is computationally expensive,
   another approach to reduce run-time may be for the user to write
