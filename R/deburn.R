@@ -21,6 +21,7 @@ deburn <- function(x, BurnIn=0)
      x$Monitor <- x$Monitor[(BurnIn+1):S,,drop=FALSE]
      x$Rec.BurnIn.Thinned <- 0
      x$Rec.BurnIn.UnThinned <- 0
+     x$Thinned.Samples <- x$Thinned.Samples - BurnIn
      ### Summary1
      x$Summary1[1:LIV,1] <- colMeans(x$Posterior1)
      x$Summary1[1:LIV,2] <- apply(x$Posterior1, 2, sd)
