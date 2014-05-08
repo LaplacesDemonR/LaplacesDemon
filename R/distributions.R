@@ -1114,8 +1114,7 @@ dmvnp <- function(x, mu, Omega, log=FALSE)
      detOmega <- det(Omega)
      ss <- x - mu
      z <- rowSums({ss %*% Omega} * ss)
-     dens <- as.vector((-k/2)*(log(2) + log(pi)) + 0.5*log(detOmega) -
-          0.5*z)
+     dens <- as.vector((-k/2)*log(2*pi) + 0.5*log(detOmega) - 0.5*z)
      if(log == FALSE) dens <- exp(dens)
      return(dens)
      }
@@ -1147,8 +1146,7 @@ dmvnpc <- function(x, mu, U, log=FALSE)
      detOmega <- det(Omega)
      ss <- x - mu
      z <- rowSums({ss %*% Omega} * ss)
-     dens <- as.vector((-k/2)*(log(2) + log(pi)) + 0.5*log(detOmega) -
-          0.5*z)
+     dens <- as.vector((-k/2)*log(2*pi) + 0.5*log(detOmega) - 0.5*z)
      if(log == FALSE) dens <- exp(dens)
      return(dens)
      }

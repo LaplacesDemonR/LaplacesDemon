@@ -1,3 +1,5 @@
+2014-05-08 deburn: Fixed bug with Thinned.Samples
+2014-05-08 dmvnp, dmvnpc: Changed log(2) + log(pi) to log(2*pi)
 2014-05-06 Replaced many ifelse with which
 2014-05-06 MISS: Removed the ESS algorithm
 2014-05-05 LaplacesDemon: Fixed bug with OHSS
