@@ -90,14 +90,14 @@ IterativeQuadrature <- function(Model, parm, Data, Covar=NULL,
      if(acount > 0) {
           cat("Suggestion:", acount, " possible instance(s) of apply functions\n")
           cat(     "were found in the Model specification. Iteration speed will\n")
-          cat("     increase if apply functions are 'vectorized'.\n")
-     }
+          cat("     increase if apply functions are vectorized in R or coded\n")
+          cat("     in a faster language such as C++ via the Rcpp package.\n")}
      acount <- length(grep("for", as.character.function(Model)))
      if(acount > 0) {
           cat("Suggestion:", acount, " possible instance(s) of for loops\n")
           cat("     were found in the Model specification. Iteration speed will\n")
-          cat("     increase if for loops are 'vectorized'.\n")
-     }
+          cat("     increase if for loops are vectorized in R or coded in a\n")
+          cat("     faster language such as C++ via the Rcpp package.\n")}
      ###########################  Preparation  ############################
      m.old <- Model(parm, Data)
      if(!is.list(m.old)) stop("Model must return a list.")

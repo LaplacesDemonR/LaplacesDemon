@@ -920,7 +920,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                file=LogFile, append=TRUE)
           cat("     were found in the Model specification. Iteration speed will\n",
                file=LogFile, append=TRUE)
-          cat("     increase if apply functions are 'vectorized'.\n",
+          cat("     increase if apply functions are vectorized in R or coded\n",
+               file=LogFile, append=TRUE)
+          cat("     in a faster language such as C++ via the Rcpp package.\n",
                file=LogFile, append=TRUE)}
      acount <- length(grep("for", as.character.function(Model)))
      if(acount > 0) {
@@ -928,7 +930,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                file=LogFile, append=TRUE)
           cat("     were found in the Model specification. Iteration speed will\n",
                file=LogFile, append=TRUE)
-          cat("     increase if for loops are 'vectorized'.\n",
+          cat("     increase if for loops are vectorized in R or coded in a\n",
+               file=LogFile, append=TRUE)
+          cat("     faster language such as C++ via the Rcpp package.\n",
                file=LogFile, append=TRUE)}
      #########################  Initial Settings  #########################
      Acceptance <- 0

@@ -46,14 +46,13 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
      if(acount > 0) {
           cat("Suggestion:", acount, " possible instance(s) of apply functions\n")
           cat(     "were found in the Model specification. Iteration speed will\n")
-          cat("     increase if apply functions are 'vectorized'.\n")
-          }
+          cat("     increase if apply functions are vectorized in R or coded\n")}
      acount <- length(grep("for", as.character.function(Model)))
      if(acount > 0) {
           cat("Suggestion:", acount, " possible instance(s) of for loops\n")
           cat("     were found in the Model specification. Iteration speed will\n")
-          cat("     increase if for loops are 'vectorized'.\n")
-          }
+          cat("     increase if for loops are vectorized in R or coded in a\n")
+          cat("     faster language such as C++ via the Rcpp package.\n")}
      ### Sample Size of Data
      if(!is.null(Data$n)) if(length(Data$n) == 1) N <- Data$n
      if(!is.null(Data$N)) if(length(Data$N) == 1) N <- Data$N
