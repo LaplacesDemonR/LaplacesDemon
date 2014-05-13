@@ -81,11 +81,10 @@ partial <- function(Model, parm, Data, Interval=1e-6, Method="simple")
      {
      f <- Model(parm, Data)[["LP"]]
      n <- length(parm)
-     case1or3 <- n == length(f)
      if(Method == "simple") {
-          if(case1or3 == TRUE)
+          if(n == 1)
                return({Model(parm + Interval, Data)[["LP"]] - f} / Interval)
-          df <- rep(NA,n)
+          df <- rep(NA, n)
           for (i in 1:n) {
                dx <- parm
                dx[i] <- dx[i] + Interval
@@ -101,7 +100,7 @@ partial <- function(Model, parm, Data, Interval=1e-6, Method="simple")
           a <- matrix(NA, r, n)
           h <- abs(d*parm) + Interval*{abs(parm) < zero.tol}
           for (k in 1:r) {
-               if(case1or3 == TRUE)
+               if(n == 1)
                     a[k,] <- {Model(parm + h, Data)[["LP"]] -
                          Model(parm - h, Data)[["LP"]]} / (2*h)
                else for (i in 1:n) {
