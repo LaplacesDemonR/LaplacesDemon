@@ -11,11 +11,11 @@
    rinvwishart(nu, S)
 }
 \arguments{
-    \item{Sigma}{This is the symmetric, positive-definite
-         \eqn{k \times k}{k x k} matrix \eqn{\Sigma}{Sigma}.}
-    \item{nu}{This is the scalar degrees of freedom, \eqn{\nu}{nu}.}
-    \item{S}{This is the symmetric, positive-semidefinite
-      \eqn{k \times k}{k x k} scale matrix \eqn{\textbf{S}}{S}.}
+  \item{Sigma}{This is the symmetric, positive-definite
+    \eqn{k \times k}{k x k} matrix \eqn{\Sigma}{Sigma}.}
+  \item{nu}{This is the scalar degrees of freedom, \eqn{\nu}{nu}.}
+  \item{S}{This is the symmetric, positive-semidefinite
+    \eqn{k \times k}{k x k} scale matrix \eqn{\textbf{S}}{S}.}
     \item{log}{Logical. If \code{log=TRUE}, then the logarithm of the
     density is returned.}
 }

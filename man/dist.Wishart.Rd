@@ -11,12 +11,12 @@
    rwishart(nu, S)
 }
 \arguments{
-    \item{Omega}{This is the symmetric, positive-definite \eqn{k \times
-	k}{k x k} matrix \eqn{\Omega}{Omega}.}
-    \item{nu}{This is the scalar degrees of freedom \eqn{\nu}{nu}.}
-    \item{S}{This is the symmetric, positive-semidefinite, \eqn{k \times
-	k}{k x k} scale matrix \eqn{\textbf{S}}{S}.}
-    \item{log}{Logical. If \code{log=TRUE}, then the logarithm of the
+  \item{Omega}{This is the symmetric, positive-definite \eqn{k \times
+      k}{k x k} matrix \eqn{\Omega}{Omega}.}
+  \item{nu}{This is the scalar degrees of freedom \eqn{\nu}{nu}.}
+  \item{S}{This is the symmetric, positive-semidefinite, \eqn{k \times
+      k}{k x k} scale matrix \eqn{\textbf{S}}{S}.}
+  \item{log}{Logical. If \code{log=TRUE}, then the logarithm of the
     density is returned.}
 }
 \details{
@@ -85,7 +85,8 @@ Wishart distribution altogether for the more flexible method of Barnard
 et al. (2000) or the horseshoe distribution (\code{\link{dhs}})
 for sparse covariance matrices.
 
-These functions are parameterized as per Gelman et al. (2004).
+C++ versions of \code{dwishart} and \code{rwishart} are in the
+\pkg{LaplacesDemonCpp} package.
 }
 \value{
   \code{dwishart} gives the density and
@@ -103,10 +104,6 @@ These functions are parameterized as per Gelman et al. (2004).
   Daniels, M., and Kass, R. (1999). "Nonconjugate Bayesian Estimation of
   Covariance Matrices and its use in Hierarchical Models". \emph{Journal
   of the American Statistical Association}, 94 (448), p. 1254--1263.
-  
-  Gelman, A., Carlin, J., Stern, H., and Rubin, D. (2004). "Bayesian
-  Data Analysis, Texts in Statistical Science, 2nd ed.". Chapman and
-  Hall, London.
 
   Wishart, J. (1928). "The Generalised Product Moment Distribution in
   Samples from a Normal Multivariate Population". \emph{Biometrika},

@@ -70,7 +70,8 @@ partial(Model, parm, Data, Interval=1e-6, Method="simple")
   \code{partial} function is not intended to be called by the user, but
   is used by other functions. This is essentially the \code{grad}
   function in the numDeriv package, but defaulting to forward
-  finite-differencing with a smaller interval.
+  finite-differencing with a smaller interval. A C++ version of
+  \code{partial} is in the \pkg{LaplacesDemonCpp} package.
 }
 \value{
   \code{logadd} returns the result of \eqn{\log(x+y)}{log(x+y)} or

@@ -51,6 +51,9 @@ interval(x, a=-Inf, b=Inf, reflect=TRUE)
   specification function is faster as well. Nonetheless, there are
   many cases where it is better for the parameter to be constrained to
   an interval.
+
+  A C++ version of \code{interval} is in the \pkg{LaplacesDemonCpp}
+  package.
 }
 \value{
   The \code{interval} function returns a scalar, vector, matrix, or
