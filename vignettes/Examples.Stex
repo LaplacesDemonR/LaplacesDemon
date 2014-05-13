@@ -16,8 +16,8 @@
 
 \Abstract{The \pkg{LaplacesDemon} package is a complete environment for Bayesian inference within \proglang{R}. Virtually any probability model may be specified. This vignette is a compendium of examples of how to specify different model forms.
 }
-\Keywords{Bayesian, Bayesian Inference, Laplace's Demon, LaplacesDemon, R, 
-Statisticat}
+\Keywords{Bayesian, LaplacesDemon, R}
+\Plainkeywords{bayesian, laplacesdemon, r}
 
 %% publication information
 %% NOTE: Typically, this can be left commented and will be filled out by the technical editor
@@ -39,11 +39,13 @@ Statisticat}
 %% need no \usepackage{Sweave.sty}
 
 \begin{document}
-\pkg{LaplacesDemon} \citep{r:laplacesdemon}, usually referred to as Laplace's Demon, is an \proglang{R} package that is available at \url{http://www.bayesian-inference.com/software}. A formal introduction to Laplace's Demon is provided in an accompanying vignette entitled ``\pkg{LaplacesDemon} Tutorial'', and an introduction to Bayesian inference is provided in the ``Bayesian Inference'' vignette.
+\pkg{LaplacesDemon} \citep{r:laplacesdemon}, often referred to as LD, is an \proglang{R} package that is available at \url{http://www.bayesian-inference.com/software}. A formal introduction to \pkg{LaplacesDemon} is provided in an accompanying vignette entitled ``\pkg{LaplacesDemon} Tutorial'', and an introduction to Bayesian inference is provided in the ``Bayesian Inference'' vignette.
 
 The purpose of this document is to provide users of the \pkg{LaplacesDemon} package with examples of a variety of Bayesian methods. It is also a testament to the diverse applicability of \pkg{LaplacesDemon} to Bayesian inference.
 
 To conserve space, the examples are not worked out in detail, and only the minimum of necessary materials is provided for using the various methodologies. Necessary materials include the form expressed in notation, data (which is often simulated), the \code{Model} function, and initial values. The provided data, model specification, and initial values may be copy/pasted into an \proglang{R} file and updated with the \code{LaplacesDemon} or (usually) \code{LaplaceApproximation} functions. Although many of these examples update quickly, some examples are computationally intensive.
+
+All examples are provided in R code, but the model specification function can be in another language. A goal is to provide these example model functions in C++ as well, and some are now available at \url{www.bayesian-inference.com/cpp/LaplacesDemonExamples.txt}.
 
 Initial values are usually hard-coded in the examples, though the Parameter-Generating Function (PGF) is also specified. It is recommended to generate initial values with the \code{GIV} function according to the user-specified \code{PGF}.
 

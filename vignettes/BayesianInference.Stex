@@ -15,8 +15,8 @@
 \Shorttitle{Bayesian Inference} %% a short title (if necessary)
 
 \Abstract{The Bayesian interpretation of probability is one of two broad categories of interpretations. Bayesian inference updates knowledge about unknowns, parameters, with information from data. The \pkg{LaplacesDemon} package is a complete environment for Bayesian inference within \proglang{R}, and this vignette provides an introduction to the topic. This article introduces Bayes' theorem, model-based Bayesian inference, components of Bayesian inference, prior distributions, hierarchical Bayes, conjugacy, likelihood, numerical approximation, prediction, Bayes factors, model fit, posterior predictive checks, and ends by comparing advantages and disadvantages of Bayesian inference.}
-\Keywords{Bayesian, Laplace's Demon, LaplacesDemon, R, Statisticat}
-\Plainkeywords{bayesian, laplace's demon, laplacesdemon, r, statisticat}
+\Keywords{Bayesian, LaplacesDemon, R}
+\Plainkeywords{bayesian, laplacesdemon, r}
 
 %% publication information
 %% NOTE: Typically, this can be left commented and will be filled out by the technical editor
@@ -39,7 +39,7 @@
 
 \begin{document}
 
-This article is an introduction to Bayesian inference for users of the \pkg{LaplacesDemon} package \citep{r:laplacesdemon} in \proglang{R} \citep{rdct:r}, otherwise referred to as Laplace's Demon. A formal introduction to Laplace's Demon is provided in an accompanying vignette entitled ``\pkg{LaplacesDemon} Tutorial''. Merriam-Webster defines `Bayesian' as follows
+This article is an introduction to Bayesian inference for users of the \pkg{LaplacesDemon} package \citep{r:laplacesdemon} in \proglang{R} \citep{rdct:r}, often referred to as LD. A formal introduction to \pkg{LaplacesDemon} is provided in an accompanying vignette entitled ``\pkg{LaplacesDemon} Tutorial''. Merriam-Webster defines `Bayesian' as follows
 
 \begin{quote}
 \textbf{Bayesian} : being, relating to, or involving statistical methods that assign probabilities or distributions to events (as rain tomorrow) or parameters (as a population mean) based on experience or best guesses before experimentation and data collection and that apply Bayes' theorem to revise the probabilities and distributions after obtaining experimental data. 
