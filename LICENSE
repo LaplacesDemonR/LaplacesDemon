@@ -2,7 +2,7 @@ The LaplacesDemon package uses the MIT license. The TR method in the
 LaplaceApproximation function is derived from the trust function in
 package trust, which is copyrighted by Charles Geyer.
 
-Copyright (c) 2010-2013 Statisticat, LLC
+Copyright (c) 2010-2014 Statisticat, LLC
 Copyright (c) 2005 Charles J. Geyer
 
 Permission is hereby granted, free of charge, to any person obtaining
