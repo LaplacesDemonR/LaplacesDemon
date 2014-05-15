@@ -83,68 +83,69 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
      ####################  Begin Laplace Approximation  ###################
      cat("Laplace Approximation begins...\n")
      if(Method == "AGA") {
-          LA <- AGA(Model, parm, Data, Interval, Iterations,
+          LA <- .laaga(Model, parm, Data, Interval, Iterations,
                Stop.Tolerance, m.old)
           }
      else if(Method == "BFGS") {
-          LA <- BFGS(Model, parm, Data, Interval, Iterations,
+          LA <- .labfgs(Model, parm, Data, Interval, Iterations,
                Stop.Tolerance, m.old)
           }
      else if(Method == "BHHH") {
-          LA <- BHHH(Model, parm, Data, Interval, Iterations,
+          LA <- .labhhh(Model, parm, Data, Interval, Iterations,
                Stop.Tolerance, m.old)
           }
      else if(Method == "CG") {
-          LA <- CG(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
+          LA <- .lacg(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
           }
      else if(Method == "DFP") {
-          LA <- DFP(Model, parm, Data, Interval, Iterations,
+          LA <- .ladfp(Model, parm, Data, Interval, Iterations,
                Stop.Tolerance, m.old)
           }
      else if(Method == "HAR") {
-          LA <- HAR(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
+          LA <- .lahar(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
           }
      else if(Method == "HJ") {
-          LA <- HJ(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
+          LA <- .lahj(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
                m.old)
           }
      else if(Method == "LBFGS") {
-          LA <- LBFGS(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
+          LA <- .lalbfgs(Model, parm, Data, Iterations, Stop.Tolerance,
+               m.old)
           }
      else if(Method == "LM") {
-          LA <- LMA(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
+          LA <- .lalm(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
           }
      else if(Method == "NM") {
-          LA <- NM(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
+          LA <- .lanm(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
           }
      else if(Method == "NR") {
-          LA <- NR(Model, parm, Data, Interval, Iterations,
+          LA <- .lanr(Model, parm, Data, Interval, Iterations,
                Stop.Tolerance, m.old)
           }
      else if(Method == "PSO") {
-          LA <- PSO(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
+          LA <- .lapso(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
           }
      else if(Method == "Rprop") {
-          LA <- Rprop(Model, parm, Data, Interval, Iterations,
+          LA <- .larprop(Model, parm, Data, Interval, Iterations,
                Stop.Tolerance, m.old)
           }
      else if(Method == "SGD") {
-          LA <- SGD(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
+          LA <- .lasgd(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
           }
      else if(Method == "SOMA") {
-          LA <- SOMA(Model, parm, Data,
+          LA <- .lasoma(Model, parm, Data,
                options=list(maxiter=Iterations, tol=Stop.Tolerance))
           }
      else if(Method == "SPG") {
-          LA <- SPG(Model, parm, Data, Interval, Iterations,
+          LA <- .laspg(Model, parm, Data, Interval, Iterations,
                Stop.Tolerance, m.old)
           }
      else if(Method == "SR1") {
-          LA <- SR1(Model, parm, Data, Interval, Iterations,
+          LA <- .lasr1(Model, parm, Data, Interval, Iterations,
                Stop.Tolerance, m.old)
           }
      else if(Method == "TR") {
-          LA <- TR(Model, parm, Data, Iterations, m.old)
+          LA <- .latr(Model, parm, Data, Iterations, m.old)
           }
      Dev <- as.vector(LA$Dev)
      if(is.null(LA$H)) H <- FALSE
@@ -273,7 +274,7 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
      cat("Laplace Approximation is finished.\n\n")
      return(LA)
      }
-AGA <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
+.laaga <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
      m.old)
      {
      alpha.star <- 0.234
@@ -327,8 +328,8 @@ AGA <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
           tol.new=tol.new)
      return(LA)
      }
-BFGS <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
-     m.old) {
+.labfgs <- function(Model, parm, Data, Interval, Iterations,
+     Stop.Tolerance, m.old) {
      m.new <- m.old
      Dev <- matrix(m.old[["Dev"]],1,1)
      parm.old <- parm
@@ -389,7 +390,7 @@ BFGS <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
           Step.Size=Step.Size, tol.new=tol.new)
      return(LA)
      }
-BHHH <- function(Model, parm, Data, Interval, Iterations=100,
+.labhhh <- function(Model, parm, Data, Interval, Iterations=100,
      Stop.Tolerance, m.old)
      {
      ### Check data for X and y or Y
@@ -457,7 +458,7 @@ BHHH <- function(Model, parm, Data, Interval, Iterations=100,
           Step.Size=Step.Size, tol.new=tol.new)
      return(LA)
      }
-CG <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
+.lacg <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
      {
      m.best <- m.new <- m.old
      parm.len <- length(parm)
@@ -625,7 +626,7 @@ CG <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
           Step.Size=steplength, tol.new=tol.new)
      return(LA)
      }
-DFP <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
+.ladfp <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
      m.old) {
      m.new <- m.old
      Dev <- matrix(m.old[["Dev"]],1,1)
@@ -685,7 +686,7 @@ DFP <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
           Step.Size=Step.Size, tol.new=tol.new)
      return(LA)
      }
-HAR <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
+.lahar <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
      {
      alpha.star <- 0.234
      tau <- 1
@@ -735,7 +736,7 @@ HAR <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
           tol.new=tol.new)
      return(LA)
      }
-HJ <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
+.lahj <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
      m.old)
      {
      Dev <- matrix(m.old[["Dev"]],1,1)
@@ -754,13 +755,13 @@ HJ <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
      fx <- f(x, Data)
      fcount <- 1
      ###  Search with a single scale
-     .hjsearch <- function(xb, f, h, dir, fcount, Data)
+     .lahjsearch <- function(xb, f, h, dir, fcount, Data)
           {
           x  <- xb
           xc <- x
           sf <- 0
           finc <- 0
-          hje  <- .hjexplore(xb, xc, f, h, dir, Data=Data)
+          hje  <- .lahjexplore(xb, xc, f, h, dir, Data=Data)
           x    <- hje$x
           fx   <- hje$fx
           sf   <- hje$sf
@@ -771,13 +772,13 @@ HJ <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
                xb <- x
                xc <- x + d
                fb <- fx
-               hje  <- .hjexplore(xb, xc, f, h, dir, fb, Data)
+               hje  <- .lahjexplore(xb, xc, f, h, dir, fb, Data)
                x    <- hje$x
                fx   <- hje$fx
                sf   <- hje$sf
                finc <- finc + hje$numf
                if(sf == 0) {  # pattern move failed
-                    hje  <- .hjexplore(xb, xb, f, h, dir, fb, Data)
+                    hje  <- .lahjexplore(xb, xb, f, h, dir, fb, Data)
                     x    <- hje$x
                     fx   <- hje$fx
                     sf   <- hje$sf
@@ -786,7 +787,7 @@ HJ <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
           return(list(x=x, fx=fx, sf=sf, finc=finc))
           }
      ###  Exploratory move
-     .hjexplore <- function(xb, xc, f, h, dir, fbold, Data)
+     .lahjexplore <- function(xb, xc, f, h, dir, fbold, Data)
           {
           n <- length(xb)
           x <- xb
@@ -830,7 +831,7 @@ HJ <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
           if(iter %% round(Iterations / 10) == 0)
                cat("Iteration: ", iter, " of ", Iterations,
                     ",   LP: ", round(fx[["LP"]],1), "\n")
-          hjs <- .hjsearch(x, f, steps[iter], dir, fcount, Data)
+          hjs <- .lahjsearch(x, f, steps[iter], dir, fcount, Data)
           x <- hjs$x
           fx <- hjs$fx
           sf <- hjs$sf
@@ -847,7 +848,7 @@ HJ <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
           tol.new=tol.new)
      return(LA)
      }
-LBFGS <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
+.lalbfgs <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
      {
      Dev <- matrix(m.old[["Dev"]],1,1)
      parm.len <- length(as.vector(parm))
@@ -886,7 +887,7 @@ LBFGS <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
           tol.new=tol.new)
      return(LA)
      }
-LMA <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
+.lalm <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
      {
      Norm <- function(x, p=2) {
           stopifnot(is.numeric(x) || is.complex(x), is.numeric(p),
@@ -974,7 +975,7 @@ LMA <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
           parm.old=parm, post=post, Step.Size=nh, tol.new=tol.new)
      return(LA)
      }
-NM <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
+.lanm <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
      {
      Dev <- matrix(m.old[["Dev"]],1,1)
      n <- length(as.vector(parm))
@@ -1080,7 +1081,7 @@ NM <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
           tol.new=Y[hi] - Y[lo])
      return(LA)
      }
-NR <- function(Model, parm, Data, Interval, Iterations=100, Stop.Tolerance,
+.lanr <- function(Model, parm, Data, Interval, Iterations=100, Stop.Tolerance,
      m.old)
      {
      m.new <- m.old
@@ -1178,7 +1179,7 @@ NR <- function(Model, parm, Data, Interval, Iterations=100, Stop.Tolerance,
           tol.new=tol.new)
      return(LA)
      }
-PSO <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
+.lapso <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
      {
      Dev <- matrix(m.old[["Dev"]],1,1)
      LP <- NA
@@ -1256,8 +1257,8 @@ PSO <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
           tol.new=tol.new)
      return(LA)
      }
-Rprop <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
-     m.old)
+.larprop <- function(Model, parm, Data, Interval, Iterations,
+     Stop.Tolerance, m.old)
      {
      Dev <- matrix(m.old[["Dev"]],1,1)
      parm.len <- length(as.vector(parm))
@@ -1312,7 +1313,7 @@ Rprop <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
           tol.new=tol.new)
      return(LA)
      }
-SGD <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
+.lasgd <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
      {
      Dev <- matrix(m.old[["Dev"]],1,1)
      m.new <- m.old
@@ -1364,7 +1365,7 @@ SGD <- function(Model, parm, Data, Iterations, Stop.Tolerance, m.old)
           tol.new=tol.new)
      return(LA)
      }
-SOMA <- function(Model, parm, Data, bounds, options=list())
+.lasoma <- function(Model, parm, Data, bounds, options=list())
      {
      ### Initial Checks
      if(missing(bounds)) {
@@ -1470,7 +1471,7 @@ SOMA <- function(Model, parm, Data, bounds, options=list())
          tol.new=signif(LPdiff,3))
     return(LA)
     }
-SPG <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
+.laspg <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
      m.old)
      {
      parm.old <- parm
@@ -1602,7 +1603,7 @@ SPG <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
           tol.new=pginfn)
      return(LA)
      }
-SR1 <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
+.lasr1 <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
      m.old) {
      m.new <- m.old
      Dev <- matrix(m.old[["Dev"]],1,1)
@@ -1664,7 +1665,7 @@ SR1 <- function(Model, parm, Data, Interval, Iterations, Stop.Tolerance,
           Step.Size=Step.Size, tol.new=tol.new)
      return(LA)
      }
-TR <- function(Model, parm, Data, Iterations, m.old)
+.latr <- function(Model, parm, Data, Iterations, m.old)
      {
      fterm <- sqrt(.Machine$double.eps)
      mterm <- sqrt(.Machine$double.eps)

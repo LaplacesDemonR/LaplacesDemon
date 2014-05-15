@@ -129,15 +129,15 @@ IterativeQuadrature <- function(Model, parm, Data, Covar=NULL,
      cat("Algorithm:", Algorithm, "\n")
      cat("\nIterativeQuadrature is beginning to update...\n")
      if(Algorithm == "Adaptive Gauss-Hermite") {
-          IQ <- AGH(Model, parm, Data, Covar, Iterations,
+          IQ <- .iqagh(Model, parm, Data, Covar, Iterations,
                Stop.Tolerance, CPUs, m.old, N, Nmax, Packages, Dyn.libs)
           }
      else if(Algorithm == "Adaptive Gauss-Hermite Sparse Grid") {
-          IQ <- AGHSG(Model, parm, Data, Covar, Iterations,
+          IQ <- .iqaghsg(Model, parm, Data, Covar, Iterations,
                Stop.Tolerance, CPUs, m.old, K, Kmax, Packages, Dyn.libs)
           }
      else if(Algorithm == "Componentwise Adaptive Gauss-Hermite") {
-          IQ <- CAGH(Model, parm, Data, Covar, Iterations,
+          IQ <- .iqcagh(Model, parm, Data, Covar, Iterations,
                Stop.Tolerance, CPUs, m.old, N, Nmax, Packages, Dyn.libs)
           }
      VarCov <- IQ$Covar
@@ -266,7 +266,7 @@ IterativeQuadrature <- function(Model, parm, Data, Covar=NULL,
      cat("\nIterativeQuadrature is finished.\n")
      return(IQ)
      }
-AGH <- function(Model, parm, Data, Covar, Iterations, Stop.Tolerance,
+.iqagh <- function(Model, parm, Data, Covar, Iterations, Stop.Tolerance,
      CPUs, m.old, N, Nmax, Packages, Dyn.libs)
      {
      if(CPUs == 1) {
@@ -470,7 +470,7 @@ AGH <- function(Model, parm, Data, Covar, Iterations, Stop.Tolerance,
           mu=mu, N=n, parm.old=parm.old, tol=tol, Z=Z)
      return(IQ)
      }
-AGHSG <- function(Model, parm, Data, Covar, Iterations, Stop.Tolerance,
+.iqaghsg <- function(Model, parm, Data, Covar, Iterations, Stop.Tolerance,
      CPUs, m.old, K, Kmax, Packages, Dyn.libs)
      {
      if(CPUs == 1) {
@@ -670,7 +670,7 @@ AGHSG <- function(Model, parm, Data, Covar, Iterations, Stop.Tolerance,
           mu=mu, N=N, parm.old=parm.old, tol=tol, Z=Z)
      return(IQ)
      }
-CAGH <- function(Model, parm, Data, Covar, Iterations, Stop.Tolerance,
+.iqcagh <- function(Model, parm, Data, Covar, Iterations, Stop.Tolerance,
      CPUs, m.old, N, Nmax, Packages, Dyn.libs)
      {
      if(CPUs == 1) {

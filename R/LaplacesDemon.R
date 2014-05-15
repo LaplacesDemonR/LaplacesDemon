@@ -1094,173 +1094,173 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      cat("\nLaplace's Demon is beginning to update...\n", file=LogFile,
           append=TRUE)
      if(Algorithm == "Adaptive Directional Metropolis-within-Gibbs") {
-          mcmc.out <- ADMG(Model, Data, Iterations, Status, Thinning,
+          mcmc.out <- .mcmcadmg(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
                thinned, VarCov, LogFile)}
      else if(Algorithm == "Adaptive Griddy-Gibbs") {
-          mcmc.out <- AGG(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               tuning, LogFile)}
+          mcmc.out <- .mcmcagg(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, tuning, LogFile)}
      else if(Algorithm == "Adaptive Hamiltonian Monte Carlo") {
-          mcmc.out <- AHMC(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               LogFile)}
+          mcmc.out <- .mcmcahmc(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, LogFile)}
      else if(Algorithm == "Affine-Invariant Ensemble Sampler") {
-          mcmc.out <- AIES(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               LogFile)}
+          mcmc.out <- .mcmcaies(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, LogFile)}
      else if(Algorithm == "Adaptive Metropolis") {
-          mcmc.out <- AM(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               tuning, VarCov, LogFile)}
+          mcmc.out <- .mcmcam(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, tuning, VarCov, LogFile)}
      else if(Algorithm == "Adaptive-Mixture Metropolis" & !is.list(VarCov)) {
-          mcmc.out <- AMM(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               tuning, VarCov, LogFile)}
+          mcmc.out <- .mcmcamm(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, tuning, VarCov, LogFile)}
      else if(Algorithm == "Adaptive-Mixture Metropolis" & is.list(VarCov)) {
-          mcmc.out <- AMM.B(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               tuning, VarCov, LogFile)}
+          mcmc.out <- .mcmcamm.b(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, tuning, VarCov, LogFile)}
      else if(Algorithm == "Adaptive Metropolis-within-Gibbs") {
-          mcmc.out <- AMWG(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               tuning, LogFile)}
+          mcmc.out <- .mcmcamwg(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, tuning, LogFile)}
      else if(Algorithm == "Componentwise Hit-And-Run Metropolis") {
-          mcmc.out <- CHARM(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               LogFile)}
+          mcmc.out <- .mcmccharm(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, LogFile)}
      else if(Algorithm == "Delayed Rejection Adaptive Metropolis") {
-          mcmc.out <- DRAM(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               tuning, VarCov, LogFile)}
+          mcmc.out <- .mcmcdram(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, tuning, VarCov, LogFile)}
      else if(Algorithm == "Delayed Rejection Metropolis") {
-          mcmc.out <- DRM(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               tuning, VarCov, LogFile)}
+          mcmc.out <- .mcmcdrm(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, tuning, VarCov, LogFile)}
      else if(Algorithm == "Differential Evolution Markov Chain") {
-          mcmc.out <- DEMC(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               LogFile)}
+          mcmc.out <- .mcmcdemc(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, LogFile)}
      else if(Algorithm == "Elliptical Slice Sampler") {
-          mcmc.out <- Ess(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               VarCov, LogFile)}
+          mcmc.out <- .mcmcess(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, VarCov, LogFile)}
      else if(Algorithm == "Experimental") {
-#          mcmc.out <- Experimental(Model, Data, Iterations, Status,
+#          mcmc.out <- .mcmcexperimental(Model, Data, Iterations, Status,
 #               Thinning, Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0,
 #               ScaleF, thinned, LogFile)}
           stop("Experimental function not found.", file=LogFile,
                append=TRUE)}
      else if(Algorithm == "Gibbs Sampler") {
-          mcmc.out <- Gibbs(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               tuning, LogFile)}
+          mcmc.out <- .mcmcgibbs(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, tuning, LogFile)}
      else if(Algorithm == "Griddy-Gibbs") {
-          mcmc.out <- GG(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               LogFile)}
+          mcmc.out <- .mcmcgg(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, LogFile)}
      else if(Algorithm == "Hamiltonian Monte Carlo") {
-          mcmc.out <- HMC(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               VarCov, LogFile)}
+          mcmc.out <- .mcmchmc(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, VarCov, LogFile)}
      else if(Algorithm == "Hamiltonian Monte Carlo with Dual-Averaging") {
-          mcmc.out <- HMCDA(Model, Data, Iterations, Status, Thinning,
+          mcmc.out <- .mcmchmcda(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
                thinned, LogFile)}
      else if(Algorithm == "Hit-And-Run Metropolis") {
-          mcmc.out <- HARM(Model, Data, Iterations, Status, Thinning,
+          mcmc.out <- .mcmcharm(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
                thinned, LogFile)}
      else if(Algorithm == "Independence Metropolis") {
-          mcmc.out <- IM(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               VarCov, LogFile)}
+          mcmc.out <- .mcmcim(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, VarCov, LogFile)}
      else if(Algorithm == "Interchain Adaptation") {
-          mcmc.out <- INCA(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               tuning, VarCov, LogFile)}
+          mcmc.out <- .mcmcinca(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, tuning, VarCov, LogFile)}
      else if(Algorithm == "Metropolis-Adjusted Langevin Algorithm") {
-          mcmc.out <- MALA(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               VarCov, LogFile)}
+          mcmc.out <- .mcmcmala(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, VarCov, LogFile)}
      else if(Algorithm == "Metropolis-Coupled Markov Chain Monte Carlo") {
-          mcmc.out <- MCMCMC(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               tuning, VarCov, LogFile)}
+          mcmc.out <- .mcmcmcmcmc(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, tuning, VarCov, LogFile)}
      else if(Algorithm == "Multiple-Try Metropolis") {
-          mcmc.out <- MTM(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, thinned, tuning,
-               LogFile)}
-     else if(Algorithm == "Metropolis-within-Gibbs") {
-          mcmc.out <- MWG(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
+          mcmc.out <- .mcmcmtm(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, thinned,
                tuning, LogFile)}
+     else if(Algorithm == "Metropolis-within-Gibbs") {
+          mcmc.out <- .mcmcmwg(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, tuning, LogFile)}
      else if(Algorithm == "No-U-Turn Sampler") {
-          mcmc.out <- NUTS(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               LogFile)}
+          mcmc.out <- .mcmcnuts(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, LogFile)}
      else if(Algorithm == "Oblique Hyperrectangle Slice Sampler") {
-          mcmc.out <- OHSS(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               VarCov, LogFile)}
+          mcmc.out <- .mcmcohss(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, VarCov, LogFile)}
      else if(Algorithm == "Random Dive Metropolis-Hastings") {
-          mcmc.out <- RDMH(Model, Data, Iterations, Status, Thinning,
+          mcmc.out <- .mcmcrdmh(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
                thinned, LogFile)}
      else if(Algorithm == "Random-Walk Metropolis") {
-          mcmc.out <- RWM(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               tuning, VarCov, LogFile)}
+          mcmc.out <- .mcmcrwm(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, tuning, VarCov, LogFile)}
      else if(Algorithm == "Refractive Sampler") {
-          mcmc.out <- Refractive(Model, Data, Iterations, Status, Thinning,
-               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, thinned,
-               LogFile)}
+          mcmc.out <- .mcmcrefractive(Model, Data, Iterations, Status,
+               Thinning, Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0,
+               thinned, LogFile)}
      else if(Algorithm == "Reflective Slice Sampler") {
-          mcmc.out <- RSS(Model, Data, Iterations, Status, Thinning,
+          mcmc.out <- .mcmcrss(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, thinned,
                LogFile)}
      else if(Algorithm == "Reversible-Jump") {
-          mcmc.out <- RJ(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               LogFile)}
+          mcmc.out <- .mcmcrj(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, LogFile)}
      else if(Algorithm == "Robust Adaptive Metropolis") {
-          mcmc.out <- RAM(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               VarCov, LogFile)}
+          mcmc.out <- .mcmcram(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, VarCov, LogFile)}
      else if(Algorithm == "Sequential Adaptive Metropolis-within-Gibbs") {
-          mcmc.out <- SAMWG(Model, Data, Iterations, Status, Thinning,
+          mcmc.out <- .mcmcsamwg(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
                thinned, tuning, parm.names=Data$parm.names, LogFile)}
      else if(Algorithm == "Sequential Metropolis-within-Gibbs") {
-          mcmc.out <- SMWG(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               tuning, parm.names=Data$parm.names, LogFile)}
+          mcmc.out <- .mcmcsmwg(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, tuning, parm.names=Data$parm.names, LogFile)}
      else if(Algorithm == "Stochastic Gradient Langevin Dynamics") {
-          mcmc.out <- SGLD(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               LogFile)}
+          mcmc.out <- .mcmcsgld(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, LogFile)}
      else if(Algorithm == "Slice Sampler") {
-          mcmc.out <- Slice(Model, Data, Iterations, Status, Thinning,
+          mcmc.out <- .mcmcslice(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
                thinned, LogFile)}
      else if(Algorithm == "Tempered Hamiltonian Monte Carlo") {
-          mcmc.out <- THMC(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               LogFile)}
+          mcmc.out <- .mcmcthmc(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, LogFile)}
      else if(Algorithm == "t-walk") {
-          mcmc.out <- twalk(Model, Data, Iterations, Status, Thinning,
+          mcmc.out <- .mcmctwalk(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
                thinned, LogFile)}
      else if(Algorithm == "Univariate Eigenvector Slice Sampler") {
-          mcmc.out <- UESS(Model, Data, Iterations, Status, Thinning, Specs,
-               Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-               VarCov, LogFile)}
+          mcmc.out <- .mcmcuess(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, VarCov, LogFile)}
      else if(Algorithm == "Updating Sequential Adaptive Metropolis-within-Gibbs") {
-          mcmc.out <- USAMWG(Model, Data, Iterations, Status, Thinning,
+          mcmc.out <- .mcmcusamwg(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
                thinned, tuning, parm.names=Data$parm.names, LogFile)}
      else if(Algorithm == "Updating Sequential Metropolis-within-Gibbs") {
-          mcmc.out <- USMWG(Model, Data, Iterations, Status, Thinning,
+          mcmc.out <- .mcmcusmwg(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
                thinned, tuning, parm.names=Data$parm.names, LogFile)}
      else stop("The algorithm is unrecognized.", file=LogFile, append=TRUE)
@@ -1500,7 +1500,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      cat("\nLaplace's Demon has finished.\n", file=LogFile, append=TRUE)
      return(LaplacesDemon.out)
      }
-ADMG <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcadmg <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, VarCov,
      LogFile)
      {
@@ -1571,7 +1571,7 @@ ADMG <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=VarCov)
      return(out)
      }
-AGG <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcagg <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
      LogFile)
      {
@@ -1654,7 +1654,7 @@ AGG <- function(Model, Data, Iterations, Status, Thinning, Specs,
                          round(Mo0[["LP"]],1), "\n", sep="",
                          file=LogFile, append=TRUE)
                for (j in sample(LIV)) {
-                    if(j %in% dparm) Mo0 <- GGDP(Model, Data, j, Mo0, Grid)
+                    if(j %in% dparm) Mo0 <- .mcmcggdp(Model, Data, j, Mo0, Grid)
                     else {
                          agg <- AGGCP(Model, Data, j, Mo0, Grid, tuning,
                               smax)
@@ -1698,7 +1698,7 @@ AGG <- function(Model, Data, Iterations, Status, Thinning, Specs,
                          file=LogFile, append=TRUE)
                for (j in sample(LIV)) {
                     if(j %in% dparm)
-                         Mo0 <- GGDPP(Model, Data, j, Mo0, Grid, cl)
+                         Mo0 <- .mcmcggdpp(Model, Data, j, Mo0, Grid, cl)
                     else {
                          agg <- AGGCPP(Model, Data, j, Mo0, Grid,
                               tuning, smax, cl)
@@ -1716,7 +1716,7 @@ AGG <- function(Model, Data, Iterations, Status, Thinning, Specs,
           Mon=Mon, thinned=thinned, VarCov=apply(thinned, 2, var))
      return(out)
      }
-AHMC <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcahmc <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, LogFile)
      {
      epsilon <- Specs[["epsilon"]]
@@ -1797,7 +1797,7 @@ AHMC <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=apply(thinned, 2, var))
      return(out)
      }
-AIES <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcaies <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, LogFile)
      {
      Nc <- Specs[["Nc"]]
@@ -1956,7 +1956,7 @@ AIES <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=apply(thinned, 2, var))
      return(out)
      }
-AM <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcam <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
      VarCov, LogFile)
      {
@@ -2038,7 +2038,7 @@ AM <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=VarCov)
      return(out)
      }
-AMM <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcamm <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
      VarCov, LogFile)
      {
@@ -2111,7 +2111,7 @@ AMM <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=VarCov)
      return(out)
      }
-AMM.B <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcamm.b <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
      VarCov, LogFile)
      {
@@ -2200,7 +2200,7 @@ AMM.B <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=VarCov)
      return(out)
      }
-AMWG <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcamwg <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
      LogFile)
      {
@@ -2257,7 +2257,7 @@ AMWG <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=tuning)
      return(out)
      }
-CHARM <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmccharm <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, LogFile)
      {
      alpha.star <- Specs[["alpha.star"]]
@@ -2365,7 +2365,7 @@ CHARM <- function(Model, Data, Iterations, Status, Thinning, Specs,
           return(out)
           }
      }
-DEMC <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcdemc <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, LogFile)
      {
      Nc <- Specs[["Nc"]]
@@ -2455,7 +2455,7 @@ DEMC <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=apply(thinned, 2, var))
      return(out)
      }
-DRAM <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcdram <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
      VarCov, LogFile)
      {
@@ -2574,7 +2574,7 @@ DRAM <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=VarCov)
      return(out)
      }
-DRM <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcdrm <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
      VarCov, LogFile)
      {
@@ -2671,7 +2671,7 @@ DRM <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=VarCov)
      return(out)
      }
-Ess <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcess <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, VarCov,
      LogFile)
      {
@@ -2792,7 +2792,7 @@ Ess <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=cov(thinned))
      return(out)
      }
-Gibbs <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcgibbs <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
      LogFile)
      {
@@ -2852,7 +2852,7 @@ Gibbs <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=tuning)
      return(out)
      }
-GG <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcgg <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, LogFile)
      {
      Grid <- Specs[["Grid"]]
@@ -2868,8 +2868,8 @@ GG <- function(Model, Data, Iterations, Status, Thinning, Specs,
                          round(Mo0[["LP"]],1), "\n", sep="",
                          file=LogFile, append=TRUE)
                for (j in sample(LIV)) {
-                    if(j %in% dparm) Mo0 <- GGDP(Model, Data, j, Mo0, Grid)
-                    else Mo0 <- GGCP(Model, Data, j, Mo0, Grid)
+                    if(j %in% dparm) Mo0 <- .mcmcggdp(Model, Data, j, Mo0, Grid)
+                    else Mo0 <- .mcmcggcp(Model, Data, j, Mo0, Grid)
                     }
                if(iter %% Thinning == 0) {
                     t.iter <- floor(iter/Thinning) + 1
@@ -2908,8 +2908,8 @@ GG <- function(Model, Data, Iterations, Status, Thinning, Specs,
                          file=LogFile, append=TRUE)
                for (j in sample(LIV)) {
                     if(j %in% dparm)
-                         Mo0 <- GGDPP(Model, Data, j, Mo0, Grid, cl)
-                    else Mo0 <- GGCPP(Model, Data, j, Mo0, Grid, cl)
+                         Mo0 <- .mcmcggdpp(Model, Data, j, Mo0, Grid, cl)
+                    else Mo0 <- .mcmcggcpp(Model, Data, j, Mo0, Grid, cl)
                     }
                if(iter %% Thinning == 0) {
                     t.iter <- floor(iter/Thinning) + 1
@@ -2921,7 +2921,7 @@ GG <- function(Model, Data, Iterations, Status, Thinning, Specs,
      return(out)
      }
 ### Griddy-Gibbs Continuous Parameter (Non-Parallelized)
-GGCP <- function(Model, Data, j, Mo0, Grid)
+.mcmcggcp <- function(Model, Data, j, Mo0, Grid)
      {
      G <- length(Grid[[j]])
      LP.grid <- rep(0, G)
@@ -2948,7 +2948,7 @@ GGCP <- function(Model, Data, j, Mo0, Grid)
      return(Mo0)
      }
 ### Griddy-Gibbs Continuous Parameter (Parallelized)
-GGCPP <- function(Model, Data, j, Mo0, Grid, cl)
+.mcmcggcpp <- function(Model, Data, j, Mo0, Grid, cl)
      {
      G <- length(Grid[[j]])
      LP.grid <- rep(0, G)
@@ -2980,7 +2980,7 @@ GGCPP <- function(Model, Data, j, Mo0, Grid, cl)
      }
 ### Griddy-Gibbs Discrete Parameter (Non-Parallelized)
 #where j is which parameter, and Grid are discrete values
-GGDP <- function(Model, Data, j, Mo0, Grid)
+.mcmcggdp <- function(Model, Data, j, Mo0, Grid)
      {
      G <- length(Grid[[j]])
      LP.grid <- rep(0, G)
@@ -3003,7 +3003,7 @@ GGDP <- function(Model, Data, j, Mo0, Grid)
      return(Mo0)
      }
 ### Griddy-Gibbs Discrete Parameter (Parallelized)
-GGDPP <- function(Model, Data, j, Mo0, Grid, cl)
+.mcmcggdpp <- function(Model, Data, j, Mo0, Grid, cl)
      {
      G <- length(Grid[[j]])
      LP.grid <- rep(0, G)
@@ -3029,7 +3029,7 @@ GGDPP <- function(Model, Data, j, Mo0, Grid, cl)
      Mo0 <- Mo1
      return(Mo0)
      }
-HARM <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcharm <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
      LogFile)
      {
@@ -3255,7 +3255,7 @@ HARM <- function(Model, Data, Iterations, Status, Thinning, Specs,
           return(out)
           }
      }
-HMC <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmchmc <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, VarCov,
      LogFile)
      {
@@ -3322,7 +3322,7 @@ HMC <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=apply(thinned, 2, var))
      return(out)
      }
-HMCDA <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmchmcda <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, LogFile)
      {
      A <- Specs[["A"]]
@@ -3460,7 +3460,7 @@ HMCDA <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=apply(thinned, 2, var))
      return(out)
      }
-IM <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcim <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, VarCov,
      LogFile)
      {
@@ -3522,7 +3522,7 @@ IM <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=cov(thinned))
      return(out)
      }
-INCA <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcinca <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
      VarCov, LogFile)
      {
@@ -3645,7 +3645,7 @@ INCA <- function(Model, Data, Iterations, Status, Thinning, Specs,
                  VarCov=VarCov)
      return(out)
      }
-MALA <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcmala <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
      VarCov, LogFile)
      {
@@ -3722,7 +3722,7 @@ MALA <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=Lambda)
      return(out)
      }
-MCMCMC <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcmcmcmc <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
      VarCov, LogFile)
      {
@@ -3826,7 +3826,7 @@ MCMCMC <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=VarCov)
      return(out)
      }
-MTM <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcmtm <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, thinned, tuning, LogFile)
      {
      K <- Specs[["K"]]
@@ -3953,7 +3953,7 @@ MTM <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=apply(thinned, 2, var))
      return(out)
      }
-MWG <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcmwg <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
      LogFile)
      {
@@ -3999,7 +3999,7 @@ MWG <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=tuning)
      return(out)
      }
-NUTS <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcnuts <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, LogFile)
      {
      A <- Specs[["A"]]
@@ -4297,7 +4297,7 @@ NUTS <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=apply(thinned, 2, var))
      return(out)
      }
-OHSS <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcohss <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
      VarCov, LogFile)
      {
@@ -4363,7 +4363,7 @@ OHSS <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=cov(thinned))
      return(out)
      }
-RAM <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcram <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, VarCov,
      LogFile)
      {
@@ -4443,7 +4443,7 @@ RAM <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=VarCov)
      return(out)
      }
-RDMH <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcrdmh <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
      LogFile)
      {
@@ -4492,8 +4492,8 @@ RDMH <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=apply(thinned,2,var))
      return(out)
      }
-Refractive <- function(Model, Data, Iterations, Status, Thinning, Specs,
-     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, thinned, LogFile)
+.mcmcrefractive <- function(Model, Data, Iterations, Status, Thinning,
+     Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, thinned, LogFile)
      {
      Adaptive <- Specs[["Adaptive"]]
      m <- Specs[["m"]]
@@ -4574,7 +4574,7 @@ Refractive <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=apply(thinned, 2, var))
      return(out)
      }
-RJ <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcrj <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, LogFile)
      {
      bin.n <- Specs[["bin.n"]]
@@ -4668,7 +4668,7 @@ RJ <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=apply(thinned, 2, var))
      return(out)
      }
-RSS <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcrss <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, thinned, LogFile)
      {
      m <- Specs[["m"]]
@@ -4724,7 +4724,7 @@ RSS <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=apply(thinned, 2, var))
      return(out)
      }
-RWM <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcrwm <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
      VarCov, LogFile)
      {
@@ -4824,7 +4824,7 @@ RWM <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=VarCov)
      return(out)
      }
-SAMWG <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcsamwg <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
      parm.names, LogFile)
      {
@@ -4892,7 +4892,7 @@ SAMWG <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=tuning)
      return(out)
      }
-SGLD <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcsgld <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, LogFile)
      {
      epsilon <- Specs[["epsilon"]]
@@ -4945,7 +4945,7 @@ SGLD <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=apply(thinned, 2, var))
      return(out)
      }
-Slice <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcslice <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, LogFile)
      {
      m <- Specs[["m"]]
@@ -5058,7 +5058,7 @@ Slice <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=apply(thinned, 2, var))
      return(out)
      }
-SMWG <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcsmwg <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
      parm.names, LogFile)
      {
@@ -5115,7 +5115,7 @@ SMWG <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=tuning)
      return(out)
      }
-THMC <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcthmc <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, LogFile)
      {
      epsilon <- Specs[["epsilon"]]
@@ -5185,7 +5185,7 @@ THMC <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=apply(thinned, 2, var))
      return(out)
      }
-twalk <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmctwalk <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, LogFile)
      {
      xp0 <- SIV <- Specs[["SIV"]]
@@ -5561,7 +5561,7 @@ twalk <- function(Model, Data, Iterations, Status, Thinning, Specs,
      ### Output
      return(out)
      }
-UESS <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcuess <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
      VarCov, LogFile)
      {
@@ -5643,7 +5643,7 @@ UESS <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=cov(thinned))
      return(out)
      }
-USAMWG <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcusamwg <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
      parm.names, LogFile)
      {
@@ -5723,7 +5723,7 @@ USAMWG <- function(Model, Data, Iterations, Status, Thinning, Specs,
           VarCov=tuning)
      return(out)
      }
-USMWG <- function(Model, Data, Iterations, Status, Thinning, Specs,
+.mcmcusmwg <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
      parm.names, LogFile)
      {
