@@ -1,3 +1,4 @@
+2014-05-14 Namespace: Exported IQ, LA, and MCMC algorithms
 2014-05-08 deburn: Fixed bug with Thinned.Samples
 2014-05-08 dmvnp, dmvnpc: Changed log(2) + log(pi) to log(2*pi)
 2014-05-06 Replaced many ifelse with which
