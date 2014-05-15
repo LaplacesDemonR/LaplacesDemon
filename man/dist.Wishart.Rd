@@ -84,9 +84,6 @@ shrinkage toward diagonality. Another alternative is to abandon the
 Wishart distribution altogether for the more flexible method of Barnard
 et al. (2000) or the horseshoe distribution (\code{\link{dhs}})
 for sparse covariance matrices.
-
-C++ versions of \code{dwishart} and \code{rwishart} are in the
-\pkg{LaplacesDemonCpp} package.
 }
 \value{
   \code{dwishart} gives the density and

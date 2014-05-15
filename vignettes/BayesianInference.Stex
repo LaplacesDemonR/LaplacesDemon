@@ -15,8 +15,8 @@
 \Shorttitle{Bayesian Inference} %% a short title (if necessary)
 
 \Abstract{The Bayesian interpretation of probability is one of two broad categories of interpretations. Bayesian inference updates knowledge about unknowns, parameters, with information from data. The \pkg{LaplacesDemon} package is a complete environment for Bayesian inference within \proglang{R}, and this vignette provides an introduction to the topic. This article introduces Bayes' theorem, model-based Bayesian inference, components of Bayesian inference, prior distributions, hierarchical Bayes, conjugacy, likelihood, numerical approximation, prediction, Bayes factors, model fit, posterior predictive checks, and ends by comparing advantages and disadvantages of Bayesian inference.}
-\Keywords{Bayesian, LaplacesDemon, R}
-\Plainkeywords{bayesian, laplacesdemon, r}
+\Keywords{Bayesian, LaplacesDemon, LaplacesDemonCpp, R}
+\Plainkeywords{bayesian, laplacesdemon, laplacesdemoncpp, r}
 
 %% publication information
 %% NOTE: Typically, this can be left commented and will be filled out by the technical editor
@@ -39,7 +39,7 @@
 
 \begin{document}
 
-This article is an introduction to Bayesian inference for users of the \pkg{LaplacesDemon} package \citep{r:laplacesdemon} in \proglang{R} \citep{rdct:r}, often referred to as LD. A formal introduction to \pkg{LaplacesDemon} is provided in an accompanying vignette entitled ``\pkg{LaplacesDemon} Tutorial''. Merriam-Webster defines `Bayesian' as follows
+This article is an introduction to Bayesian inference for users of the \pkg{LaplacesDemon} package \citep{r:laplacesdemon} in \proglang{R} \citep{rdct:r}, often referred to as LD. \pkg{LaplacesDemonCpp} is an extension package that uses \proglang{C++}. A formal introduction to \pkg{LaplacesDemon} is provided in an accompanying vignette entitled ``\pkg{LaplacesDemon} Tutorial''. Merriam-Webster defines `Bayesian' as follows
 
 \begin{quote}
 \textbf{Bayesian} : being, relating to, or involving statistical methods that assign probabilities or distributions to events (as rain tomorrow) or parameters (as a population mean) based on experience or best guesses before experimentation and data collection and that apply Bayes' theorem to revise the probabilities and distributions after obtaining experimental data. 
@@ -614,7 +614,7 @@ frequentist inference.
 Following is a short list of advantages of frequentist inference over Bayesian inference.
 
 \begin{itemize}
-\item Frequentist models are perceived to handle large data sets, while Bayesian models via MCMC have traditionally been restricted to small sample sizes, and Laplace Approximation is similar to the frequentist method in that it is known to be able to handle large data sets. This reputation is no longer true for MCMC. Samplers in LaplacesDemon do not usually loop through records and can handle large data sets. But most importantly, algorithms now exist (and are available here) that enable fast Bayesian inference with big data.
+\item Frequentist models are perceived to handle large data sets, while Bayesian models via MCMC have traditionally been restricted to small sample sizes, and Laplace Approximation is similar to the frequentist method in that it is known to be able to handle large data sets. This reputation is no longer true for MCMC. Samplers in \code{LaplacesDemon} do not usually loop through records and can handle large data sets. But most importantly, algorithms now exist (and are available here) that enable fast Bayesian inference with big data.
 \item Frequentist models are usually much easier to prepare because many things do not need to be specified, such as prior distributions, initial values for numerical approximation, and usually the likelihood function. Most frequentist methods have been standardized to ``procedures'' where less knowledge and programming are required, and in many cases the user can just click on a few things and not really know what they are doing. Garbage in, garbage out.
 \item Frequentist models optimized with MLE have much shorter run-times than Bayesian models via MCMC or PMC. This is not a difference between frequentist and Bayesian methods, but is due to optimization vs. sampling algorithms. MCMC has a longer run-time, whether it is Bayesian or frequentist. Laplace Approximation uses optimization algorithms, and yields run-times similar to frequentist MLE. If frequentist MLE and Bayesian Laplace Approximation seem to have very different run-times, it is probably due to differences between a method-specific algorithm vs. a general-purpose algorithm.
 \end{itemize}

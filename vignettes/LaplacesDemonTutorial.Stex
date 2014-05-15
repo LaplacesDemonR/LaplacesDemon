@@ -17,8 +17,8 @@
 \Abstract{
 \pkg{LaplacesDemon}, also referred to as LD, is a contributed \proglang{R} package for Bayesian inference, and is freely available at \url{http://www.bayesian-inference.com/software}. The user may build any kind of probability model with a user-specified model function. The model may be updated with iterative quadrature, Laplace Approximation, MCMC, PMC, or variational Bayes. After updating, a variety of facilities are available, including MCMC diagnostics, posterior predictive checks, and validation. Hopefully, \pkg{LaplacesDemon} is generalizable and user-friendly for Bayesians, especially Laplacians.
 }
-\Keywords{Bayesian, Big Data, High Performance Computing, HPC, Importance Sampling, Iterative Quadrature, Laplace Approximation, LaplacesDemon, Markov chain Monte Carlo, MCMC, Metropolis, Optimization, Parallel, PMC, R, Rejection Sampling, Variational Bayes}
-\Plainkeywords{bayesian, big data, high performance computing, hpc, importance sampling, iterative quadrature, laplace approximation, laplacesdemon, markov chain monte carlo, mcmc, metropolis, optimization, parallel, pmc, r, rejection sampling, variational bayes}
+\Keywords{Bayesian, Big Data, High Performance Computing, HPC, Importance Sampling, Iterative Quadrature, Laplace Approximation, LaplacesDemon, LaplacesDemonCpp, Markov chain Monte Carlo, MCMC, Metropolis, Optimization, Parallel, PMC, R, Rejection Sampling, Variational Bayes}
+\Plainkeywords{bayesian, big data, high performance computing, hpc, importance sampling, iterative quadrature, laplace approximation, laplacesdemon, laplacesdemoncpp, markov chain monte carlo, mcmc, metropolis, optimization, parallel, pmc, r, rejection sampling, variational bayes}
 
 %% publication information
 %% NOTE: Typically, this can be left commented and will be filled out by the technical editor
@@ -67,7 +67,7 @@ install.packages(pkgs="path/LaplacesDemon_ver.tar.gz", repos=NULL, type="source"
 
 where \code{path} is a path to the zipped source code, and \code{_ver} is replaced with the latest version found in the name of the downloaded file.
 
-A goal in developing the \pkg{LaplacesDemon} package was to minimize reliance on other packages or software. Therefore, the usual \code{dep=TRUE} argument does not need to be used, because the \pkg{LaplacesDemon} package does not depend on anything other than base \proglang{R}. Once installed, simply use the \code{library} or \code{require} function in \proglang{R} to activate the \pkg{LaplacesDemon} package and load its functions into memory:
+A goal in developing the \pkg{LaplacesDemon} package was to minimize reliance on other packages or software. Therefore, the usual \code{dep=TRUE} argument does not need to be used, because the \pkg{LaplacesDemon} package does not depend on anything other than base \proglang{R}. \pkg{LaplacesDemonCpp} is an extension package that uses \proglang{C++}, and imports these packages: \code{LaplacesDemon}, \pkg{Rcpp}, and \pkg{RcppArmadillo}. This tutorial introduces only \pkg{LaplacesDemon}, but the use of \pkg{LaplacesDemonCpp} is identical. Once installed, simply use the \code{library} or \code{require} function in \proglang{R} to activate the \pkg{LaplacesDemon} package and load its functions into memory:
 
 \begin{Scode}
 library(LaplacesDemon)
@@ -75,7 +75,7 @@ library(LaplacesDemon)
 
 \section{Data} \label{data}
 
-The \pkg{LaplacesDemon} package requires data that is specified in a list\footnote{Though most R functions use data in the form of a data frame, \pkg{LaplacesDemon} uses one or more numeric matrices in a list. It is much faster to process a numeric matrix than a data frame in iterative estimation.}. As an example, there is a data set called \code{demonsnacks} that is provided with the \pkg{LaplacesDemon} package. For no good reason, other than to provide an example, the log of \code{Calories} will be fit as an additive, linear function of the log of some of the remaining variables. Since an intercept will be included, a vector of 1's is inserted into design matrix \textbf{X}.
+The \pkg{LaplacesDemon} package requires data that is specified in a list\footnote{Though most \proglang{R} functions use data in the form of a data frame, \pkg{LaplacesDemon} uses one or more numeric matrices in a list. It is much faster to process a numeric matrix than a data frame in iterative estimation.}. As an example, there is a data set called \code{demonsnacks} that is provided with the \pkg{LaplacesDemon} package. For no good reason, other than to provide an example, the log of \code{Calories} will be fit as an additive, linear function of the log of some of the remaining variables. Since an intercept will be included, a vector of 1's is inserted into design matrix \textbf{X}.
 
 \begin{Scode}
 data(demonsnacks)
@@ -113,7 +113,7 @@ $$\sigma \sim \mathcal{HC}(25)$$
 
 Each of the $J$ $\beta$ parameters is assigned a vague\footnote{`Traditionally, a vague prior would be considered to be under the class of uninformative or non-informative priors. 'Non-informative' may be more widely used than 'uninformative', but here that is considered poor English, such as saying something is `non-correct' when there's a word for that \dots `incorrect'. In any case, uninformative priors do not actually exist \citep{irony97}, because all priors are informative in some way. These priors are being described here as vague, but not as uninformative.} prior probability distribution that is normally-distributed according to $\mu=0$ and $\sigma^2=1000$. The large variance or small precision indicates a lot of uncertainty about each $\beta$, and is hence a vague distribution. The residual standard deviation $\sigma$ is half-Cauchy-distributed according to its hyperparameter, scale=25. When exploring new prior distributions, the user is encouraged to use the \code{is.proper} function to check for prior propriety.
 
-To specify a model, the user must create a function called \code{Model}. Here is an example for a linear regression model:
+To specify a model, the user must create a function called \code{Model}. Here is an example for a linear regression model written in \proglang{R} code\footnote{A model specification function for the \pkg{LaplacesDemon} or \pkg{LaplacesDemonCpp} packages may be written and compiled in a faster language, such as in \proglang{C++} via the \pkg{Rcpp} package family.}:
 
 \begin{Scode}
 Model <- function(parm, Data)
@@ -557,11 +557,13 @@ Following are general suggestions on how best to use the \pkg{LaplacesDemon} pac
 
 \section{Independence and Observability} \label{independence}
 
-The \pkg{LaplacesDemon} package was designed with independence and observability in mind. By independence, it is meant that a goal was to minimize dependence on other software. The \pkg{LaplacesDemon} package requires only base \proglang{R}, and the \proglang{parallel} package bundled with it. The variety of packages makes \proglang{R} extremely attractive. However, depending on multiple packages can be problematic when different packages have functions with the same name, or when a change is made in one package, but other packages do not keep pace, and the user is dependent on packages being in sync. By avoiding dependencies on packages that are not in or accompanying base \proglang{R}, the \pkg{LaplacesDemon} package is attempting to be consistent and dependable for the user.
+The \pkg{LaplacesDemon} package was designed with independence and observability in mind. By independence, it is meant that a goal was to minimize dependence on other software. The \pkg{LaplacesDemon} package requires only base \proglang{R}, and the \pkg{parallel} package bundled with it. The variety of packages makes \proglang{R} extremely attractive. However, depending on multiple packages can be problematic when different packages have functions with the same name, or when a change is made in one package, but other packages do not keep pace, and the user is dependent on packages being in sync. By avoiding dependencies on packages that are not in or accompanying base \proglang{R}, the \pkg{LaplacesDemon} package is attempting to be consistent and dependable for the user.
 
 For example, common MCMC diagnostics and probability distributions (such as Dirichlet, multivariate normal, Wishart, and many others, as well as truncated forms of distributions) in Bayesian inference have been included in the \pkg{LaplacesDemon} package so the user does not have to load numerous \proglang{R} packages, except of course for exotic distributions that have not been included.
 
-By observability, it is meant that the \pkg{LaplacesDemon} package is written entirely in \proglang{R}. Certain functions could be sped up in another language, but this may prevent some \proglang{R} users from understanding the code. The \pkg{LaplacesDemon} package is intended to be open and accessible. If a user desires speed and is familiar with a faster language, then the user is encouraged to program the model specification function in the faster language. See the documentation for the \code{Model.Spec.Time} function for more information. Moreover, it is demonstrated in section \ref{largedata} that the \code{LaplacesDemon} function for MCMC is often significantly faster than other MCMC software programmed in faster languages, and users are encouraged to time comparisons, especially with large samples.
+\pkg{LaplacesDemonCpp} is an optional extension package that uses \proglang{C++}, and is not an independent package in the sense that it imports \pkg{LaplacesDemon}, \pkg{Rcpp}, and \pkg{RcppArmadillo}. Once obtained and activated, its use is seamless to a \pkg{LaplacesDemon} user. When \pkg{LaplacesDemonCpp} is activated, it imports \pkg{LaplacesDemon} and replaces \proglang{R} functions with functions that use \pkg{C++}.
+
+By observability, it is meant that the base \pkg{LaplacesDemon} package is written entirely in \proglang{R}. Certain functions could be sped up in another language such as \proglang{C++}, but this may prevent some \proglang{R} users from understanding the code. The base \pkg{LaplacesDemon} package is intended to be open and accessible. The optional \pkg{LaplacesDemonCpp} package is available for faster computations via \proglang{C++}. If a user desires speed and is familiar with a faster language, then the user is encouraged to program the model specification function in the faster language. See the documentation for the \code{Model.Spec.Time} function for more information. Moreover, it is demonstrated in section \ref{largedata} that the \code{LaplacesDemon} function for MCMC is often significantly faster than other MCMC software programmed in faster languages, and users are encouraged to time comparisons, especially with large samples.
 
 Observability also enables users to investigate or customize functions in the \pkg{LaplacesDemon} package. To access any function, simply enter the function name and press enter. For example, to print the source code for the \code{LaplacesDemon} function to the \proglang{R} console, simply enter:
 
@@ -569,11 +571,7 @@ Observability also enables users to investigate or customize functions in the \p
 LaplacesDemon
 \end{Scode}
 
-To access undocumented, internal-only functions, use the \code{:::} operator, such as:
-
-\begin{Scode}{eval=false}
-LaplacesDemon:::MWG
-\end{Scode}
+Most undocumented, internal-only functions are exported in the namespace and have an alias in the LaplacesDemon-package.Rd file.
 
 \pkg{LaplacesDemon} seeks to provide a complete, Bayesian environment within \proglang{R}. Independence from other software facilitates dependability, and its open code makes it easier for a user to investigate and customize.
 
@@ -1433,7 +1431,7 @@ Many additional resources may be found at \url{http://www.bayesian-inference.com
 \item Consulting services are available here: \url{http://www.bayesian-inference.com/consulting}.
 \item C++ examples of model functions: \url{http://www.bayesian-inference.com/cpp/LaplacesDemonExamples.txt}.
 \item Merchandise may be found at \url{http://www.bayesian-inference.com/merchandise}, such as \pkg{LaplacesDemon} t-shirts, coffee mugs, and more.
-\item \pkg{LaplacesDemon} development is public and occurs at \url{https://github.com/Statisticat/LaplacesDemon}.
+\item \pkg{LaplacesDemon} and \pkg{LaplacesDemonCpp} development is public and occurs at \url{https://github.com/Statisticat/LaplacesDemon} and \url{https://github.com/Statisticat/LaplacesDemonCpp}, respectively.
 \item \pkg{LaplacesDemon} screencasts are available at \url{http://www.bayesian-inference.com/softwarescreencasts}.
 \item \pkg{LaplacesDemon} updates are announced at \url{https://plus.google.com/+Bayesian-inference}.
 \item Opinion polls for Bayesian inference and \pkg{LaplacesDemon} are here: \url{http://www.bayesian-inference.com/polls}.

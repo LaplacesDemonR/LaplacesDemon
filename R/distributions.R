@@ -2027,8 +2027,8 @@ rwishart <- function(nu, S)
      if(!is.matrix(S)) S <- matrix(S)
      if(!is.positive.semidefinite(S))
           stop("Matrix S is not positive-semidefinite.")
-     if(nu < nrow(S)) {
-          stop("The nu parameter is less than the dimension of S.")}
+     if(nu < nrow(S))
+          stop("The nu parameter is less than the dimension of S.")
      k <- nrow(S)
      Z <- matrix(0, k, k)
      x <- rchisq(k, nu:{nu - k + 1})

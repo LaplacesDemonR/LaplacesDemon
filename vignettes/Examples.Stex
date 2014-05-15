@@ -16,8 +16,8 @@
 
 \Abstract{The \pkg{LaplacesDemon} package is a complete environment for Bayesian inference within \proglang{R}. Virtually any probability model may be specified. This vignette is a compendium of examples of how to specify different model forms.
 }
-\Keywords{Bayesian, LaplacesDemon, R}
-\Plainkeywords{bayesian, laplacesdemon, r}
+\Keywords{Bayesian, LaplacesDemon, LaplacesDemonCpp, R}
+\Plainkeywords{bayesian, laplacesdemon, laplacesdemoncpp, r}
 
 %% publication information
 %% NOTE: Typically, this can be left commented and will be filled out by the technical editor
@@ -39,7 +39,7 @@
 %% need no \usepackage{Sweave.sty}
 
 \begin{document}
-\pkg{LaplacesDemon} \citep{r:laplacesdemon}, often referred to as LD, is an \proglang{R} package that is available at \url{http://www.bayesian-inference.com/software}. A formal introduction to \pkg{LaplacesDemon} is provided in an accompanying vignette entitled ``\pkg{LaplacesDemon} Tutorial'', and an introduction to Bayesian inference is provided in the ``Bayesian Inference'' vignette.
+\pkg{LaplacesDemon} \citep{r:laplacesdemon}, often referred to as LD, is an \proglang{R} package that is available at \url{http://www.bayesian-inference.com/software}. \pkg{LaplacesDemonCpp} is an extension package that uses \proglang{C++}. A formal introduction to \pkg{LaplacesDemon} is provided in an accompanying vignette entitled ``\pkg{LaplacesDemon} Tutorial'', and an introduction to Bayesian inference is provided in the ``Bayesian Inference'' vignette.
 
 The purpose of this document is to provide users of the \pkg{LaplacesDemon} package with examples of a variety of Bayesian methods. It is also a testament to the diverse applicability of \pkg{LaplacesDemon} to Bayesian inference.
 
