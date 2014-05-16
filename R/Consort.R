@@ -733,8 +733,7 @@ Consort <- function(object=NULL)
                cat("     Algorithm=\"RAM\", ",
                     "Specs=list(alpha.star=", al,
                     ", Dist=\"", Dist,
-                    "\", gamma=", gamma, ",\n", sep="")
-               cat("     Periodicity=1))\n\n", sep="")
+                    "\", gamma=", gamma, "))\n\n", sep="")
                }
           else if(Alg == "RDMH") {
                ### RDMH

@@ -330,12 +330,12 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     indicate the ratio between r1 and r2.
     \item \code{Periodicity} specifies how often in iterations the
     adaptive algorithm should adapt, and is used by AHMC, AM, AMM, AMWG,
-    DRAM, INCA, RAM, SAMWG, and USAMWG. If \code{Periodicity=10},
-    then the algorithm adapts every 10th iteration. A higher
-    \code{Periodicity} is associated with an algorithm that runs faster,
-    because it does not have to calculate adaptation as often, though
-    the algorithm adapts less often to the target distributions, so it
-    is a trade-off. It is recommended to use the lowest value that runs
+    DRAM, INCA, SAMWG, and USAMWG. If \code{Periodicity=10}, then the
+    algorithm adapts every 10th iteration. A higher \code{Periodicity}
+    is associated with an algorithm that runs faster, because it does
+    not have to calculate adaptation as often, though the algorithm
+    adapts less often to the target distributions, so it is a
+    trade-off. It is recommended to use the lowest value that runs
     fast enough to suit the user, or provide sufficient adaptation.
     \item \code{selectable} is a vector of indicators of whether or not
     a parameter is selectable for variable selection in the RJ
@@ -909,8 +909,7 @@ print(Fit)
 ######################  Robust Adaptive Metropolis  #######################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
-#     Algorithm="RAM", Specs=list(alpha.star=0.234, Dist="N", gamma=0.66,
-#     Periodicity=1))
+#     Algorithm="RAM", Specs=list(alpha.star=0.234, Dist="N", gamma=0.66))
 
 ###################  Random Dive Metropolis-Hastings  ####################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
