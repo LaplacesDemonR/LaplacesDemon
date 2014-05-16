@@ -98,6 +98,7 @@ is.proper(f, a, b, tol=1e-5)
   \code{\link{VariationalBayes}}.
 }
 \examples{
+library(LaplacesDemon)
 ### Prior Probability Distribution
 is.proper(function(x) {dnormv(x,0,1000)}, -Inf, Inf) #x ~ N(0,1000)
 is.proper(function(x) {dhalfcauchy(x,25)}, 0, Inf) #x ~ HC(25)

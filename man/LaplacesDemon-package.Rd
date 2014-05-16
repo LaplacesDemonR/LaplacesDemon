@@ -66,6 +66,7 @@
 \alias{.mcmcuess}
 \alias{.mcmcusamwg}
 \alias{.mcmcusmwg}
+\alias{.vbsalimans2}
 \docType{package}
 \title{The LaplacesDemon Package}
 \description{

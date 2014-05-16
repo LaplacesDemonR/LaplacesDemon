@@ -67,6 +67,7 @@ IAT(x)
   \code{\link{PosteriorChecks}}.
 }
 \examples{
+library(LaplacesDemon)
 theta <- rnorm(100)
 IAT(theta)
 }

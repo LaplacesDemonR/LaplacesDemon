@@ -2206,6 +2206,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      {
      Periodicity <- Specs[["Periodicity"]]
      Acceptance <- matrix(0, 1, LIV)
+     DiagCovar <- matrix(tuning, floor(Iterations/Periodicity), LIV,
+          byrow=TRUE)
      for (iter in 1:Iterations) {
           ### Print Status
           if(iter %% Status == 0)
@@ -2246,7 +2248,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                log.tuning[tuning.num] <- log.tuning[tuning.num] + size
                log.tuning[-tuning.num] <- log.tuning[-tuning.num] - size
                tuning <- exp(log.tuning)
-               DiagCovar <- rbind(DiagCovar, tuning)}
+               a.iter <- floor(iter / Periodicity)
+               DiagCovar[a.iter,] <- tuning}
           }
      ### Output
      out <- list(Acceptance=mean(as.vector(Acceptance)),

@@ -98,6 +98,7 @@ KLD(px, py, base)
   \code{\link{VariationalBayes}}.
 }
 \examples{
+library(LaplacesDemon)
 px <- dnorm(runif(100),0,1)
 py <- dnorm(runif(100),0.1,0.9)
 KLD(px,py)

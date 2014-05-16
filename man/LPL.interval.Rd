@@ -118,6 +118,7 @@ LPL.interval(Prior, Posterior, prob=0.95, plot=FALSE, PDF=FALSE)
   \code{\link{LaplacesDemon}}, and
   \code{\link{PMC}}.}
 \examples{
+library(LaplacesDemon)
 #Although LPL is intended to be applied to output from LaplacesDemon or
 #PMC, here is an example in which p(theta) ~ N(0,100), and
 #p(theta | y) ~ N(1,10), given 1000 samples.

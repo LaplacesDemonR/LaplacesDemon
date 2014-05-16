@@ -67,6 +67,7 @@ as.parm.names(x, uppertri=NULL)
   \code{\link{VariationalBayes}}.
 }
 \examples{
+library(LaplacesDemon)
 N <- 100
 J <- 5
 y <- rnorm(N,0,1)

@@ -40,6 +40,7 @@ loglog(p)
 \author{Statisticat, LLC. \email{software@bayesian-inference.com}}
 \seealso{\code{\link{LaplacesDemon}}}
 \examples{
+library(LaplacesDemon)
 x <- -5:5
 p <- invloglog(x)
 x <- loglog(p)

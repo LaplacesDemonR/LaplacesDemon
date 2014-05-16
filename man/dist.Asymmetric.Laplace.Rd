@@ -82,6 +82,7 @@ These functions are similar to those in the \code{VGAM} package.
   \code{\link{dallaplace}}
 }
 \examples{
+library(LaplacesDemon)
 x <- dalaplace(1,0,1,1)
 x <- palaplace(1,0,1,1)
 x <- qalaplace(0.5,0,1,1)

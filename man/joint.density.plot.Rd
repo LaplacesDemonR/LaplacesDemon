@@ -52,6 +52,7 @@ joint.density.plot(x, y, Title=NULL, contour=TRUE, color=FALSE, Trace=NULL)
   \code{\link{PosteriorChecks}}
 }
 \examples{
+library(LaplacesDemon)
 X <- rmvn(1000, runif(2), diag(2))
 joint.density.plot(X[,1], X[,2], Title="Joint Density Plot",
      contour=TRUE, color=FALSE)

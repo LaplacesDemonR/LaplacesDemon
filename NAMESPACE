@@ -1,3 +1,4 @@
+import(parallel)
 export(ABB,
        AcceptanceRate,
        as.covar,
@@ -351,7 +352,8 @@ export(ABB,
        .mcmctwalk,
        .mcmcuess,
        .mcmcusamwg,
-       .mcmcusmwg)
+       .mcmcusmwg,
+       .vbsalimans2)
 
 S3method("plot","bmk")
 S3method("plot","demonoid")

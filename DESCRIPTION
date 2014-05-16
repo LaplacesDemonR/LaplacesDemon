@@ -4,7 +4,8 @@ Date: 2014-05-07
 Title: Complete Environment for Bayesian Inference
 Author: Statisticat, LLC <software@bayesian-inference.com>
 Maintainer: Statisticat, LLC <software@bayesian-inference.com>
-Depends: R (>= 2.14.1), parallel
+Depends: R (>= 2.14.1)
+Imports: parallel
 ByteCompile: TRUE
 Description: LaplacesDemon is a complete environment for Bayesian inference.
 License: MIT + file LICENSE

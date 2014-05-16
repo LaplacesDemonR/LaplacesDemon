@@ -82,8 +82,8 @@ VariationalBayes <- function(Model, parm, Data, Covar=NULL,
      #####################  Begin Variational Bayes  #####################
      cat("Variational Bayes begins...\n")
      if(Method == "Salimans2") {
-          VB <- Salimans2(Model, parm, Data, Covar, Iterations, Interval,
-               Stop.Tolerance, m.old)
+          VB <- .vbsalimans2(Model, parm, Data, Covar, Iterations,
+               Interval, Stop.Tolerance, m.old)
           }
      Dev <- as.vector(VB$Dev)
      iter <- VB$iter
@@ -201,7 +201,7 @@ VariationalBayes <- function(Model, parm, Data, Covar=NULL,
      cat("Variational Bayes is finished.\n\n")
      return(VB)
      }
-Salimans2 <- function(Model, parm, Data, Covar, Iterations, Interval,
+.vbsalimans2 <- function(Model, parm, Data, Covar, Iterations, Interval,
      Stop.Tolerance, m.old)
      {
      m.new <- m.old
