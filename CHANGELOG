@@ -1,3 +1,6 @@
+2014-05-19 LaplacesDemon: OHSS may now be non-adaptive
+2014-05-17 LaplacesDemon: Ensured minimum tuning and diag(Covar)
+2014-05-17 LaplacesDemon: Replaced some sample with sample.int
 2014-05-16 LaplacesDemon: RAM no longer has Periodicity specification
 2014-05-15 Namespace: Exported .vbsalimans2
 2014-05-14 Namespace: Exported IQ, LA, and MCMC algorithms

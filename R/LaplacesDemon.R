@@ -542,7 +542,18 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                }
           else if(Algorithm == "OHSS") {
                Algorithm <- "Oblique Hyperrectangle Slice Sampler"
-               Specs <- NULL
+               if(missing(Specs) | is.null(Specs))
+                    Specs <- list(A=Iterations+1, n=0)
+               else {
+                    if(!is.list(Specs))
+                         stop("The Specs argument is not a list.",
+                              file=LogFile, append=TRUE)
+                    if(!identical(names(Specs), c("A", "n")))
+                          stop("The Specs argument is incorrect.",
+                               file=LogFile, append=TRUE)
+                    Specs[["A"]] <- max(min(round(abs(Specs[["A"]])),
+                          Iterations+1), 0)
+                    Specs[["n"]] <- round(abs(Specs[["n"]]))}
                }
           else if(Algorithm == "RAM") {
                Algorithm <- "Robust Adaptive Metropolis"
@@ -1012,18 +1023,22 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                Algorithm != "Random-Walk Metropolis") {
                Covar <- NULL}
           else if(is.matrix(Covar) & !is.list(Covar)) {
-               tuning <- sqrt(diag(Covar)); VarCov <- Covar}
+               diag(Covar)[which(diag(Covar) < 1e-100)] <- 1e-100
+               tuning <- sqrt(diag(Covar))
+               VarCov <- Covar
+               }
           else if(is.vector(Covar) & !is.list(Covar)) {
                tuning <- abs(as.vector(Covar))
-               if(length(tuning) != LIV)
-                    tuning <- rep(ScaleF, LIV)
+               if(length(tuning) != LIV) tuning <- rep(ScaleF, LIV)
+               tuning[which(tuning < 1e-100)] <- 1e-100
                VarCov <- matrix(0, LIV, LIV)
                diag(VarCov) <- tuning
                }
           else if(is.null(Covar)) {
                tuning <- rep(ScaleF, LIV)
                VarCov <- matrix(0, LIV, LIV)
-               diag(VarCov) <- tuning}
+               diag(VarCov) <- tuning
+               }
           else if(is.list(Covar)) {
                tuning <- Covar
                for (i in 1:length(tuning)) {
@@ -1049,10 +1064,12 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           else if(is.vector(Covar) & !is.list(Covar)) {
                VarCov <- matrix(0, LIV, LIV)
                diag(VarCov) <- abs(as.vector(Covar))
+               diag(VarCov)[which(diag(VarCov) < 1e-100)] <- 1e-100
                }
           else if(is.null(Covar)) {
                VarCov <- matrix(0, LIV, LIV)
-               diag(VarCov) <- rep(ScaleF, LIV)}
+               diag(VarCov) <- rep(ScaleF, LIV)
+               }
           else if(is.list(Covar)) VarCov <- Covar
           if(is.matrix(VarCov) & !is.list(VarCov))
                DiagCovar <- matrix(diag(VarCov), 1, LIV)
@@ -1073,11 +1090,15 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           ### Algorithms that do not require VarCov, but require tuning
           if(is.list(Covar)) Covar <- NULL
           else if(is.matrix(Covar) & !is.list(Covar)) {
-               tuning <- sqrt(diag(Covar))}
+               tuning <- sqrt(diag(Covar))
+               tuning[which(tuning < 1e-100)] <- 1e-100
+               }
           else if(is.vector(Covar) & !is.list(Covar)) {
                tuning <- abs(as.vector(Covar))
                if(length(tuning) != length(Initial.Values))
-                    tuning <- rep(ScaleF, LIV)}
+                    tuning <- rep(ScaleF, LIV)
+               tuning[which(tuning < 1e-100)] <- 1e-100
+               }
           else if(is.null(Covar)) {
                tuning <- rep(ScaleF, LIV)}
           VarCov <- NULL
@@ -1534,7 +1555,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           else lambda <- rnorm(LIV, 0, ScaleF)
           lambda[which(AccRate < 0.05)] <- rnorm(length(which(AccRate < 0.05)),
                0, sqrt(0.0001 * ScaleF))
-          for (j in sample(LIV)) {
+          for (j in sample.int(LIV)) {
                ### Propose new parameter values
                prop <- Mo0[["parm"]]
                prop[j] <- prop[j] + lambda[j]
@@ -1545,8 +1566,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     Mo1 <- Mo0
                ### Accept/Reject
                u <- log(runif(1)) < (Mo1[["LP"]] - Mo0[["LP"]])
-               if(u == TRUE) Mo0 <- Mo1
-               Acceptance[j] <- Acceptance[j] + u}
+               if(u == TRUE) {
+                    Mo0 <- Mo1
+                    Acceptance[j] <- Acceptance[j] + 1}}
           if(iter %% Thinning == 0) {
                thinned[t.iter,] <- Mo0[["parm"]]
                Dev[t.iter] <- Mo0[["Dev"]]
@@ -1656,7 +1678,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          ",   Proposal: Componentwise,   LP:",
                          round(Mo0[["LP"]],1), "\n", sep="",
                          file=LogFile, append=TRUE)
-               for (j in sample(LIV)) {
+               for (j in sample.int(LIV)) {
                     if(j %in% dparm) Mo0 <- .mcmcggdp(Model, Data, j, Mo0, Grid)
                     else {
                          agg <- AGGCP(Model, Data, j, Mo0, Grid, tuning,
@@ -1699,7 +1721,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          ",   Proposal: Componentwise,   LP:",
                          round(Mo0[["LP"]],1), "\n", sep="",
                          file=LogFile, append=TRUE)
-               for (j in sample(LIV)) {
+               for (j in sample.int(LIV)) {
                     if(j %in% dparm)
                          Mo0 <- .mcmcggdpp(Model, Data, j, Mo0, Grid, cl)
                     else {
@@ -2231,19 +2253,21 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                Dev[t.iter] <- Mo0[["Dev"]]
                Mon[t.iter,] <- Mo0[["Monitor"]]}
           ### Random-Scan Componentwise Estimation
-          for (j in sample(LIV)) {
+          propdraw <- rnorm(LIV)*tuning
+          for (j in sample.int(LIV)) {
                ### Propose new parameter values
                prop <- Mo0[["parm"]]
-               prop[j] <- rnorm(1, prop[j], tuning[j])
+               prop[j] <- prop[j] + propdraw[j]
                ### Log-Posterior of the proposed state
                Mo1 <- Model(prop, Data)
                if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
                     Mo1 <- Mo0
                ### Accept/Reject
-               u <- log(runif(1)) < (Mo1[["LP"]] - Mo0[["LP"]])
-               if(u == TRUE) Mo0 <- Mo1
-               Acceptance[j] <- Acceptance[j] + u}
+               u <- log(runif(1)) < {Mo1[["LP"]] - Mo0[["LP"]]}
+               if(u == TRUE) {
+                    Mo0 <- Mo1
+                    Acceptance[j] <- Acceptance[j] + 1}}
           if(iter %% Thinning == 0) {
                thinned[t.iter,] <- Mo0[["parm"]]
                Dev[t.iter] <- Mo0[["Dev"]]
@@ -2292,7 +2316,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                theta <- rnorm(LIV)
                theta <- theta / sqrt(sum(theta*theta))
                lambda <- runif(1)
-               for (j in sample(LIV)) {
+               for (j in sample.int(LIV)) {
                     ### Propose new parameter values
                     prop <- Mo0[["parm"]]
                     prop[j] <- prop[j] + lambda*theta[j]
@@ -2303,8 +2327,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          Mo1 <- Mo0
                     ### Accept/Reject
                     u <- log(runif(1)) < (Mo1[["LP"]] - Mo0[["LP"]])
-                    if(u == TRUE) Mo0 <- Mo1
-                    Acceptance[j] <- Acceptance[j] + u}
+                    if(u == TRUE) {
+                         Mo0 <- Mo1
+                         Acceptance[j] <- Acceptance[j] + 1}}
                if(iter %% Thinning == 0) {
                     thinned[t.iter,] <- Mo0[["parm"]]
                     Dev[t.iter] <- Mo0[["Dev"]]
@@ -2340,7 +2365,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                theta <- rnorm(LIV)
                theta <- theta / sqrt(sum(theta*theta))
                lambda <- runif(1)
-               for (j in sample(LIV)) {
+               for (j in sample.int(LIV)) {
                     ### Propose new parameter values
                     prop <- Mo0[["parm"]]
                     prop[j] <- prop[j] + tau[j]*lambda*theta[j]
@@ -2353,14 +2378,13 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     u <- log(runif(1)) < (Mo1[["LP"]] - Mo0[["LP"]])
                     if(u == TRUE) {
                          Mo0 <- Mo1
+                         Acceptance[j] <- Acceptance[j] + 1
                          tau[j] <- tau[j] + (tau[j] / (alpha.star *
                          (1 - alpha.star))) * (1 - alpha.star) / iter
                          }
                     else {
                          tau[j] <- abs(tau[j] - (tau[j] / (alpha.star *
-                         (1 - alpha.star))) * alpha.star / iter)
-                         }
-                    Acceptance[j] <- Acceptance[j] + u}
+                         (1 - alpha.star))) * alpha.star / iter)}}
                if(iter %% Thinning == 0) {
                     thinned[t.iter,] <- Mo0[["parm"]]
                     Dev[t.iter] <- Mo0[["Dev"]]
@@ -2849,8 +2873,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          Mo1 <- Mo0
                     ### Accept/Reject
                     u <- log(runif(1)) < (Mo1[["LP"]] - Mo0[["LP"]])
-                    if(u == TRUE) Mo0 <- Mo1
-                    Acceptance[j] <- Acceptance[j] + u}
+                    if(u == TRUE) {
+                         Mo0 <- Mo1
+                         Acceptance[j] <- Acceptance[j] + 1}}
                if(iter %% Thinning == 0) {
                     thinned[t.iter,] <- Mo0[["parm"]]
                     Dev[t.iter] <- Mo0[["Dev"]]
@@ -2882,7 +2907,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          ",   Proposal: Componentwise,   LP:",
                          round(Mo0[["LP"]],1), "\n", sep="",
                          file=LogFile, append=TRUE)
-               for (j in sample(LIV)) {
+               for (j in sample.int(LIV)) {
                     if(j %in% dparm) Mo0 <- .mcmcggdp(Model, Data, j, Mo0, Grid)
                     else Mo0 <- .mcmcggcp(Model, Data, j, Mo0, Grid)
                     }
@@ -2921,7 +2946,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          ",   Proposal: Componentwise,   LP:",
                          round(Mo0[["LP"]],1), "\n", sep="",
                          file=LogFile, append=TRUE)
-               for (j in sample(LIV)) {
+               for (j in sample.int(LIV)) {
                     if(j %in% dparm)
                          Mo0 <- .mcmcggdpp(Model, Data, j, Mo0, Grid, cl)
                     else Mo0 <- .mcmcggcpp(Model, Data, j, Mo0, Grid, cl)
@@ -3953,8 +3978,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                denom <- logadd(denom)
                ### Accept/Reject
                u <- log(runif(1)) < (numerator - denom)
-               if(u == TRUE) Mo0 <- Mo2
-               Acceptance[j] <- Acceptance[j] + u}
+               if(u == TRUE) {
+                    Mo0 <- Mo2
+                    Acceptance[j] <- Acceptance[j] + 1}}
           if(iter %% Thinning == 0) {
                thinned[t.iter,] <- Mo0[["parm"]]
                Dev[t.iter] <- Mo0[["Dev"]]
@@ -3988,19 +4014,21 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                Dev[t.iter] <- Mo0[["Dev"]]
                Mon[t.iter,] <- Mo0[["Monitor"]]}
           ### Random-Scan Componentwise Estimation
-          for (j in sample(LIV)) {
+          propdraw <- rnorm(LIV)*tuning
+          for (j in sample.int(LIV)) {
                ### Propose new parameter values
                prop <- Mo0[["parm"]]
-               prop[j] <- rnorm(1, prop[j], tuning[j])
+               prop[j] <- prop[j] + propdraw[j]
                ### Log-Posterior of the proposed state
                Mo1 <- Model(prop, Data)
                if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
                     Mo1 <- Mo0
                ### Accept/Reject
-               u <- log(runif(1)) < (Mo1[["LP"]] - Mo0[["LP"]])
-               if(u == TRUE) Mo0 <- Mo1
-               Acceptance[j] <- Acceptance[j] + u}
+               u <- log(runif(1)) < {Mo1[["LP"]] - Mo0[["LP"]]}
+               if(u == TRUE) {
+                    Mo0 <- Mo1
+                    Acceptance[j] <- Acceptance[j] + 1}}
           if(iter %% Thinning == 0) {
                thinned[t.iter,] <- Mo0[["parm"]]
                Dev[t.iter] <- Mo0[["Dev"]]
@@ -4317,6 +4345,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
      VarCov, LogFile)
      {
+     A <- Specs[["A"]]
+     n <- Specs[["n"]]
      w <- 0.05 # as with Roberts & Rosenthal
      decomp.freq <- max(floor(Iterations / Thinning / 100), 10)
      S.eig <-try(eigen(VarCov), silent=TRUE)
@@ -4326,6 +4356,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      t.iter <- 1
      DiagCovar <- matrix(0, floor(Iterations/Thinning), LIV,
           byrow=TRUE)
+     post <- matrix(Mo0[["parm"]], A, LIV, byrow=TRUE)
      for (iter in 1:Iterations) {
           ### Print Status
           if(iter %% Status == 0)
@@ -4334,8 +4365,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     round(Mo0[["LP"]],1), "\n", sep="",
                     file=LogFile, append=TRUE)
           ### Eigenvectors of the Sample Covariance Matrix
-          if({iter %% decomp.freq == 0} & {iter > 1}) {
-               S.eig <- try(eigen(cov(thinned[1:(t.iter-1),,drop=FALSE])),
+          if({iter %% decomp.freq == 0} & {iter > 2} & {iter <= A}) {
+               S.eig <- try(eigen({VarCov*n +
+                    cov(post[1:(iter-1),,drop=FALSE])*(iter-1)}/{n+iter-1}),
                     silent=TRUE)
                if(inherits(S.eig, "try-error")) S.eig <- eigen(diag(LIV))}
           ### Hypercube or Eigenvector
@@ -4353,14 +4385,17 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           ### Rejection Sampling
           repeat {
                wt <- runif(LIV, min=L, max=U)
-               v <- as.numeric(vecs %*% (edge.scale * wt * vals))
+               v <- as.numeric(vecs %*% {edge.scale * wt * vals})
                prop <- Mo0[["parm"]] + v
                Mo1 <- Model(prop, Data)
                if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
                     Mo1 <- Mo0
-               y1 <- Mo1[["LP"]]
-               if(y1 >= y.slice) break
+               if(Mo1[["LP"]] >= y.slice) break
+               else if(all(abs(wt) < 1e-100)) {
+                    Mo1 <- Mo0
+                    break
+                    }
                L[wt < 0] <- wt[wt < 0]
                U[wt > 0] <- wt[wt > 0]}
           ### Save Thinned Samples
@@ -4371,14 +4406,17 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                Mon[t.iter,] <- Mo1[["Monitor"]]
                DiagCovar[floor(iter / Thinning),] <- diag(S.eig$vectors)}
           Mo0 <- Mo1
+          if(iter <= A) post[iter,] <- Mo0[["parm"]]
           }
+     if(A <= Iterations)
+         VarCov <- {VarCov*n + cov(post)*Iterations} / {n+Iterations}
      ### Output
      out <- list(Acceptance=Iterations,
           Dev=Dev,
           DiagCovar=DiagCovar,
           Mon=Mon,
           thinned=thinned,
-          VarCov=cov(thinned))
+          VarCov=VarCov)
      return(out)
      }
 .mcmcram <- function(Model, Data, Iterations, Status, Thinning, Specs,
@@ -4479,23 +4517,26 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                thinned[t.iter,] <- Mo0[["parm"]]
                Dev[t.iter] <- Mo0[["Dev"]]
                Mon[t.iter,] <- Mo0[["Monitor"]]}
+          s <- sample(c(-1,1), LIV, replace=TRUE)
+          u1 <- runif(LIV, -1, 1)
+          epsilon1 <- u1^s
           ### Random-Scan Componentwise Estimation
-          for (j in sample(LIV)) {
+          for (j in sample.int(LIV)) {
                ### Propose new parameter values
                prop <- Mo0[["parm"]]
-               epsilon <- runif(1,-1,1)^sample(c(-1,1),1)
-               prop[j] <- prop[j]*epsilon
+               prop[j] <- prop[j]*epsilon1[j]
                ### Log-Posterior of the proposed state
                Mo1 <- Model(prop, Data)
                if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
                     Mo1 <- Mo0
-               epsilon <- log(abs(Mo1[["parm"]][j] / Mo0[["parm"]][j]))
-               if(!is.finite(epsilon)) epsilon <- 0
+               epsilon2 <- log(abs(Mo1[["parm"]][j] / Mo0[["parm"]][j]))
+               if(!is.finite(epsilon2)) epsilon2 <- 0
                ### Accept/Reject
-               u <- log(runif(1)) < (epsilon + Mo1[["LP"]] - Mo0[["LP"]])
-               if(u == TRUE) Mo0 <- Mo1
-               Acceptance[j] <- Acceptance[j] + u}
+               u2 <- log(runif(1)) < (epsilon2 + Mo1[["LP"]] - Mo0[["LP"]])
+               if(u2 == TRUE) {
+                    Mo0 <- Mo1
+                    Acceptance[j] <- Acceptance[j] + 1}}
           if(iter %% Thinning == 0) {
                thinned[t.iter,] <- Mo0[["parm"]]
                Dev[t.iter] <- Mo0[["Dev"]]
@@ -4886,8 +4927,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     Mo1 <- Mo0
                ### Accept/Reject
                u <- log(runif(1)) < (Mo1[["LP"]] - Mo0[["LP"]])
-               if(u == TRUE) Mo0 <- Mo1
-               Acceptance[j] <- Acceptance[j] + u}
+               if(u == TRUE) {
+                    Mo0 <- Mo1
+                    Acceptance[j] <- Acceptance[j] + 1}}
           if(iter %% Thinning == 0) {
                thinned[t.iter,] <- Mo0[["parm"]]
                Dev[t.iter] <- Mo0[["Dev"]]
@@ -5060,7 +5102,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                Dev[t.iter] <- Mo0[["Dev"]]
                Mon[t.iter,] <- Mo0[["Monitor"]]}
           ### Random-Scan Componentwise Estimation
-          for (j in sample(LIV)) {
+          for (j in sample.int(LIV)) {
                ### Univariate Slice Sampling
                Mo0 <- Mo1 <- uni.slice(x0=Mo0[["parm"]], g=Model, j=j,
                     #w=1, m=Inf, lower=-Inf, upper=Inf, gx0=Mo0, Data)
@@ -5120,8 +5162,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     Mo1 <- Mo0
                ### Accept/Reject
                u <- log(runif(1)) < (Mo1[["LP"]] - Mo0[["LP"]])
-               if(u == TRUE) Mo0 <- Mo1
-               Acceptance[j] <- Acceptance[j] + u}
+               if(u == TRUE) {
+                    Mo0 <- Mo1
+                    Acceptance[j] <- Acceptance[j] + 1}}
           if(iter %% Thinning == 0) {
                thinned[t.iter,] <- Mo0[["parm"]]
                Dev[t.iter] <- Mo0[["Dev"]]
@@ -5594,6 +5637,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      obs.sum <- matrix(0, LIV, 1)
      obs.scatter <- matrix(0, LIV, LIV)
      scatter.N <- 0
+     DiagCovar <- matrix(0, floor(Iterations / Thinning), LIV)
      for (iter in 1:Iterations) {
           ### Print Status
           if(iter %% Status == 0)
@@ -5639,9 +5683,12 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
                     Mo1 <- Mo0
-               y1 <- Mo1[["LP"]]
                prop <- Mo1[["parm"]]
-               if(y1 >= y.slice) break
+               if(Mo1[["LP"]] >= y.slice) break
+               else if(abs(prop.offset < 1e-100)) {
+                    Mo1 <- Mo0
+                    break
+                    }
                if(prop.offset < 0) L <- prop.offset
                else U <- prop.offset}
           ### Save Thinned Samples
@@ -5650,7 +5697,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                thinned[t.iter,] <- Mo1[["parm"]]
                Dev[t.iter] <- Mo1[["Dev"]]
                Mon[t.iter,] <- Mo1[["Monitor"]]
-               DiagCovar <- rbind(DiagCovar, diag(S.eig$vectors))
+               DiagCovar[t.iter-1,] <- diag(S.eig$vectors)
                obs.sum <- obs.sum + Mo1[["parm"]]
                obs.scatter <- obs.scatter + tcrossprod(Mo1[["parm"]])
                scatter.N <- scatter.N + 1}
@@ -5720,8 +5767,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                u <- log(runif(1)) < (Mo1[["LP"]] - Mo0[["LP"]])
                if(u == TRUE) {
                     Mo0 <- Mo1
-                    post[iter,] <- Mo0[["parm"]]}
-               Acceptance[j] <- Acceptance[j] + u}
+                    post[iter,] <- Mo0[["parm"]]
+                    Acceptance[j] <- Acceptance[j] + 1}}
           if(iter %% Thinning == 0) {
                thinned[t.iter,] <- Mo0[["parm"]]
                Dev[t.iter] <- Mo0[["Dev"]]
@@ -5800,8 +5847,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                u <- log(runif(1)) < (Mo1[["LP"]] - Mo0[["LP"]])
                if(u == TRUE) {
                     Mo0 <- Mo1
-                    post[iter,] <- Mo0[["parm"]]}
-               Acceptance[j] <- Acceptance[j] + u}
+                    post[iter,] <- Mo0[["parm"]]
+                    Acceptance[j] <- Acceptance[j] + 1}}
           if(iter %% Thinning == 0) {
                thinned[t.iter,] <- Mo0[["parm"]]
                Dev[t.iter] <- Mo0[["Dev"]]

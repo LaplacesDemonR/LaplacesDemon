@@ -197,11 +197,11 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
   listed below:
 
   \itemize{
-    \item \code{A} is used in HMCDA, MALA, and NUTS. In MALA, it is the
-    maximum acceptable value of the Euclidean norm of the adaptive
-    parameters mu and sigma, and the Frobenius norm of the covariance
-    matrix. In HMCDA and NUTS, it is the number of initial, adaptive
-    iterations to be discarded as burn-in.
+    \item \code{A} is used in HMCDA, MALA, NUTS, and OHSS. In MALA, it
+    is the maximum acceptable value of the Euclidean norm of the
+    adaptive parameters mu and sigma, and the Frobenius norm of the
+    covariance matrix. In HMCDA, NUTS, and OHSS, it is the number of
+    initial, adaptive iterations to be discarded as burn-in.
     \item \code{Adaptive} is the iteration in which adaptation begins,
     and is used in AM, AMM, DRAM, INCA, and Refractive. Most of these
     algorithms adapt according to an observed covariance matrix, and
@@ -319,6 +319,7 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     chains in DEMC (and must be at least 3) or the number of columns of
     big data in SGLD.
     \item \code{Nr} is the number of rows of big data in SGLD.
+    \item \code{n} is the number of previous iterations in OHSS.
     \item \code{n1} affects the size of the subset of each set of points
     to adjust, and is used in twalk. It relates to the number of
     parameters, and \code{n1=4} is recommended. If adjusted, it is
@@ -904,7 +905,7 @@ print(Fit)
 #################  Oblique Hyperrectangle Slice Sampler  ##################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
-#     Algorithm="OHSS", Specs=NULL)
+#     Algorithm="OHSS", Specs=list(A=Inf, n=0))
 
 ######################  Robust Adaptive Metropolis  #######################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
