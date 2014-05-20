@@ -23,7 +23,7 @@ summary.vb.ppc <- function(object=NULL, Categorical=FALSE, Rows=NULL,
                c("y","Mean","SD","LB","Median","UB","PQ","Discrep")))
           Summ[,1] <- y
           Summ[,2] <- round(rowMeans(yhat),3)
-          Summ[,3] <- round(apply(yhat, 1, sd),3)
+          Summ[,3] <- round(sqrt(.rowVars(yhat)),3)
           for(i in 1:length(y))
               {
               Summ[i,4] <- round(quantile(yhat[i,], probs=0.025,
@@ -40,7 +40,7 @@ summary.vb.ppc <- function(object=NULL, Categorical=FALSE, Rows=NULL,
           Discrepancy.Statistic <- 0
           if(!is.null(Discrep) && {Discrep == "Chi-Square"}) {
                Summ[,8] <- round((y - rowMeans(yhat))^2 /
-                    apply(yhat,1,var),3)
+                    .rowVars(yhat),3)
                Discrepancy.Statistic <- round(sum(Summ[,8], na.rm=TRUE),3)}
           if(!is.null(Discrep) && {Discrep == "Chi-Square2"}) {
                chisq.obs <- chisq.rep <- yhat
@@ -61,7 +61,7 @@ summary.vb.ppc <- function(object=NULL, Categorical=FALSE, Rows=NULL,
                for (i in 1:length(y)) {Summ[i,8] <- round(kurtosis(yhat[i,]),3)}
                Discrepancy.Statistic <- round(mean(Summ[,8], na.rm=TRUE),3)}
           if(!is.null(Discrep) && {Discrep == "L.criterion"}) {
-               Summ[,8] <- round(sqrt(apply(yhat,1,var) +
+               Summ[,8] <- round(sqrt(.rowVars(yhat) +
                     (y - rowMeans(yhat))^2),3)
                Discrepancy.Statistic <- round(sum(Summ[,8], na.rm=TRUE),3)}
           if(!is.null(Discrep) && {Discrep == "MASE"}) {
@@ -72,7 +72,7 @@ summary.vb.ppc <- function(object=NULL, Categorical=FALSE, Rows=NULL,
                Summ[,8] <- round(rowMeans((y - yhat)^2, na.rm=TRUE),3)
                Discrepancy.Statistic <- round(mean(Summ[,8], na.rm=TRUE),3)}
           if(!is.null(Discrep) && {Discrep == "PPL"}) {
-               Summ[,8] <- round(apply(yhat,1,var) + (d/(d+1)) *
+               Summ[,8] <- round(.rowVars(yhat) + (d/(d+1)) *
                     (rowMeans(yhat) - y)^2,3)
                Discrepancy.Statistic <- round(sum(Summ[,8], na.rm=TRUE),3)}
           if(!is.null(Discrep) && {Discrep == "Quadratic Loss"}) {
@@ -114,7 +114,7 @@ summary.vb.ppc <- function(object=NULL, Categorical=FALSE, Rows=NULL,
           if(!is.null(Discrep) && {Discrep == "sd(yhat[i,]) > sd(y)"}) {
                for (i in 1:length(y)) {Summ[i,8] <- sd(yhat[i,]) > sd(y)}
                Discrepancy.Statistic <- round(mean(Summ[,8], na.rm=TRUE),3)}
-          L <- round(sqrt(apply(yhat,1,var) + (y - rowMeans(yhat))^2), 3)
+          L <- round(sqrt(.rowVars(yhat) + (y - rowMeans(yhat))^2), 3)
           S.L <- round(sd(L, na.rm=TRUE),3); L <- round(sum(L, na.rm=TRUE),3)
           ### Deviance
           Dbar <- round(mean(Deviance, na.rm=TRUE),3)

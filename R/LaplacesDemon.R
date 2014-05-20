@@ -1349,7 +1349,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      Summ1 <- matrix(NA, LIV, 7, dimnames=list(Data$parm.names,
           c("Mean","SD","MCSE","ESS","LB","Median","UB")))
      Summ1[,1] <- colMeans(thinned)
-     Summ1[,2] <- apply(thinned, 2, sd)
+     Summ1[,2] <- sqrt(.colVars(thinned))
      Summ1[,3] <- 0
      Summ1[,4] <- ESS1
      Summ1[,5] <- apply(thinned, 2, quantile, c(0.025), na.rm=TRUE)
@@ -1399,7 +1399,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           Mon2 <- matrix(Mon[Stat.at:thinned.rows,],
                thinned.rows-Stat.at+1, ncol(Mon))
           Summ2[,1] <- colMeans(thinned2)
-          Summ2[,2] <- apply(thinned2, 2, sd)
+          Summ2[,2] <- sqrt(.colVars(thinned2))
           Summ2[,3] <- 0
           Summ2[,4] <- ESS4
           Summ2[,5] <- apply(thinned2, 2, quantile, c(0.025), na.rm=TRUE)
@@ -1738,7 +1738,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     DiagCovar <- rbind(DiagCovar, tuning)}}}
      DiagCovar <- DiagCovar[-1,]
      out <- list(Acceptance=Iterations, Dev=Dev, DiagCovar=DiagCovar,
-          Mon=Mon, thinned=thinned, VarCov=apply(thinned, 2, var))
+          Mon=Mon, thinned=thinned, VarCov=.colVars(thinned))
      return(out)
      }
 .mcmcahmc <- function(Model, Data, Iterations, Status, Thinning, Specs,
@@ -1819,7 +1819,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           DiagCovar=DiagCovar,
           Mon=Mon,
           thinned=thinned,
-          VarCov=apply(thinned, 2, var))
+          VarCov=.colVars(thinned))
      return(out)
      }
 .mcmcaies <- function(Model, Data, Iterations, Status, Thinning, Specs,
@@ -1978,7 +1978,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           DiagCovar=DiagCovar,
           Mon=Mon,
           thinned=thinned,
-          VarCov=apply(thinned, 2, var))
+          VarCov=.colVars(thinned))
      return(out)
      }
 .mcmcam <- function(Model, Data, Iterations, Status, Thinning, Specs,
@@ -2341,7 +2341,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                DiagCovar=DiagCovar,
                Mon=Mon,
                thinned=thinned,
-               VarCov=apply(thinned, 2, var))
+               VarCov=.colVars(thinned))
           return(out)
           }
      else {
@@ -2397,7 +2397,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                DiagCovar=DiagCovar,
                Mon=Mon,
                thinned=thinned,
-               VarCov=apply(thinned, 2, var))
+               VarCov=.colVars(thinned))
           return(out)
           }
      }
@@ -2488,7 +2488,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           DiagCovar=thinned,
           Mon=Mon,
           thinned=thinned,
-          VarCov=apply(thinned, 2, var))
+          VarCov=.colVars(thinned))
      return(out)
      }
 .mcmcdram <- function(Model, Data, Iterations, Status, Thinning, Specs,
@@ -2957,7 +2957,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     Dev[t.iter] <- Mo0[["Dev"]]
                     Mon[t.iter, ] <- Mo0[["Monitor"]]}}}
      out <- list(Acceptance=Iterations, Dev=Dev, DiagCovar=DiagCovar,
-          Mon=Mon, thinned=thinned, VarCov=apply(thinned, 2, var))
+          Mon=Mon, thinned=thinned, VarCov=.colVars(thinned))
      return(out)
      }
 ### Griddy-Gibbs Continuous Parameter (Non-Parallelized)
@@ -3120,7 +3120,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                DiagCovar=DiagCovar,
                Mon=Mon,
                thinned=thinned,
-               VarCov=apply(thinned, 2, var))
+               VarCov=.colVars(thinned))
           return(out)
           }
      else if(is.na(alpha.star) & {length(Block) > 0}) {
@@ -3172,7 +3172,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                DiagCovar=DiagCovar,
                Mon=Mon,
                thinned=thinned,
-               VarCov=apply(thinned, 2, var))
+               VarCov=.colVars(thinned))
           return(out)
           }
      else if(length(Block) == 0) {
@@ -3228,7 +3228,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                DiagCovar=DiagCovar,
                Mon=Mon,
                thinned=thinned,
-               VarCov=apply(thinned, 2, var))
+               VarCov=.colVars(thinned))
           return(out)
           }
      else {
@@ -3291,7 +3291,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                DiagCovar=DiagCovar,
                Mon=Mon,
                thinned=thinned,
-               VarCov=apply(thinned, 2, var))
+               VarCov=.colVars(thinned))
           return(out)
           }
      }
@@ -3359,7 +3359,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           DiagCovar=matrix(epsilon, 1, LIV),
           Mon=Mon,
           thinned=thinned,
-          VarCov=apply(thinned, 2, var))
+          VarCov=.colVars(thinned))
      return(out)
      }
 .mcmchmcda <- function(Model, Data, Iterations, Status, Thinning, Specs,
@@ -3497,7 +3497,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           DiagCovar=DiagCovar,
           Mon=Mon,
           thinned=thinned,
-          VarCov=apply(thinned, 2, var))
+          VarCov=.colVars(thinned))
      return(out)
      }
 .mcmcim <- function(Model, Data, Iterations, Status, Thinning, Specs,
@@ -3992,7 +3992,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           DiagCovar=DiagCovar,
           Mon=Mon,
           thinned=thinned,
-          VarCov=apply(thinned, 2, var))
+          VarCov=.colVars(thinned))
      return(out)
      }
 .mcmcmwg <- function(Model, Data, Iterations, Status, Thinning, Specs,
@@ -4338,7 +4338,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           DiagCovar=DiagCovar,
           Mon=Mon,
           thinned=thinned,
-          VarCov=apply(thinned, 2, var))
+          VarCov=.colVars(thinned))
      return(out)
      }
 .mcmcohss <- function(Model, Data, Iterations, Status, Thinning, Specs,
@@ -4548,7 +4548,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           DiagCovar=DiagCovar,
           Mon=Mon,
           thinned=thinned,
-          VarCov=apply(thinned,2,var))
+          VarCov=.colVars(thinned))
      return(out)
      }
 .mcmcrefractive <- function(Model, Data, Iterations, Status, Thinning,
@@ -4630,7 +4630,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           DiagCovar=DiagCovar,
           Mon=Mon,
           thinned=thinned,
-          VarCov=apply(thinned, 2, var))
+          VarCov=.colVars(thinned))
      return(out)
      }
 .mcmcrj <- function(Model, Data, Iterations, Status, Thinning, Specs,
@@ -4724,7 +4724,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           DiagCovar=DiagCovar,
           Mon=Mon,
           thinned=thinned,
-          VarCov=apply(thinned, 2, var))
+          VarCov=.colVars(thinned))
      return(out)
      }
 .mcmcrss <- function(Model, Data, Iterations, Status, Thinning, Specs,
@@ -4780,7 +4780,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           DiagCovar=DiagCovar,
           Mon=Mon,
           thinned=thinned,
-          VarCov=apply(thinned, 2, var))
+          VarCov=.colVars(thinned))
      return(out)
      }
 .mcmcrwm <- function(Model, Data, Iterations, Status, Thinning, Specs,
@@ -4913,7 +4913,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           if(length(staticparms) == 1) staticsample <- staticparms
           else staticsample <- sample(staticparms)
           if(ncol(Dyn) == 1) dynsample <- sample(Dyn)
-          else dynsample <- as.vector(apply(Dyn,1,sample))
+          else dynsample <- as.vector(apply(Dyn, 1, sample))
           totsample <- c(staticsample, dynsample)
           ### Componentwise Estimation
           for (j in totsample) {
@@ -5005,7 +5005,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           DiagCovar=DiagCovar,
           Mon=Mon,
           thinned=thinned,
-          VarCov=apply(thinned, 2, var))
+          VarCov=.colVars(thinned))
      return(out)
      }
 .mcmcslice <- function(Model, Data, Iterations, Status, Thinning, Specs,
@@ -5118,7 +5118,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           DiagCovar=DiagCovar,
           Mon=Mon,
           thinned=thinned,
-          VarCov=apply(thinned, 2, var))
+          VarCov=.colVars(thinned))
      return(out)
      }
 .mcmcsmwg <- function(Model, Data, Iterations, Status, Thinning, Specs,
@@ -5148,7 +5148,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           if(length(staticparms) == 1) staticsample <- staticparms
           else staticsample <- sample(staticparms)
           if(ncol(Dyn) == 1) dynsample <- sample(Dyn)
-          else dynsample <- as.vector(apply(Dyn,1,sample))
+          else dynsample <- as.vector(apply(Dyn, 1, sample))
           totsample <- c(staticsample, dynsample)
           ### Componentwise Estimation
           for (j in totsample) {
@@ -5246,7 +5246,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           DiagCovar=matrix(epsilon, 1, LIV),
           Mon=Mon,
           thinned=thinned,
-          VarCov=apply(thinned, 2, var))
+          VarCov=.colVars(thinned))
      return(out)
      }
 .mcmctwalk <- function(Model, Data, Iterations, Status, Thinning, Specs,
@@ -5614,7 +5614,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                DiagCovar=DiagCovar,
                Mon=Mon,
                thinned=thinned,
-               VarCov=apply(thinned, 2, var))
+               VarCov=.colVars(thinned))
           return(out)
           }
      out <- Runtwalk(Iterations=Iterations, dim=LIV, x0=Mo0[["parm"]],
@@ -5752,7 +5752,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                Mon[t.iter,] <- Mo0[["Monitor"]]}
           ### Select Order of Parameters
           if(ncol(Dyn) == 1) dynsample <- sample(Dyn)
-          else dynsample <- as.vector(apply(Dyn,1,sample))
+          else dynsample <- as.vector(apply(Dyn, 1, sample))
           ### Componentwise Estimation
           for (j in dynsample) {
                ### Propose new parameter values
@@ -5832,7 +5832,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                Mon[t.iter,] <- Mo0[["Monitor"]]}
           ### Select Order of Parameters
           if(ncol(Dyn) == 1) dynsample <- sample(Dyn)
-          else dynsample <- as.vector(apply(Dyn,1,sample))
+          else dynsample <- as.vector(apply(Dyn, 1, sample))
           ### Componentwise Estimation
           for (j in dynsample) {
                ### Propose new parameter values

@@ -49,13 +49,13 @@ SensitivityAnalysis <- function(Fit1, Fit2, Pred1, Pred2)
      rownames(Posterior) <- colnames(post1)
      colnames(Posterior) <- c("p(Fit1 > Fit2)", "var(Fit1) / var(Fit2)")
      Posterior[,1] <- colMeans(post1 > post2)
-     Posterior[,2] <- apply(post1, 2, var) / apply(post1, 2, var)
+     Posterior[,2] <- .colVars(post1) / .colVars(post2)
      Post.Pred.Dist <- matrix(NA, nrow(yhat1), 2)
      rownames(Post.Pred.Dist) <- rownames(yhat1)
      colnames(Post.Pred.Dist) <- c("p(Pred1 > Pred2)",
           "var(Pred1) / var(Pred2)")
      Post.Pred.Dist[,1] <- rowMeans(yhat1 > yhat2)
-     Post.Pred.Dist[,2] <- apply(yhat1, 1, var) / apply(yhat2, 1, var)
+     Post.Pred.Dist[,2] <- .rowVars(yhat1) / .rowVars(yhat2)
      ### Output
      out <- list(Posterior=Posterior, Post.Pred.Dist=Post.Pred.Dist)
      class(out) <- "sensitivity"

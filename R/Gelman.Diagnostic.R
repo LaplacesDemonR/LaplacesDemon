@@ -74,8 +74,8 @@ Gelman.Diagnostic <- function(x, confidence=0.95, transform=FALSE)
      w <- diag(W)
      b <- diag(B)
      s2 <- matrix(apply(S2, 3, diag), nrow=Nvar, ncol=Nchain)
-     muhat <- apply(xbar, 1, mean)
-     var.w <- apply(s2, 1, var) / Nchain
+     muhat <- rowMeans(xbar)
+     var.w <- .rowVars(s2) / Nchain
      var.b <- (2 * b^2) / (Nchain - 1)
      cov.wb <- (Niter / Nchain) * diag(var(t(s2), t(xbar^2)) -
           2 * muhat * var(t(s2), t(xbar)))

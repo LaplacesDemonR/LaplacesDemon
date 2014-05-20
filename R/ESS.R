@@ -23,7 +23,7 @@ ESS <- function(x)
                     order[i] <- ar.out$order}}}
      spec <- list(spec=v0, order=order)
      spec <- spec$spec
-     temp <- N*apply(x, 2, var)/spec
+     temp <- N * .colVars(x) / spec
      out <- spec
      out[which(spec != 0)] <- temp[which(spec != 0)]
      out[which(out < .Machine$double.eps)] <- .Machine$double.eps

@@ -124,7 +124,7 @@ Combine <- function(x, Data, Thinning=1)
      Summ1 <- matrix(NA, LIV, 7, dimnames=list(Data$parm.names,
           c("Mean","SD","MCSE","ESS","LB","Median","UB")))
      Summ1[,1] <- colMeans(thinned)
-     Summ1[,2] <- apply(thinned, 2, sd)
+     Summ1[,2] <- sqrt(.colVars(thinned))
      Summ1[,3] <- 0
      Summ1[,4] <- ESS1
      Summ1[,5] <- apply(thinned, 2, quantile, c(0.025), na.rm=TRUE)
@@ -175,7 +175,7 @@ Combine <- function(x, Data, Thinning=1)
           Mon2 <- matrix(Mon[Stat.at:thinned.rows,],
                thinned.rows-Stat.at+1, ncol(Mon))
           Summ2[,1] <- colMeans(thinned2)
-          Summ2[,2] <- apply(thinned2, 2, sd)
+          Summ2[,2] <- sqrt(.colVars(thinned2))
           Summ2[,3] <- 0
           Summ2[,4] <- ESS4
           Summ2[,5] <- apply(thinned2, 2, quantile, c(0.025), na.rm=TRUE)

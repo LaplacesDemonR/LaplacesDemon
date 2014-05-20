@@ -24,7 +24,7 @@ deburn <- function(x, BurnIn=0)
      x$Thinned.Samples <- x$Thinned.Samples - BurnIn
      ### Summary1
      x$Summary1[1:LIV,1] <- colMeans(x$Posterior1)
-     x$Summary1[1:LIV,2] <- apply(x$Posterior1, 2, sd)
+     x$Summary1[1:LIV,2] <- sqrt(.colVars(x$Posterior1))
      x$Summary1[1:LIV,4] <- ESS(x$Posterior1)
      x$Summary1[1:LIV,5] <- apply(x$Posterior1, 2, quantile, c(0.025),
           na.rm=TRUE)
@@ -54,7 +54,7 @@ deburn <- function(x, BurnIn=0)
      ### Monitor
      Num.Mon <- ncol(x$Monitor)
      x$Summary1[LIV+1+1:Num.Mon,1] <- colMeans(x$Monitor)
-     x$Summary1[LIV+1+1:Num.Mon,2] <- apply(x$Monitor, 2, sd)
+     x$Summary1[LIV+1+1:Num.Mon,2] <- sqrt(.colVars(x$Monitor))
      x$Summary1[LIV+1+1:Num.Mon,4] <- ESS(x$Monitor)
      x$Summary1[LIV+1+1:Num.Mon,5] <- apply(x$Monitor, 2, quantile,
           c(0.025), na.rm=TRUE)

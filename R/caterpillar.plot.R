@@ -333,7 +333,7 @@ caterpillar.plot <- function(x, Parms=NULL, Title=NULL)
           x <- as.matrix(x)
           x.hpd <- p.interval(x, HPD=TRUE, MM=FALSE, prob=0.95)
           x.median <- apply(x, 2, median)
-          x <- cbind(apply(x, 2, mean), apply(x, 2, sd),
+          x <- cbind(colMeans(x), sqrt(.colVars(x)),
                apply(x, 2, MCSE), ESS(x), x.hpd[,1],
                apply(x, 2, median), x.hpd[,2])
           rownames(x) <- rownames(x.hpd)

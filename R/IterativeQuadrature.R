@@ -195,7 +195,7 @@ IterativeQuadrature <- function(Model, parm, Data, Covar=NULL,
                dimnames=list(Data$parm.names,
                     c("Mean","SD","MCSE","ESS","LB","Median","UB")))
           Summ2[,1] <- colMeans(posterior)
-          Summ2[,2] <- apply(posterior, 2, sd)
+          Summ2[,2] <- sqrt(.colVars(posterior))
           Summ2[,3] <- Summ2[,2] / sqrt(nrow(posterior))
           Summ2[,4] <- rep(nrow(posterior), ncol(posterior))
           Summ2[,5] <- apply(posterior, 2, quantile, c(0.025))

@@ -270,7 +270,7 @@ PMC <- function(Model, Data, Initial.Values, Covar=NULL, Iterations=10,
      Summ <- matrix(NA, LIV, 7, dimnames=list(Data$parm.names,
           c("Mean","SD","MCSE","ESS","LB","Median","UB")))
      Summ[,1] <- colMeans(Posterior2)
-     Summ[,2] <- apply(Posterior2, 2, sd)
+     Summ[,2] <- sqrt(.colVars(Posterior2))
      Summ[,3] <- 0
      Summ[,4] <- ESS(Posterior2)
      Summ[,5] <- apply(Posterior2, 2, quantile, c(0.025), na.rm=TRUE)

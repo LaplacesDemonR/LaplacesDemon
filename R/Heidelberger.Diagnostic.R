@@ -69,7 +69,7 @@ Heidelberger.Diagnostic <- function(x, eps=0.1, pvalue=0.05)
                u <- (4*k + 1)^2/(16*q)
                y[k+1,] <- ifelse(u > -log.eps, 0,
                     z * exp(-u) * besselK(x=u, nu=1/4))}
-          return(apply(y,2,sum))
+          return(colSums(y))
           }
      ### Heidelberger and Welch Diagnostic
      for (j in 1:ncol(x)) {

@@ -12,7 +12,7 @@ summary.miss <- function(object=NULL, ...)
      Summ <- matrix(NA, nrow(x), 7, dimnames=list(1:nrow(x),
           c("Mean","SD","MCSE","ESS","LB","Median","UB")))
      Summ[,1] <- rowMeans(x)
-     Summ[,2] <- apply(x, 1, sd)
+     Summ[,2] <- sqrt(.rowVars(x))
      Summ[,3] <- 0
      Summ[,4] <- 0
      Summ[,5] <- apply(x, 1, quantile, c(0.025), na.rm=TRUE)

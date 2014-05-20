@@ -1,5 +1,6 @@
 \name{LaplacesDemon-package}
 \alias{LaplacesDemon-package}
+\alias{.colVars}
 \alias{.iqagh}
 \alias{.iqaghsg}
 \alias{.iqcagh}
@@ -66,6 +67,7 @@
 \alias{.mcmcuess}
 \alias{.mcmcusamwg}
 \alias{.mcmcusmwg}
+\alias{.rowVars}
 \alias{.vbsalimans2}
 \docType{package}
 \title{The LaplacesDemon Package}

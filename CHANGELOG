@@ -1,3 +1,4 @@
+2014-05-19 Matrices: Added .colVars and .rowVars
 2014-05-19 LaplacesDemon: OHSS may now be non-adaptive
 2014-05-17 LaplacesDemon: Ensured minimum tuning and diag(Covar)
 2014-05-17 LaplacesDemon: Replaced some sample with sample.int

@@ -206,6 +206,13 @@ as.symmetric.matrix <- function(x, k=NULL)
      else stop("x must be a vector or matrix.")
      return(symm)
      }
+.colVars <- function(X)
+     {
+     N <- nrow(X)
+     Y <- X - matrix(colMeans(X), N, ncol(X), byrow=TRUE)
+     Z <- colMeans(Y*Y)*N/{N-1}
+     return(Z)
+     }
 Cov2Cor <- function(Sigma)
      {
      if(missing(Sigma)) stop("Sigma is a required argument.")
@@ -545,6 +552,13 @@ read.matrix <- function(file, header=FALSE, sep=",", nrow=0, samples=0,
                cat("\n", sum(complete.cases(X)),
                     "row(s) found with missing values.")}}
      return(X)
+     }
+.rowVars <- function(X)
+     {
+     N <- ncol(X)
+     Y <- X - matrix(rowMeans(X), nrow(X), N)
+     Z <- rowMeans(Y*Y)*N/{N-1}
+     return(Z)
      }
 SparseGrid <- function(J, K)
      {
