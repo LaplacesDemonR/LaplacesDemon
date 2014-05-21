@@ -56,9 +56,9 @@
   a poorly mixing chain still searching for its target distribution
   will suddenly mix well after finding it, though mixing should improve.
   A poorly mixing chain does not necessarily indicate problems. A
-  smaller ESS is often due to correlated parameters, and is often found
-  for scale parameters. Posterior correlation may be obtained from the
-  \code{\link{PosteriorChecks}} function, and plotted with the
+  smaller ESS is often due to correlated parameters, and is commonly
+  found with scale parameters. Posterior correlation may be obtained
+  from the \code{\link{PosteriorChecks}} function, and plotted with the
   \code{\link{plotMatrix}} function. Common remedies for poor mixing
   include re-parameterizing the model or trying a different MCMC
   algorithm that better handles correlated parameters. Slow mixing is
