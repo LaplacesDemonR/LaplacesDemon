@@ -899,8 +899,8 @@ print(Fit)
 
 ##########################  No-U-Turn Sampler  ############################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
-#     Covar=NULL, Iterations=100, Status=10, Thinning=1,
-#     Algorithm="NUTS", Specs=list(A=50, delta=0.6, epsilon=NULL))
+#     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
+#     Algorithm="NUTS", Specs=list(A=500, delta=0.6, epsilon=NULL))
 
 #################  Oblique Hyperrectangle Slice Sampler  ##################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
