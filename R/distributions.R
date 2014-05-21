@@ -167,26 +167,26 @@ rbern <- function(n, prob)
 # Categorical Distribution                                                #
 ###########################################################################
 
-dcat <- function(x, p, log=FALSE)
+dcat <- function (x, p, log=FALSE) 
      {
-     if(is.vector(x) & !is.matrix(p))
-          p <- matrix(p, length(x), length(p), byrow=TRUE)
-     if(is.matrix(x) & !is.matrix(p))
-          p <- matrix(p, nrow(x), length(p), byrow=TRUE)
-     if(is.vector(x) & {length(x) == 1}) {
-          temp <- rep(0, ncol(p))
-          temp[x] <- 1
-          x <- t(temp)}
-     else if(is.vector(x) & (length(x) > 1))
-          x <- as.indicator.matrix(x)
-     if(!identical(nrow(x), nrow(p)))
+     if(!is.matrix(p)) {
+          if(is.vector(x)) p <- matrix(p, length(x), length(p), byrow=TRUE)
+          else p <- matrix(p, nrow(x), length(p), byrow=TRUE)}
+     if(is.vector(x)) {
+          if(length(x) == 1) {
+               temp <- rbind(rep(0, ncol(p)))
+               temp[1,x] <- 1
+               x <- temp
+               }
+          else x <- as.indicator.matrix(x)}
+     if(!identical(nrow(x), nrow(p))) 
           stop("The number of rows of x and p differ.")
      if(!identical(ncol(x), ncol(p))) {
           x.temp <- matrix(0, nrow(p), ncol(p))
-          x.temp[,as.numeric(colnames(x))] <- x
+          x.temp[, as.numeric(colnames(x))] <- x
           x <- x.temp}
-     dens <- x*log(p)
-     if(log == FALSE) dens <- x*p
+     dens <- x * log(p)
+     if(log == FALSE) dens <- x * p
      dens <- as.vector(rowSums(dens))
      return(dens)
      }
