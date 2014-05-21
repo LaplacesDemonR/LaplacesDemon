@@ -210,14 +210,20 @@ qcat <- function(pr, p, lower.tail=TRUE, log.pr=FALSE)
 rcat <- function(n, p)
      {
      if(is.vector(p)) {
-          x <- as.vector(which(rmultinom(n, size=1, prob=p) == 1,
-               arr.ind=TRUE)[, "row"])}
-     else {
-          n <- nrow(p)
-          x <- apply(p, 1, function(x) {
-               as.vector(which(rmultinom(1, size=1, prob=x) == 1,
-               arr.ind=TRUE)[, "row"])})
+          x <- as.vector(which(rmultinom(n, size=1, prob=p) == 
+               1, arr.ind=TRUE)[, "row"])
           }
+     else {
+          d <- dim(p)
+          n <- d[1]
+          k <- d[2]
+          lev <- dimnames(p)[[2]]
+          if(!length(lev)) lev <- 1:k
+          z <- colSums(p)
+          U <- apply(p, 1, cumsum)
+          U[,k] <- 1
+          un <- rep(runif(n), rep(k,n))
+          x <- lev[1 + colSums(un > U)]}
      return(x)
      }
 
