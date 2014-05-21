@@ -551,8 +551,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     if(!identical(names(Specs), c("A", "n")))
                           stop("The Specs argument is incorrect.",
                                file=LogFile, append=TRUE)
-                    Specs[["A"]] <- max(min(round(abs(Specs[["A"]])),
-                          Iterations+1), 0)
+                    Specs[["A"]] <- max(round(abs(Specs[["A"]])), 0)
                     Specs[["n"]] <- round(abs(Specs[["n"]]))}
                }
           else if(Algorithm == "RAM") {
@@ -4356,7 +4355,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      t.iter <- 1
      DiagCovar <- matrix(0, floor(Iterations/Thinning), LIV,
           byrow=TRUE)
-     post <- matrix(Mo0[["parm"]], A, LIV, byrow=TRUE)
+     if(A > Iterations)
+          post <- matrix(Mo0[["parm"]], Iterations, LIV, byrow=TRUE)
+     else post <- matrix(Mo0[["parm"]], A, LIV, byrow=TRUE)
      for (iter in 1:Iterations) {
           ### Print Status
           if(iter %% Status == 0)
@@ -4408,8 +4409,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           Mo0 <- Mo1
           if(iter <= A) post[iter,] <- Mo0[["parm"]]
           }
-     if(A <= Iterations)
-         VarCov <- {VarCov*n + cov(post)*Iterations} / {n+Iterations}
+     if(A > 0) VarCov <- {VarCov*n + cov(post)*Iterations} / {n+Iterations}
      ### Output
      out <- list(Acceptance=Iterations,
           Dev=Dev,
