@@ -241,6 +241,7 @@ Combine <- function(x, Data, Thinning=1)
           "Metropolis-within-Gibbs",
           "Multiple-Try Metropolis",
           "No-U-Turn Sampler",
+          "Oblique Hyperrectangle Slice Sampler",
           "Random Dive Metropolis-Hastings",
           "Random-Walk Metropolis",
           "Reflective Slice Sampler",
