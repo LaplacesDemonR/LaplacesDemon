@@ -944,6 +944,11 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                file=LogFile, append=TRUE)
           cat("     faster language such as C++ via the Rcpp package.\n",
                file=LogFile, append=TRUE)}
+     if(!identical(Model(Mo0[["parm"]], Data)[["LP"]], Mo0[["LP"]])) {
+          cat("WARNING: LP differs when initial values are held constant.\n",
+               file=LogFile, append=TRUE)
+          cat("     Derivatives may be problematic if used.\n",
+               file=LogFile, append=TRUE)}
      #########################  Initial Settings  #########################
      Acceptance <- 0
      if(!is.finite(Mo0[["LP"]])) {
@@ -1113,6 +1118,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      cat("Algorithm:", Algorithm, "\n", file=LogFile, append=TRUE)
      cat("\nLaplace's Demon is beginning to update...\n", file=LogFile,
           append=TRUE)
+     options(warn=2)
      if(Algorithm == "Adaptive Directional Metropolis-within-Gibbs") {
           mcmc.out <- .mcmcadmg(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
@@ -1284,6 +1290,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
                thinned, tuning, parm.names=Data$parm.names, LogFile)}
      else stop("The algorithm is unrecognized.", file=LogFile, append=TRUE)
+     options(warn=0)
      #########################  MCMC is Finished  #########################
      Acceptance <- mcmc.out$Acceptance
      Dev <- mcmc.out$Dev
@@ -1464,6 +1471,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           "Metropolis-within-Gibbs",
           "Multiple-Try Metropolis",
           "No-U-Turn Sampler",
+          "Oblique Hyperrectangle Slice Sampler",
           "Random Dive Metropolis-Hastings",
           "Random-Walk Metropolis",
           "Reflective Slice Sampler",
@@ -1559,7 +1567,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop <- Mo0[["parm"]]
                prop[j] <- prop[j] + lambda[j]
                ### Log-Posterior of the proposed state
-               Mo1 <- Model(prop, Data)
+               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
                     Mo1 <- Mo0
@@ -1614,7 +1623,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           theta <- prop[j] + x
           for (g in 1:G) {
                prop[j] <- theta[g]
-               Mo1 <- Model(prop, Data)
+               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                LP.grid[g] <- Mo1[["LP"]]
                theta[g] <- Mo1[["parm"]][j]}
           if(all(!is.finite(LP.grid))) LP.grid <- rep(0, G)
@@ -1626,7 +1636,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           if(length(which(s$y > 0)) == 0)
                prop[j] <- theta[which.max(LP.grid)[1]]
           else prop[j] <- sample(s$x, 1, prob=s$y)
-          Mo1 <- Model(prop, Data)
+          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]])))) Mo1 <- Mo0
           else tuning[j] <- min(max(sqrt(sum(LP.grid * x^2)),
@@ -1659,7 +1670,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           if(length(which(s$y > 0)) == 0)
                prop[j] <- theta[which.max(LP.grid)[1]]
           else prop[j] <- sample(s$x, 1, prob=s$y)
-          Mo1 <- Model(prop, Data)
+          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]])))) Mo1 <- Mo0
           else tuning[j] <- min(max(sqrt(sum(LP.grid * x^2)),
@@ -1772,12 +1784,14 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           Mo0.1 <- Mo0
           for (l in 1:L) {
                prop <- prop + epsilon * momentum1
-               Mo1 <- Model(prop, Data)
+               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               if(inherits(Mo1, "try-error")) Mo1 <- Mo0.1
                if(any(Mo0.1[["parm"]] == Mo1[["parm"]])) {
                     nomove <- which(Mo0.1[["parm"]] == Mo1[["parm"]])
                     momentum1[nomove] <- -momentum1[nomove]
                     prop[nomove] <- prop[nomove] + momentum1[nomove]
-                    Mo1 <- Model(prop, Data)}
+                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    if(inherits(Mo1, "try-error")) Mo1 <- Mo0.1}
                Mo0.1 <- Mo1
                prop <- Mo1[["parm"]]
                gr1 <- partial(Model, prop, Data)
@@ -1864,7 +1878,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                               round(Mo0[[1]][["LP"]],1), "\n", sep="",
                               file=LogFile, append=TRUE)
                     ### Log-Posterior of the proposed state
-                    Mo1 <- Model(prop, Data)
+                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    if(inherits(Mo1, "try-error")) Mo1 <- Mo0[[i]]
                     if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]]))))
                          Mo1 <- Mo0[[i]]
@@ -2022,7 +2037,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                j <- ceiling(runif(1,0,LIV))
                prop[j] <- rnorm(1, post[iter,j], tuning[j])}
           ### Log-Posterior of the proposed state
-          Mo1 <- Model(prop, Data)
+          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]]))))
                Mo1 <- Mo0
@@ -2105,7 +2121,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          round(Mo0[["LP"]],1), "\n", sep="",
                          file=LogFile, append=TRUE)}
           ### Log-Posterior of the proposed state
-          Mo1 <- Model(prop, Data)
+          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]]))))
                Mo1 <- Mo0
@@ -2191,7 +2208,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                               round(Mo0[["LP"]],1), "\n", sep="",
                               file=LogFile, append=TRUE)}
                ### Log-Posterior of the proposed state
-               Mo1 <- Model(prop, Data)
+               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
                     Mo1 <- Mo0
@@ -2258,7 +2276,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop <- Mo0[["parm"]]
                prop[j] <- prop[j] + propdraw[j]
                ### Log-Posterior of the proposed state
-               Mo1 <- Model(prop, Data)
+               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
                     Mo1 <- Mo0
@@ -2320,7 +2339,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     prop <- Mo0[["parm"]]
                     prop[j] <- prop[j] + lambda*theta[j]
                     ### Log-Posterior of the proposed state
-                    Mo1 <- Model(prop, Data)
+                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                     if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]]))))
                          Mo1 <- Mo0
@@ -2369,7 +2389,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     prop <- Mo0[["parm"]]
                     prop[j] <- prop[j] + tau[j]*lambda*theta[j]
                     ### Log-Posterior of the proposed state
-                    Mo1 <- Model(prop, Data)
+                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                     if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]]))))
                          Mo1 <- Mo0
@@ -2460,7 +2481,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          round(Mo0[[1]][["LP"]],1), "\n", sep="",
                          file=LogFile, append=TRUE)
                ### Log-Posterior of the proposed state
-               Mo1 <- Model(prop, Data)
+               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               if(inherits(Mo1, "try-error")) Mo1 <- Mo0[[i]]
                if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
                     Mo1 <- Mo0[[i]]
@@ -2532,7 +2554,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                j <- ceiling(runif(1,0,LIV))
                prop[j] <- rnorm(1, post[iter,j], tuning[j])}
           ### Log-Posterior of the proposed state
-          Mo1 <- Model(prop, Data)
+          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]]))))
                Mo1 <- Mo0
@@ -2562,7 +2585,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     j <- ceiling(runif(1,0,LIV))
                     prop[j] <- rnorm(1, post[iter,j], tuning[j])}
                ### Log-Posterior of the proposed state
-               Mo2 <- Model(prop, Data)
+               Mo2 <- try(Model(prop, Data), silent=TRUE)
+               if(inherits(Mo2, "try-error")) Mo2 <- Mo0
                if(any(!is.finite(c(Mo2[["LP"]], Mo2[["Dev"]],
                     Mo2[["Monitor"]]))))
                     Mo2 <- Mo0
@@ -2648,7 +2672,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                j <- ceiling(runif(1,0,LIV))
                prop[j] <- rnorm(1, Mo0[["parm"]][j], tuning[j])}
           ### Log-Posterior of the proposed state
-          Mo1 <- Model(prop, Data)
+          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]]))))
                Mo1 <- Mo0
@@ -2677,7 +2702,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     j <- ceiling(runif(1,0,LIV))
                     prop[j] <- rnorm(1, Mo0[["parm"]][j], tuning[j])}
                ### Log-Posterior of the proposed state
-               Mo2 <- Model(prop, Data)
+               Mo2 <- try(Model(prop, Data), silent=TRUE)
+               if(inherits(Mo2, "try-error")) Mo2 <- Mo0
                if(any(!is.finite(c(Mo2[["LP"]], Mo2[["Dev"]],
                     Mo2[["Monitor"]]))))
                     Mo2 <- Mo0
@@ -2740,7 +2766,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                while (shrink == TRUE) {
                     prop <- Mo0[["parm"]]*cos(theta) + nu*sin(theta)
                     ### Log-Posterior of the proposed state
-                    Mo1 <- Model(prop, Data)
+                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                     if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]]))))
                          Mo1 <- Mo0
@@ -2799,7 +2826,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          prop[Block[[b]]] <- Mo0[["parm"]][Block[[b]]]*cos(theta) +
                               nu[Block[[b]]]*sin(theta)
                          ### Log-Posterior of the proposed state
-                         Mo1 <- Model(prop, Data)
+                         Mo1 <- try(Model(prop, Data), silent=TRUE)
+                         if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                          if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                               Mo1[["Monitor"]]))))
                               Mo1 <- Mo0
@@ -2856,8 +2884,11 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                Dev[t.iter] <- Mo0[["Dev"]]
                Mon[t.iter,] <- Mo0[["Monitor"]]}
           ### Gibbs Sampling of Full Conditionals
-          prop <- FC(Mo0[["parm"]], Data)
-          Mo0 <- Model(prop, Data)
+          prop <- try(FC(Mo0[["parm"]], Data), silent=TRUE)
+          if(inherits(prop, "try-error")) prop <- Mo0[["parm"]]
+          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          if(inherits(Mo1, "try-error")) Mo1 <- Mo0
+          Mo0 <- Mo1
           ### Metropolis-within-Gibbs
           if(MWGlen > 0) {
                ### Random-Scan Componentwise Estimation
@@ -2866,7 +2897,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     prop <- Mo0[["parm"]]
                     prop[j] <- rnorm(1, prop[j], tuning[j])
                     ### Log-Posterior of the proposed state
-                    Mo1 <- Model(prop, Data)
+                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                     if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]]))))
                          Mo1 <- Mo0
@@ -2968,7 +3000,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      theta <- prop[j] + Grid[[j]]
      for (g in 1:G) {
           prop[j] <- theta[g]
-          Mo1 <- Model(prop, Data)
+          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           LP.grid[g] <- Mo1[["LP"]]
           theta[g] <- Mo1[["parm"]][j]}
      if(all(!is.finite(LP.grid))) LP.grid <- rep(0, G)
@@ -2980,7 +3013,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      if(length(which(s$y > 0)) == 0)
           prop[j] <- theta[which.max(LP.grid)[1]]
      else prop[j] <- sample(s$x, 1, prob=s$y)
-     Mo1 <- Model(prop, Data)
+     Mo1 <- try(Model(prop, Data), silent=TRUE)
+     if(inherits(Mo1, "try-error")) Mo1 <- Mo0
      if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
           Mo1[["Monitor"]])))) Mo1 <- Mo0
      Mo0 <- Mo1
@@ -3011,7 +3045,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      if(length(which(s$y > 0)) == 0)
           prop[j] <- theta[which.max(LP.grid)[1]]
      else prop[j] <- sample(s$x, 1, prob=s$y)
-     Mo1 <- Model(prop, Data)
+     Mo1 <- try(Model(prop, Data), silent=TRUE)
+     if(inherits(Mo1, "try-error")) Mo1 <- Mo0
      if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
           Mo1[["Monitor"]])))) Mo1 <- Mo0
      Mo0 <- Mo1
@@ -3027,7 +3062,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      theta <- Grid[[j]]
      for (g in 1:G) {
           prop[j] <- theta[g]
-          Mo1 <- Model(prop, Data)
+          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           LP.grid[g] <- Mo1[["LP"]]
           theta[g] <- Mo1[["parm"]][j]}
      if(all(!is.finite(LP.grid))) LP.grid <- rep(0, G)
@@ -3035,7 +3071,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      LP.grid <- exp(LP.grid - logadd(LP.grid))
      LP.grid <- LP.grid / sum(LP.grid)
      prop[j] <- sample(theta, 1, prob=LP.grid)
-     Mo1 <- Model(prop, Data)
+     Mo1 <- try(Model(prop, Data), silent=TRUE)
+     if(inherits(Mo1, "try-error")) Mo1 <- Mo0
      if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
           Mo1[["Monitor"]])))) Mo1 <- Mo0
      Mo0 <- Mo1
@@ -3062,7 +3099,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      LP.grid <- exp(LP.grid - logadd(LP.grid))
      LP.grid <- LP.grid / sum(LP.grid)
      prop[j] <- sample(theta, 1, prob=LP.grid)
-     Mo1 <- Model(prop, Data)
+     Mo1 <- try(Model(prop, Data), silent=TRUE)
+     if(inherits(Mo1, "try-error")) Mo1 <- Mo0
      if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
           Mo1[["Monitor"]])))) Mo1 <- Mo0
      Mo0 <- Mo1
@@ -3096,7 +3134,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          round(Mo0[["LP"]],1), "\n", sep="",
                          file=LogFile, append=TRUE)
                ### Log-Posterior of the proposed state
-               Mo1 <- Model(prop, Data)
+               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
                     Mo1 <- Mo0
@@ -3147,7 +3186,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                               round(Mo0[["LP"]],1), "\n", sep="",
                               file=LogFile, append=TRUE)
                     ### Log-Posterior of the proposed state
-                    Mo1 <- Model(prop, Data)
+                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                     if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]]))))
                          Mo1 <- Mo0
@@ -3197,7 +3237,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          round(Mo0[["LP"]],1), "\n", sep="",
                          file=LogFile, append=TRUE)
                ### Log-Posterior of the proposed state
-               Mo1 <- Model(prop, Data)
+               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
                     Mo1 <- Mo0
@@ -3258,7 +3299,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                               round(Mo0[["LP"]],1), "\n", sep="",
                               file=LogFile, append=TRUE)
                     ### Log-Posterior of the proposed state
-                    Mo1 <- Model(prop, Data)
+                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                     if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]]))))
                          Mo1 <- Mo0
@@ -3322,12 +3364,14 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           Mo0.1 <- Mo0
           for (l in 1:L) {
                prop <- prop + epsilon * momentum1
-               Mo1 <- Model(prop, Data)
+               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               if(inherits(Mo1, "try-error")) Mo1 <- Mo0.1
                if(any(Mo0.1[["parm"]] == Mo1[["parm"]])) {
                     nomove <- which(Mo0.1[["parm"]] == Mo1[["parm"]])
                     momentum1[nomove] <- -momentum1[nomove]
                     prop[nomove] <- prop[nomove] + momentum1[nomove]
-                    Mo1 <- Model(prop, Data)}
+                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    if(inherits(Mo1, "try-error")) Mo1 <- Mo0.1}
                Mo0.1 <- Mo1
                prop <- Mo1[["parm"]]
                gr1 <- partial(Model, prop, Data)
@@ -3369,11 +3413,12 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      epsilon <- Specs[["epsilon"]]
      Lmax <- Specs[["Lmax"]]
      lambda <- Specs[["lambda"]]
-     leapfrog <- function(theta, r, grad, epsilon, Model, Data)
+     leapfrog <- function(theta, r, grad, epsilon, Model, Data, Mo0)
           {
           rprime <- r + 0.5 * epsilon * grad
           thetaprime <-  theta + epsilon * rprime
-          Mo1 <- Model(thetaprime, Data)
+          Mo1 <- try(Model(thetaprime, Data), silent=TRUE)
+          if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           thetaprime <- Mo1[["parm"]]
           gradprime <- partial(Model, thetaprime, Data)
           rprime <- rprime + 0.5 * epsilon * gradprime
@@ -3391,7 +3436,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           epsilon <- 0.001
           r0 <- runif(length(theta0))
           ### Figure out which direction to move epsilon
-          leap <- leapfrog(theta0, r0, grad0, epsilon, Model, Data)
+          leap <- leapfrog(theta0, r0, grad0, epsilon, Model, Data, Mo0)
           if(!is.finite(leap$Mo1[["LP"]]))
                stop("LP is not finite in find.reasonable.epsilon().",
                     file=LogFile, append=TRUE)
@@ -3403,7 +3448,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           ### crosses 0.5
           while (acceptprob^a > 2^(-a)) {
                epsilon <- epsilon * 2^a
-               leap <- leapfrog(theta0, r0, grad0, epsilon, Model, Data)
+               leap <- leapfrog(theta0, r0, grad0, epsilon, Model, Data, Mo0)
                if(!is.finite(leap$Mo1[["LP"]]))
                     stop("LP is not finite in find.reasonable.epsilon().",
                          file=LogFile, append=TRUE)
@@ -3455,12 +3500,14 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           for (l in 1:L) {
                momentum1 <- momentum1 + 0.5 * epsilon * gr1
                prop <- prop + epsilon * momentum1
-               Mo1 <- Model(prop, Data)
+               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               if(inherits(Mo1, "try-error")) Mo1 <- Mo0.1
                if(any(Mo0.1[["parm"]] == Mo1[["parm"]])) {
                     nomove <- which(Mo0.1[["parm"]] == Mo1[["parm"]])
                     momentum1[nomove] <- -momentum1[nomove]
                     prop[nomove] <- prop[nomove] + momentum1[nomove]
-                    Mo1 <- Model(prop, Data)}
+                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    if(inherits(Mo1, "try-error")) Mo1 <- Mo0.1}
                Mo0.1 <- Mo1
                prop <- Mo1[["parm"]]
                gr1 <- partial(Model, prop, Data)
@@ -3528,7 +3575,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop <- as.vector(mu) + as.vector(MVNz)}
           else {prop <- as.vector(Mo0[["parm"]])}
           ### Log-Posterior of the proposed state
-          Mo1 <- Model(prop, Data)
+          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]]))))
                Mo1 <- Mo0
@@ -3609,7 +3657,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                j <- ceiling(runif(1,0,LIV))
                prop[j] <- rnorm(1, post[iter,j], tuning[j])}
           ### Log-Posterior of the proposed state
-          Mo1 <- Model(prop, Data)
+          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]]))))
                Mo1 <- Mo0
@@ -3721,7 +3770,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                as.vector(tcrossprod(Lambda, t(Dx)))*Dx,
                sigma2*Lambda))
           ### Log-Posterior of the proposed state
-          Mo1 <- Model(prop, Data)
+          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]]))))
                Mo1 <- Mo0
@@ -3819,8 +3869,10 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           for (i in 1:CPUs)
                prop[i,] <- Mo0[[i]][["parm"]] + rbind(rnorm(LIV)) %*% U
           ### Log-Posterior of the proposed state
-          Mo1 <- parLapply(cl, 1:CPUs, function(x) Model(prop[x,], Data))
+          Mo1 <- parLapply(cl, 1:CPUs, function(x)
+               try(Model(prop[x,], Data), silent=TRUE))
           for (i in 1:CPUs) {
+               if(inherits(Mo1[[i]], "try-error")) Mo1[[i]] <- Mo0[[i]]
                if(any(!is.finite(c(Mo1[[i]][["LP"]], Mo1[[i]][["Dev"]],
                     Mo1[[i]][["Monitor"]]))))
                     Mo1[[i]] <- Mo0[[i]]}
@@ -3922,6 +3974,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(CPUs == 1) {
                     ### Non-parallel
                     for (k in 1:K) {
+                         Mo1[[k]] <- try(Model(prop1[k,], Data), silent=TRUE)
+                         if(inherits(Mo1[[k]], "try-error"))
+                              Mo1[[k]] <- Mo0
                          Mo1[[k]] <- Model(prop1[k,], Data)
                          if(any(!is.finite(c(Mo1[[k]][["LP"]],
                               Mo1[[k]][["Dev"]], Mo1[[k]][["Monitor"]]))))
@@ -3932,8 +3987,10 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                else {
                     ### Parallel
                     Mo1 <- parLapply(cl, 1:K, function(x)
-                         Model(prop1[x,], Data))
+                         try(Model(prop1[x,], Data), silent=TRUE))
                     for (k in 1:K) {
+                         if(inherits(Mo1[[k]], "try-error"))
+                              Mo1[[k]] <- Mo0
                          if(any(!is.finite(c(Mo1[[k]][["LP"]],
                               Mo1[[k]][["Dev"]], Mo1[[k]][["Monitor"]]))))
                               Mo1[[k]] <- Mo0
@@ -3948,7 +4005,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop2 <- sample(prop1[,j], size=1, prob=w)
                prop5[j] <- prop2
                ### Create Reference Set
-               Mo2 <- Model(prop5, Data)
+               Mo2 <- try(Model(prop5, Data), silent=TRUE)
+               if(inherits(Mo2, "try-error")) Mo2 <- Mo0
                prop3 <- c(rnorm(K-1, Mo2[["parm"]][j], tuning[j]),
                     Mo2[["parm"]][j])
                prop4 <- prop1
@@ -3959,7 +4017,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(CPUs == 1) {
                     ### Non-parallel
                     for (k in 1:K) {
-                         Mo1[[k]] <- Model(prop4[k,], Data)
+                         Mo1[[k]] <- try(Model(prop4[k,], Data), silent=TRUE)
+                         if(inherits(Mo1[[k]], "try-error")) Mo1[[k]] <- Mo0
                          if(any(!is.finite(c(Mo1[[k]][["LP"]],
                               Mo1[[k]][["Dev"]], Mo1[[k]][["Monitor"]]))))
                               Mo1[[k]] <- Mo0
@@ -3968,8 +4027,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                else {
                     ### Parallel
                     Mo1 <- parLapply(cl, 1:K, function(x)
-                         Model(prop4[x,], Data))
+                         try(Model(prop4[x,], Data), silent=TRUE))
                     for (k in 1:K) {
+                         if(inherits(Mo1[[k]], "try-error")) Mo1[[k]] <- Mo0
                          if(any(!is.finite(c(Mo1[[k]][["LP"]],
                               Mo1[[k]][["Dev"]], Mo1[[k]][["Monitor"]]))))
                               Mo1[[k]] <- Mo0
@@ -4019,7 +4079,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop <- Mo0[["parm"]]
                prop[j] <- prop[j] + propdraw[j]
                ### Log-Posterior of the proposed state
-               Mo1 <- Model(prop, Data)
+               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
                     Mo1 <- Mo0
@@ -4049,11 +4110,12 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      delta <- Specs[["delta"]]
      epsilon <- Specs[["epsilon"]]
      post <- matrix(Mo0[["parm"]], Iterations, LIV, byrow=TRUE)
-     leapfrog <- function(theta, r, grad, epsilon, Model, Data)
+     leapfrog <- function(theta, r, grad, epsilon, Model, Data, Mo0)
           {
           rprime <- r + 0.5 * epsilon * grad
           thetaprime <-  theta + epsilon * rprime
-          Mo1 <- Model(thetaprime, Data)
+          Mo1 <- try(Model(thetaprime, Data), silent=TRUE)
+          if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           thetaprime <- Mo1[["parm"]]
           gradprime <- partial(Model, thetaprime, Data)
           rprime <- rprime + 0.5 * epsilon * gradprime
@@ -4070,11 +4132,11 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                (thetavec %*% rplus >= 0)
           return(criterion)
           }
-     build.tree <- function(theta, r, grad, logu, v, j, epsilon, joint0)
+     build.tree <- function(theta, r, grad, logu, v, j, epsilon, joint0, Mo0)
           {
           if(j == 0) {
                ### Base case: Take a single leapfrog step in direction v
-               leap <- leapfrog(theta, r, grad, v*epsilon, Model, Data)
+               leap <- leapfrog(theta, r, grad, v*epsilon, Model, Data, Mo0)
                rprime <- leap$rprime
                thetaprime <- leap$thetaprime
                Mo1 <- leap$Mo1
@@ -4183,7 +4245,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           epsilon <- 0.001
           r0 <- runif(length(theta0))
           ### Figure out which direction to move epsilon
-          leap <- leapfrog(theta0, r0, grad0, epsilon, Model, Data)
+          leap <- leapfrog(theta0, r0, grad0, epsilon, Model, Data, Mo0)
           if(!is.finite(leap$Mo1[["LP"]]))
                stop("LP is not finite in find.reasonable.epsilon().",
                     file=LogFile, append=TRUE)
@@ -4195,7 +4257,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           ### crosses 0.5
           while (acceptprob^a > 2^(-a)) {
                epsilon <- epsilon * 2^a
-               leap <- leapfrog(theta0, r0, grad0, epsilon, Model, Data)
+               leap <- leapfrog(theta0, r0, grad0, epsilon, Model, Data, Mo0)
                if(!is.finite(leap$Mo1[["LP"]]))
                     stop("LP is not finite in find.reasonable.epsilon().",
                          file=LogFile, append=TRUE)
@@ -4380,7 +4442,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                vals <- S.eig$values
                vecs <- S.eig$vectors}
           ### Slice Interval
-          y.slice <- Model(Mo0[["parm"]], Data)[["LP"]] - rexp(1)
+          #y.slice <- Model(Mo0[["parm"]], Data)[["LP"]] - rexp(1)
+          y.slice <- Mo0[["LP"]] - rexp(1)
           L <- -1 * runif(LIV)
           U <- L + 1
           ### Rejection Sampling
@@ -4388,15 +4451,15 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                wt <- runif(LIV, min=L, max=U)
                v <- as.numeric(vecs %*% {edge.scale * wt * vals})
                prop <- Mo0[["parm"]] + v
-               Mo1 <- Model(prop, Data)
+               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
                     Mo1 <- Mo0
                if(Mo1[["LP"]] >= y.slice) break
                else if(all(abs(wt) < 1e-100)) {
                     Mo1 <- Mo0
-                    break
-                    }
+                    break}
                L[wt < 0] <- wt[wt < 0]
                U[wt > 0] <- wt[wt > 0]}
           ### Save Thinned Samples
@@ -4409,7 +4472,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           Mo0 <- Mo1
           if(iter <= A) post[iter,] <- Mo0[["parm"]]
           }
-     if(A > 0) VarCov <- {VarCov*n + cov(post)*Iterations} / {n+Iterations}
+     if(A > 0) VarCov <- {VarCov*n + cov(post)*nrow(post)} / {n+nrow(post)}
      ### Output
      out <- list(Acceptance=Iterations,
           Dev=Dev,
@@ -4526,7 +4589,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop <- Mo0[["parm"]]
                prop[j] <- prop[j]*epsilon1[j]
                ### Log-Posterior of the proposed state
-               Mo1 <- Model(prop, Data)
+               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
                     Mo1 <- Mo0
@@ -4599,7 +4663,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          cos.theta.2)*u
                     a <- (r1 / r2)^(LIV-1)*(cos.theta.1 / cos.theta.2)*a}
                prop <- prop + w*p
-               Mo1 <- Model(prop, Data)
+               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
                     Mo1 <- Mo0
@@ -4686,7 +4751,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop <- Mo0[["parm"]] <- temp.post
                prop[j] <- prop[j] + lambda*theta[j]
                ### Log-Posterior of the proposed state
-               Mo1 <- Model(prop, Data)
+               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
                     Mo1 <- Mo0
@@ -4700,7 +4766,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           prop[v.change] <- prop.sel[v.change]*(prop[v.change] +
                lambda*theta[v.change])
           ### Log-Posterior of the proposed state
-          Mo1 <- Model(prop, Data)
+          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]], Mo1[["Monitor"]]))))
                Mo1 <- Mo0
           ### Accept/Reject (Between-Models Move)
@@ -4754,7 +4821,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           ### Take m Steps
           for (i in 1:m) {
                prop <- prop + w*p
-               Mo1 <- Model(prop, Data)
+               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
                     Mo1 <- Mo0
@@ -4763,7 +4831,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(Mo0[["LP"]] > Mo1[["LP"]]) {
                     reflections <- reflections + 1
                     p <- p - 2*g*{(t(p) %*% g) / Norm(g)^2}}}
-          Mo1 <- Model(prop, Data)
+          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]]))))
                Mo1 <- Mo0
@@ -4807,7 +4876,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop <- as.vector(Mo0[["parm"]] +
                     rbind(rnorm(LIV)) %*% U)
                ### Log-Posterior of the proposed state
-               Mo1 <- Model(prop, Data)
+               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
                     Mo1 <- Mo0
@@ -4855,7 +4925,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                               round(Mo0[["LP"]],1), "\n", sep="",
                               file=LogFile, append=TRUE)
                     ### Log-Posterior of the proposed state
-                    Mo1 <- Model(prop, Data)
+                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                     if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]]))))
                          Mo1 <- Mo0
@@ -4921,7 +4992,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop <- Mo0[["parm"]]
                prop[j] <- rnorm(1, prop[j], tuning[j])
                ### Log-Posterior of the proposed state
-               Mo1 <- Model(prop, Data)
+               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
                     Mo1 <- Mo0
@@ -4989,7 +5061,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           eta <- rnorm(LIV, 0, epsilon[iter])
           prop <- Mo0[["parm"]] + {epsilon[iter]/2}*g + eta
           ### Log-Posterior of the proposed state
-          Mo1 <- Model(prop, Data)
+          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]]))))
                Mo1 <- Mo0
@@ -5156,7 +5229,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop <- Mo0[["parm"]]
                prop[j] <- rnorm(1, prop[j], tuning[j])
                ### Log-Posterior of the proposed state
-               Mo1 <- Model(prop, Data)
+               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
                     Mo1 <- Mo0
@@ -5210,12 +5284,14 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                else momentum1 <- momentum1 / sqrt.Temp
                momentum1 <- momentum1 + (epsilon/2) * gr
                prop <- prop + epsilon * momentum1
-               Mo1 <- Model(prop, Data)
+               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               if(inherits(Mo1, "try-error")) Mo1 <- Mo0.1
                if(any(Mo0.1[["parm"]] == Mo1[["parm"]])) {
                     nomove <- which(Mo0.1[["parm"]] == Mo1[["parm"]])
                     momentum1[nomove] <- -momentum1[nomove]
                     prop[nomove] <- prop[nomove] + momentum1[nomove]
-                    Mo1 <- Model(prop, Data)}
+                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    if(inherits(Mo1, "try-error")) Mo1 <- Mo0.1}
                Mo0.1 <- Mo1
                prop <- Mo1[["parm"]]
                gr <- partial(Model, prop, Data)
@@ -5659,27 +5735,37 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                v <- S.eig$vectors[,which.eig] *
                     sqrt(abs(S.eig$values[which.eig]))}
           ### Slice Interval
-          y.slice <- Model(Mo0[["parm"]], Data)[["LP"]] - rexp(1)
+          #y.slice <- Model(Mo0[["parm"]], Data)[["LP"]] - rexp(1)
+          y.slice <- Mo0[["LP"]] - rexp(1)
           L <- -runif(1)
           U <- L + 1
           if(m > 0) {
-               L.y <- Model(Mo0[["parm"]] + v*L, Data)[["LP"]]
-               U.y <- Model(Mo0[["parm"]] + v*U, Data)[["LP"]]
+               L.y <- try(Model(Mo0[["parm"]] + v*L, Data)[["LP"]],
+                    silent=TRUE)
+               if(inherits(L.y, "try-error")) L.y <- Mo0[["LP"]]
+               U.y <- try(Model(Mo0[["parm"]] + v*U, Data)[["LP"]],
+                    silent=TRUE)
+               if(inherits(U.y, "try-error")) U.y <- Mo0[["LP"]]
                step <- 0
                while({L.y > y.slice || U.y > y.slice} && step < m) {
                     step <- step + 1
                     if(runif(1) < 0.5) {
                          L <- L - 1
-                         L.y <- Model(Mo0[["parm"]] + v*L, Data)[["LP"]]
+                         L.y <- try(Model(Mo0[["parm"]] + v*L, Data)[["LP"]],
+                              silent=TRUE)
+                         if(inherits(L.y, "try-error")) L.y <- Mo0[["LP"]]
                          }
                     else {
                          U <- U + 1
-                         U.y <- Model(Mo0[["parm"]] + v*U, Data)[["LP"]]}}}
+                         U.y <- try(Model(Mo0[["parm"]] + v*U, Data)[["LP"]],
+                              silent=TRUE)
+                         if(inherits(U.y, "try-error")) U.y <- Mo0[["LP"]]}}}
           ### Rejection Sampling
           repeat {
                prop.offset <- runif(1, min=L, max=U)
                prop <- Mo0[["parm"]] + prop.offset * v
-               Mo1 <- Model(prop, Data)
+               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
                     Mo1 <- Mo0
@@ -5687,8 +5773,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(Mo1[["LP"]] >= y.slice) break
                else if(abs(prop.offset < 1e-100)) {
                     Mo1 <- Mo0
-                    break
-                    }
+                    break}
                if(prop.offset < 0) L <- prop.offset
                else U <- prop.offset}
           ### Save Thinned Samples
@@ -5759,7 +5844,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop <- post[iter,]
                prop[j] <- rnorm(1, prop[j], tuning[j])
                ### Log-Posterior of the proposed state
-               Mo1 <- Model(prop, Data)
+               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
                     Mo1 <- Mo0
@@ -5839,7 +5925,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop <- post[iter,]
                prop[j] <- rnorm(1, prop[j], tuning[j])
                ### Log-Posterior of the proposed state
-               Mo1 <- Model(prop, Data)
+               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
                     Mo1 <- Mo0

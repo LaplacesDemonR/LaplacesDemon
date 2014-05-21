@@ -1,3 +1,7 @@
+2014-05-21 Distributions: Sped up rcat
+2014-05-21 LaplacesDemon: warnings are now treated as errors and rejected
+2014-05-21 LaplaceApproximation, LaplacesDemon, and VariationalBayes: 
+           Warning when LP differs and parameters are constant
 2014-05-19 Matrices: Added .colVars and .rowVars
 2014-05-19 LaplacesDemon: OHSS may now be non-adaptive
 2014-05-17 LaplacesDemon: Ensured minimum tuning and diag(Covar)
