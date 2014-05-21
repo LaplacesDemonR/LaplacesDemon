@@ -80,6 +80,9 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
      if(!is.finite(m.old[["LP"]])) stop("The posterior is non-finite.")
      if(!is.finite(m.old[["Dev"]])) stop("The deviance is non-finite.")
      parm <- m.old[["parm"]]
+     if(!identical(Model(m.old[["parm"]], Data)[["LP"]], m.old[["LP"]])) {
+          cat("WARNING: LP differs when initial values are held constant.\n")
+          cat("     Derivatives may be problematic if used.\n")}
      ####################  Begin Laplace Approximation  ###################
      cat("Laplace Approximation begins...\n")
      if(Method == "AGA") {
