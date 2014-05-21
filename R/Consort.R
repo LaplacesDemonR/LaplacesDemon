@@ -700,7 +700,8 @@ Consort <- function(object=NULL)
                }
           else if(Alg == "OHSS") {
                ### OHSS
-               A <- object$Specs[["A"]]
+               if(Ready == TRUE) A <- 0
+               else A <- object$Specs[["A"]]
                n <- object$Specs[["n"]] + object$Iterations
                cat(oname, " <- LaplacesDemon(Model, Data=", dname,
                     ", Initial.Values,\n", sep="")
