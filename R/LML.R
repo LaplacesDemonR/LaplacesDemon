@@ -62,7 +62,7 @@ LML <- function(Model=NULL, Data=NULL, Modes=NULL, theta=NULL, LL=NULL,
                stop("The number of rows in theta differs from the ",
                     "length of LL.")
           if(LLlen < 301) {
-               cat("\nWARNING: At least 301 samples are required for NSIS.\n")
+               cat("\nWARNING: At least 301 samples are required for NSIS in LML.\n")
                return(list(LML=NA, VarCov=NA))}
           if(thetacol > round(LLlen / 2)) {
                cat("\nWARNING: The number of parameters, ", thetacol,
