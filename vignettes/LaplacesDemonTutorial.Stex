@@ -259,9 +259,7 @@ Fit$Acceptance.Rate
 
 \subsection{Warnings} \label{warnings}
 
-Warnings did not occur with this example. If warnings result after updating the model with \code{LaplacesDemon}, and if the model was specified correctly, then the most likely cause is the posterior predictive distribution, returned in the \code{Model} function as \code{yhat}. Early in a model update, this may not be alarming, since extreme values may be generated. Sometimes it is related to the MCMC algorithm, so selecting a different algorithm may be necessary.
-
-If warnings continue to occur, then the priors or parameterization should be considered. An example is when a scale parameter for the posterior predictive distribution is allowed to be too small or large.
+During updating in \code{LaplacesDemon}, warnings are converted to errors, and the proposal is rejected. Warnings may appear due to checks before updating, or summarizing after updating, but not during updating. If chains appear to have numerous rejections after trying a variety of samplers, then the model specification function may be producing warnings with certain configurations of parameters. If warnings continue to occur, then the priors or parameterization should be considered. An example is when a scale parameter for the posterior predictive distribution is allowed to be too small or large.
 
 \section{Summarizing Output} \label{summarizingoutput}
 

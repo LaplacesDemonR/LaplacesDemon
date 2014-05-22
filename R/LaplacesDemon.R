@@ -4429,10 +4429,16 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     file=LogFile, append=TRUE)
           ### Eigenvectors of the Sample Covariance Matrix
           if({iter %% decomp.freq == 0} & {iter > 2} & {iter <= A}) {
-               S.eig <- try(eigen({VarCov*n +
-                    cov(post[1:(iter-1),,drop=FALSE])*(iter-1)}/{n+iter-1}),
+               VarCov2 <- try({VarCov*n +
+                    cov(post[1:(iter-1),,drop=FALSE])*(iter-1)}/{n+iter-1},
                     silent=TRUE)
-               if(inherits(S.eig, "try-error")) S.eig <- eigen(diag(LIV))}
+               if(inherits(VarCov2, "try-error")) VarCov2 <- VarCov
+               if(!is.symmetric.matrix(VarCov2))
+                    VarCov2 <- as.symmetric.matrix(VarCov2)
+               if(!is.positive.definite(VarCov2))
+                    VarCov2 <- as.positive.definite(VarCov2)
+               S.eig <- try(eigen(VarCov2), silent=TRUE)
+               if(inherits(S.eig, "try-error")) S.eig <- eigen(VarCov)}
           ### Hypercube or Eigenvector
           if(runif(1) < w || is.null(S.eig)) {
                vals <- rep(tuning, LIV)
@@ -4442,7 +4448,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                vals <- S.eig$values
                vecs <- S.eig$vectors}
           ### Slice Interval
-          #y.slice <- Model(Mo0[["parm"]], Data)[["LP"]] - rexp(1)
+          Mo0.1 <- try(Model(Mo0[["parm"]], Data), silent=TRUE)
+          if(inherits(Mo0.1, "try-error")) Mo0.1 <- Mo0
+          Mo0 <- Mo0.1
           y.slice <- Mo0[["LP"]] - rexp(1)
           L <- -1 * runif(LIV)
           U <- L + 1
@@ -4472,7 +4480,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           Mo0 <- Mo1
           if(iter <= A) post[iter,] <- Mo0[["parm"]]
           }
-     if(A > 0) VarCov <- {VarCov*n + cov(post)*nrow(post)} / {n+nrow(post)}
+     if(A > 0) VarCov <- VarCov2
      ### Output
      out <- list(Acceptance=Iterations,
           Dev=Dev,
