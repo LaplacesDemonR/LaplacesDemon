@@ -6052,10 +6052,8 @@ $$\sigma_j \sim \mathcal{HC}(25), \quad j=1,\dots,2$$
 \subsection{Data}
 \code{T <- 20 \\
 T.m <- 14 \\
-beta.orig <- x <- rep(0,T) \\
-for (t in 2:T) \{ \\
-\hspace*{0.27 in} beta.orig[t] <- beta.orig[t-1] + rnorm(1,0,0.1) \\
-\hspace*{0.27 in} x[t] <- x[t-1] + rnorm(1,0,0.1)\} \\
+beta.orig <- cumsum(rnorm(T,0,0.1)) \\
+x <- cumsum(rnorm(T,0,0.01)) \\
 y <- 10 + beta.orig*x + rnorm(T,0,0.01) \\
 y[(T.m+2):T] <- NA \\
 mon.names <- rep(NA, (T-T.m)) \\

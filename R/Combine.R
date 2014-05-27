@@ -251,7 +251,9 @@ Combine <- function(x, Data, Thinning=1)
           "Slice Sampler",
           "Stochastic Gradient Langevin Dynamics",
           "Tempered Hamiltonian Monte Carlo",
-          "t-walk") & {Stat.at < thinned.rows}) {
+          "t-walk",
+          "Univariate Eigenvector Slice Sampler") &
+          {Stat.at < thinned.rows}) {
           cat("Estimating Log of the Marginal Likelihood\n")
           LML <- LML(theta=thinned2, LL=as.vector(Dev2)*(-1/2),
                method="NSIS")}

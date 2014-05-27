@@ -197,11 +197,11 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
   listed below:
 
   \itemize{
-    \item \code{A} is used in HMCDA, MALA, NUTS, and OHSS. In MALA, it
-    is the maximum acceptable value of the Euclidean norm of the
-    adaptive parameters mu and sigma, and the Frobenius norm of the
-    covariance matrix. In HMCDA, NUTS, and OHSS, it is the number of
-    initial, adaptive iterations to be discarded as burn-in.
+    \item \code{A} is used in HMCDA, MALA, NUTS, OHSS, and UESS. In
+    MALA, it is the maximum acceptable value of the Euclidean norm of
+    the adaptive parameters mu and sigma, and the Frobenius norm of the
+    covariance matrix. In HMCDA, NUTS, OHSS, and UESS, it is the number
+    of initial, adaptive iterations to be discarded as burn-in.
     \item \code{Adaptive} is the iteration in which adaptation begins,
     and is used in AM, AMM, DRAM, INCA, and Refractive. Most of these
     algorithms adapt according to an observed covariance matrix, and
@@ -319,7 +319,8 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     chains in DEMC (and must be at least 3) or the number of columns of
     big data in SGLD.
     \item \code{Nr} is the number of rows of big data in SGLD.
-    \item \code{n} is the number of previous iterations in OHSS.
+    \item \code{n} is the number of previous iterations in ADMG, AMM,
+    OHSS, and UESS.
     \item \code{n1} affects the size of the subset of each set of points
     to adjust, and is used in twalk. It relates to the number of
     parameters, and \code{n1=4} is recommended. If adjusted, it is
@@ -744,7 +745,7 @@ print(Fit)
 #############  Adaptive Directional Metropolis-within-Gibbs  ##############
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
-#     Algorithm="ADMG", Specs=list(Periodicity=1))
+#     Algorithm="ADMG", Specs=list(n=0, Periodicity=50))
 
 ########################  Adaptive Griddy-Gibbs  ##########################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
@@ -771,8 +772,8 @@ print(Fit)
 ######################  Adaptive-Mixture Metropolis  ######################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
-#     Algorithm="AMM", Specs=list(Adaptive=500, B=NULL, Periodicity=10,
-#     w=0.05))
+#     Algorithm="AMM", Specs=list(Adaptive=500, B=NULL, n=0,
+#     Periodicity=10, w=0.05))
 
 ###################  Affine-Invariant Ensemble Sampler  ###################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
@@ -981,7 +982,7 @@ print(Fit)
 #################  Univariate Eigenvector Slice Sampler  #################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
-#     Algorithm="UESS", Specs=list(m=100))
+#     Algorithm="UESS", Specs=list(A=Inf, m=100, n=0))
 
 ##########  Updating Sequential Adaptive Metropolis-within-Gibbs  #########
 #NOTE: The USAMWG algorithm is only for state-space model updating

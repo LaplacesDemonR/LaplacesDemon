@@ -116,8 +116,26 @@ plot.demonoid <- function(x, BurnIn=0, Data=NULL, PDF=FALSE,
                "Hamiltonian Monte Carlo with Dual-Averaging",
                "No-U-Turn Sampler")) {
                plot(x$CovarDHis[,1], type="l", xlab="Adaptations",
-                    ylab=expression(epsilon))}
+                    main="Step-Size", ylab=expression(epsilon))}
           else {
+               if(x$Algorithm %in% c("Oblique Hyperrectangle Slice Sampler",
+                    "Univariate Eigenvector Slice Sampler"))
+                    title <- "Eigenvectors"
+               else if(x$Algorithm %in% c("Metropolis-Adjusted Langevin Algorithm"))
+                    title <- "Lambda"
+               else if(x$Algorithm %in% c("Componentwise Hit-And-Run Metropolis",
+                    "Hit-And-Run Metropolis"))
+                    title <- "Proposal Distance"
+               else if(x$Algorithm %in% c("Adaptive Griddy-Gibbs",
+                    "Adaptive Metropolis-within-Gibbs",
+                    "Sequential Adaptive Metropolis-within-Gibbs",
+                    "Updating Sequential Adaptive Metropolis-within-Gibbs"))
+                    title <- "Proposal S.D."
+               else if(x$Algorithm %in% c("Differential Evolution Markov Chain"))
+                    title <- "Z"
+               else if(x$Algorithm %in% c("Refractive Sampler"))
+                    title <- "Step-Size"
+               else title <- "Proposal Variance"
                Diff <- abs(diff(x$CovarDHis))
                adaptchange <- matrix(NA, nrow(Diff), 3)
                for (i in 1:nrow(Diff)) {
@@ -126,7 +144,7 @@ plot.demonoid <- function(x, BurnIn=0, Data=NULL, PDF=FALSE,
                plot(1:nrow(Diff), adaptchange[,2],
                     ylim=c(min(adaptchange), max(adaptchange)),
                     type="l", col="red", xlab="Adaptations",
-                    ylab="Absolute Difference", main="Proposal Variance",
+                    ylab="Absolute Difference", main=title,
                     sub="Median=Red, Interval=Transparent Red")
                polygon(c(1:nrow(Diff),rev(1:nrow(Diff))),
                     c(adaptchange[,1], rev(adaptchange[,3])),

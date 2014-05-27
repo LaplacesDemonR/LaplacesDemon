@@ -533,7 +533,11 @@ dinvgamma <- function(x, shape=1, scale=1, log=FALSE)
      return(dens)
      }
 rinvgamma <- function(n, shape=1, scale=1)
-     {return(1 / rgamma(n=n, shape=shape, rate=scale))}
+     {
+     x < rgamma(n=n, shape=shape, rate=scale)
+     x[which(x < 1e-300)] <- 1e-300
+     return(1 / x)
+     }
 
 ###########################################################################
 # Inverse Gaussian Distribution                                           #

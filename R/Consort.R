@@ -298,13 +298,14 @@ Consort <- function(object=NULL)
           if({(Alg == "ADMG") & !Dim.Adapt} |
              {(Alg == "ADMG") & !Ready}) {
                ### ADMG
+               n <- object$Specs[["n"]] + object$Iterations
                cat(oname, " <- LaplacesDemon(Model, Data=", dname,
                     ", Initial.Values,\n", sep="")
                cat("     Covar=", oname, "$Covar, Iterations=",
                     Rec.Iterations, ", Status=", Rec.Status, ", ",
                     "Thinning=", Rec.Thinning, ",\n", sep="")
                cat("     Algorithm=\"ADMG\", ",
-                    "Specs=list(Periodicity=", Rec.Periodicity,
+                    "Specs=list(n=", n, ", Periodicity=", Rec.Periodicity,
                     "))\n\n", sep="")
                }
           else if(Alg == "AGG") {
@@ -388,6 +389,9 @@ Consort <- function(object=NULL)
                     block <- object$Specs[["B"]]
                if(Rec.Status > Rec.Iterations)
                     Rec.Status <- Rec.Iterations
+               n <- object$Iterations
+               if(!is.null(object$Specs[["n"]]))
+                    n <- object$Specs[["n"]] + object$Iterations
                w <- 0.05
                if(!is.null(object$Specs[["w"]]))
                     w <- object$Specs[["w"]]
@@ -398,8 +402,8 @@ Consort <- function(object=NULL)
                     "Thinning=", Rec.Thinning, ",\n", sep="")
                cat("     Algorithm=\"AMM\", ",
                     "Specs=list(Adaptive=", Rec.Adaptive,
-                    ", B=", block, ", Periodicity=", Rec.Periodicity,
-                    ", w=", w, "))\n\n", sep="")
+                    ", B=", block, ", n=", n, ", Periodicity=",
+                    Rec.Periodicity, ", w=", w, "))\n\n", sep="")
                }
           else if({(Alg == "AM") & !Dim.Adapt & Fast & Ready} |
              {(Alg == "AM") & !Dim.Adapt & Fast & !Ready} |
@@ -921,14 +925,18 @@ Consort <- function(object=NULL)
                }
           else if(Alg == "UESS") {
                ### UESS
+               if(Ready == TRUE) A <- 0
+               else A <- object$Specs[["A"]]
                m <- object$Specs[["m"]]
+               n <- object$Specs[["n"]] + object$Iterations
                cat(oname, " <- LaplacesDemon(Model, Data=", dname,
                     ", Initial.Values,\n", sep="")
                cat("     Covar=", oname, "$Covar, Iterations=",
                     Rec.Iterations, ", Status=", Rec.Status, ", ",
                     "Thinning=", Rec.Thinning, ",\n", sep="")
                cat("     Algorithm=\"UESS\", ",
-                    "Specs=list(m=", m, "))\n\n", sep="")
+                    "Specs=list(A=", A, ", m=", m, ", n=", n,
+                    "))\n\n", sep="")
                }
           else if((Alg == "USAMWG") | (Alg == "USMWG")) {
                ### USAMWG or USMWG

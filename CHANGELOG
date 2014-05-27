@@ -1,3 +1,6 @@
+2014-05-25 LaplacesDemon: Fixed bug with ADMG
+2014-05-24 Distributions: Inf prevented in rinvgamma
+2014-05-23 LaplacesDemon: UESS may now be non-adaptive
 2014-05-21 Distributions: Sped up rcat
 2014-05-21 LaplacesDemon: warnings are now treated as errors and rejected
 2014-05-21 LaplaceApproximation, LaplacesDemon, and VariationalBayes: 
