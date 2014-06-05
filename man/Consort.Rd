@@ -60,7 +60,9 @@
     satisfactory for each target distribution if it is at least 100,
     which is usually enough to describe 95\% probability intervals (see
     \code{\link{p.interval}} and \code{\link{LPL.interval}} for more
-    information). The \code{\link{ESS}} function is used.
+    information). The \code{\link{ESS}} function is used. When this
+    criterion is unmet, the name of the worst mixing chain in Summary1
+    appears.
     \item Stationarity: Each target distribution is considered
     satisfactory if it is estimated to be stationary with the
     \code{\link{BMK.Diagnostic}} function.
@@ -106,6 +108,10 @@
   of these is true, then it may be best to ignore the newly suggested
   algorithm, and continue with the current algorithm. The suggested code
   may be helpful, but it is merely a suggestion.
+
+  If achieving the appeasement of Laplace's Demon is difficult, consider
+  ignoring the MCSE criterion and terminate when all other criteria have
+  been met, placing special emphasis on ESS.
 }
 \references{
   Flegal, J.M., Haran, M., and Jones, G.L. (2008). "Markov chain Monte

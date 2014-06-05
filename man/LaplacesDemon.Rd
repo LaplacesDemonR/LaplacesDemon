@@ -230,9 +230,9 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     \item \code{B} is a list of blocked parameters. Each component of
     the list represents a block of parameters, and contains a vector in
     which each element is the position of the associated parameter in
-    parm.names. This function is optional in the AMM, ESS, HARM, and RWM
-    algorithms. For more information on blockwise sampling, see the
-    \code{\link{Blocks}} function.
+    parm.names. This function is optional in the AMM, ESS, HARM, RWM,
+    and UESS algorithms. For more information on blockwise sampling, see
+    the \code{\link{Blocks}} function.
     \item \code{Begin} indicates the time-period in which to begin
     updating (filtering or predicting) in the USAMWG and USMWG
     algorithms.
@@ -301,7 +301,7 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     scalar trajectory length. In MCMCMC, it is either a scalar that
     controls temperature spacing, or a vector of temperature spacings.
     \item \code{Lmax} is a scalar maximum for \code{L} (see above) in
-    HMCDA.
+    HMCDA and NUTS.
     \item \code{m} is used in the Refractive, RSS, Slice, and UESS
     algorithms. In Refractive, RSS, and UESS, it is a scalar, and is the
     number of steps to take per iteration. In Slice, it is a scalar (or
@@ -901,7 +901,8 @@ print(Fit)
 ##########################  No-U-Turn Sampler  ############################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
-#     Algorithm="NUTS", Specs=list(A=500, delta=0.6, epsilon=NULL))
+#     Algorithm="NUTS", Specs=list(A=500, delta=0.6, epsilon=NULL,
+#     Lmax=Inf))
 
 #################  Oblique Hyperrectangle Slice Sampler  ##################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
@@ -982,7 +983,7 @@ print(Fit)
 #################  Univariate Eigenvector Slice Sampler  #################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
-#     Algorithm="UESS", Specs=list(A=Inf, m=100, n=0))
+#     Algorithm="UESS", Specs=list(A=Inf, B=NULL, m=100, n=0))
 
 ##########  Updating Sequential Adaptive Metropolis-within-Gibbs  #########
 #NOTE: The USAMWG algorithm is only for state-space model updating
