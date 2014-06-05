@@ -271,7 +271,7 @@ x <- rcat(N, rep(1/J, J)) \\
 alpha <- runif(1,-1,1) \\
 beta <- runif(J-1,-2,2) \\
 beta <- c(beta, -sum(beta)) \\
-y <- alpha + beta[x] + rnorm(1,0,0.2) \\
+y <- alpha + beta[x] + rnorm(N,0,0.2) \\
 mon.names <- c("LP","beta[3]") \\
 parm.names <- as.parm.names(list(alpha=0, beta=rep(0,J-1), sigma=rep(0,2))) \\
 pos.alpha <- grep("alpha", parm.names) \\
@@ -331,7 +331,7 @@ beta <- runif(J-1,-2,2) \\
 beta <- -sum(beta) \\
 gamma <- runif(K-1,-2,2) \\
 gamma <- -sum(gamma) \\
-y <- alpha + beta[X[,1]] + gamma[X[,2]] + rnorm(1,0,0.1) \\
+y <- alpha + beta[X[,1]] + gamma[X[,2]] + rnorm(N,0,0.1) \\
 mon.names <- c("LP","beta[5]","gamma[3]","s.beta","s.gamma","s.epsilon") \\
 parm.names <- as.parm.names(list(alpha=0, beta=rep(0,J-1), gamma=rep(0,K-1), \\
 \hspace*{0.27 in} sigma=rep(0,3))) \\
@@ -2165,28 +2165,34 @@ $$\sigma_j \sim \mathcal{HC}(25), \quad j=1,\dots,J$$
 \code{T <- 10 \#Number of time-periods \\
 J <- 20 \#Number of time-series \\
 P <- 3 \#Number of dynamic factors \\
+epsilon <- matrix(rnorm(T*J,0,0.1), T, J) \\
 Lambda <- matrix(runif(J*P,-1,1), P, J) \\
-Sigma <- matrix(runif(P*P), P, P); diag(Sigma) <- runif(P)*5 \\
-Sigma <- as.symmetric.matrix(Sigma); Sigma <- as.positive.definite(Sigma) \\
+Sigma <- as.positive.definite(matrix(rnorm(P*P), P, P)) \\
+Phi <- matrix(runif(P*P,0,1),P,P) \\
 F <- rmvn(T, rep(0,P), Sigma) \\
-Y <- tcrossprod(F, t(Lambda)) \\
+for (t in 2:T) F[t,] <- rmvn(1, F[t-1,] \%*\% Phi, Sigma) \\
+Y <- F %*% Lambda + epsilon \\
 S <- diag(P) \\
-mon.names <- c("LP", paste("ynew[", 1:J, "]", sep="")) \\
-parm.names <- as.parm.names(list(F=matrix(0,T,P), U=diag(P), \\
-\hspace*{0.27 in} Lambda=matrix(0,P,J), sigma=rep(0,J)), uppertri=c(0,1,0,0)) \\
+mon.names <- "LP" \\
+parm.names <- as.parm.names(list(F=matrix(0,T,P), Phi=matrix(0,P,P), \\
+     U=diag(P), Lambda=matrix(0,P,J), sigma=rep(0,J)), \\
+     uppertri=c(0,0,1,0,0)) \\
 pos.F <- grep("F", parm.names) \\
+pos.Phi <- grep("Phi", parm.names) \\
 pos.Lambda <- grep("Lambda", parm.names) \\
 pos.sigma <- grep("sigma", parm.names) \\
-PGF <- function(Data) return(c(rmvnpc(Data$T, rep(0,Data$P), \\
-\hspace*{0.27 in} rwishartc(Data$P+1,Data$S)), \\
-\hspace*{0.27 in} upper.triangle(rwishartc(Data$P+1,Data$S), diag=TRUE), \\
-\hspace*{0.27 in} rnormv(Data$P*Data$J,0,1000), rhalfcauchy(Data$J,5)))) \\
+PGF <- function(Data) \{ \\
+\hspace*{0.27 in} F <- as.vector(rmvnpc(Data$T, rep(0,Data$P), \\
+\hspace*{0.62 in} rwishartc(Data$P+1,Data$S))) \\
+\hspace*{0.27 in} Phi <- rnorm(Data$P*Data$P) \\
+\hspace*{0.27 in} U <- upper.triangle(rwishartc(Data$P+1, Data$S), diag=TRUE) \\
+\hspace*{0.27 in} Lambda <- rnormv(Data$P*Data$J,0,1000) \\
+\hspace*{0.27 in} sigma <- rhalfcauchy(Data$J,5) \\
+\hspace*{0.27 in} return(c(F,Phi,U,Lambda,sigma)) \\
+\hspace*{0.27 in} \} \\
 MyData <- list(J=J, P=P, PGF=PGF, S=S, T=T, Y=Y, mon.names=mon.names, \\
-\hspace*{0.27 in} parm.names=parm.names, pos.F=pos.F, pos.Lambda=pos.Lambda, \\
-\hspace*{0.27 in} pos.sigma=pos.sigma) \\
-Dyn <- matrix(".", T, P) \\
-for (t in 1:T) \{for (p in 1:P) \{ \\
-\hspace*{0.27 in} Dyn[t,p] <- paste("F[",t,",",p,"]", sep="")\}\} \\
+\hspace*{0.27 in} parm.names=parm.names, pos.F=pos.F, pos.Phi=pos.Phi, \\
+\hspace*{0.27 in} pos.Lambda=pos.Lambda, pos.sigma=pos.sigma) \\
 }
 \subsection{Model}
 \code{Model <- function(parm, Data) \\
@@ -2199,26 +2205,25 @@ for (t in 1:T) \{for (p in 1:P) \{ \\
 \hspace*{0.27 in} sigma <- interval(parm[Data$pos.sigma], 1e-100, Inf) \\
 \hspace*{0.27 in} parm[Data$pos.sigma] <- sigma \\
 \hspace*{0.27 in} \#\#\# Log(Prior Densities) \\
-\hspace*{0.27 in} F.prior <- sum(dmvnpc(F, rbind(rep(0, Data$P), F[-Data$T,]), U, \\
+\hspace*{0.27 in} F.prior <- sum(dmvnpc(F, rbind(0, F[-Data$T,] \%*\% Phi), U, \\
 \hspace*{0.62 in} log=TRUE)) \\
 \hspace*{0.27 in} U.prior <- dwishartc(U, Data$P+1, Data$S, log=TRUE) \\
 \hspace*{0.27 in} Lambda.prior <- sum(dnormv(Lambda, 0, 1000, log=TRUE)) \\
 \hspace*{0.27 in} sigma.prior <- sum(dhalfcauchy(sigma, 25, log=TRUE)) \\
 \hspace*{0.27 in} \#\#\# Log-Likelihood \\
-\hspace*{0.27 in} mu <- rbind(rep(0, Data$J), tcrossprod(F[-Data$T,], t(Lambda))) \\
+\hspace*{0.27 in} mu <- F \%*\% Lambda \\
 \hspace*{0.27 in} Sigma <- matrix(sigma, Data$T, Data$J, byrow=TRUE) \\
-\hspace*{0.27 in} ynew <- rnorm(Data$J, tcrossprod(F[Data$T,], t(Lambda)), sigma) \\
 \hspace*{0.27 in} LL <- sum(dnorm(Data$Y, mu, Sigma, log=TRUE)) \\
+\hspace*{0.27 in} Yhat <- rnorm(prod(dim(mu)), mu, Sigma) \#Fitted \\
 \hspace*{0.27 in} \#\#\# Log-Posterior \\
 \hspace*{0.27 in} LP <- LL + F.prior + U.prior + Lambda.prior + sigma.prior \\
-\hspace*{0.27 in} Modelout <- list(LP=LP, Dev=-2*LL, Monitor=c(LP,ynew), \\
-\hspace*{0.62 in} yhat=rnorm(prod(dim(mu)), mu, Sigma), parm=parm) \\
+\hspace*{0.27 in} Modelout <- list(LP=LP, Dev=-2*LL, Monitor=LP, yhat=Yhat, parm=parm)\\
 \hspace*{0.27 in} return(Modelout) \\
 \hspace*{0.27 in} \} \\
 }
 \subsection{Initial Values}
-\code{Initial.Values <- c(rep(0,T*P), S[upper.tri(S, diag=TRUE)], rep(0,P*J), \\
-\hspace*{0.27 in} rep(1,J)) \\
+\code{Initial.Values <- c(rep(0,T*P), rep(0,P*P), \\
+\hspace*{0.27 in} S[upper.tri(S, diag=TRUE)], rep(0,P*J), rep(1,J)) \\
 }
 
 \section{Factor Analysis, Exploratory} \label{efa}
