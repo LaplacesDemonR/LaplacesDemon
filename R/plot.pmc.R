@@ -82,7 +82,7 @@ plot.pmc <- function(x, BurnIn=0, Data=NULL, PDF=FALSE, Parms=NULL, ...)
           J <- ncol(x$Monitor); nn <- nrow(x$Monitor)}
      for (j in 1:J) {
           plot(density(x$Monitor[Stat.at:nn,j]),
-               xlab="Value", main=Data$mon.names[j])
+               xlab="Value", main=Data[["mon.names"]][j])
           polygon(density(x$Monitor[Stat.at:nn,j]), col="black",
                border="black")
           abline(v=0, col="red", lty=2)}

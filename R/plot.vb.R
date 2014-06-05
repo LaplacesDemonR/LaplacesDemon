@@ -75,7 +75,7 @@ plot.vb <- function(x, Data=NULL, PDF=FALSE, Parms=NULL, ...)
      if({x$Converged == TRUE} & !any(is.na(x$Monitor))) {
           for (j in 1:ncol(x$Monitor)) {
                plot(density(x$Monitor[,j]),
-                    xlab="Value", main=Data$mon.names[j])
+                    xlab="Value", main=Data[["mon.names"]][j])
                polygon(density(x$Monitor[,j]),
                     col="black", border="black")
                abline(v=0, col="red", lty=2)}

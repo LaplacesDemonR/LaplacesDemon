@@ -15,7 +15,7 @@ is.constrained <- function(Model, Initial.Values, Data)
      if(missing(Data))
           stop("The Data argument is required.")
      Mo <- Model(Initial.Values, Data)
-     constr <- Initial.Values != Mo[[5]]
+     constr <- Initial.Values != Mo[["parm"]]
      return(constr)
      }
 

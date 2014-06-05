@@ -1,3 +1,10 @@
+2014-06-05 Fixed bug reported by Francois Brunetti, 
+           f.a.brunetti@free.fr, in which Data$n vs. Data[["n"]]
+           could refer to different names.
+2014-06-02 LaplacesDemon: Added Lmax to NUTS
+2014-05-31 LaplacesDemon: Added blocks to UESS
+2014-05-30 LaplacesDemon: Fixed bug with AMM blocks
+2014-05-28 Consort: The worst mixing chain is named when ESS < 100
 2014-05-25 LaplacesDemon: Fixed bug with ADMG
 2014-05-24 Distributions: Inf prevented in rinvgamma
 2014-05-23 LaplacesDemon: UESS may now be non-adaptive

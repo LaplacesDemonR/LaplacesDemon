@@ -20,7 +20,7 @@ IterativeQuadrature <- function(Model, parm, Data, Covar=NULL,
      if(missing(parm)) {
           cat("Initial values were not supplied, and\n")
           cat("have been set to zero prior to LaplaceApproximation().\n")
-          parm <- rep(0, length(Data$parm.names))}
+          parm <- rep(0, length(Data[["parm.names"]]))}
      for (i in 1:length(Data)) {
           if(is.matrix(Data[[i]])) {
                if(all(is.finite(Data[[i]]))) {
@@ -109,7 +109,7 @@ IterativeQuadrature <- function(Model, parm, Data, Covar=NULL,
           stop("The number of initial values and parameters differs.")
      if(!is.finite(m.old[["LP"]])) {
           cat("Generating initial values due to a non-finite posterior.\n")
-          if(!is.null(Data$PGF))
+          if(!is.null(Data[["PGF"]]))
                Initial.Values <- GIV(Model, Data, PGF=TRUE)
           else Initial.Values <- GIV(Model, Data, PGF=FALSE)
           m.old <- Model(Initial.Values, Data)
@@ -158,8 +158,8 @@ IterativeQuadrature <- function(Model, parm, Data, Covar=NULL,
      if({tol[1] <= Stop.Tolerance[1]} & {tol[2] <= Stop.Tolerance[2]})
           converged <- TRUE
      ### Column names to samples
-     if(ncol(mu) == length(Data$parm.names))
-          colnames(mu) <- Data$parm.names
+     if(ncol(mu) == length(Data[["parm.names"]]))
+          colnames(mu) <- Data[["parm.names"]]
      rownames(mu) <- 1:nrow(mu)
      cat("\n\n")
      #################  Sampling Importance Resampling  ##################
@@ -167,21 +167,21 @@ IterativeQuadrature <- function(Model, parm, Data, Covar=NULL,
           cat("Sampling from Posterior with Sampling Importance Resampling\n")
           posterior <- SIR(Model, Data, mu=parm.new, Sigma=VarCov,
                n=Samples, CPUs=CPUs, Type=Type)
-          Mon <- matrix(0, nrow(posterior), length(Data$mon.names))
+          Mon <- matrix(0, nrow(posterior), length(Data[["mon.names"]]))
           dev <- rep(0, nrow(posterior))
           for (i in 1:nrow(posterior)) {
                mod <- Model(posterior[i,], Data)
                dev[i] <- mod[["Dev"]]
                Mon[i,] <- mod[["Monitor"]]
                }
-          colnames(Mon) <- Data$mon.names}
+          colnames(Mon) <- Data[["mon.names"]]}
      else {
           if({sir == TRUE} & {converged == FALSE})
                cat("Posterior samples are not drawn due to Converge=FALSE\n")
           posterior <- NA; Mon <- NA}
      #####################  Summary, Point-Estimate  ######################
      cat("Creating Summary from Point-Estimates\n")
-     Summ1 <- matrix(NA, parm.len, 4, dimnames=list(Data$parm.names,
+     Summ1 <- matrix(NA, parm.len, 4, dimnames=list(Data[["parm.names"]],
           c("Mean","SD","LB","UB")))
      Summ1[,1] <- parm.new
      Summ1[,2] <- sqrt(diag(VarCov))
@@ -192,7 +192,7 @@ IterativeQuadrature <- function(Model, parm, Data, Covar=NULL,
      if({sir == TRUE} & {converged == TRUE}) {
           cat("Creating Summary from Posterior Samples\n")
           Summ2 <- matrix(NA, ncol(posterior), 7,
-               dimnames=list(Data$parm.names,
+               dimnames=list(Data[["parm.names"]],
                     c("Mean","SD","MCSE","ESS","LB","Median","UB")))
           Summ2[,1] <- colMeans(posterior)
           Summ2[,2] <- sqrt(.colVars(posterior))
@@ -223,7 +223,7 @@ IterativeQuadrature <- function(Model, parm, Data, Covar=NULL,
                Monitor[7] <- as.numeric(quantile(Mon[,j], probs=0.975,
                     na.rm=TRUE))
                Summ2 <- rbind(Summ2, Monitor)
-               rownames(Summ2)[nrow(Summ2)] <- Data$mon.names[j]
+               rownames(Summ2)[nrow(Summ2)] <- Data[["mon.names"]][j]
                }
           }
      ###############  Logarithm of the Marginal Likelihood  ###############
@@ -236,7 +236,7 @@ IterativeQuadrature <- function(Model, parm, Data, Covar=NULL,
           cat("Estimating Log of the Marginal Likelihood\n")
           LML <- LML(Model, Data, Modes=parm.new, Covar=VarCov,
                method="LME")}
-     colnames(VarCov) <- rownames(VarCov) <- Data$parm.names
+     colnames(VarCov) <- rownames(VarCov) <- Data[["parm.names"]]
      time2 <- proc.time()
      #############################  Output  ##############################
      cat("Creating Output\n")
@@ -277,7 +277,7 @@ IterativeQuadrature <- function(Model, parm, Data, Covar=NULL,
                warning("The number of parameters may be too large.")
           mu <- rbind(parm)
           parm.old <- parm
-          colnames(mu) <- Data$parm.names
+          colnames(mu) <- Data[["parm.names"]]
           sigma <- sqrt(diag(Covar))
           rule <- GaussHermiteCubeRule(N=N, dims=parm.len)
           X <- rule$nodes
@@ -383,7 +383,7 @@ IterativeQuadrature <- function(Model, parm, Data, Covar=NULL,
                warning("The number of parameters may be too large.")
           mu <- rbind(parm)
           parm.old <- parm
-          colnames(mu) <- Data$parm.names
+          colnames(mu) <- Data[["parm.names"]]
           sigma <- sqrt(diag(Covar))
           rule <- GaussHermiteCubeRule(N=N, dims=parm.len)
           X <- rule$nodes
@@ -481,7 +481,7 @@ IterativeQuadrature <- function(Model, parm, Data, Covar=NULL,
                warning("The number of parameters may be too large.")
           mu <- rbind(parm)
           parm.old <- parm
-          colnames(mu) <- Data$parm.names
+          colnames(mu) <- Data[["parm.names"]]
           sigma <- sqrt(diag(Covar))
           rule <- SparseGrid(J=parm.len, K=K)
           X <- rule$nodes
@@ -585,7 +585,7 @@ IterativeQuadrature <- function(Model, parm, Data, Covar=NULL,
                warning("The number of parameters may be too large.")
           mu <- rbind(parm)
           parm.old <- parm
-          colnames(mu) <- Data$parm.names
+          colnames(mu) <- Data[["parm.names"]]
           sigma <- sqrt(diag(Covar))
           rule <- SparseGrid(J=parm.len, K=K)
           X <- rule$nodes
@@ -679,7 +679,7 @@ IterativeQuadrature <- function(Model, parm, Data, Covar=NULL,
           parm.len <- length(parm)
           mu <- rbind(parm)
           parm.old <- parm
-          colnames(mu) <- Data$parm.names
+          colnames(mu) <- Data[["parm.names"]]
           sigma <- sqrt(diag(Covar))
           LP <- rep(LPworst, N)
           LPw <- M <- Z <- matrix(0, N, parm.len)
@@ -797,7 +797,7 @@ IterativeQuadrature <- function(Model, parm, Data, Covar=NULL,
           parm.len <- length(parm)
           mu <- rbind(parm)
           parm.old <- parm
-          colnames(mu) <- Data$parm.names
+          colnames(mu) <- Data[["parm.names"]]
           sigma <- sqrt(diag(Covar))
           LPbest <- rep(-Inf, parm.len)
           LP <- rep(LPworst, N)

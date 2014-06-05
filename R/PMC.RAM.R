@@ -12,8 +12,8 @@ PMC.RAM <- function(Model, Data, Iterations, Thinning, M, N)
      if(missing(Data))
           stop("The Data argument is required.")
      Const <- 1048600
-     LIV <- length(Data$parm.names)
-     LM <- length(Data$mon.names)
+     LIV <- length(Data[["parm.names"]])
+     LM <- length(Data[["mon.names"]])
      alpha <- as.vector(object.size(matrix(rep(1/M, M), M, Iterations))) /
           Const
      Covar <- as.vector(object.size(array(0,
@@ -21,7 +21,7 @@ PMC.RAM <- function(Model, Data, Iterations, Thinning, M, N)
      Data <- as.vector(object.size(Data)) / Const
      Deviance <- as.vector(object.size(rep(0,N))) / Const
      Initial.Values <- as.vector(object.size(matrix(0, M,
-          length(Data$parm.names)))) / Const
+          length(Data[["parm.names"]])))) / Const
      LH <- as.vector(object.size(array(0, dim=c(N, Iterations, M)))) /
           Const
      LP <- as.vector(object.size(array(0, dim=c(N, Iterations, M)))) /

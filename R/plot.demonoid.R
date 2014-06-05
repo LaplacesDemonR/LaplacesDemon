@@ -92,10 +92,10 @@ plot.demonoid <- function(x, BurnIn=0, Data=NULL, PDF=FALSE,
           {
           plot(Stat.at:nn, x$Monitor[Stat.at:nn,j],
                type="l", xlab="Iterations", ylab="Value",
-               main=Data$mon.names[j])
+               main=Data[["mon.names"]][j])
           panel.smooth(Stat.at:nn, x$Monitor[Stat.at:nn,j], pch="")
           plot(density(x$Monitor[Stat.at:nn,j]),
-               xlab="Value", main=Data$mon.names[j])
+               xlab="Value", main=Data[["mon.names"]][j])
           polygon(density(x$Monitor[Stat.at:nn,j]), col="black",
                border="black")
           abline(v=0, col="red", lty=2)
@@ -104,11 +104,13 @@ plot.demonoid <- function(x, BurnIn=0, Data=NULL, PDF=FALSE,
                z <- acf(x$Monitor[Stat.at:nn,j], plot=FALSE)
                se <- 1/sqrt(length(x$Monitor[Stat.at:nn,j]))
                plot(z$lag, z$acf, ylim=c(min(z$acf,-2*se),1), type="h",
-                    main=Data$mon.names[j], xlab="Lag", ylab="Correlation")
+                    main=Data[["mon.names"]][j], xlab="Lag",
+                    ylab="Correlation")
                abline(h=(2*se), col="red", lty=2)
                abline(h=(-2*se), col="red", lty=2)
                }
-          else {plot(0,0, main=paste(Data$mon.names[j], "is a constant."))}
+          else {plot(0,0, main=paste(Data[["mon.names"]][j],
+                    "is a constant."))}
           }
      ### Diminishing Adaptation
      if(nrow(x$CovarDHis) > 1) {

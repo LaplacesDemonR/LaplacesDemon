@@ -16,12 +16,12 @@ Validate <- function(object, Model, Data, plot=FALSE, PDF=FALSE)
           stop("object must be of class demonoid or pmc.")
      if(!is.list(Data)) stop("Data must be a list.")
      if(length(Data) != 2) stop("Data must have length 2.")
-     if(is.null(Data[[1]]$y) & is.null(Data[[1]]$Y))
+     if(is.null(Data[[1]][["y"]]) & is.null(Data[[1]][["Y"]]))
           stop("Data must have y or Y.")
-     if(!is.null(Data[[1]]$y)) y1 <- as.vector(Data[[1]]$y)
-     if(!is.null(Data[[1]]$Y)) y1 <- as.vector(Data[[1]]$Y)
-     if(!is.null(Data[[2]]$y)) y2 <- as.vector(Data[[2]]$y)
-     if(!is.null(Data[[2]]$Y)) y2 <- as.vector(Data[[2]]$Y)
+     if(!is.null(Data[[1]][["y"]])) y1 <- as.vector(Data[[1]][["y"]])
+     if(!is.null(Data[[1]][["Y"]])) y1 <- as.vector(Data[[1]][["Y"]])
+     if(!is.null(Data[[2]][["y"]])) y2 <- as.vector(Data[[2]][["y"]])
+     if(!is.null(Data[[2]][["Y"]])) y2 <- as.vector(Data[[2]][["Y"]])
      ### p(y[rep] | y)
      if(identical(class(object), "demonoid")) {
           post <- as.matrix(object$Posterior1)
@@ -31,16 +31,16 @@ Validate <- function(object, Model, Data, plot=FALSE, PDF=FALSE)
      dev1 <- dev2 <- rep(NA, nrow(post))
      yhat1 <- matrix(NA, length(y1), nrow(post))
      yhat2 <- matrix(NA, length(y2), nrow(post))
-     lengthcomp <- as.vector(Model(post[1,], Data[[1]])[[4]])
+     lengthcomp <- as.vector(Model(post[1,], Data[[1]])[["yhat"]])
      if(!identical(length(lengthcomp), length(y1)))
           stop("y and yhat differ in length.")
      for (i in 1:nrow(post)) {
           temp1 <- Model(post[i,], Data[[1]])
           temp2 <- Model(post[i,], Data[[2]])
-          dev1[i] <- temp1[[2]]
-          dev2[i] <- temp2[[2]]
-          yhat1[,i] <- as.vector(temp1[[4]])
-          yhat2[,i] <- as.vector(temp2[[4]])}
+          dev1[i] <- temp1[["Dev"]]
+          dev2[i] <- temp2[["Dev"]]
+          yhat1[,i] <- as.vector(temp1[["yhat"]])
+          yhat2[,i] <- as.vector(temp2[["yhat"]])}
      ### BPIC
      Dbar.M <- round(mean(dev1, na.rm=TRUE),3)
      pD.M <- round(var(dev1, na.rm=TRUE)/2,3)

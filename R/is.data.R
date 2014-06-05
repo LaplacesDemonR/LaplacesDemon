@@ -14,10 +14,10 @@ is.data <- function(Data)
      if(!is.list(Data)) {
           cat("\nData must be a list.\n")
           isdata <- FALSE}
-     if(is.null(Data$mon.names)) {
+     if(is.null(Data[["mon.names"]])) {
           cat("\nmon.names is NULL.\n")
           isdata <- FALSE}
-     if(is.null(Data$parm.names)) {
+     if(is.null(Data[["parm.names"]])) {
           cat("\nparm.names is NULL.\n")
           isdata <- FALSE}
      return(isdata)

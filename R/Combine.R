@@ -121,7 +121,7 @@ Combine <- function(x, Data, Thinning=1)
      ### Posterior Summary Table 1: All Thinned Samples
      cat("Creating Summaries\n")
      Num.Mon <- ncol(Mon)
-     Summ1 <- matrix(NA, LIV, 7, dimnames=list(Data$parm.names,
+     Summ1 <- matrix(NA, LIV, 7, dimnames=list(Data[["parm.names"]],
           c("Mean","SD","MCSE","ESS","LB","Median","UB")))
      Summ1[,1] <- colMeans(thinned)
      Summ1[,2] <- sqrt(.colVars(thinned))
@@ -162,10 +162,10 @@ Combine <- function(x, Data, Thinning=1)
           Monitor[7] <- as.numeric(quantile(Mon[,j], probs=0.975,
                na.rm=TRUE))
           Summ1 <- rbind(Summ1, Monitor)
-          rownames(Summ1)[nrow(Summ1)] <- Data$mon.names[j]
+          rownames(Summ1)[nrow(Summ1)] <- Data[["mon.names"]][j]
           }
      ### Posterior Summary Table 2: Stationary Samples
-     Summ2 <- matrix(NA, LIV, 7, dimnames=list(Data$parm.names,
+     Summ2 <- matrix(NA, LIV, 7, dimnames=list(Data[["parm.names"]],
           c("Mean","SD","MCSE","ESS","LB","Median","UB")))
      if(Stat.at < thinned.rows) {
           thinned2 <- matrix(thinned[Stat.at:thinned.rows,],
@@ -218,13 +218,13 @@ Combine <- function(x, Data, Thinning=1)
                Monitor[7] <- as.numeric(quantile(Mon2[,j],
                     probs=0.975, na.rm=TRUE))
                Summ2 <- rbind(Summ2, Monitor)
-               rownames(Summ2)[nrow(Summ2)] <- Data$mon.names[j]}
+               rownames(Summ2)[nrow(Summ2)] <- Data[["mon.names"]][j]}
           }
      ### Column names to samples
-     if(identical(ncol(Mon), length(Data$mon.names)))
-          colnames(Mon) <- Data$mon.names
-     if(identical(ncol(thinned), length(Data$parm.names))) {
-          colnames(thinned) <- Data$parm.names}
+     if(identical(ncol(Mon), length(Data[["mon.names"]])))
+          colnames(Mon) <- Data[["mon.names"]]
+     if(identical(ncol(thinned), length(Data[["parm.names"]]))) {
+          colnames(thinned) <- Data[["parm.names"]]}
      ### Logarithm of the Marginal Likelihood
      LML <- list(LML=NA, VarCov=NA)
      if(Algorithm %in% c("Adaptive Griddy-Gibbs",
@@ -237,6 +237,7 @@ Combine <- function(x, Data, Thinning=1)
           "Hamiltonian Monte Carlo",
           "Hit-And-Run Metropolis",
           "Independence Metropolis",
+          "Metropolis-Adjusted Langevin Algorithm",
           "Metropolis-Coupled Markov Chain Monte Carlo",
           "Metropolis-within-Gibbs",
           "Multiple-Try Metropolis",

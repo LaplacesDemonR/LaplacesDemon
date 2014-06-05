@@ -44,10 +44,10 @@ as.parm.matrix <- function(x, k, parm, Data, a=-Inf, b=Inf, restrict=FALSE,
      if(restrict == TRUE) {
           X[upper.tri(X, diag=TRUE)] <- c(1,
                parm[grep(deparse(substitute(x)),
-               Data$parm.names)])}
+               Data[["parm.names"]])])}
      else {
           X[upper.tri(X, diag=TRUE)] <- parm[grep(deparse(substitute(x)),
-               Data$parm.names)]}
+               Data[["parm.names"]])]}
      if(chol == TRUE) {
           if(a != -Inf | b != Inf) {
                x <- as.vector(X[upper.tri(X, diag=TRUE)])
@@ -244,21 +244,22 @@ CovEstim <- function(Model, parm, Data, Method="Hessian")
           }
      else if(Method == "Identity") VarCov <- diag(length(parm))
      else if(Method == "OPG") {
-          if(is.null(Data$X)) stop("X is required in the data.")
+          if(is.null(Data[["X"]])) stop("X is required in the data.")
           y <- TRUE
-          if(is.null(Data$y)) {
+          if(is.null(Data[["y"]])) {
                y <- FALSE
-               if(is.null(Data$Y)) stop("y or Y is required in the data.")}
+               if(is.null(Data[["Y"]]))
+                    stop("y or Y is required in the data.")}
           if(y == TRUE) {
-               if(length(Data$y) != nrow(Data$X))
+               if(length(Data[["y"]]) != nrow(Data[["X"]]))
                     stop("length of y differs from rows in X.")
                }
           else {
-               if(nrow(Data$Y) != nrow(Data$X))
+               if(nrow(Data[["Y"]]) != nrow(Data[["X"]]))
                     stop("The number of rows differs in y and X.")}
           LIV <- length(parm)
           VarCov <- matrix(0, LIV, LIV)
-          for (i in 1:nrow(Data$X)) {
+          for (i in 1:nrow(Data[["X"]])) {
                Data.temp <- Data
                Data.temp$X <- Data.temp$X[i,,drop=FALSE]
                if(y == TRUE) Data.temp$y <- Data.temp$y[i]
@@ -269,21 +270,22 @@ CovEstim <- function(Model, parm, Data, Method="Hessian")
           }
      else if(Method == "Sandwich") {
           B <- as.inverse(Hessian(Model, parm, Data))
-          if(is.null(Data$X)) stop("X is required in the data.")
+          if(is.null(Data[["X"]])) stop("X is required in the data.")
           y <- TRUE
-          if(is.null(Data$y)) {
+          if(is.null(Data[["y"]])) {
                y <- FALSE
-               if(is.null(Data$Y)) stop("y or Y is required in the data.")}
+               if(is.null(Data[["Y"]]))
+                    stop("y or Y is required in the data.")}
           if(y == TRUE) {
-               if(length(Data$y) != nrow(Data$X))
+               if(length(Data[["y"]]) != nrow(Data[["X"]]))
                     stop("length of y differs from rows in X.")
                }
           else {
-               if(nrow(Data$Y) != nrow(Data$X))
+               if(nrow(Data[["Y"]]) != nrow(Data[["X"]]))
                     stop("The number of rows differs in y and X.")}
           LIV <- length(parm)
           M <- matrix(0, LIV, LIV)
-          n <- nrow(Data$X)
+          n <- nrow(Data[["X"]])
           for (i in 1:n) {
                Data.temp <- Data
                Data.temp$X <- Data.temp$X[i,,drop=FALSE]

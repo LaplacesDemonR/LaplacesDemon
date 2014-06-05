@@ -17,8 +17,8 @@ PMC <- function(Model, Data, Initial.Values, Covar=NULL, Iterations=10,
      if(!is.function(Model)) stop("Model must be a function.")
      if(missing(Data))
           stop("A list containing data must be entered for Data.")
-     if(is.null(Data$mon.names)) stop("In Data, mon.names is NULL.")
-     if(is.null(Data$parm.names)) stop("In Data, parm.names is NULL.")
+     if(is.null(Data[["mon.names"]])) stop("In Data, mon.names is NULL.")
+     if(is.null(Data[["parm.names"]])) stop("In Data, parm.names is NULL.")
      for (i in 1:length(Data)) {
           if(is.matrix(Data[[i]])) {
                if(all(is.finite(Data[[i]]))) {
@@ -30,20 +30,22 @@ PMC <- function(Model, Data, Initial.Values, Covar=NULL, Iterations=10,
      N <- max(round(abs(N)), 1)
      if(missing(Initial.Values)) {
           cat("WARNING: Initial Values were not supplied.\n")
-          Initial.Values <- matrix(0, M, length(Data$parm.names))}
+          Initial.Values <- matrix(0, M, length(Data[["parm.names"]]))}
      if(is.vector(Initial.Values)) {
-          if(!identical(length(Initial.Values), length(Data$parm.names))) {
+          if(!identical(length(Initial.Values),
+               length(Data[["parm.names"]]))) {
                cat("WARNING: The length of Initial Values differed from",
                     "Data$parm.names.\n")
-          Initial.Values <- matrix(0, M, length(Data$parm.names))}}
+          Initial.Values <- matrix(0, M, length(Data[["parm.names"]]))}}
      else {
-          if(!identical(ncol(Initial.Values), length(Data$parm.names))) {
+          if(!identical(ncol(Initial.Values),
+               length(Data[["parm.names"]]))) {
                cat("WARNING: Columns in Initial Values differed from",
                     "Data$parm.names.\n")
-          Initial.Values <- matrix(0, M, length(Data$parm.names))}}
+          Initial.Values <- matrix(0, M, length(Data[["parm.names"]]))}}
      if(any(!is.finite(Initial.Values))) {
           cat("WARNING: Initial Values contain non-finite values.\n")
-          Initial.Values <- matrix(0, M, length(Data$parm.names))}
+          Initial.Values <- matrix(0, M, length(Data[["parm.names"]]))}
      if(is.vector(Initial.Values)) {
           LIV <- length(Initial.Values)
           Initial.Values <- matrix(Initial.Values, M, LIV, byrow=TRUE)}
@@ -86,7 +88,8 @@ PMC <- function(Model, Data, Initial.Values, Covar=NULL, Iterations=10,
           if(!is.list(M0)) stop("Model must return a list.")
           if(length(M0) != 5) stop("Model must return five components.")
           if(length(M0[["LP"]]) > 1) stop("Multiple joint posteriors exist!")
-          if(!identical(length(M0[["Monitor"]]), length(Data$mon.names)))
+          if(!identical(length(M0[["Monitor"]]),
+               length(Data[["mon.names"]])))
                stop("Length of mon.names differs from length of monitors.")
           if(any(!is.finite(c(M0[["LP"]],M0[["Dev"]],M0[["parm"]]))))
                stop("Model produces non-finite results.")}
@@ -113,10 +116,10 @@ PMC <- function(Model, Data, Initial.Values, Covar=NULL, Iterations=10,
           cat("     faster language such as C++ via the Rcpp package.\n")}
      ######################  Laplace Approximation  #######################
      ### Sample Size of Data
-     if(!is.null(Data$n)) if(length(Data$n) == 1) NN <- Data$n
-     if(!is.null(Data$N)) if(length(Data$N) == 1) NN <- Data$N
-     if(!is.null(Data$y)) NN <- nrow(matrix(Data$y))
-     if(!is.null(Data$Y)) NN <- nrow(matrix(Data$Y))
+     if(!is.null(Data[["n"]])) if(length(Data[["n"]]) == 1) NN <- Data[["n"]] 
+     if(!is.null(Data[["N"]])) if(length(Data[["N"]]) == 1) NN <- Data[["N"]] 
+     if(!is.null(Data[["y"]])) NN <- nrow(matrix(Data[["y"]]))
+     if(!is.null(Data[["Y"]])) NN <- nrow(matrix(Data[["Y"]]))
      if(is.null(NN)) stop("Sample size of Data not found in n, N, y, or Y.")
      if({sum(abs(Initial.Values[1,]) == 0) == ncol(Initial.Values)} &
           {NN >= 5*ncol(Initial.Values)}) {
@@ -249,7 +252,7 @@ PMC <- function(Model, Data, Initial.Values, Covar=NULL, Iterations=10,
           }
      ### Combine Samples from Mixture Components
      Posterior2 <- post[,,Iterations,1]
-     colnames(Posterior2) <- Data$parm.names
+     colnames(Posterior2) <- Data[["parm.names"]]
      if(M > 1) {
           for (m in 2:M) {
                if(alpha[m,Iterations] >= 0.002)
@@ -259,15 +262,15 @@ PMC <- function(Model, Data, Initial.Values, Covar=NULL, Iterations=10,
      ### Final Sampling
      cat("Final Sampling\n")
      Dev <- rep(0, nrow(Posterior2))
-     Mon <- matrix(0, nrow(Posterior2), length(Data$mon.names))
-     colnames(Mon) <- Data$mon.names
+     Mon <- matrix(0, nrow(Posterior2), length(Data[["mon.names"]]))
+     colnames(Mon) <- Data[["mon.names"]]
      for (i in 1:nrow(Posterior2)) {
           temp <- Model(Posterior2[i,], Data)
           Dev[i] <- temp[["Dev"]]
           Mon[i,] <- temp[["Monitor"]]}
      ### Posterior Summary Table
      cat("Creating Summaries\n")
-     Summ <- matrix(NA, LIV, 7, dimnames=list(Data$parm.names,
+     Summ <- matrix(NA, LIV, 7, dimnames=list(Data[["parm.names"]],
           c("Mean","SD","MCSE","ESS","LB","Median","UB")))
      Summ[,1] <- colMeans(Posterior2)
      Summ[,2] <- sqrt(.colVars(Posterior2))
@@ -308,7 +311,7 @@ PMC <- function(Model, Data, Initial.Values, Covar=NULL, Iterations=10,
           Monitor[7] <- as.numeric(quantile(Mon[,j], probs=0.975,
                na.rm=TRUE))
           Summ <- rbind(Summ, Monitor)
-          rownames(Summ)[nrow(Summ)] <- Data$mon.names[j]}
+          rownames(Summ)[nrow(Summ)] <- Data[["mon.names"]][j]}
      ### Logarithm of the Marginal Likelihood
      LML <- list(LML=NA, VarCov=NA)
      cat("Estimating Log of the Marginal Likelihood\n")

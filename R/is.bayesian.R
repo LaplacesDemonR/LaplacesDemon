@@ -17,3 +17,5 @@ is.bayesian <- function(Model, Initial.Values, Data)
      if(Mo[["LP"]] != LL) bayesian <- TRUE
      return(bayesian)
      }
+
+#End

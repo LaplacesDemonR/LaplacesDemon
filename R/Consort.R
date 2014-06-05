@@ -98,17 +98,20 @@ Consort <- function(object=NULL)
      LIV <- object$Parameters
      ### Check MCSE
      MCSE.crit <- 0.0627
-     MCSE.temp <- object$Summary2[1:object$Parameters,3] /
-          object$Summary2[1:LIV,2]
+     MCSE.temp <- object$Summary2[1:object$Parameters,"MCSE"] /
+          object$Summary2[1:LIV,"SD"]
      MCSE.temp2 <- sum(!is.finite(MCSE.temp))
      MCSE.temp[which(!is.finite(MCSE.temp))] <- 0
      MCSE.tot <- 0
      if(MCSE.temp2 < LIV)
           MCSE.tot <- sum(MCSE.temp < MCSE.crit)
      ### Check ESS
-     ESS.temp <- object$Summary2[1:LIV,4]
+     ESS.temp <- object$Summary2[1:LIV,"ESS"]
      ESS.temp[which(!is.finite(ESS.temp))] <- 0
      ESS.min <- min(ESS.temp)
+     if(all(is.finite(object$Summary2[1:LIV,"ESS"])))
+          ESS.worst <- which.min(object$Summary2[1:LIV,"ESS"])
+     else ESS.worst <- which.min(object$Summary1[1:LIV,"ESS"])
      ESS.crit <- 100
      ### Check Stationarity
      Stationarity <- FALSE
@@ -166,7 +169,10 @@ Consort <- function(object=NULL)
      if(ESS.min < ESS.crit) {
           cat("4. At least one target distribution has an ",
                "effective sample size\n", sep="")
-          cat("   (ESS) less than ", ESS.crit, ".\n", sep="")}
+          cat("   (ESS) less than ", ESS.crit,
+               ". The worst mixing chain is: ", 
+               rownames(object$Summary1)[ESS.worst], " (ESS=",
+               object$Summary1[ESS.worst,"ESS"], ").\n", sep="")}
      else {
           cat("4. Each target distribution has an effective ",
                "sample size (ESS)\n", sep="")
@@ -386,7 +392,7 @@ Consort <- function(object=NULL)
                block <- "NULL"
                if(!is.null(object$Specs[["B"]]) &
                     !identical(object$Specs[["B"]],list()))
-                    block <- object$Specs[["B"]]
+                    block <- paste(oname, "$Specs$B", sep="")
                if(Rec.Status > Rec.Iterations)
                     Rec.Status <- Rec.Iterations
                n <- object$Iterations
@@ -505,7 +511,7 @@ Consort <- function(object=NULL)
                block <- "NULL"
                if(!is.null(object$Specs[["B"]]) &
                     !identical(object$Specs[["B"]],list()))
-                    block <- object$Specs[["B"]]
+                    block <- "Block"
                cat(oname, " <- LaplacesDemon(Model, Data=", dname,
                     ", Initial.Values,\n", sep="")
                cat("     Covar=", oname, "$Covar, Iterations=",
@@ -545,24 +551,22 @@ Consort <- function(object=NULL)
                if(is.na(object$Specs[["alpha.star"]]) |
                     !is.null(object$Specs[["alpha.star"]]))
                     al <- object$Specs[["alpha.star"]]
-               Block <- "NULL"
+               block <- "NULL"
                if(!is.null(object$Specs[["B"]]) &
                     !identical(object$Specs[["B"]],list()))
-                    Block <- object$Specs[["B"]]
+                    block <- "Block"
                cat(oname, " <- LaplacesDemon(Model, Data=", dname,
                     ", Initial.Values,\n", sep="")
                cat("     Covar=NULL, Iterations=",
                     Rec.Iterations, ", Status=", Rec.Status, ", ",
                     "Thinning=", Rec.Thinning, ",\n", sep="")
                cat("     Algorithm=\"HARM\", ",
-                    "Specs=list(alpha.star=", al, ", B=", Block, ")\n\n",
+                    "Specs=list(alpha.star=", al, ", B=", block, ")\n\n",
                     sep="")
                }
           else if({(Alg == "AHMC") & Dim.Adapt & Ready} |
-             {(Alg == "HMC") & Dim.Adapt & Ready} |
-             {(Alg == "MALA") & Dim.Adapt & Ready}) {
+             {(Alg == "HMC") & Dim.Adapt & Ready}) {
                ### HMC
-               if(Alg == "MALA") L <- 1
                if(L > 1) {
                     L <- round(L*(Rec.Iterations/object$Iterations))
                     Rec.Iterations <- object$Iterations
@@ -620,13 +624,12 @@ Consort <- function(object=NULL)
                     ", CPUs=", detectedcores,
                     ", Packages=NULL, Dyn.libs=NULL)\n\n", sep="")
                }
-          else if({(Alg == "MALA") & Dim.Adapt & !Ready} |
-               {(Alg == "MALA") & !Dim.Adapt & Ready} |
-               {(Alg == "MALA") & !Dim.Adapt & !Ready}) {
+          else if(Alg == "MALA") {
                ### MALA
                A <- object$Specs[["A"]]
                alpha.star <- object$Specs[["alpha.star"]]
-               gamma <- object$Specs[["gamma"]]
+               if(Dim.Adapt & Ready) gamma <- 0
+               else gamma <- object$Specs[["gamma"]]
                delta <- object$Specs[["delta"]]
                cat(oname, " <- LaplacesDemon(Model, Data=", dname,
                     ", Initial.Values,\n", sep="")
@@ -700,7 +703,8 @@ Consort <- function(object=NULL)
                     ", delta=", delta, ",\n", sep="")
                cat("     epsilon=",
                     max(round(object$CovarDHis[nrow(object$CovarDHis),1],3),
-                    1e-10), "))\n\n", sep="")
+                    1e-10), ", Lmax=", object$Specs[["Lmax"]],
+                    "))\n\n", sep="")
                }
           else if(Alg == "OHSS") {
                ### OHSS
@@ -814,7 +818,7 @@ Consort <- function(object=NULL)
                block <- "NULL"
                if(!is.null(object$Specs[["B"]]) &
                     !identical(object$Specs[["B"]], list()))
-                    block <- object$Specs[["B"]]
+                    block <- "Block"
                cat(oname, " <- LaplacesDemon(Model, Data=", dname,
                     ", Initial.Values,\n", sep="")
                cat("     Covar=", oname, "$Covar, Iterations=",
@@ -927,6 +931,10 @@ Consort <- function(object=NULL)
                ### UESS
                if(Ready == TRUE) A <- 0
                else A <- object$Specs[["A"]]
+               block <- "NULL"
+               if(!is.null(object$Specs[["B"]]) &
+                    !identical(object$Specs[["B"]],list()))
+                    block <- "Block"
                m <- object$Specs[["m"]]
                n <- object$Specs[["n"]] + object$Iterations
                cat(oname, " <- LaplacesDemon(Model, Data=", dname,
@@ -935,8 +943,8 @@ Consort <- function(object=NULL)
                     Rec.Iterations, ", Status=", Rec.Status, ", ",
                     "Thinning=", Rec.Thinning, ",\n", sep="")
                cat("     Algorithm=\"UESS\", ",
-                    "Specs=list(A=", A, ", m=", m, ", n=", n,
-                    "))\n\n", sep="")
+                    "Specs=list(A=", A, ", B=", block, ", m=", m,
+                    ", n=", n, "))\n\n", sep="")
                }
           else if((Alg == "USAMWG") | (Alg == "USMWG")) {
                ### USAMWG or USMWG

@@ -87,7 +87,7 @@ plot.demonoid.hpc <- function(x, BurnIn=0, Data=NULL, PDF=FALSE,
                          col2rgb(n)[2],col2rgb(n)[3],50,
                          maxColorValue=255))}
                }
-          else {plot(0,0, main=paste(colnames(Posterior[[1]])[j],
+          else {plot(0, 0, main=paste(colnames(Posterior[[1]])[j],
                "is a constant."))}
           }
      rm(Posterior)
@@ -128,10 +128,10 @@ plot.demonoid.hpc <- function(x, BurnIn=0, Data=NULL, PDF=FALSE,
                       col2rgb(n)[2],col2rgb(n)[3],50,
                       maxColorValue=255))}
           }
-     else {plot(0,0, main="Deviance is a constant.")}
+     else {plot(0, 0, main="Deviance is a constant.")}
      rm(Deviance)
      #### Plot Monitored Variables
-     J <- length(Data$mon.names)
+     J <- length(Data[["mon.names"]])
      Monitor <- list()
      for (i in 1:Chains) {
           Monitor[[i]] <- matrix(x[[i]][["Monitor"]], nn, J)}
@@ -141,13 +141,13 @@ plot.demonoid.hpc <- function(x, BurnIn=0, Data=NULL, PDF=FALSE,
                     max(sapply(Monitor, function(x) {max(x[Stat.at:nn,j])}))),
                col=rgb(0,0,0,50,maxColorValue=255),
                type="l", xlab="Iterations", ylab="Value",
-               main=Data$mon.names[j])
+               main=Data[["mon.names"]][j])
           for (n in 2:Chains) {
                lines(Stat.at:nn, Monitor[[n]][Stat.at:nn,j],
                     col=rgb(col2rgb(n)[1],col2rgb(n)[2],col2rgb(n)[3],50,
                     maxColorValue=255))}
           plot(density(Monitor[[1]][Stat.at:nn,j]), col="white",
-               xlab="Value", main=Data$mon.names[j])
+               xlab="Value", main=Data[["mon.names"]][j])
           polygon(density(Monitor[[1]][Stat.at:nn,j]),
                col=rgb(0,0,0,50,maxColorValue=255), border=NA)
           for (n in 2:Chains) {
@@ -161,7 +161,8 @@ plot.demonoid.hpc <- function(x, BurnIn=0, Data=NULL, PDF=FALSE,
                se <- 1/sqrt(length(Monitor[[1]][Stat.at:nn,j]))
                plot(z$lag, z$acf, ylim=c(min(z$acf,-2*se),1),
                     col=rgb(0,0,0,50,maxColorValue=255), type="h",
-                    main=Data$mon.names[j], xlab="Lag", ylab="Correlation")
+                    main=Data[["mon.names"]][j], xlab="Lag",
+                    ylab="Correlation")
                abline(h=(2*se), col="red", lty=2)
                abline(h=(-2*se), col="red", lty=2)
                for (n in 2:Chains) {
@@ -171,7 +172,8 @@ plot.demonoid.hpc <- function(x, BurnIn=0, Data=NULL, PDF=FALSE,
                          col2rgb(n)[2],col2rgb(n)[3],50,
                          maxColorValue=255))}
                }
-          else {plot(0,0, main=paste(Data$mon.names[j], "is a constant."))}
+          else {plot(0, 0, main=paste(Data[["mon.names"]][j],
+                     "is a constant."))}
           }
      rm(Monitor)
      #### Diminishing Adaptation

@@ -17,22 +17,23 @@ Levene.Test <- function(x, Method="U", G=NULL, Data=NULL)
           stop("Data is required for Method C.")
      if({Method == "R"} & is.null(Data))
           stop("Data is required for Method R.")
-     if({Method == "C" | Method == "R"} & is.null(Data$Y))
+     if({Method == "C" | Method == "R"} & is.null(Data[["Y"]]))
           stop("Y is required in Data.")
-     y <- x$y
-     yhat <- x$yhat
+     y <- x[["y"]]
+     yhat <- x[["yhat"]]
      if(is.null(Data) & is.null(G)) {
           G <- rep(1:4, each=round(nrow(yhat)/4), len=nrow(yhat))
           if(length(G) != length(y))
                stop("Lengths of G and y differ.")}
      if(!is.null(Data) & is.null(G) & {Method == "C" || Method == "R"}) {
           if(Method == "C") {
-               G <- matrix(rep(1:4, each=round(nrow(Data$Y)/4),
-                         len=nrow(Data$Y)), nrow(Data$Y), ncol(Data$Y))}
+               G <- matrix(rep(1:4, each=round(nrow(Data[["Y"]])/4),
+                    len=nrow(Data[["Y"]])), nrow(Data[["Y"]]),
+                    ncol(Data[["Y"]]))}
           if(Method == "R") {
-               G <- matrix(rep(1:4, each=round(ncol(Data$Y)/4),
-                         len=ncol(Data$Y)), nrow(Data$Y), ncol(Data$Y),
-                         byrow=TRUE)}}
+               G <- matrix(rep(1:4, each=round(ncol(Data[["Y"]])/4),
+                    len=ncol(Data[["Y"]])), nrow(Data[["Y"]]),
+                    ncol(Data[["Y"]]), byrow=TRUE)}}
      if(Method == "U") K <- length(unique(G))
      if(Method == "C") K <- length(unique(G[,1]))
      if(Method == "R") K <- length(unique(G[1,]))
@@ -44,20 +45,20 @@ Levene.Test <- function(x, Method="U", G=NULL, Data=NULL)
                sd(as.vector(epsilon.obs), na.rm=TRUE)), N, S)}
      if(Method == "C") {
           epsilon.rep <- epsilon.obs
-          for (j in 1:ncol(Data$Y)) {
-               point <- matrix(FALSE, nrow(Data$Y), ncol(Data$Y))
+          for (j in 1:ncol(Data[["Y"]])) {
+               point <- matrix(FALSE, nrow(Data[["Y"]]), ncol(Data[["Y"]]))
                point[,j] <- TRUE
                point <- as.vector(point)
-               epsilon.rep[point,] <- rnorm(nrow(Data$Y)*S,
+               epsilon.rep[point,] <- rnorm(nrow(Data[["Y"]])*S,
                     mean(epsilon.obs[point,], na.rm=TRUE),
                     sd(as.vector(epsilon.obs[point,]), na.rm=TRUE))}}
      if(Method == "R") {
           epsilon.rep <- epsilon.obs
-          for (i in 1:nrow(Data$Y)) {
-               point <- matrix(FALSE, nrow(Data$Y), ncol(Data$Y))
+          for (i in 1:nrow(Data[["Y"]])) {
+               point <- matrix(FALSE, nrow(Data[["Y"]]), ncol(Data[["Y"]]))
                point[i,] <- TRUE
                point <- as.vector(point)
-               epsilon.rep[point,] <- rnorm(ncol(Data$Y)*S,
+               epsilon.rep[point,] <- rnorm(ncol(Data[["Y"]])*S,
                     mean(epsilon.obs[point,], na.rm=TRUE),
                     sd(as.vector(epsilon.obs[point,]), na.rm=TRUE))}}
      ### Levene Test
@@ -103,9 +104,9 @@ Levene.Test <- function(x, Method="U", G=NULL, Data=NULL)
                border=NA)}
      if(Method == "C") {
           par(mfrow=c(1,1), ask=TRUE)
-          p <- rep(0, ncol(Data$Y))
-          for (j in 1:ncol(Data$Y)) {
-               point <- matrix(FALSE, nrow(Data$Y), ncol(Data$Y))
+          p <- rep(0, ncol(Data[["Y"]]))
+          for (j in 1:ncol(Data[["Y"]])) {
+               point <- matrix(FALSE, nrow(Data[["Y"]]), ncol(Data[["Y"]]))
                point[,j] <- TRUE
                point <- as.vector(point)
                W.obs <- W.rep <- rep(0, S)
@@ -156,9 +157,9 @@ Levene.Test <- function(x, Method="U", G=NULL, Data=NULL)
                     border=NA)}}
      if(Method == "R") {
           par(mfrow=c(1,1), ask=TRUE)
-          p <- rep(0, nrow(Data$Y))
-          for (i in 1:nrow(Data$Y)) {
-               point <- matrix(FALSE, nrow(Data$Y), ncol(Data$Y))
+          p <- rep(0, nrow(Data[["Y"]]))
+          for (i in 1:nrow(Data[["Y"]])) {
+               point <- matrix(FALSE, nrow(Data[["Y"]]), ncol(Data[["Y"]]))
                point[i,] <- TRUE
                point <- as.vector(point)
                W.obs <- W.rep <- rep(0, S)

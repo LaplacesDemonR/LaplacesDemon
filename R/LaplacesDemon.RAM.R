@@ -13,8 +13,8 @@ LaplacesDemon.RAM <- function(Model, Data, Iterations, Thinning,
      if(missing(Data))
           stop("The Data argument is required.")
      Const <- 1048600
-     LIV <- length(Data$parm.names)
-     LM <- length(Data$mon.names)
+     LIV <- length(Data[["parm.names"]])
+     LM <- length(Data[["mon.names"]])
      Covar <- 0
      if(Algorithm %in% c("ADMG","AM","AMM","DRAM","DRM","ESS","IM","INCA",
           "MALA","OHSS","RWM","RAM","UESS")) {

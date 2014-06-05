@@ -21,7 +21,7 @@ SIR <- function(Model, Data, mu, Sigma, n=1000, CPUs=1, Type="PSOCK")
      k <- length(mu)
      theta <- rmvn(n, mu, Sigma)
      theta[which(!is.finite(theta))] <- 0
-     colnames(theta) <- Data$parm.names
+     colnames(theta) <- Data[["parm.names"]]
      ### Importance
      lf <- matrix(0, n, 1)
      ### Non-Parallel Processing

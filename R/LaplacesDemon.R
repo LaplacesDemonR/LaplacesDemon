@@ -24,9 +24,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      if(missing(Data))
           stop("A list containing data must be entered for Data.",
                 file=LogFile, append=TRUE)
-     if(is.null(Data$mon.names))
+     if(is.null(Data[["mon.names"]]))
           stop("In Data, mon.names is NULL.", file=LogFile, append=TRUE)
-     if(is.null(Data$parm.names))
+     if(is.null(Data[["parm.names"]]))
           stop("In Data, parm.names is NULL.", file=LogFile, append=TRUE)
      for (i in 1:length(Data)) {
           if(is.matrix(Data[[i]])) {
@@ -39,15 +39,15 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      if(missing(Initial.Values)) {
           cat("WARNING: Initial Values were not supplied.\n", file=LogFile,
                append=TRUE)
-          Initial.Values <- rep(0, length(Data$parm.names))}
-     if(!identical(length(Initial.Values), length(Data$parm.names))) {
+          Initial.Values <- rep(0, length(Data[["parm.names"]]))}
+     if(!identical(length(Initial.Values), length(Data[["parm.names"]]))) {
           cat("WARNING: The length of Initial Values differed from",
                "Data$parm.names.\n", file=LogFile, append=TRUE)
-          Initial.Values <- rep(0, length(Data$parm.names))}
+          Initial.Values <- rep(0, length(Data[["parm.names"]]))}
      if(any(!is.finite(Initial.Values))) {
           cat("WARNING: Initial Values contain non-finite values.\n",
                file=LogFile, append=TRUE)
-          Initial.Values <- rep(0, length(Data$parm.names))}
+          Initial.Values <- rep(0, length(Data[["parm.names"]]))}
      Iterations <- round(abs(Iterations))
      if(Iterations < 11) {
           Iterations <- 11
@@ -483,7 +483,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     stop("The Specs argument is incorrect.", file=LogFile,
                          append=TRUE)
                Specs[["A"]] <- abs(Specs[["A"]][1])
-               Specs[["gamma"]] <- min(max(Specs[["gamma"]][1], 1),
+               Specs[["gamma"]] <- min(max(Specs[["gamma"]][1], 0),
                     Iterations)
                Specs[["delta"]] <- min(max(Specs[["delta"]][1], 1e-10),
                     1000)
@@ -534,7 +534,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
-               if(!identical(names(Specs), c("A","delta","epsilon")))
+               if(!identical(names(Specs), c("A","delta","epsilon","Lmax")))
                     stop("The Specs argument is incorrect.", file=LogFile,
                          append=TRUE)
                Specs[["A"]] <- max(min(round(abs(Specs[["A"]])),
@@ -543,6 +543,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     1), 1/Iterations)
                if(!is.null(Specs[["epsilon"]]))
                     Specs[["epsilon"]] <- abs(Specs[["epsilon"]][1])
+               Specs[["Lmax"]] <- round(abs(Specs[["Lmax"]]))
                }
           else if(Algorithm == "OHSS") {
                Algorithm <- "Oblique Hyperrectangle Slice Sampler"
@@ -817,14 +818,14 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          append=TRUE)
                if(is.null(Specs[["SIV"]])) {
                     cat("\nGenerating SIV...\n", file=LogFile, append=TRUE)
-                    if(!is.null(Data$PGF))
+                    if(!is.null(Data[["PGF"]]))
                          Specs[["SIV"]] <- GIV(Model, Data, PGF=TRUE)
                     else Specs[["SIV"]] <- GIV(Model, Data)}
                if(!identical(length(Specs[["SIV"]]),
                     length(Initial.Values))) {
                     cat("\nGenerating SIV due to length mismatch.\n",
                          file=LogFile, append=TRUE)
-                    if(!is.null(Data$PGF))
+                    if(!is.null(Data[["PGF"]]))
                          Specs[["SIV"]] <- GIV(Model, Data, PGF=TRUE)
                     else Specs[["SIV"]] <- GIV(Model, Data)}
                Mo2 <- Model(Specs[["SIV"]], Data)
@@ -852,14 +853,19 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           else if(Algorithm == "UESS") {
                Algorithm = "Univariate Eigenvector Slice Sampler"
                if(missing(Specs) | is.null(Specs))
-                    Specs=list(A=Inf, m=100, n=0)
+                    Specs=list(A=Inf, B=NULL, m=100, n=0)
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
-               if(!identical(names(Specs), c("A","m","n")))
+               if(!identical(names(Specs), c("A","B","m","n")))
                     stop("The Specs argument is incorrect.", file=LogFile,
                          append=TRUE)
-               Specs[["A"]] <- round(abs(Specs[["A"]]))
+               Specs[["A"]] <- abs(round(Specs[["A"]]))
+               if(!is.null(Specs[["B"]])) {
+                    if(is.null(Covar)) {
+                         Covar <- list(NULL)
+                         for (b in 1:length(Specs[["B"]])) {
+                              Covar[[b]] <- diag(length(Specs[["B"]][[b]]))}}}
                Specs[["m"]] <- abs(round(Specs[["m"]]))
                Specs[["n"]] <- abs(round(Specs[["n"]]))
                }
@@ -919,7 +925,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      if(length(Mo0[["LP"]]) > 1)
           stop("Multiple joint posteriors exist!", file=LogFile,
                append=TRUE)
-     if(!identical(length(Mo0[["Monitor"]]), length(Data$mon.names)))
+     if(!identical(length(Mo0[["Monitor"]]), length(Data[["mon.names"]])))
           stop("Length of mon.names differs from length of monitors.",
                file=LogFile, append=TRUE)
      as.character.function <- function(x, ... )
@@ -960,7 +966,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      if(!is.finite(Mo0[["LP"]])) {
           cat("Generating initial values due to a non-finite posterior.\n",
                file=LogFile, append=TRUE)
-          if(!is.null(Data$PGF))
+          if(!is.null(Data[["PGF"]]))
                Initial.Values <- GIV(Model, Data, PGF=TRUE)
           else Initial.Values <- GIV(Model, Data)
           Mo0 <- Model(Initial.Values, Data)
@@ -992,10 +998,10 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                    file=LogFile, append=TRUE)}
      ######################  Laplace Approximation  #######################
      ### Sample Size of Data
-     if(!is.null(Data$n)) if(length(Data$n) == 1) N <- Data$n
-     if(!is.null(Data$N)) if(length(Data$N) == 1) N <- Data$N
-     if(!is.null(Data$y)) N <- nrow(matrix(Data$y))
-     if(!is.null(Data$Y)) N <- nrow(matrix(Data$Y))
+     if(!is.null(Data[["n"]])) if(length(Data[["n"]]) == 1) N <- Data[["n"]]
+     if(!is.null(Data[["N"]])) if(length(Data[["N"]]) == 1) N <- Data[["N"]]
+     if(!is.null(Data[["y"]])) N <- nrow(matrix(Data[["y"]]))
+     if(!is.null(Data[["Y"]])) N <- nrow(matrix(Data[["Y"]]))
      if(is.null(N))
           stop("Sample size of Data not found in n, N, y, or Y.",
                file=LogFile, append=TRUE)
@@ -1262,11 +1268,11 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      else if(Algorithm == "Sequential Adaptive Metropolis-within-Gibbs") {
           mcmc.out <- .mcmcsamwg(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, tuning, parm.names=Data$parm.names, LogFile)}
+               thinned, tuning, parm.names=Data[["parm.names"]], LogFile)}
      else if(Algorithm == "Sequential Metropolis-within-Gibbs") {
           mcmc.out <- .mcmcsmwg(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, tuning, parm.names=Data$parm.names, LogFile)}
+               thinned, tuning, parm.names=Data[["parm.names"]], LogFile)}
      else if(Algorithm == "Stochastic Gradient Langevin Dynamics") {
           mcmc.out <- .mcmcsgld(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
@@ -1290,11 +1296,11 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      else if(Algorithm == "Updating Sequential Adaptive Metropolis-within-Gibbs") {
           mcmc.out <- .mcmcusamwg(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, tuning, parm.names=Data$parm.names, LogFile)}
+               thinned, tuning, parm.names=Data[["parm.names"]], LogFile)}
      else if(Algorithm == "Updating Sequential Metropolis-within-Gibbs") {
           mcmc.out <- .mcmcusmwg(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, tuning, parm.names=Data$parm.names, LogFile)}
+               thinned, tuning, parm.names=Data[["parm.names"]], LogFile)}
      else stop("The algorithm is unrecognized.", file=LogFile, append=TRUE)
      options(warn=0)
      #########################  MCMC is Finished  #########################
@@ -1306,14 +1312,14 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      VarCov <- mcmc.out$VarCov
      remove(mcmc.out)
      rownames(DiagCovar) <- NULL
-     colnames(DiagCovar) <- Data$parm.names
+     colnames(DiagCovar) <- Data[["parm.names"]]
      thinned <- matrix(thinned[-1,], nrow(thinned)-1, ncol(thinned))
      Dev <- matrix(Dev[-1,], nrow(Dev)-1, 1)
      Mon <- matrix(Mon[-1,], nrow(Mon)-1, ncol(Mon))
      if(is.matrix(VarCov) & !is.list(VarCov)) {
-          colnames(VarCov) <- rownames(VarCov) <- Data$parm.names}
+          colnames(VarCov) <- rownames(VarCov) <- Data[["parm.names"]]}
      else if(is.vector(VarCov) & !is.list(VarCov)) {
-          names(VarCov) <- Data$parm.names}
+          names(VarCov) <- Data[["parm.names"]]}
      thinned.rows <- nrow(thinned)
      ### Warnings (After Updating)
      if(any(Acceptance == 0))
@@ -1358,7 +1364,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      ### Posterior Summary Table 1: All Thinned Samples
      cat("Creating Summaries\n", file=LogFile, append=TRUE)
      Num.Mon <- ncol(Mon)
-     Summ1 <- matrix(NA, LIV, 7, dimnames=list(Data$parm.names,
+     Summ1 <- matrix(NA, LIV, 7, dimnames=list(Data[["parm.names"]],
           c("Mean","SD","MCSE","ESS","LB","Median","UB")))
      Summ1[,1] <- colMeans(thinned)
      Summ1[,2] <- sqrt(.colVars(thinned))
@@ -1399,9 +1405,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           Monitor[7] <- as.numeric(quantile(Mon[,j], probs=0.975,
                na.rm=TRUE))
           Summ1 <- rbind(Summ1, Monitor)
-          rownames(Summ1)[nrow(Summ1)] <- Data$mon.names[j]}
+          rownames(Summ1)[nrow(Summ1)] <- Data[["mon.names"]][j]}
      ### Posterior Summary Table 2: Stationary Samples
-     Summ2 <- matrix(NA, LIV, 7, dimnames=list(Data$parm.names,
+     Summ2 <- matrix(NA, LIV, 7, dimnames=list(Data[["parm.names"]],
           c("Mean","SD","MCSE","ESS","LB","Median","UB")))
      if(Stat.at < thinned.rows) {
           thinned2 <- matrix(thinned[Stat.at:thinned.rows,],
@@ -1454,13 +1460,13 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                Monitor[7] <- as.numeric(quantile(Mon2[,j],
                     probs=0.975, na.rm=TRUE))
                Summ2 <- rbind(Summ2, Monitor)
-               rownames(Summ2)[nrow(Summ2)] <- Data$mon.names[j]}
+               rownames(Summ2)[nrow(Summ2)] <- Data[["mon.names"]][j]}
           }
      ### Column names to samples
-     if(identical(ncol(Mon), length(Data$mon.names)))
-          colnames(Mon) <- Data$mon.names
-     if(identical(ncol(thinned), length(Data$parm.names))) {
-          colnames(thinned) <- Data$parm.names}
+     if(identical(ncol(Mon), length(Data[["mon.names"]])))
+          colnames(Mon) <- Data[["mon.names"]]
+     if(identical(ncol(thinned), length(Data[["parm.names"]]))) {
+          colnames(thinned) <- Data[["parm.names"]]}
      ### Logarithm of the Marginal Likelihood
      LML <- list(LML=NA, VarCov=NA)
      if(Algorithm %in% c("Adaptive Griddy-Gibbs",
@@ -1473,6 +1479,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           "Hamiltonian Monte Carlo",
           "Hit-And-Run Metropolis",
           "Independence Metropolis",
+          "Metropolis-Adjusted Langevin Algorithm",
           "Metropolis-Coupled Markov Chain Monte Carlo",
           "Metropolis-within-Gibbs",
           "Multiple-Try Metropolis",
@@ -1865,7 +1872,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      if(is.null(Z)) {
           Z <- matrix(Mo0[[1]][["parm"]], Nc, LIV, byrow=TRUE)
           for (i in 2:Nc) {
-               if(!is.null(Data$PGF)) {
+               if(!is.null(Data[["PGF"]])) {
                     Z[i,] <- GIV(Model, Data, PGF=TRUE)
                     }
                else Z[i,] <- GIV(Model, Data)
@@ -2222,7 +2229,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                               round(Mo0[["LP"]],1), "\n", sep="",
                               file=LogFile, append=TRUE)}
                else {
-                    prop[Block[[b]]] <- Mo0[["parm"]][[Block[[b]]]] +
+                    prop[Block[[b]]] <- Mo0[["parm"]][Block[[b]]] +
                          as.vector(rbind(rnorm(length(Block[[b]]))) %*%
                               prop.R[[b]])
                     if(b == 1 & iter %% Status == 0) 
@@ -2461,7 +2468,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          Z[t,,i] <- Mo0[[1]][["parm"]]
                          }
                     else {
-                         if(!is.null(Data$PGF)) {
+                         if(!is.null(Data[["PGF"]])) {
                               Z[t,,i] <- GIV(Model, Data, PGF=TRUE)}
                          else Z[t,,i] <- GIV(Model, Data)
                          }
@@ -3780,7 +3787,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      delta <- Specs[["delta"]]
      gamma.const <- Specs[["gamma"]]
      epsilon <- Specs[["epsilon"]]
-     Gamm <- VarCov
+     Gamm <- as.positive.definite(VarCov)
      mu <- Mo0[["parm"]]
      sigma2 <- 1 / (LIV*LIV)
      DiagCovar <- matrix(diag(Gamm), nrow(thinned), LIV)
@@ -3803,9 +3810,12 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           Dx <- {delta/max(delta, abs(gr))}*gr
           gamm <- min(gamma.const/iter, 1)
           Lambda <- Gamm + epsilon[2]*Iden
-          prop <- as.vector(rmvn(1, Mo0[["parm"]] + {sigma2/2}*
-               as.vector(tcrossprod(Lambda, t(Dx)))*Dx,
-               sigma2*Lambda))
+          U <- try(chol(sigma2*Lambda), silent=TRUE)
+          if(inherits(U, "try-error"))
+               U <- chol(as.positive.definite(sigma2*Lambda))
+          prop <- as.vector((Mo0[["parm"]] +
+               {sigma2/2}*as.vector(tcrossprod(Lambda, t(Dx)))*Dx) +
+               rbind(rnorm(LIV)) %*% U)
           ### Log-Posterior of the proposed state
           Mo1 <- try(Model(prop, Data), silent=TRUE)
           if(inherits(Mo1, "try-error")) Mo1 <- Mo0
@@ -3828,8 +3838,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           xmu <- Mo0[["parm"]] - mu
           Gamm.prop <- Gamm + gamm*{xmu %*% t(xmu) - Gamm}
           norm.Gamm <- norm(Gamm.prop, type="F")
-          if(norm.Gamm <= A) Gamm <- Gamm.prop               
-          else Gamm <- {A/Gamm.prop}*Gamm.prop
+          if(norm.Gamm <= A) Gamm <- Gamm.prop
+          else if(!is.finite(norm.Gamm)) Gamm <- sigma2*Iden
+          else Gamm <- {A/norm.Gamm}*Gamm.prop
           ### Adapt mu
           mu.prop <- mu + gamm*(Mo0[["parm"]] - mu)
           norm.mu <- sqrt(sum(mu.prop*mu.prop))
@@ -4145,6 +4156,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      A <- Specs[["A"]]
      delta <- Specs[["delta"]]
      epsilon <- Specs[["epsilon"]]
+     Lmax <- Specs[["Lmax"]]
      post <- matrix(Mo0[["parm"]], Iterations, LIV, byrow=TRUE)
      leapfrog <- function(theta, r, grad, epsilon, Model, Data, Mo0)
           {
@@ -4419,7 +4431,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                s <- sprime &&
                     stop.criterion(thetaminus, thetaplus, rminus, rplus)
                ### Increment depth
-               j <- j + 1}
+               j <- j + 1
+               if(j >= Lmax) s <- 0}
           ### Adaptation of epsilon
           eta <- 1 / (iter - 1 + t0)
           Hbar <- (1 - eta) * Hbar + eta * (delta - alpha / nalpha)
@@ -5102,7 +5115,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           ### Sample Data
           seek(con, 0)
           skip.rows <- sample.int(Nr - size, size=1)
-          Data$X <- matrix(scan(file=con, sep=",", skip=skip.rows,
+          Data[["X"]] <- matrix(scan(file=con, sep=",", skip=skip.rows,
                nlines=size, quiet=TRUE), size, Nc, byrow=TRUE)
           ### Propose new parameter values
           g <- partial(Model, Mo0[["parm"]], Data)
@@ -5760,94 +5773,203 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      VarCov, LogFile)
      {
      A <- Specs[["A"]]
+     Block <- Specs[["B"]]
      m <- Specs[["m"]]
      n <- Specs[["n"]]
      w <- 0.05
-     decomp.freq <- max(LIV * floor(Iterations / Thinning / 100), 10)
-     S.eig <-try(eigen(VarCov), silent=TRUE)
-     if(inherits(S.eig, "try-error")) S.eig <- NULL
-     obs.sum <- matrix(Mo0[["parm"]]*n, LIV, 1)
-     obs.scatter <- tcrossprod(Mo0[["parm"]])*n
-     DiagCovar <- matrix(0, floor(Iterations / Thinning), LIV)
-     for (iter in 1:Iterations) {
-          ### Print Status
-          if(iter %% Status == 0)
-               cat("Iteration: ", iter,
-                    ",   Proposal: Multivariate,   LP:",
-                    round(Mo0[["LP"]],1), "\n", sep="",
-                    file=LogFile, append=TRUE)
-          ### Eigenvectors of the Sample Covariance Matrix
-          if({iter %% decomp.freq == 0} & {iter > 1} & {iter < A}) {
-               VarCov <- obs.scatter/{n + iter} -
-                    tcrossprod(obs.sum/{n + iter})
-               S.eig <- eigen(VarCov)}
-          ### Non-Adaptive or Adaptive
-          if(runif(1) < w || is.null(S.eig)) {
-               v <- rnorm(LIV)
-               v <- v / sqrt(sum(v*v))
-               }
-          else {
-               which.eig <- floor(1 + LIV * runif(1))
-               v <- S.eig$vectors[,which.eig] *
-                    sqrt(abs(S.eig$values[which.eig]))}
-          ### Slice Interval
-          Mo0.1 <- try(Model(Mo0[["parm"]], Data), silent=TRUE)
-          if(inherits(Mo0.1, "try-error")) Mo0.1 <- Mo0
-          Mo0 <- Mo0.1
-          y.slice <- Mo0[["LP"]] - rexp(1)
-          L <- -runif(1)
-          U <- L + 1
-          if(m > 0) {
-               L.y <- try(Model(Mo0[["parm"]] + v*L, Data)[["LP"]],
-                    silent=TRUE)
-               if(inherits(L.y, "try-error")) L.y <- Mo0[["LP"]]
-               else if(!is.finite(L.y)) L.y <- Mo0[["LP"]]
-               U.y <- try(Model(Mo0[["parm"]] + v*U, Data)[["LP"]],
-                    silent=TRUE)
-               if(inherits(U.y, "try-error")) U.y <- Mo0[["LP"]]
-               else if(!is.finite(U.y)) U.y <- Mo0[["LP"]]
-               step <- 0
-               while({L.y > y.slice || U.y > y.slice} && step < m) {
-                    step <- step + 1
-                    if(runif(1) < 0.5) {
-                         L <- L - 1
-                         L.y <- try(Model(Mo0[["parm"]] + v*L, Data)[["LP"]],
-                              silent=TRUE)
-                         if(inherits(L.y, "try-error")) L.y <- Mo0[["LP"]]
-                         else if(!is.finite(L.y)) L.y <- Mo0[["LP"]]
+     B <- length(Block)
+     if(B == 0) {
+          decomp.freq <- max(LIV * floor(Iterations / Thinning / 100), 10)
+          S.eig <-try(eigen(VarCov), silent=TRUE)
+          if(inherits(S.eig, "try-error")) S.eig <- NULL
+          obs.sum <- matrix(Mo0[["parm"]]*n, LIV, 1)
+          obs.scatter <- tcrossprod(Mo0[["parm"]])*n
+          DiagCovar <- matrix(0, floor(Iterations / Thinning), LIV)
+          for (iter in 1:Iterations) {
+               ### Print Status
+               if(iter %% Status == 0)
+                    cat("Iteration: ", iter,
+                         ",   Proposal: Multivariate,   LP:",
+                         round(Mo0[["LP"]],1), "\n", sep="",
+                         file=LogFile, append=TRUE)
+               ### Eigenvectors of the Sample Covariance Matrix
+               if({iter %% decomp.freq == 0} & {iter > 1} & {iter < A}) {
+                    VarCov <- obs.scatter/{n + iter} -
+                         tcrossprod(obs.sum/{n + iter})
+                    S.eig <- eigen(VarCov)}
+               ### Non-Adaptive or Adaptive
+               if(runif(1) < w || is.null(S.eig)) {
+                    v <- rnorm(LIV)
+                    v <- v / sqrt(sum(v*v))
+                    }
+               else {
+                    which.eig <- floor(1 + LIV * runif(1))
+                    v <- S.eig$vectors[,which.eig] *
+                         sqrt(abs(S.eig$values[which.eig]))}
+               ### Slice Interval
+               Mo0.1 <- try(Model(Mo0[["parm"]], Data), silent=TRUE)
+               if(inherits(Mo0.1, "try-error")) Mo0.1 <- Mo0
+               Mo0 <- Mo0.1
+               y.slice <- Mo0[["LP"]] - rexp(1)
+               L <- -runif(1)
+               U <- L + 1
+               if(m > 0) {
+                    L.y <- try(Model(Mo0[["parm"]] + v*L, Data)[["LP"]],
+                         silent=TRUE)
+                    if(inherits(L.y, "try-error")) L.y <- Mo0[["LP"]]
+                    else if(!is.finite(L.y)) L.y <- Mo0[["LP"]]
+                    U.y <- try(Model(Mo0[["parm"]] + v*U, Data)[["LP"]],
+                         silent=TRUE)
+                    if(inherits(U.y, "try-error")) U.y <- Mo0[["LP"]]
+                    else if(!is.finite(U.y)) U.y <- Mo0[["LP"]]
+                    step <- 0
+                    while({L.y > y.slice || U.y > y.slice} && step < m) {
+                         step <- step + 1
+                         if(runif(1) < 0.5) {
+                              L <- L - 1
+                              L.y <- try(Model(Mo0[["parm"]] + v*L, Data)[["LP"]],
+                                   silent=TRUE)
+                              if(inherits(L.y, "try-error")) L.y <- Mo0[["LP"]]
+                              else if(!is.finite(L.y)) L.y <- Mo0[["LP"]]
+                              }
+                         else {
+                              U <- U + 1
+                              U.y <- try(Model(Mo0[["parm"]] + v*U, Data)[["LP"]],
+                                   silent=TRUE)
+                              if(inherits(U.y, "try-error")) U.y <- Mo0[["LP"]]
+                              else if(!is.finite(U.y)) U.y <- Mo0[["LP"]]}}}
+               ### Rejection Sampling
+               repeat {
+                    prop.offset <- runif(1, min=L, max=U)
+                    prop <- Mo0[["parm"]] + prop.offset * v
+                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    if(inherits(Mo1, "try-error")) Mo1 <- Mo0
+                    else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
+                         Mo1[["Monitor"]]))))
+                         Mo1 <- Mo0
+                    prop <- Mo1[["parm"]]
+                    if(Mo1[["LP"]] >= y.slice) break
+                    else if(abs(prop.offset < 1e-100)) {
+                         Mo1 <- Mo0
+                         break}
+                    if(prop.offset < 0) L <- prop.offset
+                    else U <- prop.offset}
+               ### Save Thinned Samples
+               if(iter %% Thinning == 0) {
+                    t.iter <- floor(iter / Thinning) + 1
+                    thinned[t.iter,] <- Mo1[["parm"]]
+                    Dev[t.iter] <- Mo1[["Dev"]]
+                    Mon[t.iter,] <- Mo1[["Monitor"]]
+                    DiagCovar[t.iter-1,] <- diag(S.eig$vectors)}
+               obs.sum <- obs.sum + Mo1[["parm"]]
+               obs.scatter <- obs.scatter + tcrossprod(Mo1[["parm"]])
+               Mo0 <- Mo1}
+          }
+     else {
+          S.eig <- obs.sum <- obs.scatter <- list()
+          decomp.freq <- rep(0, length(B))
+          for (b in 1:B) {
+               decomp.freq[b] <- max(length(Block[[b]]) *
+                    floor(Iterations / Thinning / 100), 10)
+               S.eig[[b]] <-try(eigen(VarCov[[b]]), silent=TRUE)
+               if(inherits(S.eig[[b]], "try-error")) S.eig[[b]] <- NULL
+               obs.sum[[b]] <- matrix(Mo0[["parm"]][Block[[b]]]*n,
+                    length(Block[[b]]), 1)
+               obs.scatter[[b]] <- tcrossprod(Mo0[["parm"]][Block[[b]]])*n
+          }
+          DiagCovar <- matrix(0, floor(Iterations / Thinning), LIV)
+          for (iter in 1:Iterations) {
+               ### Print Status
+               if(iter %% Status == 0)
+                    cat("Iteration: ", iter,
+                         ",   Proposal: Multivariate,   LP:",
+                         round(Mo0[["LP"]],1), "\n", sep="",
+                         file=LogFile, append=TRUE)
+               ### Proceed by Block
+               for (b in 1:B) {
+                    ### Eigenvectors of the Sample Covariance Matrix
+                    if({iter %% decomp.freq[b] == 0} & {iter > 1} &
+                         {iter < A}) {
+                         VarCov[[b]] <- obs.scatter[[b]]/{n + iter} -
+                              tcrossprod(obs.sum[[b]]/{n + iter})
+                         S.eig[[b]] <- eigen(VarCov[[b]])}
+                    ### Non-Adaptive or Adaptive
+                    if(runif(1) < w || is.null(S.eig[[b]])) {
+                         v <- rnorm(length(Block[[b]]))
+                         v <- v / sqrt(sum(v*v))
                          }
                     else {
-                         U <- U + 1
-                         U.y <- try(Model(Mo0[["parm"]] + v*U, Data)[["LP"]],
-                              silent=TRUE)
+                         which.eig <- floor(1 + length(Block[[b]]) * runif(1))
+                         v <- S.eig[[b]]$vectors[,which.eig] *
+                              sqrt(abs(S.eig[[b]]$values[which.eig]))}
+                    ### Slice Interval
+                    Mo0.1 <- try(Model(Mo0[["parm"]], Data), silent=TRUE)
+                    if(inherits(Mo0.1, "try-error")) Mo0.1 <- Mo0
+                    Mo0 <- Mo0.1
+                    y.slice <- Mo0[["LP"]] - rexp(1)
+                    L <- -runif(1)
+                    U <- L + 1
+                    if(m > 0) {
+                         prop <- Mo0[["parm"]]
+                         prop[Block[[b]]] <- prop[Block[[b]]] + v*L
+                         L.y <- try(Model(prop, Data)[["LP"]], silent=TRUE)
+                         if(inherits(L.y, "try-error")) L.y <- Mo0[["LP"]]
+                         else if(!is.finite(L.y)) L.y <- Mo0[["LP"]]
+                         prop <- Mo0[["parm"]]
+                         prop[Block[[b]]] <- prop[Block[[b]]] + v*U
+                         U.y <- try(Model(prop, Data)[["LP"]], silent=TRUE)
                          if(inherits(U.y, "try-error")) U.y <- Mo0[["LP"]]
-                         else if(!is.finite(U.y)) U.y <- Mo0[["LP"]]}}}
-          ### Rejection Sampling
-          repeat {
-               prop.offset <- runif(1, min=L, max=U)
-               prop <- Mo0[["parm"]] + prop.offset * v
-               Mo1 <- try(Model(prop, Data), silent=TRUE)
-               if(inherits(Mo1, "try-error")) Mo1 <- Mo0
-               else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
-                    Mo1[["Monitor"]]))))
-                    Mo1 <- Mo0
-               prop <- Mo1[["parm"]]
-               if(Mo1[["LP"]] >= y.slice) break
-               else if(abs(prop.offset < 1e-100)) {
-                    Mo1 <- Mo0
-                    break}
-               if(prop.offset < 0) L <- prop.offset
-               else U <- prop.offset}
-          ### Save Thinned Samples
-          if(iter %% Thinning == 0) {
-               t.iter <- floor(iter / Thinning) + 1
-               thinned[t.iter,] <- Mo1[["parm"]]
-               Dev[t.iter] <- Mo1[["Dev"]]
-               Mon[t.iter,] <- Mo1[["Monitor"]]
-               DiagCovar[t.iter-1,] <- diag(S.eig$vectors)}
-          obs.sum <- obs.sum + Mo1[["parm"]]
-          obs.scatter <- obs.scatter + tcrossprod(Mo1[["parm"]])
-          Mo0 <- Mo1}
+                         else if(!is.finite(U.y)) U.y <- Mo0[["LP"]]
+                         step <- 0
+                         while({L.y > y.slice || U.y > y.slice} && step < m) {
+                              step <- step + 1
+                              if(runif(1) < 0.5) {
+                                   L <- L - 1
+                                   prop <- Mo0[["parm"]]
+                                   prop[Block[[b]]] <- prop[Block[[b]]] + v*L
+                                   L.y <- try(Model(prop, Data)[["LP"]],
+                                        silent=TRUE)
+                                   if(inherits(L.y, "try-error")) L.y <- Mo0[["LP"]]
+                                   else if(!is.finite(L.y)) L.y <- Mo0[["LP"]]
+                                   }
+                              else {
+                                   U <- U + 1
+                                   prop <- Mo0[["parm"]]
+                                   prop[Block[[b]]] <- prop[Block[[b]]] + v*U
+                                   U.y <- try(Model(prop, Data)[["LP"]],
+                                        silent=TRUE)
+                                   if(inherits(U.y, "try-error")) U.y <- Mo0[["LP"]]
+                                   else if(!is.finite(U.y)) U.y <- Mo0[["LP"]]}}}
+                    ### Rejection Sampling
+                    repeat {
+                         prop.offset <- runif(1, min=L, max=U)
+                         prop <- Mo0[["parm"]]
+                         prop[Block[[b]]] <- prop[Block[[b]]] + prop.offset*v
+                         Mo1 <- try(Model(prop, Data), silent=TRUE)
+                         if(inherits(Mo1, "try-error")) Mo1 <- Mo0
+                         else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
+                              Mo1[["Monitor"]]))))
+                              Mo1 <- Mo0
+                         prop <- Mo1[["parm"]]
+                         if(Mo1[["LP"]] >= y.slice) break
+                         else if(abs(prop.offset < 1e-100)) {
+                              Mo1 <- Mo0
+                              break}
+                         if(prop.offset < 0) L <- prop.offset
+                         else U <- prop.offset}
+                    ### Save Thinned Samples
+                    if(iter %% Thinning == 0) {
+                         t.iter <- floor(iter / Thinning) + 1
+                         thinned[t.iter,] <- Mo1[["parm"]]
+                         Dev[t.iter] <- Mo1[["Dev"]]
+                         Mon[t.iter,] <- Mo1[["Monitor"]]
+                         DiagCovar[t.iter-1,Block[[b]]] <- diag(S.eig[[b]]$vectors)}
+                    obs.sum[[b]] <- obs.sum[[b]] + Mo1[["parm"]][Block[[b]]]
+                    obs.scatter[[b]] <- obs.scatter[[b]] +
+                         tcrossprod(Mo1[["parm"]][Block[[b]]])
+                    Mo0 <- Mo1}
+               }
+          }
      ### Output
      out <- list(Acceptance=Iterations,
           Dev=Dev,

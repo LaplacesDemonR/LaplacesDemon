@@ -19,7 +19,7 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
      if(missing(parm)) {
           cat("Initial values were not supplied, and\n")
           cat("have been set to zero prior to LaplaceApproximation().\n")
-          parm <- rep(0, length(Data$parm.names))}
+          parm <- rep(0, length(Data[["parm.names"]]))}
      for (i in 1:length(Data)) {
           if(is.matrix(Data[[i]])) {
                if(all(is.finite(Data[[i]]))) {
@@ -54,11 +54,11 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
           cat("     increase if for loops are vectorized in R or coded in a\n")
           cat("     faster language such as C++ via the Rcpp package.\n")}
      ### Sample Size of Data
-     if(!is.null(Data$n)) if(length(Data$n) == 1) N <- Data$n
-     if(!is.null(Data$N)) if(length(Data$N) == 1) N <- Data$N
-     if(!is.null(Data$y)) N <- nrow(matrix(Data$y))
-     if(!is.null(Data$Y)) N <- nrow(matrix(Data$Y))
-     if(Method == "SGD") if(!is.null(Data$Nr)) N <- Data$Nr
+     if(!is.null(Data[["n"]])) if(length(Data[["n"]]) == 1) N <- Data[["n"]] 
+     if(!is.null(Data[["N"]])) if(length(Data[["N"]]) == 1) N <- Data[["N"]] 
+     if(!is.null(Data[["y"]])) N <- nrow(matrix(Data[["y"]]))
+     if(!is.null(Data[["Y"]])) N <- nrow(matrix(Data[["Y"]]))
+     if(Method == "SGD") if(!is.null(Data[["Nr"]])) N <- Data[["Nr"]]
      if(!is.null(N)) cat("Sample Size: ", N, "\n")
      else stop("Sample size of Data not found in n, N, y, or Y.")
      ###########################  Preparation  ############################
@@ -72,7 +72,7 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
           stop("The number of initial values and parameters differs.")
      if(!is.finite(m.old[["LP"]])) {
           cat("Generating initial values due to a non-finite posterior.\n")
-          if(!is.null(Data$PGF))
+          if(!is.null(Data[["PGF"]]))
                Initial.Values <- GIV(Model, Data, PGF=TRUE)
           else Initial.Values <- GIV(Model, Data, PGF=FALSE)
           m.old <- Model(Initial.Values, Data)
@@ -165,8 +165,8 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
      if(tol.new <= Stop.Tolerance) converged <- TRUE
      else converged <- FALSE
      ### Column names to samples
-     if(ncol(post) == length(Data$parm.names))
-          colnames(post) <- Data$parm.names
+     if(ncol(post) == length(Data[["parm.names"]]))
+          colnames(post) <- Data[["parm.names"]]
      rownames(post) <- 1:nrow(post)
      ########################  Covariance Matirx  #########################
      cat("Estimating the Covariance Matrix\n")
@@ -182,21 +182,21 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
           cat("Sampling from Posterior with Sampling Importance Resampling\n")
           posterior <- SIR(Model, Data, mu=parm.new, Sigma=VarCov,
                n=Samples, CPUs=CPUs, Type=Type)
-          Mon <- matrix(0, nrow(posterior), length(Data$mon.names))
+          Mon <- matrix(0, nrow(posterior), length(Data[["mon.names"]]))
           dev <- rep(0, nrow(posterior))
           for (i in 1:nrow(posterior)) {
                mod <- Model(posterior[i,], Data)
                dev[i] <- mod[["Dev"]]
                Mon[i,] <- mod[["Monitor"]]
                }
-          colnames(Mon) <- Data$mon.names}
+          colnames(Mon) <- Data[["mon.names"]]}
      else {
           if({sir == TRUE} & {converged == FALSE})
                cat("Posterior samples are not drawn due to Converge=FALSE\n")
           posterior <- NA; Mon <- NA}
      #####################  Summary, Point-Estimate  ######################
      cat("Creating Summary from Point-Estimates\n")
-     Summ1 <- matrix(NA, parm.len, 4, dimnames=list(Data$parm.names,
+     Summ1 <- matrix(NA, parm.len, 4, dimnames=list(Data[["parm.names"]],
           c("Mode","SD","LB","UB")))
      Summ1[,1] <- parm.new
      Summ1[,2] <- sqrt(diag(VarCov))
@@ -207,7 +207,7 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
      if({sir == TRUE} & {converged == TRUE}) {
           cat("Creating Summary from Posterior Samples\n")
           Summ2 <- matrix(NA, ncol(posterior), 7,
-               dimnames=list(Data$parm.names,
+               dimnames=list(Data[["parm.names"]],
                     c("Mean","SD","MCSE","ESS","LB","Median","UB")))
           Summ2[,1] <- colMeans(posterior)
           Summ2[,2] <- sqrt(.colVars(posterior))
@@ -238,7 +238,7 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
                Monitor[7] <- as.numeric(quantile(Mon[,j], probs=0.975,
                     na.rm=TRUE))
                Summ2 <- rbind(Summ2, Monitor)
-               rownames(Summ2)[nrow(Summ2)] <- Data$mon.names[j]
+               rownames(Summ2)[nrow(Summ2)] <- Data[["mon.names"]][j]
                }
           }
      ###############  Logarithm of the Marginal Likelihood  ###############
@@ -251,7 +251,7 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
           cat("Estimating Log of the Marginal Likelihood\n")
           LML <- LML(Model, Data, Modes=parm.new, Covar=VarCov,
                method="LME")}
-     colnames(VarCov) <- rownames(VarCov) <- Data$parm.names
+     colnames(VarCov) <- rownames(VarCov) <- Data[["parm.names"]]
      time2 <- proc.time()
      #############################  Output  ##############################
      LA <- list(Call=LA.call,
@@ -284,7 +284,7 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
      Dev <- matrix(m.old[["Dev"]],1,1)
      parm.len <- length(as.vector(parm))
      parm.new <- parm.old <- m.old[["parm"]]
-     names(parm.new) <- names(parm.old) <- Data$parm.names
+     names(parm.new) <- names(parm.old) <- Data[["parm.names"]]
      tol.new <- 1
      Step.Size  <- 1 / parm.len
      post <- matrix(parm.new, 1, parm.len)
@@ -397,17 +397,17 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
      Stop.Tolerance, m.old)
      {
      ### Check data for X and y or Y
-     if(is.null(Data$X)) stop("X is required in the data.")
+     if(is.null(Data[["X"]])) stop("X is required in the data.")
      y <- TRUE
-     if(is.null(Data$y)) {
+     if(is.null(Data[["y"]])) {
           y <- FALSE
-          if(is.null(Data$Y)) stop("y or Y is required in the data.")}
+          if(is.null(Data[["Y"]])) stop("y or Y is required in the data.")}
      if(y == TRUE) {
-          if(length(Data$y) != nrow(Data$X))
+          if(length(Data[["y"]]) != nrow(Data[["X"]]))
                stop("length of y differs from rows in X.")
           }
      else {
-          if(nrow(Data$Y) != nrow(Data$X))
+          if(nrow(Data[["Y"]]) != nrow(Data[["X"]]))
                stop("The number of rows differs in y and X.")}
      m.new <- m.old
      Dev <- matrix(m.old[["Dev"]],1,1)
@@ -424,7 +424,7 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
           ### Gradient p, OPG A from gradient g, and direction delta
           p <- partial(Model, m.old[["parm"]], Data, Interval)
           A <- matrix(0, parm.len, parm.len)
-          for (i in 1:nrow(Data$X)) {
+          for (i in 1:nrow(Data[["X"]])) {
                Data.temp <- Data
                Data.temp$X <- Data.temp$X[i,,drop=FALSE]
                if(y == TRUE) Data.temp$y <- Data.temp$y[i]
@@ -696,7 +696,7 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
      Dev <- matrix(m.old[["Dev"]],1,1)
      parm.len <- length(as.vector(parm))
      parm.new <- parm.old <- parm
-     names(parm.new) <- names(parm.old) <- Data$parm.names
+     names(parm.new) <- names(parm.old) <- Data[["parm.names"]]
      tol.new <- 1
      post <- matrix(parm.new, 1, parm.len)
      for (iter in 1:Iterations) {
@@ -856,7 +856,7 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
      Dev <- matrix(m.old[["Dev"]],1,1)
      parm.len <- length(as.vector(parm))
      parm.new <- parm.old <- m.old[["parm"]]
-     names(parm.new) <- names(parm.old) <- Data$parm.names
+     names(parm.new) <- names(parm.old) <- Data[["parm.names"]]
      tol.new <- 1
      post <- matrix(parm.new, 1, parm.len)
      ModelWrapper <- function(parm.new) {
@@ -1198,7 +1198,7 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
      p.c.g <- 0.5 + log(2) ### Global exploration constant
      p.randorder <- TRUE ### Randomize Particle Order
      X <- V <- matrix(parm, parm.len, p.s)
-     if(!is.null(Data$PGF)) {
+     if(!is.null(Data[["PGF"]])) {
           for (i in 2:ncol(X)) X[,i] <- GIV(Model, Data, PGF=TRUE)
           for (i in 1:ncol(V)) V[,i] <- GIV(Model, Data, PGF=TRUE)
           }
@@ -1268,7 +1268,7 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
      approx.grad.old <- approx.grad.new <- rep(0, parm.len)
      parm.old <- m.old[["parm"]]
      parm.new <- parm.old - 0.1 #First step
-     names(parm.new) <- names(parm.old) <- Data$parm.names
+     names(parm.new) <- names(parm.old) <- Data[["parm.names"]]
      tol.new <- 1
      post <- matrix(parm.new, 1, parm.len)
      Step.Size <- rep(0.0125, parm.len)
@@ -1322,19 +1322,19 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
      m.new <- m.old
      parm.len <- length(as.vector(parm))
      parm.new <- parm.old <- parm
-     names(parm.new) <- names(parm.old) <- Data$parm.names
+     names(parm.new) <- names(parm.old) <- Data[["parm.names"]]
      tol.new <- 1
      post <- matrix(parm.new, 1, parm.len)
      #Read SGD specifications
-     if(is.null(Data$file))
+     if(is.null(Data[["file"]]))
           stop("SGD requires Data$file, which is missing.")
-     if(is.null(Data$Nr)) stop("SGD requires Data$Nr, which is missing.")
-     if(is.null(Data$Nc)) stop("SGD requires Data$Nc, which is missing.")
-     if(is.null(Data$size))
+     if(is.null(Data[["Nr"]])) stop("SGD requires Data$Nr, which is missing.")
+     if(is.null(Data[["Nc"]])) stop("SGD requires Data$Nc, which is missing.")
+     if(is.null(Data[["size"]]))
           stop("SGD requires Data$size, which is missing.")
-     if(is.null(Data$epsilon))
+     if(is.null(Data[["epsilon"]]))
           stop("SGD requires Data$epsilon, which is missing.")
-     con <- file(Data$file, open="r")
+     con <- file(Data[["file"]], open="r")
      on.exit(close(con))
      for (iter in 1:Iterations) {
           parm.old <- parm.new
@@ -1344,13 +1344,13 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
                     ",   LP: ", round(m.old[["LP"]],1), "\n")
           ### Sample Data
           seek(con, 0)
-          skip.rows <- sample.int(Data$Nr - Data$size, size=1)
-          Data$X <- matrix(scan(file=con, sep=",", skip=skip.rows,
-               nlines=Data$size, quiet=TRUE), Data$size, Data$Nc,
-               byrow=TRUE)
+          skip.rows <- sample.int(Data[["Nr"]] - Data[["size"]], size=1)
+          Data[["X"]] <- matrix(scan(file=con, sep=",", skip=skip.rows,
+               nlines=Data[["size"]], quiet=TRUE), Data[["size"]],
+               Data[["Nc"]], byrow=TRUE)
           ### Propose new parameter values
           g <- partial(Model, m.old[["parm"]], Data)
-          parm.new <- m.new[["parm"]] + {Data$epsilon / 2} * g
+          parm.new <- m.new[["parm"]] + {Data[["epsilon"]] / 2} * g
           m.new <- Model(parm.new, Data)
           tol.new <- max(sqrt(sum(g^2)),
                sqrt(sum({m.new[["parm"]] - parm.old}^2)))
@@ -1364,7 +1364,7 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
      Dev <- Dev[-1,]; post <- post[-1,]
      ### Output
      LA <- list(Dev=Dev, iter=iter, parm.len=parm.len, parm.new=parm.new,
-          parm.old=parm.old, post=post, Step.Size=Data$epsilon,
+          parm.old=parm.old, post=post, Step.Size=Data[["epsilon"]],
           tol.new=tol.new)
      return(LA)
      }
@@ -1400,7 +1400,7 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
      ### Create Population
      population <- matrix(parm, nrow=nParams, ncol=options$populationSize)
      for (i in 2:ncol(population)) {
-          if(!is.null(Data$PGF))
+          if(!is.null(Data[["PGF"]]))
                population[,i] <- GIV(Model, Data, PGF=TRUE)
           else population[,i] <- GIV(Model, Data)}
      ### Calculate initial LP and Dev per individual in population

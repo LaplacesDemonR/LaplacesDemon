@@ -18,7 +18,7 @@ VariationalBayes <- function(Model, parm, Data, Covar=NULL,
      if(missing(parm)) {
           cat("Initial values were not supplied, and\n")
           cat("have been set to zero prior to VariationalBayes().\n")
-          parm <- rep(0, length(Data$parm.names))}
+          parm <- rep(0, length(Data[["parm.names"]]))}
      LIV <- length(as.vector(parm))
      for (i in 1:length(Data)) {
           if(is.matrix(Data[[i]])) {
@@ -54,10 +54,10 @@ VariationalBayes <- function(Model, parm, Data, Covar=NULL,
           cat("     increase if for loops are vectorized in R or coded in a\n")
           cat("     faster language such as C++ via the Rcpp package.\n")}
      ### Sample Size of Data
-     if(!is.null(Data$n)) if(length(Data$n) == 1) N <- Data$n
-     if(!is.null(Data$N)) if(length(Data$N) == 1) N <- Data$N
-     if(!is.null(Data$y)) N <- nrow(matrix(Data$y))
-     if(!is.null(Data$Y)) N <- nrow(matrix(Data$Y))
+     if(!is.null(Data[["n"]])) if(length(Data[["n"]]) == 1) N <- Data[["n"]] 
+     if(!is.null(Data[["N"]])) if(length(Data[["N"]]) == 1) N <- Data[["N"]] 
+     if(!is.null(Data[["y"]])) N <- nrow(matrix(Data[["y"]]))
+     if(!is.null(Data[["Y"]])) N <- nrow(matrix(Data[["Y"]]))
      if(!is.null(N)) cat("Sample Size: ", N, "\n")
      else stop("Sample size of Data not found in n, N, y, or Y.")
      ###########################  Preparation  ############################
@@ -71,7 +71,7 @@ VariationalBayes <- function(Model, parm, Data, Covar=NULL,
           stop("The number of initial values and parameters differs.")
      if(!is.finite(m.old[["LP"]])) {
           cat("Generating initial values due to a non-finite posterior.\n")
-          if(!is.null(Data$PGF))
+          if(!is.null(Data[["PGF"]]))
                Initial.Values <- GIV(Model, Data, PGF=TRUE)
           else Initial.Values <- GIV(Model, Data, PGF=FALSE)
           m.old <- Model(Initial.Values, Data)
@@ -102,28 +102,28 @@ VariationalBayes <- function(Model, parm, Data, Covar=NULL,
      if(tol.new <= Stop.Tolerance) converged <- TRUE
      else converged <- FALSE
      ### Column names to samples
-     if(dim(post)[2] == length(Data$parm.names))
-          dimnames(post) <- list(1:dim(post)[1], Data$parm.names, 1:2)
+     if(dim(post)[2] == length(Data[["parm.names"]]))
+          dimnames(post) <- list(1:dim(post)[1], Data[["parm.names"]], 1:2)
      #################  Sampling Importance Resampling  ##################
      if({sir == TRUE} & {converged == TRUE}) {
           cat("Sampling from Posterior with Sampling Importance Resampling\n")
           posterior <- SIR(Model, Data, mu=parm.new, Sigma=VarCov,
                n=Samples, CPUs=CPUs, Type=Type)
-          Mon <- matrix(0, nrow(posterior), length(Data$mon.names))
+          Mon <- matrix(0, nrow(posterior), length(Data[["mon.names"]]))
           dev <- rep(0, nrow(posterior))
           for (i in 1:nrow(posterior)) {
                mod <- Model(posterior[i,], Data)
                dev[i] <- mod[["Dev"]]
                Mon[i,] <- mod[["Monitor"]]
                }
-          colnames(Mon) <- Data$mon.names}
+          colnames(Mon) <- Data[["mon.names"]]}
      else {
           if({sir == TRUE} & {converged == FALSE})
                cat("Posterior samples are not drawn due to Converge=FALSE\n")
           posterior <- NA; Mon <- NA}
      #####################  Summary, Point-Estimate  ######################
      cat("Creating Summary from Point-Estimates\n")
-     Summ1 <- matrix(NA, parm.len, 4, dimnames=list(Data$parm.names,
+     Summ1 <- matrix(NA, parm.len, 4, dimnames=list(Data[["parm.names"]],
           c("Mean","SD","LB","UB")))
      Summ1[,1] <- parm.new
      Summ1[,2] <- sqrt(diag(VarCov))
@@ -134,7 +134,7 @@ VariationalBayes <- function(Model, parm, Data, Covar=NULL,
      if({sir == TRUE} & {converged == TRUE}) {
           cat("Creating Summary from Posterior Samples\n")
           Summ2 <- matrix(NA, ncol(posterior), 7,
-               dimnames=list(Data$parm.names,
+               dimnames=list(Data[["parm.names"]],
                     c("Mean","SD","MCSE","ESS","LB","Median","UB")))
           Summ2[,1] <- colMeans(posterior)
           Summ2[,2] <- sqrt(.colVars(posterior))
@@ -165,7 +165,7 @@ VariationalBayes <- function(Model, parm, Data, Covar=NULL,
                Monitor[7] <- as.numeric(quantile(Mon[,j], probs=0.975,
                     na.rm=TRUE))
                Summ2 <- rbind(Summ2, Monitor)
-               rownames(Summ2)[nrow(Summ2)] <- Data$mon.names[j]
+               rownames(Summ2)[nrow(Summ2)] <- Data[["mon.names"]][j]
                }
           }
      ###############  Logarithm of the Marginal Likelihood  ###############
@@ -178,7 +178,7 @@ VariationalBayes <- function(Model, parm, Data, Covar=NULL,
           cat("Estimating Log of the Marginal Likelihood\n")
           LML <- LML(Model, Data, Modes=parm.new, Covar=VarCov,
                method="LME")}
-     colnames(VarCov) <- rownames(VarCov) <- Data$parm.names
+     colnames(VarCov) <- rownames(VarCov) <- Data[["parm.names"]]
      time2 <- proc.time()
      #############################  Output  ##############################
      VB <- list(Call=VB.call,
