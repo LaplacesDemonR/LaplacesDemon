@@ -502,6 +502,10 @@ Jacobian <- function(Model, parm, Data, Interval=1e-6, Method="simple")
           }
      else stop("The", Method, "is unknown.")
      }
+logdet <- function(x)
+     {
+     return(2*sum(log(diag(chol(x)))))
+     }
 lower.triangle <- function(x, diag=FALSE)
      {
      return(x[lower.tri(x, diag=diag)])

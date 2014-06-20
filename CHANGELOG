@@ -1,3 +1,7 @@
+2014-06-20 Fixed bug reported by David Ramsey,
+           David.Ramsey@depi.vic.gov.au, regarding acf on small samples.
+2014-06-18 Added logdet
+2014-06-16 LaplacesDemon: Added the pCN algorithm
 2014-06-05 Fixed bug reported by Francois Brunetti, 
            f.a.brunetti@free.fr, in which Data$n vs. Data[["n"]]
            could refer to different names.

@@ -14,6 +14,7 @@
 \alias{is.square.matrix}
 \alias{is.symmetric.matrix}
 \alias{Jacobian}
+\alias{logdet}
 \alias{lower.triangle}
 \alias{read.matrix}
 \alias{SparseGrid}
@@ -39,6 +40,7 @@ CovEstim(Model, parm, Data, Method="Hessian")
 GaussHermiteCubeRule(N, dims, rule)
 Hessian(Model, parm, Data, Interval=1e-6, Method="Richardson")
 Jacobian(Model, parm, Data, Interval=1e-6, Method="simple")
+logdet(x)
 lower.triangle(x, diag=FALSE)
 read.matrix(file, header=FALSE, sep=",", nrow=0, samples=0, size=0, na.rm=FALSE)
 SparseGrid(J, K)
@@ -267,7 +269,19 @@ upper.triangle(x, diag=FALSE)
   finite-differencing, or optionally with Richardson extrapolation. This
   function is not intended to be called by the user, but is made
   available here. This is essentially the \code{jacobian} function from
-  the numDeriv package, adapted to Laplace's Demon.
+  the numDeriv package, adapted to LaplacesDemon.
+
+  The \code{logdet} function returns the logarithm of the determinant of
+  a positive-definite matrix via the Cholesky decomposition. The
+  determinant is a value associated with a square matrix, and was used
+  historically to \emph{determine} if a system of linear equations has a
+  unique solution. The term \emph{determinant} was introduced by Gauss,
+  where Laplace referred to it as the resultant. When the determinant is
+  zero, the matrix is singular and non-invertible; there are either no
+  solutions or many solutions. A unique solution exists when the
+  determinant is non-zero. The \code{det} function in base R works well
+  for small matrices, but can return erroneously return zero in larger
+  matrices. It is better to work with the log-determinant.
 
   The \code{lower.triangle} function returns a vector of the lower
   triangular elements of a matrix, and the diagonal is included when
