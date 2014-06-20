@@ -41,16 +41,40 @@ interval(x, a=-Inf, b=Inf, reflect=TRUE)
   to \code{TRUE}.}
 }
 \details{
-  It is common for a parameter to be constrained to an interval. For
-  example, a scale parameter is positive-only. Nonetheless, the user
-  should consider re-parameterizing by transforming the constrained
-  parameter to the real line. To continue the example, a scale parameter
-  may be log-transformed. A parameter that is re-parameterized to the
-  real line often mixes better in MCMC, exhibiting a higher effective
-  sample size (\code{\link{ESS}}), and each evaluation of the model
-  specification function is faster as well. Nonetheless, there are
-  many cases where it is better for the parameter to be constrained to
-  an interval.
+  It is common for a parameter to be constrained to an interval. The
+  \code{interval} function provides two methods of constraining
+  proposals. The default is to reflect an out-of-bounds proposal off of
+  the boundaries until the proposal is within the specified
+  interval. This is rare in the literature but works very well in
+  practice. The other method does not reflect off of boundaries, but
+  sets the value equal to the violated boundary. This is also rare in
+  the literature and is not generally recommended.
+
+  If the \code{interval} function is unacceptable, then there are
+  several alternatives.
+
+  It is common to re-parameterize by transforming the constrained
+  parameter to the real line. For example, a positive-only scale
+  parameter may be log-transformed. A parameter that is re-parameterized
+  to the real line often mixes better in MCMC, exhibiting a higher
+  effective sample size (\code{\link{ESS}}), and each evaluation of the
+  model specification function is faster as well. However, without a
+  hard constraint, it remains possible for the transformed parameter
+  still become problematic, such as a log-transformed scale parameter
+  that reaches negative infinity. This is much more common in the
+  literature.
+
+  Another method is to allow the parameters to move outside of the
+  desired, constrained interval in MCMC during the model update, and
+  when the model update is finished, to discard any samples outside of
+  the constraint boundaries. This is a method of rejecting unacceptable
+  proposals in regions of zero probability. However, it is possible for
+  parameters to remain outside of acceptable bounds long enough to be
+  problematic.
+
+  In \code{\link{LaplacesDemon}}, the Gibbs sampler allows more control
+  in the FC function, where a user can customize how constraints are
+  handled.
 }
 \value{
   The \code{interval} function returns a scalar, vector, matrix, or

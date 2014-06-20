@@ -122,7 +122,7 @@ Model <- function(parm, Data)
      beta <- parm[Data$pos.beta]
      sigma <- interval(parm[Data$pos.sigma], 1e-100, Inf)
      parm[Data$pos.sigma] <- sigma
-     ### Log(Prior Densities)
+     ### Log-Prior
      beta.prior <- dnormv(beta, 0, 1000, log=TRUE)
      sigma.prior <- dhalfcauchy(sigma, 25, log=TRUE)
      ### Log-Likelihood
@@ -1098,7 +1098,7 @@ The original, non-adaptive MALA family is difficult to tune, and optimal tuning 
 
 This version of MALA has five algorithm specifications: \code{A} defaults to 1e7 as the maximum acceptable value of the Euclidean norm of the adaptive parameters mu and sigma, and the Frobenius norm of the covariance matrix, \code{alpha.star} is the target acceptance rate and defaults to $57.4\%$, \code{gamma} defaults to 1 and accepts a constant in $[0,T]$ where $T$ is iterations and controls decay in adaptation, \code{delta} defaults to 1 and is a constant in the bounded drift function, and \code{epsilon} is a vector of length two that defaults to \code{c(1e-6,1e-7)}, in which the first element is the acceptable minimum of adaptive scale sigma, and the second element is added to the diagonal of the covariance matrix for regularization. The expectation, scale, and covariance adapt each iteration, and the amount of adaptation is a decreasing function $\gamma/t$ for $T$ iterations. When \code{gamma=0}, the algorithm does not adapt. Otherwise, \code{gamma} is the iteration through which full adaptation occurs and after which adaptation decays. The optimal acceptance rate is 57.4\%, and is acceptable in the interval [40\%, 80\%].
 
-MALA approximates partial derivatives for multivariate proposals. Approximating partial derivatives is computationally expensive, and requires $J+1$ model evaluations per $J$ parameters per iteration. This results in a multivariate algorithm that is slightly slower per iteration than a traditional componentwise algorithm, though the higher acceptance rate and additional information from partial derivatives may allow it to mix better and approach convergence faster. Unlike most componentwise algorithms, this version of MALA accounts for parameter correlation.
+MALA approximates partial derivatives for multivariate proposals. Approximating partial derivatives is computationally expensive, and requires $J+1$ model evaluations per $J$ parameters per iteration. This results in a multivariate algorithm that is slightly slower per iteration than a traditional componentwise algorithm, though the higher acceptance rate and additional information from partial derivatives may allow it to mix better and approach convergence faster. Unlike most componentwise or HMC algorithms, this version of MALA accounts for parameter correlation.
 
 When non-adaptive, MALA is suitable as a final algorithm.
 

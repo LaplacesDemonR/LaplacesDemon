@@ -66,8 +66,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      if(Algorithm %in% c("ADMG","AGG","AHMC","AIES","AM","AMM","AMWG",
           "CHARM","DEMC","DRAM","DRM","ESS","Experimental","GG","Gibbs",
           "HARM","HMC","HMCDA","IM","INCA","MALA","MCMCMC","MTM","MWG",
-          "NUTS","OHSS","RAM","Refractive","RDMH","RJ","RSS","RWM","SAMWG",
-          "SGLD","Slice","SMWG","THMC","twalk","UESS","USAMWG","USMWG")) {
+          "NUTS","OHSS","pCN","RAM","Refractive","RDMH","RJ","RSS","RWM",
+          "SAMWG","SGLD","Slice","SMWG","THMC","twalk","UESS","USAMWG",
+          "USMWG")) {
           if(Algorithm == "ADMG") {
                Algorithm <- "Adaptive Directional Metropolis-within-Gibbs"
                if(missing(Specs) | is.null(Specs))
@@ -558,6 +559,18 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                                file=LogFile, append=TRUE)
                     Specs[["A"]] <- round(abs(Specs[["A"]]))
                     Specs[["n"]] <- round(abs(Specs[["n"]]))}
+               }
+          else if(Algorithm == "pCN") {
+               Algorithm <- "Preconditioned Crank-Nicolson"
+               if(missing(Specs) | is.null(Specs))
+                    Specs <- list(beta=0.01)
+               if(!is.list(Specs))
+                    stop("The Specs argument is not a list.", file=LogFile,
+                         append=TRUE)
+               if(!identical(names(Specs), "beta"))
+                    stop("The Specs argument is incorrect.", file=LogFile,
+                         append=TRUE)
+               Specs[["beta"]] <- max(min(Specs[["beta"]], 1), 0)
                }
           else if(Algorithm == "RAM") {
                Algorithm <- "Robust Adaptive Metropolis"
@@ -1072,6 +1085,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           "Independence Metropolis",
           "Metropolis-Adjusted Langevin Algorithm",
           "Oblique Hyperrectangle Slice Sampler",
+          "Preconditioned Crank-Nicolson",
           "Robust Adaptive Metropolis",
           "Univariate Eigenvector Slice Sampler")) {
           ### Algorithms that require VarCov, but not tuning
@@ -1241,6 +1255,10 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           mcmc.out <- .mcmcohss(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
                thinned, VarCov, LogFile)}
+     else if(Algorithm == "Preconditioned Crank-Nicolson") {
+          mcmc.out <- .mcmcpcn(Model, Data, Iterations, Status, Thinning,
+               Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
+               thinned, VarCov, LogFile)}
      else if(Algorithm == "Random Dive Metropolis-Hastings") {
           mcmc.out <- .mcmcrdmh(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
@@ -1345,11 +1363,13 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      rm(batch.list, HD, Ind, thinned2)
      ### Assess Thinning and ESS Size for all parameter samples
      cat("Assessing Thinning and ESS\n", file=LogFile, append=TRUE)
-     acf.temp <- matrix(1, trunc(10*log10(thinned.rows)), LIV)
+     acf.rows <- trunc(10*log10(thinned.rows))
+     acf.temp <- matrix(1, acf.rows, LIV)
      ESS1 <- Rec.Thin <- rep(1, LIV)
      for (j in 1:LIV) {
-          temp0 <- acf(thinned[,j], lag.max=nrow(acf.temp), plot=FALSE)
-          acf.temp[,j] <- abs(temp0$acf[2:{nrow(acf.temp)+1},,1])
+          temp0 <- acf(thinned[,j], lag.max=acf.rows, plot=FALSE)
+          if(length(temp0$acf[-1,1,1]) == acf.rows)
+               acf.temp[,j] <- abs(temp0$acf[-1,1,1])
           ESS1[j] <- ESS(thinned[,j])
           Rec.Thin[j] <- which(acf.temp[,j] <= 0.1)[1]*Thinning}
      Rec.Thin[which(is.na(Rec.Thin))] <- nrow(acf.temp)
@@ -1485,6 +1505,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           "Multiple-Try Metropolis",
           "No-U-Turn Sampler",
           "Oblique Hyperrectangle Slice Sampler",
+          "Preconditioned Crank-Nicolson",
           "Random Dive Metropolis-Hastings",
           "Random-Walk Metropolis",
           "Reflective Slice Sampler",
@@ -1777,7 +1798,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      L <- Specs[["L"]]
      Periodicity <- Specs[["Periodicity"]]
      post <- matrix(Mo0[["parm"]], Iterations, LIV, byrow=TRUE)
-     DiagCovar[1,] <- epsilon
+     DiagCovar <- matrix(epsilon, nrow(thinned), ncol(thinned), byrow=TRUE)
      gr0 <- partial(Model, post[1,], Data)
      for (iter in 1:Iterations) {
           ### Print Status
@@ -1842,13 +1863,11 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                }
           ### Adaptation
           if({iter > 10} & {iter %% Periodicity == 0}) {
-               acceptances <- apply(post[(iter-9):iter,], 2, function(x)
-                    {length(unique(x))})
-               eps.num <- which(acceptances <= 1)
-               epsilon[eps.num] <- epsilon[eps.num] * 0.8
-               eps.num <- which(acceptances > 7)
-               epsilon[eps.num] <- epsilon[eps.num] * 1.2
-               DiagCovar <- rbind(DiagCovar, epsilon)}
+               acceptances <- length(unique(post[(iter-9):iter,1]))
+               if(acceptances <= 1) epsilon <- epsilon * 0.8
+               else if(acceptances > 7) epsilon <- epsilon * 1.2
+               if(iter %% Thinning == 0)
+                    DiagCovar[t.iter,] <- epsilon}
           }
      ### Output
      out <- list(Acceptance=Acceptance,
@@ -3814,7 +3833,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           if(inherits(U, "try-error"))
                U <- chol(as.positive.definite(sigma2*Lambda))
           prop <- as.vector((Mo0[["parm"]] +
-               {sigma2/2}*as.vector(tcrossprod(Lambda, t(Dx)))*Dx) +
+               {sigma2/2}*as.vector(Lambda %*% Dx)*Dx) +
                rbind(rnorm(LIV)) %*% U)
           ### Log-Posterior of the proposed state
           Mo1 <- try(Model(prop, Data), silent=TRUE)
@@ -4535,6 +4554,56 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      if(A > 0) VarCov <- VarCov2
      ### Output
      out <- list(Acceptance=Iterations,
+          Dev=Dev,
+          DiagCovar=DiagCovar,
+          Mon=Mon,
+          thinned=thinned,
+          VarCov=VarCov)
+     return(out)
+     }
+.mcmcpcn <- function(Model, Data, Iterations, Status, Thinning, Specs,
+     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, VarCov,
+     LogFile)
+     {
+     beta <- Specs[["beta"]]
+     U <- chol(VarCov)
+     for (iter in 1:Iterations) {
+          ### Print Status
+          if(iter %% Status == 0)
+               cat("Iteration: ", iter,
+               ",   Proposal: Multivariate,   LP:",
+               round(Mo0[["LP"]],1), "\n", sep="",
+               file=LogFile, append=TRUE)
+          ### Save Thinned Samples
+          if(iter %% Thinning == 0) {
+               t.iter <- floor(iter / Thinning) + 1
+               thinned[t.iter,] <- Mo0[["parm"]]
+               Dev[t.iter] <- Mo0[["Dev"]]
+               Mon[t.iter,] <- Mo0[["Monitor"]]}
+          ### Propose new parameter values
+          prop <- as.vector(sqrt(1 - beta*beta)*Mo0[["parm"]] +
+               beta*(rbind(rnorm(LIV)) %*% U))
+          ### Log-Posterior of the proposed state
+          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          if(inherits(Mo1, "try-error")) Mo1 <- Mo0
+          else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
+               Mo1[["Monitor"]]))))
+               Mo1 <- Mo0
+          ### Accept/Reject
+          log.u <- log(runif(1))
+          log.alpha <- Mo1[["LP"]] - Mo0[["LP"]]
+          if(!is.finite(log.alpha)) log.alpha <- 0
+          if(log.u < log.alpha) {
+               Mo0 <- Mo1
+               Acceptance <- Acceptance + 1
+               if(iter %% Thinning == 0) {
+                    thinned[t.iter,] <- Mo1[["parm"]]
+                    Dev[t.iter] <- Mo1[["Dev"]]
+                    Mon[t.iter,] <- Mo1[["Monitor"]]}
+               }
+          }
+     ### Output
+     out <- list(Acceptance=Acceptance,
           Dev=Dev,
           DiagCovar=DiagCovar,
           Mon=Mon,

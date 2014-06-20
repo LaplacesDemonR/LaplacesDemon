@@ -11,6 +11,7 @@ caterpillar.plot <- function(x, Parms=NULL, Title=NULL)
      {
      ### Initial Checks
      if(missing(x)) stop("The x argument is required.")
+     par(mfrow=c(1,1))
      if(identical(class(x), "demonoid")) {
           if(any(is.na(x$Summary2))) {
                x <- x$Summary1

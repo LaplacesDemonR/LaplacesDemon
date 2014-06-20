@@ -592,7 +592,7 @@ dinvwishart <- function(Sigma, nu, S, log=FALSE)
      gamsum <- 0
      for (i in 1:k) {gamsum <- gamsum + lgamma((nu + 1 - i)/2)}
      dens <- -(nu*k/2)*log(2) - ((k*(k - 1))/4)*log(pi) - gamsum +
-          (nu/2)*log(det(S)) - ((nu + k + 1)/2)*log(det(Sigma)) -
+          (nu/2)*log(det(S)) - ((nu + k + 1)/2)*logdet(Sigma) -
           0.5*tr(S %*% as.inverse(Sigma))
      if(log == FALSE) dens <- exp(dens)
      return(dens)
@@ -619,7 +619,7 @@ dinvwishartc <- function(U, nu, S, log=FALSE)
      gamsum <- 0
      for (i in 1:k) {gamsum <- gamsum + lgamma((nu + 1 - i)/2)}
      dens <- -(nu*k/2)*log(2) - ((k*(k - 1))/4)*log(pi) - gamsum +
-          (nu/2)*log(det(S)) - ((nu + k + 1)/2)*log(det(Sigma)) -
+          (nu/2)*log(det(S)) - ((nu + k + 1)/2)*logdet(Sigma) -
           0.5*tr(S %*% as.inverse(Sigma))
      if(log == FALSE) dens <- exp(dens)
      return(dens)
@@ -848,7 +848,7 @@ dmvc <- function(x, mu, S, log=FALSE)
      Omega <- as.inverse(S)
      z <- rowSums({ss %*% Omega} * ss)
      dens <- as.vector(lgamma(k/2) - (lgamma(0.5) + log(1^(k/2)) +
-          (k/2)*log(pi) + 0.5*log(det(S)) + ((1+k)/2)*log(1+z)))
+          (k/2)*log(pi) + 0.5*logdet(S) + ((1+k)/2)*log(1+z)))
      if(log == FALSE) dens <- exp(dens)
      return(dens)
      }
@@ -883,7 +883,7 @@ dmvcc <- function(x, mu, U, log=FALSE)
      Omega <- as.inverse(S)
      z <- rowSums({ss %*% Omega} * ss)
      dens <- as.vector(lgamma(k/2) - (lgamma(0.5) + log(1^(k/2)) +
-          (k/2)*log(pi) + 0.5*log(det(S)) + ((1+k)/2)*log(1+z)))
+          (k/2)*log(pi) + 0.5*logdet(S) + ((1+k)/2)*log(1+z)))
      if(log == FALSE) dens <- exp(dens)
      return(dens)
      }
@@ -914,11 +914,11 @@ dmvcp <- function(x, mu, Omega, log=FALSE)
      if(!is.positive.definite(Omega))
           stop("Matrix Omega is not positive-definite.")
      k <- nrow(Omega)
-     detOmega <- det(Omega)
+     logdetOmega <- logdet(Omega)
      ss <- x - mu
      z <- rowSums({ss %*% Omega} * ss)
      dens <- as.vector(lgamma((1+k)/2) - (lgamma(0.5) + log(1^(k/2)) +
-          (k/2)*log(pi)) + 0.5*log(detOmega) + (-(1+k)/2)*log(1 + z))
+          (k/2)*log(pi)) + 0.5*logdetOmega + (-(1+k)/2)*log(1 + z))
      if(log == FALSE) dens <- exp(dens)
      return(dens)
      }
@@ -950,11 +950,11 @@ dmvcpc <- function(x, mu, U, log=FALSE)
      if(missing(U)) stop("Upper triangular U is required.")
      k <- nrow(U)
      Omega <- t(U) %*% U
-     detOmega <- det(Omega)
+     logdetOmega <- logdet(Omega)
      ss <- x - mu
      z <- rowSums({ss %*% Omega} * ss)
      dens <- as.vector(lgamma((1+k)/2) - (lgamma(0.5) + log(1^(k/2)) +
-          (k/2)*log(pi)) + 0.5*log(detOmega) + (-(1+k)/2)*log(1 + z))
+          (k/2)*log(pi)) + 0.5*logdetOmega + (-(1+k)/2)*log(1 + z))
      if(log == FALSE) dens <- exp(dens)
      return(dens)
      }
@@ -988,7 +988,7 @@ dmvl <- function(x, mu, Sigma, log=FALSE)
      Omega <- as.inverse(Sigma)
      ss <- x - mu
      z <- rowSums({ss %*% Omega} * ss)
-     dens <- log(2 / ((2*pi)^(k/2) * sqrt(det(Sigma)))) +
+     dens <- log(2 / ((2*pi)^(k/2) * sqrt(exp(logdet(Sigma))))) +
           log((sqrt(pi / (2*sqrt(2*z))) * exp(-sqrt(2*z))) /
           sqrt(z/2)^(k/2 - 1))
      if(log == FALSE) dens <- exp(dens)
@@ -1023,7 +1023,7 @@ dmvlc <- function(x, mu, U, log=FALSE)
      Omega <- as.inverse(Sigma)
      ss <- x - mu
      z <- rowSums({ss %*% Omega} * ss)
-     dens <- log(2 / ((2*pi)^(k/2) * sqrt(det(Sigma)))) +
+     dens <- log(2 / ((2*pi)^(k/2) * sqrt(exp(logdet(Sigma))))) +
           log((sqrt(pi / (2*sqrt(2*z))) * exp(-sqrt(2*z))) /
           sqrt(z/2)^(k/2 - 1))
      if(log == FALSE) dens <- exp(dens)
@@ -1121,10 +1121,10 @@ dmvnp <- function(x, mu, Omega, log=FALSE)
      if(!is.positive.definite(Omega))
           stop("Matrix Omega is not positive-definite.")
      k <- nrow(Omega)
-     detOmega <- det(Omega)
+     logdetOmega <- logdet(Omega)
      ss <- x - mu
      z <- rowSums({ss %*% Omega} * ss)
-     dens <- as.vector((-k/2)*log(2*pi) + 0.5*log(detOmega) - 0.5*z)
+     dens <- as.vector((-k/2)*log(2*pi) + 0.5*logdetOmega - 0.5*z)
      if(log == FALSE) dens <- exp(dens)
      return(dens)
      }
@@ -1153,10 +1153,10 @@ dmvnpc <- function(x, mu, U, log=FALSE)
      if(missing(U)) stop("Upper triangular U is required.")
      k <- ncol(U)
      Omega <- t(U) %*% U
-     detOmega <- det(Omega)
+     logdetOmega <- logdet(Omega)
      ss <- x - mu
      z <- rowSums({ss %*% Omega} * ss)
-     dens <- as.vector((-k/2)*log(2*pi) + 0.5*log(detOmega) - 0.5*z)
+     dens <- as.vector((-k/2)*log(2*pi) + 0.5*logdetOmega - 0.5*z)
      if(log == FALSE) dens <- exp(dens)
      return(dens)
      }
@@ -1214,7 +1214,7 @@ dmvpe <- function(x=c(0,0), mu=c(0,0), Sigma=diag(2), kappa=1, log=FALSE)
      ss <- x - mu
      temp <- rowSums({ss %*% Omega} * ss)
      dens <- as.vector(((log(k)+lgamma(k/2)) - ((k/2)*log(pi) +
-          0.5*log(det(Sigma)) + lgamma(1 + k/(2*kappa)) +
+          0.5*logdet(Sigma) + lgamma(1 + k/(2*kappa)) +
           (1 + k/(2*kappa))*log(2))) + kappa*(-0.5*temp))
      if(log == FALSE) dens <- exp(dens)
      return(dens)
@@ -1265,7 +1265,7 @@ dmvpec <- function(x=c(0,0), mu=c(0,0), U, kappa=1, log=FALSE)
      ss <- x - mu
      temp <- rowSums({ss %*% Omega} * ss)
      dens <- as.vector(((log(k)+lgamma(k/2)) - ((k/2)*log(pi) +
-          0.5*log(det(Sigma)) + lgamma(1 + k/(2*kappa)) +
+          0.5*logdet(Sigma) + lgamma(1 + k/(2*kappa)) +
           (1 + k/(2*kappa))*log(2))) + kappa*(-0.5*temp))
      if(log == FALSE) dens <- exp(dens)
      return(dens)
@@ -1320,7 +1320,7 @@ dmvt <- function(x, mu, S, df=Inf, log=FALSE)
      Omega <- as.inverse(S)
      z <- rowSums({ss %*% Omega} * ss)
      dens <- as.vector(lgamma((df+k)/2) - lgamma(df/2) + (k/2)*df +
-          (k/2)*log(pi) + 0.5*log(det(S)) + ((df+k)/2)*log(1 + (1/df) * z))
+          (k/2)*log(pi) + 0.5*logdet(S) + ((df+k)/2)*log(1 + (1/df) * z))
      if(log == FALSE) dens <- exp(dens)
      return(dens)
      }
@@ -1358,7 +1358,7 @@ dmvtc <- function(x, mu, U, df=Inf, log=FALSE)
      Omega <- as.inverse(S)
      z <- rowSums({ss %*% Omega} * ss)
      dens <- as.vector(lgamma((df+k)/2) - lgamma(df/2) + (k/2)*df +
-          (k/2)*log(pi) + 0.5*log(det(S)) + ((df+k)/2)*log(1 + (1/df) * z))
+          (k/2)*log(pi) + 0.5*logdet(S) + ((df+k)/2)*log(1 + (1/df) * z))
      if(log == FALSE) dens <- exp(dens)
      return(dens)
      }
@@ -1391,11 +1391,11 @@ dmvtp <- function(x, mu, Omega, nu=Inf, log=FALSE)
      if(any(nu <= 0)) stop("The nu parameter must be positive.")
      if(any(nu > 10000)) return(dmvnp(x, mu, Omega, log))
      k <- ncol(Omega)
-     detOmega <- det(Omega)
+     logdetOmega <- logdet(Omega)
      ss <- x - mu
      z <- rowSums({ss %*% Omega} * ss)
      dens <- as.vector(lgamma((nu+k)/2) - (lgamma(nu/2) + (k/2)*log(nu) +
-          (k/2)*log(pi)) + 0.5*log(detOmega) +
+          (k/2)*log(pi)) + 0.5*logdetOmega +
           (-(nu+k)/2)*log(1 + (1/nu) * z))
      if(log == FALSE) dens <- exp(dens)
      return(dens)
@@ -1431,11 +1431,11 @@ dmvtpc <- function(x, mu, U, nu=Inf, log=FALSE)
      if(any(nu > 10000)) return(dmvnpc(x, mu, U, log))
      k <- ncol(U)
      Omega <- t(U) %*% U
-     detOmega <- det(Omega)
+     logdetOmega <- logdet(Omega)
      ss <- x - mu
      z <- rowSums({ss %*% Omega} * ss)
      dens <- as.vector(lgamma((nu+k)/2) - (lgamma(nu/2) + (k/2)*log(nu) +
-          (k/2)*log(pi)) + 0.5*log(detOmega) +
+          (k/2)*log(pi)) + 0.5*logdetOmega +
           (-(nu+k)/2)*log(1 + (1/nu) * z))
      if(log == FALSE) dens <- exp(dens)
      return(dens)
@@ -2027,7 +2027,7 @@ dwishart <- function(Omega, nu, S, log=FALSE)
      gamsum <- 0
      for (i in 1:k) {gamsum <- gamsum + lgamma((nu + 1 - i)/2)}
      dens <- -((nu*k)/2) * log(2) - ((k*(k - 1))/4) * log(pi) - gamsum -
-          (nu/2) * log(det(S)) + ((nu - k - 1)/2) * log(det(Omega)) -
+          (nu/2) * log(det(S)) + ((nu - k - 1)/2) * logdet(Omega) -
           (tr(as.inverse(S) %*% Omega)/2)
      if(log == FALSE) dens <- exp(dens)
      return(dens)
@@ -2070,7 +2070,7 @@ dwishartc <- function(U, nu, S, log=FALSE)
      gamsum <- 0
      for (i in 1:k) {gamsum <- gamsum + lgamma((nu + 1 - i)/2)}
      dens <- -((nu*k)/2) * log(2) - ((k*(k - 1))/4) * log(pi) - gamsum -
-          (nu/2) * log(det(S)) + ((nu - k - 1)/2) * log(det(Omega)) -
+          (nu/2) * log(det(S)) + ((nu - k - 1)/2) * logdet(Omega) -
           (tr(as.inverse(S) %*% Omega)/2)
      if(log == FALSE) dens <- exp(dens)
      return(dens)

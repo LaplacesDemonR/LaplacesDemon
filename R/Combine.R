@@ -102,11 +102,13 @@ Combine <- function(x, Data, Thinning=1)
      rm(batch.list, HD, Ind, thinned2)
      ### Assess Thinning and ESS Size for all parameter samples
      cat("Assessing Thinning and ESS\n")
-     acf.temp <- matrix(1, trunc(10*log10(thinned.rows)), LIV)
+     acf.rows <- trunc(10*log10(thinned.rows))
+     acf.temp <- matrix(1, acf.rows, LIV)
      ESS1 <- Rec.Thin <- rep(1, LIV)
      for (j in 1:LIV) {
-          temp0 <- acf(thinned[,j], lag.max=nrow(acf.temp), plot=FALSE)
-          acf.temp[,j] <- abs(temp0$acf[2:{nrow(acf.temp)+1},,1])
+          temp0 <- acf(thinned[,j], lag.max=acf.rows, plot=FALSE)
+          if(length(temp0$acf[-1,1,1]) == acf.rows)
+               acf.temp[,j] <- abs(temp0$acf[-1,1,1])
           ESS1[j] <- ESS(thinned[,j])
           Rec.Thin[j] <- which(acf.temp[,j] <= 0.1)[1]*Thinning}
      Rec.Thin[which(is.na(Rec.Thin))] <- nrow(acf.temp)
@@ -243,6 +245,7 @@ Combine <- function(x, Data, Thinning=1)
           "Multiple-Try Metropolis",
           "No-U-Turn Sampler",
           "Oblique Hyperrectangle Slice Sampler",
+          "Preconditioned Crank-Nicolson",
           "Random Dive Metropolis-Hastings",
           "Random-Walk Metropolis",
           "Reflective Slice Sampler",

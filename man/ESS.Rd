@@ -3,15 +3,17 @@
 \title{Effective Sample Size due to Autocorrelation}
 \description{
   This function may be used to estimate the effective sample size (ESS)
-  (not to be confused with Elliptical Slice Sampling) of a target
-  distribution, where the sample size is reduced by autocorrelation.
-  ESS is a measure of how well each chain is mixing.
+  (not to be confused with Elliptical Slice Sampling) of a continuous
+  target distribution, where the sample size is reduced by
+  autocorrelation. ESS is a measure of how well each continuous chain is
+  mixing.
 
-  ESS is a univariate function that is often applied to each marginal
-  posterior distribution. A multivariate form is not included. By chance
-  alone due to multiple independent tests, 5\% of the parameters may
-  indicate that ESS is below a user threshold of acceptability, such as
-  100, even when above the threshold. Assessing convergence is difficult.
+  ESS is a univariate function that is often applied to each continuous,
+  marginal posterior distribution. A multivariate form is not
+  included. By chance alone due to multiple independent tests, 5\% of
+  the continuous parameters may indicate that ESS is below a user
+  threshold of acceptability, such as 100, even when above the
+  threshold. Assessing convergence is difficult.
 }
 \usage{ESS(x)}
 \arguments{
@@ -20,15 +22,15 @@
 }
 \details{
   Effective Sample Size (ESS) was recommended by Radford Neal in the
-  panel discussion of Kass et al. (1998). When the posterior
-  distribution is sampled with a Markov chain Monte Carlo (MCMC)
-  algorithm, there is usually autocorrelation present in the
+  panel discussion of Kass et al. (1998). When a continuous, marginal
+  posterior distribution is sampled with a Markov chain Monte Carlo
+  (MCMC) algorithm, there is usually autocorrelation present in the
   samples. More autocorrelation is associated with less posterior
   sampled information, because the information in the samples is
   autocorrelated, or put another way, successive samples are not
   independent from earlier samples. This reduces the effective sample
-  size of, and precision in representing, the posterior
-  distribution. \code{ESS} is one of the criteria in the
+  size of, and precision in representing, the continuous, marginal
+  posterior distribution. \code{ESS} is one of the criteria in the
   \code{\link{Consort}} function, where stopping the MCMC updates is
   not recommended until \code{ESS} \eqn{\ge 100}. Although the need
   for precision of each modeler differs with each model, it is often
@@ -51,23 +53,25 @@
   \code{AIC} argument in the \code{ar} function is used to estimate the
   order.
 
-  ESS is a measure of how well each chain is mixing, and a chain mixes
-  better when in the target distribution. This does not imply that
-  a poorly mixing chain still searching for its target distribution
-  will suddenly mix well after finding it, though mixing should improve.
-  A poorly mixing chain does not necessarily indicate problems. A
-  smaller ESS is often due to correlated parameters, and is commonly
-  found with scale parameters. Posterior correlation may be obtained
-  from the \code{\link{PosteriorChecks}} function, and plotted with the
+  ESS is a measure of how well each continuous chain is mixing, and a
+  continuous chain mixes better when in the target distribution. This
+  does not imply that a poorly mixing chain still searching for its
+  target distribution will suddenly mix well after finding it, though
+  mixing should improve. A poorly mixing continuous chain does not
+  necessarily indicate problems. A smaller ESS is often due to
+  correlated parameters, and is commonly found with scale
+  parameters. Posterior correlation may be obtained from the
+  \code{\link{PosteriorChecks}} function, and plotted with the 
   \code{\link{plotMatrix}} function. Common remedies for poor mixing
   include re-parameterizing the model or trying a different MCMC
   algorithm that better handles correlated parameters. Slow mixing is
-  indicative of an inefficiency in which a chain takes longer to find
-  its target distribution, and once found, takes longer to explore it.
-  Therefore, slow mixing results in a longer required run-time to find
-  and adequately represent the target distribution, and increases the
-  chance that the user may make inferences from a less than adequate
-  representation of the target distribution.
+  indicative of an inefficiency in which a continuous chain takes longer
+  to find its target distribution, and once found, takes longer to
+  explore it. Therefore, slow mixing results in a longer required
+  run-time to find and adequately represent the continuous target
+  distribution, and increases the chance that the user may make
+  inferences from a less than adequate representation of the continuous
+  target distribution.
 
   There are many methods of re-parameterization to improve mixing. It
   is helpful when predictors are centered and scaled, such as with the

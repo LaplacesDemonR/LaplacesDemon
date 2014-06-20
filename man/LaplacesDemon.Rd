@@ -172,6 +172,7 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     \item Multiple-Try Metropolis (MTM)
     \item No-U-Turn Sampler (NUTS)
     \item Oblique Hyperrectangle Slice Sampler (OHSS)
+    \item Preconditioned Crank-Nicolson (pCN)
     \item Random Dive Metropolis-Hastings (RDMH)
     \item Random-Walk Metropolis (RWM)
     \item Reflective Slice Sampler (RSS)
@@ -222,7 +223,8 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     \item \code{aw} affects the walk move in twalk, and \code{aw=1.5} is
     recommended. If adjusted, it is recommended to stay in the
     interval [0.3,2].
-    \item \code{beta} is a scale parameter for AIES, and defaults to 2.
+    \item \code{beta} is a scale parameter for AIES, and defaults to 2,
+    or an autoregressive parameter for pCN.
     \item \code{bin.n} is the scalar size parameter for a binomial prior
     distribution of model size for the RJ algorithm.
     \item \code{bin.p} is the scalar probability parameter for a
@@ -693,7 +695,7 @@ Model <- function(parm, Data)
      beta <- parm[Data$pos.beta]
      sigma <- interval(parm[Data$pos.sigma], 1e-100, Inf)
      parm[Data$pos.sigma] <- sigma
-     ### Log of Prior Densities
+     ### Log-Prior
      beta.prior <- sum(dnormv(beta, 0, 1000, log=TRUE))
      sigma.prior <- dhalfcauchy(sigma, 25, log=TRUE)
      ### Log-Likelihood
@@ -909,6 +911,11 @@ print(Fit)
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
 #     Algorithm="OHSS", Specs=list(A=Inf, n=0))
 
+#####################  Preconditioned Crank-Nicolson  #####################
+#Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
+#     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
+#     Algorithm="pCN", Specs=list(beta=0.1))
+
 ######################  Robust Adaptive Metropolis  #######################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
@@ -1028,6 +1035,7 @@ print(Fit)
 \keyword{Multiple Chains}
 \keyword{No-U-Turn Sampler}
 \keyword{Oblique Hyperrectangle Slice Sampler}
+\keyword{Preconditioned Crank-Nicolson}
 \keyword{Optimization}
 \keyword{Parallel Chains}
 \keyword{Reflective Slice Sampler}

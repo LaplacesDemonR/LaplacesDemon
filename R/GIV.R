@@ -19,7 +19,7 @@ GIV <- function(Model, Data, n=1000, PGF=FALSE)
      if(PGF == TRUE) {
           if(is.null(Data[["PGF"]])) stop("PGF missing in Data.")
           for (i in 1:n) {
-               IV <- Data$PGF(Data)
+               IV <- as.vector(Data$PGF(Data))
                M <- try(Model(IV, Data), silent=TRUE)
                if(!inherits(M, "try-error") & is.finite(M[["LP"]]) &
                     is.finite(M[["Dev"]]) & 
@@ -27,7 +27,7 @@ GIV <- function(Model, Data, n=1000, PGF=FALSE)
                     iv <- IV; break}
                }
           }
-     if(PGF == FALSE) {
+     else if(PGF == FALSE) {
           high <- 100; low <- -100
           a <- try(Model(rep(low, LIV), Data)[["parm"]], silent=TRUE)
           b <- try(Model(rep(high, LIV), Data)[["parm"]], silent=TRUE)

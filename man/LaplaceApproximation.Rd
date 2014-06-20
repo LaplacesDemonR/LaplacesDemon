@@ -605,7 +605,7 @@ Model <- function(parm, Data)
      beta <- parm[Data$pos.beta]
      sigma <- interval(parm[Data$pos.sigma], 1e-100, Inf)
      parm[Data$pos.sigma] <- sigma
-     ### Log of Prior Densities
+     ### Log-Prior
      beta.prior <- sum(dnormv(beta, 0, 1000, log=TRUE))
      sigma.prior <- dhalfcauchy(sigma, 25, log=TRUE)
      ### Log-Likelihood

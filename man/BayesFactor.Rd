@@ -87,6 +87,12 @@ BayesFactor(x)
   \code{B[3,2]=2}, the data favor \eqn{\mathcal{M}_3}{M[3]} over
   \eqn{\mathcal{M}_2}{M[2]} with 2:1 odds.
 
+  It is also popular to consider the natural logarithm of the Bayes
+  factor. The scale of the logged Bayes factor is the same above and
+  below one, which is more appropriate for visual comparisons. For
+  example, when comparing two Bayes factors at 0.5 and 2, the logarithm
+  of these Bayes factors is -0.69 and 0.69.
+
   Gelman finds Bayes factors generally to be irrelevant, because they
   compute the relative probabilities of the models conditional on one
   of them being true. Gelman prefers approaches that measure the
@@ -175,7 +181,7 @@ Model <- function(parm, Data)
      beta <- parm[Data$pos.beta]
      sigma <- interval(parm[Data$pos.sigma], 1e-100, Inf)
      parm[Data$pos.sigma] <- sigma
-     ### Log(Prior Densities)
+     ### Log-Prior
      beta.prior <- sum(dnormv(beta, 0, 1000, log=TRUE))
      sigma.prior <- dhalfcauchy(sigma, 25, log=TRUE)
      ### Log-Likelihood

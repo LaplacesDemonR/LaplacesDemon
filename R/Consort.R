@@ -281,6 +281,7 @@ Consort <- function(object=NULL)
                "Multiple-Try Metropolis"="MTM",
                "No-U-Turn Sampler"="NUTS",
                "Oblique Hyperrectangle Slice Sampler"="OHSS",
+               "Preconditioned Crank-Nicolson"="pCN",
                "Random Dive Metropolis-Hastings"="RDMH",
                "Random-Walk Metropolis"="RWM",
                "Reflective Slice Sampler"="RSS",
@@ -718,6 +719,17 @@ Consort <- function(object=NULL)
                     "Thinning=", Rec.Thinning, ",\n", sep="")
                cat("     Algorithm=\"OHSS\", ",
                     "Specs=list(A=", A, ", n=", n,"))\n\n", sep="")
+               }
+          else if(Alg == "pCN") {
+               ### pCN
+               beta <- object$Specs[["beta"]]
+               cat(oname, " <- LaplacesDemon(Model, Data=", dname,
+                    ", Initial.Values,\n", sep="")
+               cat("     Covar=", oname, "$Covar, Iterations=",
+                    Rec.Iterations, ", Status=", Rec.Status, ", ",
+                    "Thinning=", Rec.Thinning, ",\n", sep="")
+               cat("     Algorithm=\"RWM\", ",
+                    "Specs=list(beta=", beta, "))\n\n", sep="")
                }
           else if({(Alg == "AM") & !Dim.Adapt & !Fast & !Ready} | 
              {(Alg == "AMM") & !Dim.Adapt & !Fast & Ready} | 

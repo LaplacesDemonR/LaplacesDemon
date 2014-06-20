@@ -46,7 +46,7 @@ LML <- function(Model=NULL, Data=NULL, Modes=NULL, theta=NULL, LL=NULL,
           ### Logarithm of the Marginal Likelihood
           LML <- NA
           options(warn=-1)
-          LML.test <- try(parm.len/2 * log(2*pi) + 0.5*log(det(VarCov)) +
+          LML.test <- try(parm.len/2 * log(2*pi) + 0.5*logdet(VarCov) +
                as.vector(Model(Modes, Data)[["LP"]]), silent=TRUE)
           if(!inherits(LML.test, "try-error")) LML <- LML.test[1]
           options(warn=0)

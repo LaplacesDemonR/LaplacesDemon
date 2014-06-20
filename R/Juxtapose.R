@@ -100,6 +100,7 @@ Juxtapose <- function(x)
                "Multiple-Try Metropolis"="MTM",
                "No-U-Turn Sampler"="NUTS",
                "Oblique Hyperrectangle Slice Sampler"="OHSS",
+               "Preconditioned Crank-Nicolson"="pCN",
                "Random Dive Metropolis-Hastings"="RDMH",
                "Random-Walk Metropolis"="RWM",
                "Reflective Slice Sampler"="RSS",
