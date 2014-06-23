@@ -1,3 +1,9 @@
+2014-06-23 Fixed bug reported by David Ramsey,
+           David.Ramsey@depi.vic.gov.au, regarding clusterExport, which
+           affected BigData, PMC, predict.demonoid, predict.iterquad, 
+           predict.laplace, predict.pmc, predict.vb, RejectionSampling, SIR
+2014-06-20 Added MinnesotaPrior
+2014-06-20 Combine: Fixed bug with Covar in blocked samplers
 2014-06-20 Fixed bug reported by David Ramsey,
            David.Ramsey@depi.vic.gov.au, regarding acf on small samples.
 2014-06-18 Added logdet

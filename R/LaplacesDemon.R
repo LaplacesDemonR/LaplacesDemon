@@ -4451,7 +4451,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     stop.criterion(thetaminus, thetaplus, rminus, rplus)
                ### Increment depth
                j <- j + 1
-               if(j >= Lmax) s <- 0}
+               if(j*j >= Lmax) s <- 0}
           ### Adaptation of epsilon
           eta <- 1 / (iter - 1 + t0)
           Hbar <- (1 - eta) * Hbar + eta * (delta - alpha / nalpha)

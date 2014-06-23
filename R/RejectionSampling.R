@@ -36,6 +36,9 @@ RejectionSampling <- function(Model, Data, mu, S, df=Inf, logc, n=1000,
                cat("\nOnly", detectedCores, "will be used.\n")
                CPUs <- detectedCores}
           cl <- makeCluster(CPUs, Type)
+          varlist <- unique(c(ls(), ls(envir=.GlobalEnv),
+               ls(envir=parent.env(environment()))))
+          clusterExport(cl, varlist=varlist, envir=environment())
           clusterSetRNGStream(cl)
           mod <- parLapply(cl, 1:nrow(theta),
                function(x) Model(theta[x,], Data))
