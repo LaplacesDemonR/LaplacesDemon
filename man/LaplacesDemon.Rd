@@ -536,6 +536,9 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
   Algorithm". Technical Report in Department of Statistics at the
   University of Toronto.
 
+  Beskos, A., Roberts, G.O., Stuart, A.M., and Voss, J. (2008). "MCMC
+  Methods for Diffusion Bridges". Stoch. Dyn., 8, p. 319--350.
+
   Boyles, L.B. and Welling, M. (2012). "Refractive Sampling".
   \url{http://www.ics.uci.edu/~lboyles/publications.html}
 
@@ -1035,9 +1038,9 @@ print(Fit)
 \keyword{Multiple Chains}
 \keyword{No-U-Turn Sampler}
 \keyword{Oblique Hyperrectangle Slice Sampler}
-\keyword{Preconditioned Crank-Nicolson}
 \keyword{Optimization}
 \keyword{Parallel Chains}
+\keyword{Preconditioned Crank-Nicolson}
 \keyword{Reflective Slice Sampler}
 \keyword{Refractive Sampler}
 \keyword{Reversible-Jump}

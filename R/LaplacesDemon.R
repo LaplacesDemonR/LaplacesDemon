@@ -1145,6 +1145,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      cat("\nLaplace's Demon is beginning to update...\n", file=LogFile,
           append=TRUE)
      options(warn=2)
+     on.exit(options(warn=0))
      if(Algorithm == "Adaptive Directional Metropolis-within-Gibbs") {
           mcmc.out <- .mcmcadmg(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
