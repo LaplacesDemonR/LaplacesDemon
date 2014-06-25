@@ -23,7 +23,7 @@ GIV <- function(Model, Data, n=1000, PGF=FALSE)
                M <- try(Model(IV, Data), silent=TRUE)
                if(!inherits(M, "try-error") & is.finite(M[["LP"]]) &
                     is.finite(M[["Dev"]]) & 
-                    identical(as.vector(M[["parm"]]), IV)) {
+                    identical(as.vector(M[["parm"]]), as.vector(IV))) {
                     iv <- IV; break}
                }
           }
@@ -37,7 +37,7 @@ GIV <- function(Model, Data, n=1000, PGF=FALSE)
                     M <- try(Model(IV, Data), silent=TRUE)
                     if(!inherits(M, "try-error") & is.finite(M[["LP"]]) &
                          is.finite(M[["Dev"]]) & 
-                         identical(as.vector(M[["parm"]]), IV)) {
+                         identical(as.vector(M[["parm"]]), as.vector(IV))) {
                          iv <- IV; break}
                     }
                }
@@ -52,7 +52,7 @@ GIV <- function(Model, Data, n=1000, PGF=FALSE)
                     M <- try(Model(IV, Data), silent=TRUE)
                     if(!inherits(M, "try-error") & is.finite(M[["LP"]]) &
                          is.finite(M[["Dev"]]) & 
-                         identical(as.vector(M[["parm"]]), IV)) {
+                         identical(as.vector(M[["parm"]]), as.vector(IV))) {
                          iv <- IV; break}
                     Scale <- Scale + ab.range / n / 2}
                }
