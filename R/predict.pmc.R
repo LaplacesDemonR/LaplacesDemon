@@ -38,6 +38,9 @@ predict.pmc <- function(object, Model, Data, CPUs=1, Type="PSOCK", ...)
                cat("\nOnly", detectedCores, "will be used.\n")
                CPUs <- detectedCores}
           cl <- makeCluster(CPUs, Type)
+          varlist <- unique(c(ls(), ls(envir=.GlobalEnv),
+               ls(envir=parent.env(environment()))))
+          clusterExport(cl, varlist=varlist, envir=environment())
           clusterSetRNGStream(cl)
           mod <- parLapply(cl, 1:nrow(post),
                function(x) Model(post[x,], Data))

@@ -1145,6 +1145,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      cat("\nLaplace's Demon is beginning to update...\n", file=LogFile,
           append=TRUE)
      options(warn=2)
+     on.exit(options(warn=0))
      if(Algorithm == "Adaptive Directional Metropolis-within-Gibbs") {
           mcmc.out <- .mcmcadmg(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
@@ -4451,7 +4452,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     stop.criterion(thetaminus, thetaplus, rminus, rplus)
                ### Increment depth
                j <- j + 1
-               if(j >= Lmax) s <- 0}
+               if(j*j >= Lmax) s <- 0}
           ### Adaptation of epsilon
           eta <- 1 / (iter - 1 + t0)
           Hbar <- (1 - eta) * Hbar + eta * (delta - alpha / nalpha)

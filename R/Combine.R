@@ -18,52 +18,7 @@ Combine <- function(x, Data, Thinning=1)
                sapply(x, with, Iterations)) /
                sum(sapply(x, with, Iterations)),5)
      Algorithm <- x[[1]]$Algorithm
-     if(is.matrix(x[[1]]$Covar)) {
-          if(sum(dim(x[[1]]$Covar) > 2)) {
-               Covar <- matrix(rowSums(sapply(x, with, Covar) *
-                    sapply(x, with, Iterations)) /
-                    sum(sapply(x, with, Iterations)),
-                    nrow(x[[1]]$Covar), ncol(x[[1]]$Covar))}
-          else {
-               Covar <- matrix(sum(sapply(x, with, Covar) *
-                    sapply(x, with, Iterations)) /
-                    sum(sapply(x, with, Iterations)),
-                    nrow(x[[1]]$Covar), ncol(x[[1]]$Covar))
-               }
-          }
-     else if(is.vector(x[[1]]$Covar)) {
-          temp1 <- sapply(x, with, Covar)
-          temp2 <- matrix(sapply(x, with, Iterations), nrow(temp1),
-               ncol(temp1), byrow=TRUE)
-          Covar <- rowSums(temp1 * temp2) / rowSums(temp2)
-          rm(temp1, temp2)
-          }
-     else {
-          Covar <- list(NULL)
-          for (i in 1:length(x[[1]]$Covar)) {
-               if(is.matrix(x[[1]]$Covar[[i]])) {
-                    if(sum(dim(x[[1]]$Covar[[i]]) > 2)) {
-                         Covar[[i]] <- matrix(rowSums(sapply(x, with, Covar[[i]]) *
-                              sapply(x, with, Iterations)) /
-                              sum(sapply(x, with, Iterations)),
-                              nrow(x[[1]]$Covar[[i]]), ncol(x[[1]]$Covar[[i]]))
-                         }
-                    else {
-                         Covar[[i]] <- matrix(sum(sapply(x, with, Covar[[i]]) *
-                              sapply(x, with, Iterations)) /
-                              sum(sapply(x, with, Iterations)),
-                              nrow(x[[1]]$Covar[[i]]), ncol(x[[1]]$Covar[[i]]))
-                         }
-                    }
-               else if(is.vector(x[[1]]$Covar[[i]])) {
-                    temp1 <- sapply(x, with, Covar[[i]])
-                    temp2 <- matrix(sapply(x, with, Iterations),
-                         nrow(temp1), ncol(temp1), byrow=TRUE)
-                    Covar[[i]] <- rowSums(temp1 * temp2) / rowSums(temp2)
-                    rm(temp1, temp2)
-                    }
-               }
-          }
+     Covar <- x[[len.x]]$Covar
      Iterations <- sum(sapply(x, with, Iterations))
      Model <- x[[1]]$Model
      Minutes <- sum(sapply(x, with, Minutes))

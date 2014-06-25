@@ -1176,6 +1176,14 @@ Once the slice interval is estimated, a sample is drawn uniformly with rejection
 
 The time per iteration varies, since rejection sampling often requires more than one evaluation. When OHSS is adaptive, it is not suitable as a final algorithm.
 
+\subsubsection{Preconditioned Crank-Nicolson} \label{pcn}
+
+Preconditioned Crank-Nicolson (pCN) was introduced originally as the PIA algorithm in \citet{beskos08}, and differs only slightly from Random-Walk Metropolis. The proposal is a first-order autoregressive process, rather than a centered random-walk. The pCN algorithm has an acceptance probability that is invariant to dimension, making pCN useful for large-dimensional models.
+
+pCN has one algorithm specification, \code{beta}, which is the autoregressive parameter in (0,1).
+
+As with RWM, the target acceptance rate is 23.4\%. pCN seems to perform well only with an identity matrix as the proposal covariance matrix.
+
 \subsubsection{Random Dive Metropolis-Hastings} \label{rdmg}
 
 Random Dive Metropolis-Hastings (RDMH) was introduced by \citet{dutta12}. RDMH is a componentwise Metropolis-Hastings algorithm in which the proposal is the product or ratio of a current parameter and a random quantity that does not require any tuning parameters. The random quantity is in the interval $(-1,1)$. Although RDMH is a very simple algorithm, it has excellent convergence and mixing properties. However, if it is reasonable that the origin ($0$) has positive probability, then the model should be reparameterized, because RDMH fails in the obscure case when the origin has positive probability (which can arise if the state-space is the set of integers).

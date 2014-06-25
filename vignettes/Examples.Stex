@@ -6739,13 +6739,14 @@ MyData <- list(J=J, PGF=PGF, X=X, mon.names=mon.names, \\
 \code{Initial.Values <- c(rep(0,J), rep(1,J-1), rep(1,2))}
 
 \section{Vector Autoregression, VAR(1)} \label{var1}
+This is an example of a simple, unrestricted VAR with 1 lag that uses the Minnesota prior to estimate $\Sigma$.
 \subsection{Form}
 $$\textbf{Y}_{t,j} \sim \mathcal{N}(\mu_{t,j}, \sigma^2_j), \quad t=1,\dots,T, \quad j=1,\dots,J$$
 $$\mu_{t,j} = \alpha_j + \Phi_{1:J,j} \textbf{Y}_{t-1,j}$$
 $$\textbf{y}^{new}_j = \alpha_j + \Phi_{1:J,j} \textbf{Y}_{T,j}$$
 $$\alpha_j \sim \mathcal{N}(0, 1000)$$
 $$\sigma_j \sim \mathcal{HC}(25)$$
-$$\Phi_{i,k} \sim \mathcal{N}(0, 1000), \quad i=1,\dots,J, \quad k=1,\dots,J$$ 
+$$\Phi_{i,k} \sim \mathcal{N}(0, \Sigma), \quad i=1,\dots,J, \quad k=1,\dots,J$$ 
 \subsection{Data}
 \code{T <- 100 \\
 J <- 3 \\
@@ -6768,20 +6769,21 @@ MyData <- list(J=J, PGF=PGF, T=T, Y=Y, mon.names=mon.names, \\
 \hspace*{0.27 in} \{ \\
 \hspace*{0.27 in} \#\#\# Parameters \\
 \hspace*{0.27 in} alpha <- parm[Data$pos.alpha] \\
-\hspace*{0.27 in} Phi <- matrix(parm[Data$pos.phi], Data$J, Data$J) \\
+\hspace*{0.27 in} Phi <- matrix(parm[Data$pos.Phi], Data$J, Data$J) \\
 \hspace*{0.27 in} sigma <- interval(parm[Data$pos.sigma], 1e-100, Inf) \\
 \hspace*{0.27 in} parm[Data$pos.sigma] <- sigma \\
 \hspace*{0.27 in} \#\#\# Log-Prior \\
 \hspace*{0.27 in} alpha.prior <- sum(dnormv(alpha, 0, 1000, log=TRUE)) \\
-\hspace*{0.27 in} Phi.prior <- sum(dnormv(Phi, 0, 1000, log=TRUE)) \\
+\hspace*{0.27 in} Sigma <- MinnesotaPrior(Data$J, lags=1, lambda=1, theta=0.5, sigma) \\
+\hspace*{0.27 in} Phi.prior <- sum(dnormv(Phi, 0, Sigma, log=TRUE)) \\
 \hspace*{0.27 in} sigma.prior <- sum(dhalfcauchy(sigma, 25, log=TRUE)) \\
 \hspace*{0.27 in} \#\#\# Log-Likelihood \\
-\hspace*{0.27 in} mu <- matrix(alpha,Data$T,Data$J,byrow=TRUE) \\
-\hspace*{0.62 in} mu[-1,] <- mu[-1,] + tcrossprod(Data$Y[-Data$T,], Phi) \\
+\hspace*{0.27 in} mu <- matrix(alpha, Data$T, Data$J, byrow=TRUE) \\
+\hspace*{0.27 in} mu[-1,] <- mu[-1,] + Data$Y[-Data$T,] \%*\% Phi \\
 \hspace*{0.27 in} Sigma <- matrix(sigma, Data$T, Data$J, byrow=TRUE) \\
-\hspace*{0.27 in} ynew <- rnorm(Data$J, alpha + as.vector(crossprod(Phi, Data$Y[Data$T,])), \\
+\hspace*{0.27 in} ynew <- rnorm(Data$J, alpha + as.vector(Data$Y[Data$T,] \%*\% Phi), \\
 \hspace*{0.62 in} sigma) \\
-\hspace*{0.27 in} LL <- sum(dnorm(Data$Y, mu, Sigma, log=TRUE)) \\
+\hspace*{0.27 in} LL <- sum(dnorm(Data$Y[-1,], mu[-1,], Sigma[-1,], log=TRUE)) \\
 \hspace*{0.27 in} \#\#\# Log-Posterior \\
 \hspace*{0.27 in} LP <- LL + alpha.prior + Phi.prior + sigma.prior \\
 \hspace*{0.27 in} Modelout <- list(LP=LP, Dev=-2*LL, Monitor=c(LP,ynew), \\
@@ -6790,7 +6792,7 @@ MyData <- list(J=J, PGF=PGF, T=T, Y=Y, mon.names=mon.names, \\
 \hspace*{0.27 in} \} \\
 }
 \subsection{Initial Values}
-\code{Initial.Values <- c(colMeans(Y), rep(0,J*J), rep(1,J))}
+\code{Initial.Values <- c(as.vector(colMeans(Y)), rep(0,J*J), rep(1,J))}
 
 \section{Weighted Regression} \label{weighted.reg}
 It is easy enough to apply record-level weights to the likelihood. Here, weights are applied to the linear regression example in section \ref{linear.reg}.

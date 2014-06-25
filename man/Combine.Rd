@@ -79,6 +79,9 @@ Combine(x, Data, Thinning=1)
   seemingly to infinity, and the unnormalized logarithm of the joint
   posterior density, \code{LP}, may seem to oscillate, sometimes
   improving and getting higher, and getting lower during other updates.
+  For this purpose, the prior covariance matrix of the last model is
+  retained (rather than combining them). This may be an unpleasant
+  surprise for combining parallel updates, so be aware of it.
 
   In these cases, which usually involve complicated models with high
   autocorrelation in the chains, the user may opt to use parallel

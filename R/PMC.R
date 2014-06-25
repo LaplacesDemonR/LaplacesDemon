@@ -170,8 +170,10 @@ PMC <- function(Model, Data, Initial.Values, Covar=NULL, Iterations=10,
                          post[i,,iter,m] <- M0[["parm"]]}
                     }
                else { ### Parallel Processing
-                    cat("\n")
                     cl <- makeCluster(CPUs, Type)
+                    varlist <- unique(c(ls(), ls(envir=.GlobalEnv),
+                         ls(envir=parent.env(environment()))))
+                    clusterExport(cl, varlist=varlist, envir=environment())
                     clusterSetRNGStream(cl)
                     mod <- parLapply(cl, 1:nrow(post),
                          function(x) Model(post[x,,iter,m], Data))
