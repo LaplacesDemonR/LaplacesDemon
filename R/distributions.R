@@ -1058,8 +1058,7 @@ dmvn <- function(x, mu, Sigma, log=FALSE)
      Omega <- as.inverse(Sigma)
      ss <- x - mu
      z <- rowSums({ss %*% Omega} * ss)
-     d <- eigen(Sigma, symmetric=TRUE)$values
-     dens <- as.vector(-0.5 * (k * log(2 * pi) + sum(log(d))) - (0.5 * z))
+     dens <- as.vector(-0.5 * (k * log(2 * pi) + logdet(Sigma)) - (0.5 * z))
      if(log == FALSE) dens <- exp(dens)
      return(dens)
      }
@@ -1092,8 +1091,7 @@ dmvnc <- function(x, mu, U, log=FALSE)
      Omega <- as.inverse(Sigma)
      ss <- x - mu
      z <- rowSums({ss %*% Omega} * ss)
-     d <- eigen(Sigma, symmetric=TRUE)$values
-     dens <- as.vector(-0.5 * (k * log(2 * pi) + sum(log(d))) - (0.5 * z))
+     dens <- as.vector(-0.5 * (k * log(2 * pi) + logdet(Sigma)) - (0.5 * z))
      if(log == FALSE) dens <- exp(dens)
      return(dens)
      }

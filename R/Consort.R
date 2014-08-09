@@ -233,6 +233,7 @@ Consort <- function(object=NULL)
                   {object$Algorithm != "No-U-Turn Sampler"} &
                   {object$Algorithm != "Refractive Sampler"} &
                   {object$Algorithm != "Sequential Adaptive Metropolis-within-Gibbs"} &
+                  {object$Algorithm != "Univariate Eigenvector Slice Sampler"} &
                   {object$Algorithm != "Updating Sequential Adaptive Metropolis-within-Gibbs"})
                     cat("         A new algorithm will be suggested.\n\n")}
           

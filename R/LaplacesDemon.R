@@ -2302,7 +2302,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      LogFile)
      {
      Periodicity <- Specs[["Periodicity"]]
-     Acceptance <- matrix(0, 1, LIV)
+     Acceptance <- rep(0, LIV)
      DiagCovar <- matrix(tuning, floor(Iterations/Periodicity), LIV,
           byrow=TRUE)
      for (iter in 1:Iterations) {
@@ -2319,7 +2319,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                Dev[t.iter] <- Mo0[["Dev"]]
                Mon[t.iter,] <- Mo0[["Monitor"]]}
           ### Random-Scan Componentwise Estimation
-          propdraw <- rnorm(LIV)*tuning
+          propdraw <- rnorm(LIV,0,tuning)
           for (j in sample.int(LIV)) {
                ### Propose new parameter values
                prop <- Mo0[["parm"]]
@@ -2332,9 +2332,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     Mo1 <- Mo0
                ### Accept/Reject
                u <- log(runif(1)) < {Mo1[["LP"]] - Mo0[["LP"]]}
-               if(u == TRUE) {
-                    Mo0 <- Mo1
-                    Acceptance[j] <- Acceptance[j] + 1}}
+               if(u == TRUE) Mo0 <- Mo1
+               Acceptance[j] <- Acceptance[j] + u}
           if(iter %% Thinning == 0) {
                thinned[t.iter,] <- Mo0[["parm"]]
                Dev[t.iter] <- Mo0[["Dev"]]
@@ -2346,13 +2345,14 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                log.tuning <- log(tuning)
                tuning.num <- which(Acceptance.Rate > 0.44)
                log.tuning[tuning.num] <- log.tuning[tuning.num] + size
-               log.tuning[-tuning.num] <- log.tuning[-tuning.num] - size
+               tuning.num <- which(Acceptance.Rate <= 0.44)
+               log.tuning[tuning.num] <- log.tuning[tuning.num] - size
                tuning <- exp(log.tuning)
                a.iter <- floor(iter / Periodicity)
                DiagCovar[a.iter,] <- tuning}
           }
      ### Output
-     out <- list(Acceptance=mean(as.vector(Acceptance)),
+     out <- list(Acceptance=mean(Acceptance),
           Dev=Dev,
           DiagCovar=DiagCovar,
           Mon=Mon,
@@ -4140,7 +4140,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                Dev[t.iter] <- Mo0[["Dev"]]
                Mon[t.iter,] <- Mo0[["Monitor"]]}
           ### Random-Scan Componentwise Estimation
-          propdraw <- rnorm(LIV)*tuning
+          propdraw <- rnorm(LIV,0,tuning)
           for (j in sample.int(LIV)) {
                ### Propose new parameter values
                prop <- Mo0[["parm"]]
