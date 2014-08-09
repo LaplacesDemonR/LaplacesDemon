@@ -1,3 +1,6 @@
+2014-08-09 Examples: Changed the Multivariate Binary Probit example from
+           using a Cholesky decomposition to a correlation matrix.
+2014-06-25 GIV: Forced IV to be a vector for identical()
 2014-06-23 Fixed bug reported by David Ramsey,
            David.Ramsey@depi.vic.gov.au, regarding clusterExport, which
            affected BigData, PMC, predict.demonoid, predict.iterquad, 

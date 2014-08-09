@@ -1814,7 +1814,7 @@ $$\gamma_c \sim \mathcal{N}(0, 10), \quad c=1,\dots,C$$
 $$\textbf{U}_{j,k} \sim \mathcal{N}(0,1), \quad j=1,\dots,(J-1), \quad k=1,\dots,(J-1), \quad j \ge k, \quad j \ne k = 1$$
 \subsection{Data}
 \code{N <- 50 \\
-J <- 5 \#Categories of y \\
+J <- 3 \#Categories of y \\
 K <- 8 \#Number of columns in design matrix X \\
 C <- 2 \#Number of choice-based attributes \\
 X <- matrix(runif(N*K,-2,2), N, K) \\
@@ -1879,7 +1879,7 @@ MyData <- list(C=C, J=J, K=K, N=N, PGF=PGF, S=S, X=X, Z=Z, \\
 \hspace*{0.27 in} \#\#\# Log-Prior \\
 \hspace*{0.27 in} beta.prior <- sum(dnormv(beta, 0, 10, log=TRUE)) \\
 \hspace*{0.27 in} gamma.prior <- sum(dnormv(gamma, 0, 10, log=TRUE)) \\
-\hspace*{0.27 in} U.prior <- sum(dnorm(u[-length(u)], 0, 1, log=TRUE)) \\
+\hspace*{0.27 in} U.prior <- sum(dnorm(u[-1], 0, 1, log=TRUE)) \\
 \hspace*{0.27 in} \#\#\# Log-Likelihood \\
 \hspace*{0.27 in} mu <- tcrossprod(Data$X, beta) + \\
 \hspace*{0.62 in} as.vector(tcrossprod(Data$Z, t(gamma))) \\
@@ -3349,7 +3349,7 @@ where $\textbf{m}$ is a vector of length $N$, and each element indicates the mul
 \code{N <- 30 \\
 J <- 2 \#\#\# Number of predictors (including intercept) \\
 G <- 2 \#\#\# Number of Multilevel Groups \\
-X <- matrix(rnorm(N,0,1),N,J); X[,1] <- 1 \\
+X <- cbind(1, matrix(rnorm(N*(J-1),0,1),N,J-1)) \\
 Sigma <- matrix(runif(J*J,-1,1),J,J) \\
 diag(Sigma) <- runif(J,1,5) \\
 Sigma <- as.positive.definite(Sigma) \\
@@ -4373,7 +4373,7 @@ $$\beta_{j,k} \sim \mathcal{N}(0, 10), \quad j=1,\dots,(J-1), \quad k=1,\dots,K$
 $$\textbf{U}_{j,k} \sim \mathcal{N}(0,1), \quad j=1,\dots,(J-1), \quad k=1,\dots,(J-1), \quad j \ge k, \quad j \ne k = 1$$
 \subsection{Data}
 \code{N <- 50 \\
-J <- 5 \#Categories of y \\
+J <- 3 \#Categories of y \\
 K <- 8 \#Number of columns in design matrix X \\
 X <- matrix(runif(N*K,-2,2), N, K) \\
 X[,1] <- 1 \\
@@ -4430,7 +4430,7 @@ MyData <- list(J=J, K=K, N=N, PGF=PGF, S=S, X=X, mon.names=mon.names, \\
 \hspace*{0.27 in} parm[Data$pos.W] <- as.vector(W) \\
 \hspace*{0.27 in} \#\#\# Log-Prior \\
 \hspace*{0.27 in} beta.prior <- sum(dnormv(beta, 0, 10, log=TRUE)) \\
-\hspace*{0.27 in} U.prior <- sum(dnorm(u[-length(u)], 0, 1, log=TRUE)) \\
+\hspace*{0.27 in} U.prior <- sum(dnorm(u[-1], 0, 1, log=TRUE)) \\
 \hspace*{0.27 in} \#\#\# Log-Likelihood \\
 \hspace*{0.27 in} mu <- tcrossprod(Data$X, beta) \\
 \hspace*{0.27 in} \#eta <- exp(cbind(mu,0)) \\
@@ -4553,77 +4553,80 @@ MyData <- list(G=G, J=J, K=K, L=L, N=N, PGF=PGF, S=S, X1=X1, X2=X2, Y=Y, \\
 
 \section{Multivariate Binary Probit} \label{multiv.bin.probit}
 \subsection{Form}
-$$\textbf{Z}_{i,1:J} \sim \mathcal{N}_J(\mu_{i,1:J}, \Sigma), \quad i=1,\dots,N$$
-\[\textbf{Z}_{i,j} \in \left\{
+$$\textbf{W}_{i,1:J} \sim \mathcal{N}_J(\mu_{i,1:J}, \Omega^{-1}), \quad i=1,\dots,N$$
+\[\textbf{W}_{i,j} \in \left\{
 \begin{array}{l l}
  $[0,10]$ & \quad \mbox{if $\textbf{y}_i = j$}\\
  $[-10,0]$ \\ \end{array} \right. \]
 $$\mu_{1:N,j} = \textbf{X} \beta_{j,1:K}$$
-$$\Sigma \sim \mathcal{IW}_{J+1}(\textbf{S}^-1), \quad \textbf{S} = \textbf{I}_J, \quad \Sigma[1,1] = 1$$
+$$\Omega = \rho^{-1}$$
 $$\beta_{j,k} \sim \mathcal{N}(0, 1000), \quad j=1,\dots,(J-1), \quad k=1,\dots,K$$
 $$\beta_{J,k} = - \sum^{J-1}_{j=1} \beta_{j,k}$$
-$$\textbf{Z}_{i,j} \sim \mathcal{N}(0, 1000) \in [-10,10]$$
+$$\rho \sim \mathcal{U}(-1, 1)$$
 \subsection{Data}
 \code{N <- 30 \\
 J <- 2 \#Number of binary dependent variables \\
 K <- 3 \#Number of columns to be in design matrix X \\
-X <- matrix(1, N, K) \\
-for (k in 2:K) \{X[,k] <- rnorm(N, runif(1,-3,3), runif(1,0.1,3))\} \\
-beta <- matrix(runif(J*K), J, K) \\
+X <- cbind(1, matrix(rnorm(N*(K-1),0,1), N, K-1)) \\
+beta <- matrix(rnorm(J*K), J, K) \\
 mu <- tcrossprod(X, beta) \\
-S <- diag(J) \\
-u <- c(0, rnorm((J-1) + (factorial(J) / \\
-\hspace*{0.27 in} (factorial(J-2)*factorial(2))),0,1)) \\
-U <- diag(J) \\
-U[upper.tri(U, diag=TRUE)] <- u \\
-diag(U) <- exp(diag(U)) \\
-Sigma <- t(U) \%*\% U \\
-Sigma[1,] <- Sigma[,1] <- U[1,] \\
-W <- rmvn(N, mu, Sigma) + matrix(rnorm(N*J,0,0.1), N, J) \\
+u <- runif(length(which(upper.tri(diag(J)) == TRUE)), -1, 1) \\
+rho <- diag(J) \\
+rho[upper.tri(rho)] <- u \\
+rho[lower.tri(rho)] <- t(rho)[lower.tri(rho)] \\
+rho <- as.positive.semidefinite(rho) \\
+Omega <- as.inverse(rho) \\
+U <- chol(Omega) \\
+W <- interval(rmvnpc(N, mu, U) + matrix(rnorm(N*J,0,0.1), N, J), \\
+\hspace*{0.27 in} -10, 10) \\
 Y <- 1 * (W >= 0) \\
+apply(Y, 2, table) \\
 mon.names <- "LP" \\
-parm.names <- as.parm.names(list(beta=matrix(0,J,K), \\
-\hspace*{0.27 in} U=U, W=matrix(0,N,J)), uppertri=c(0,1,0)) \\
-parm.names <- parm.names[-which(parm.names == "U[1,1]")] \\
-pos.beta <- grep("beta", parm.names)\\
-pos.U <- grep("U", parm.names) \\
+rho <- matrix(NA, J, J) \\
+rho[upper.tri(rho)] <- 0 \\
+parm.names <- as.parm.names(list(beta=matrix(0,J,K), rho=rho, \\
+\hspace*{0.27 in} W=matrix(0,N,J))) \\
+pos.beta <- grep("beta", parm.names) \\
+pos.rho <- grep("rho", parm.names) \\
 pos.W <- grep("W", parm.names) \\
 PGF <- function(Data) \{ \\
-\hspace*{0.27 in} beta <- rnormv(Data$J*Data$K,0,1) \\
-\hspace*{0.27 in} U <- rnorm((Data$J-1) + (factorial(Data$J) / \\
-\hspace*{0.62 in} (factorial(Data$J-2)*factorial(2))),0,1) \\
+\hspace*{0.27 in} beta <- rnorm(Data$J*Data$K) \\
+\hspace*{0.27 in} rho <- rep(0, length(which(upper.tri(diag(Data$J))))) \\
 \hspace*{0.27 in} W <- matrix(runif(Data$N*Data$J,-10,0), Data$N, Data$J) \\
 \hspace*{0.27 in} W <- ifelse(Y == 1, abs(W), W) \\
-\hspace*{0.27 in} return(c(beta, U, as.vector(W)))\} \\
-MyData <- list(J=J, K=K, N=N, PGF=PGF, S=S, X=X, Y=Y, \\
+\hspace*{0.27 in} return(c(beta, rho, as.vector(W)))\} \\
+MyData <- list(J=J, K=K, N=N, PGF=PGF, X=X, Y=Y, \\
 \hspace*{0.27 in} mon.names=mon.names, parm.names=parm.names, pos.beta=pos.beta, \\
-\hspace*{0.27 in} pos.U=pos.U, pos.W=pos.W) \\
+\hspace*{0.27 in} pos.rho=pos.rho, pos.W=pos.W) \\
 }
 \subsection{Model}
 \code{Model <- function(parm, Data) \\
 \hspace*{0.27 in} \{ \\
 \hspace*{0.27 in} \#\#\# Parameters \\
 \hspace*{0.27 in} beta <- matrix(parm[Data$pos.beta], Data$J, Data$K) \\
-\hspace*{0.27 in} u <- c(0, parm[Data$pos.U]) \\
-\hspace*{0.27 in} U <- diag(Data$J) \\
-\hspace*{0.27 in} U[upper.tri(U, diag=TRUE)] <- u \\
-\hspace*{0.27 in} diag(U) <- exp(diag(U)) \\
-\hspace*{0.27 in} Sigma <- t(U) \%*\% U \\
-\hspace*{0.27 in} Sigma[1,] <- Sigma[,1] <- U[1,] \\
+\hspace*{0.27 in} u <- interval(parm[Data$pos.rho], -1, 1) \\
+\hspace*{0.27 in} rho <- diag(MyData$J) \\
+\hspace*{0.27 in} rho[upper.tri(rho)] <- u \\
+\hspace*{0.27 in} rho[lower.tri(rho)] <- t(rho)[lower.tri(rho)] \\
+\hspace*{0.27 in} if(is.positive.semidefinite(rho) == FALSE) \\
+\hspace*{0.62 in} rho <- as.positive.semidefinite(rho) \\
+\hspace*{0.27 in} parm[Data$pos.rho] <- upper.triangle(rho) \\
+\hspace*{0.27 in} Omega <- as.inverse(rho) \\
+\hspace*{0.27 in} U <- chol(Omega) \\
 \hspace*{0.27 in} W <- matrix(parm[Data$pos.W], Data$N, Data$J) \\
 \hspace*{0.27 in} W[Data$Y == 0] <- interval(W[Data$Y == 0], -10, 0) \\
 \hspace*{0.27 in} W[Data$Y == 1] <- interval(W[Data$Y == 1], 0, 10) \\
 \hspace*{0.27 in} parm[Data$pos.W] <- as.vector(W) \\
 \hspace*{0.27 in} \#\#\# Log-Prior \\
 \hspace*{0.27 in} beta.prior <- sum(dnormv(beta, 0, 1000, log=TRUE)) \\
-\hspace*{0.27 in} U.prior <- sum(dnorm(u[-length(u)], 0, 1, log=TRUE)) \\
+\hspace*{0.27 in} rho.prior <- sum(dunif(u, -1, 1, log=TRUE)) \\
 \hspace*{0.27 in} \#\#\# Log-Likelihood \\
 \hspace*{0.27 in} mu <- tcrossprod(Data$X, beta) \\
-\hspace*{0.27 in} LL <- sum(dmvn(W, mu, Sigma, log=TRUE)) \\
+\hspace*{0.27 in} LL <- sum(dmvnpc(W, mu, U, log=TRUE)) \\
 \hspace*{0.27 in} \#\#\# Log-Posterior \\
-\hspace*{0.27 in} LP <- LL + beta.prior + U.prior \\
+\hspace*{0.27 in} LP <- LL + beta.prior + rho.prior \\
 \hspace*{0.27 in} Modelout <- list(LP=LP, Dev=-2*LL, Monitor=LP, \\
-\hspace*{0.62 in} yhat=1*(rmvn(prod(nrow(mu)), mu, Sigma) >= 0), parm=parm) \\
+\hspace*{0.62 in} yhat=1*(rmvnpc(nrow(mu), mu, U) >= 0), parm=parm) \\
 \hspace*{0.27 in} return(Modelout) \\
 \hspace*{0.27 in} \} \\
 }
