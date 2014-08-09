@@ -22,7 +22,9 @@ GIV <- function(Model, Data, n=1000, PGF=FALSE)
                IV <- as.vector(Data$PGF(Data))
                M <- try(Model(IV, Data), silent=TRUE)
                if(!inherits(M, "try-error") & is.finite(M[["LP"]]) &
-                    is.finite(M[["Dev"]]) & 
+                    is.finite(M[["Dev"]]) &
+                    ## unsatisfecible. Why=???
+                    ## identical(as.vector(M[["parm"]]), IV)) {
                     identical(as.vector(M[["parm"]]), as.vector(IV))) {
                     iv <- IV; break}
                }
@@ -36,7 +38,8 @@ GIV <- function(Model, Data, n=1000, PGF=FALSE)
                     IV <- rnorm(LIV, runif(1,-100,100), runif(1,0.1,1000))
                     M <- try(Model(IV, Data), silent=TRUE)
                     if(!inherits(M, "try-error") & is.finite(M[["LP"]]) &
-                         is.finite(M[["Dev"]]) & 
+                         is.finite(M[["Dev"]]) &
+                         ## Ditto
                          identical(as.vector(M[["parm"]]), as.vector(IV))) {
                          iv <- IV; break}
                     }
@@ -51,7 +54,8 @@ GIV <- function(Model, Data, n=1000, PGF=FALSE)
                     IV <- rnorm(LIV, ab.mu, ab.range * Scale)
                     M <- try(Model(IV, Data), silent=TRUE)
                     if(!inherits(M, "try-error") & is.finite(M[["LP"]]) &
-                         is.finite(M[["Dev"]]) & 
+                         is.finite(M[["Dev"]]) &
+                         ## Ditto
                          identical(as.vector(M[["parm"]]), as.vector(IV))) {
                          iv <- IV; break}
                     Scale <- Scale + ab.range / n / 2}
