@@ -969,6 +969,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                file=LogFile, append=TRUE)
           cat("     faster language such as C++ via the Rcpp package.\n",
                file=LogFile, append=TRUE)}
+     rm(acount)
      if(!identical(Model(Mo0[["parm"]], Data)[["LP"]], Mo0[["LP"]])) {
           cat("WARNING: LP differs when initial values are held constant.\n",
                file=LogFile, append=TRUE)
@@ -1374,14 +1375,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           ESS1[j] <- ESS(thinned[,j])
           Rec.Thin[j] <- which(acf.temp[,j] <= 0.1)[1]*Thinning}
      Rec.Thin[which(is.na(Rec.Thin))] <- nrow(acf.temp)
-     ### Assess ESS for all deviance and monitor samples
-     ESS2 <- ESS(Dev)
      ESS3 <- ESS(Mon)
-     ### Assess ESS for stationary samples
-     if(Stat.at < thinned.rows) {
-          ESS4 <- ESS(thinned[Stat.at:thinned.rows,])
-          ESS5 <- ESS(Dev[Stat.at:thinned.rows,])
-          ESS6 <- ESS(Mon[Stat.at:thinned.rows,])}
      ### Posterior Summary Table 1: All Thinned Samples
      cat("Creating Summaries\n", file=LogFile, append=TRUE)
      Num.Mon <- ncol(Mon)
@@ -1391,6 +1385,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      Summ1[,2] <- sqrt(.colVars(thinned))
      Summ1[,3] <- 0
      Summ1[,4] <- ESS1
+     rm(ESS1)
      Summ1[,5] <- apply(thinned, 2, quantile, c(0.025), na.rm=TRUE)
      Summ1[,6] <- apply(thinned, 2, quantile, c(0.500), na.rm=TRUE)
      Summ1[,7] <- apply(thinned, 2, quantile, c(0.975), na.rm=TRUE)
@@ -1405,7 +1400,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      if(inherits(temp, "try-error"))
           temp <- MCSE(as.vector(Dev), method="sample.variance")
      Deviance[3] <- temp
-     Deviance[4] <- ESS2
+     Deviance[4] <- ESS(Dev)
      Deviance[5] <- as.numeric(quantile(Dev, probs=0.025, na.rm=TRUE))
      Deviance[6] <- as.numeric(quantile(Dev, probs=0.500, na.rm=TRUE))
      Deviance[7] <- as.numeric(quantile(Dev, probs=0.975, na.rm=TRUE))
@@ -1427,10 +1422,12 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                na.rm=TRUE))
           Summ1 <- rbind(Summ1, Monitor)
           rownames(Summ1)[nrow(Summ1)] <- Data[["mon.names"]][j]}
+     rm(ESS3)
      ### Posterior Summary Table 2: Stationary Samples
      Summ2 <- matrix(NA, LIV, 7, dimnames=list(Data[["parm.names"]],
           c("Mean","SD","MCSE","ESS","LB","Median","UB")))
      if(Stat.at < thinned.rows) {
+          ESS6 <- ESS(Mon[Stat.at:thinned.rows,])
           thinned2 <- matrix(thinned[Stat.at:thinned.rows,],
                thinned.rows-Stat.at+1, ncol(thinned))
           Dev2 <- matrix(Dev[Stat.at:thinned.rows,],
@@ -1440,7 +1437,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           Summ2[,1] <- colMeans(thinned2)
           Summ2[,2] <- sqrt(.colVars(thinned2))
           Summ2[,3] <- 0
-          Summ2[,4] <- ESS4
+          Summ2[,4] <- ESS(thinned[Stat.at:thinned.rows,])
           Summ2[,5] <- apply(thinned2, 2, quantile, c(0.025), na.rm=TRUE)
           Summ2[,6] <- apply(thinned2, 2, quantile, c(0.500), na.rm=TRUE)
           Summ2[,7] <- apply(thinned2, 2, quantile, c(0.975), na.rm=TRUE)
@@ -1456,7 +1453,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           if(inherits(temp, "try-error"))
                temp <- MCSE(as.vector(Dev2), method="sample.variance")
           Deviance[3] <- temp
-          Deviance[4] <- ESS5
+          Deviance[4] <- ESS(Dev[Stat.at:thinned.rows,])
           Deviance[5] <- as.numeric(quantile(Dev2, probs=0.025,
                na.rm=TRUE))
           Deviance[6] <- as.numeric(quantile(Dev2, probs=0.500,
@@ -1482,6 +1479,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     probs=0.975, na.rm=TRUE))
                Summ2 <- rbind(Summ2, Monitor)
                rownames(Summ2)[nrow(Summ2)] <- Data[["mon.names"]][j]}
+          rm(ESS6)
           }
      ### Column names to samples
      if(identical(ncol(Mon), length(Data[["mon.names"]])))
@@ -4207,7 +4205,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           {
           if(j == 0) {
                ### Base case: Take a single leapfrog step in direction v
-               leap <- leapfrog(theta, r, grad, v*epsilon, Model, Data, Mo0)
+               leap <- leapfrog(theta=theta, r=r, grad=grad,
+                    epsilon=v*epsilon, Model=Model, Data=Data, Mo0=Mo0)
                rprime <- leap$rprime
                thetaprime <- leap$thetaprime
                Mo1 <- leap$Mo1
@@ -4232,8 +4231,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           else {
                # Recursion: Implicitly build the height j-1 left and
                # right subtrees
-               tree <- build.tree(theta, r, grad, logu, v, j-1, epsilon,
-                    joint0)
+               tree <- build.tree(theta=theta, r=r, grad=grad, logu=logu,
+                    v=v, j=j-1, epsilon=epsilon, joint=joint0, Mo0=Mo0)
                thetaminus <- tree$thetaminus
                rminus <- tree$rminus
                gradminus <- tree$gradminus
@@ -4250,8 +4249,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                ### If the first subtree stopping criterion is met, then stop
                if(sprime == 1) {
                     if(v == -1) {
-                         tree <- build.tree(thetaminus, rminus, gradminus,
-                              logu, v, j-1, epsilon, joint0)
+                         tree <- build.tree(theta=thetaminus, r=rminus,
+                              grad=gradminus, logu=logu, v=v, j=j-1,
+                              epsilon=epsilon, joint0=joint0, Mo0=Mo0)
                          thetaminus <- tree$thetaminus
                          rminus <- tree$rminus
                          gradminus <- tree$gradminus
@@ -4264,8 +4264,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          nalphaprime2 <- tree$nalphaprime
                          }
                     else {
-                         tree <- build.tree(thetaplus, rplus, gradplus,
-                              logu, v, j-1, epsilon, joint0)
+                         tree <- build.tree(theta=thetaplus, r=rplus,
+                              grad=gradplus, logu=logu, v=v, j=j-1,
+                              epsilon=epsilon, joint0=joint0, Mo0=Mo0)
                          thetaplus <- tree$thetaplus
                          rplus <- tree$rplus
                          gradplus <- tree$gradplus
@@ -4316,7 +4317,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           epsilon <- 0.001
           r0 <- runif(length(theta0))
           ### Figure out which direction to move epsilon
-          leap <- leapfrog(theta0, r0, grad0, epsilon, Model, Data, Mo0)
+          leap <- leapfrog(theta=theta0, r=r0, grad=grad0,
+               epsilon=epsilon, Model=Model, Data=Data, Mo0=Mo0)
           if(!is.finite(leap$Mo1[["LP"]]))
                stop("LP is not finite in find.reasonable.epsilon().",
                     file=LogFile, append=TRUE)
@@ -4328,7 +4330,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           ### crosses 0.5
           while (acceptprob^a > 2^(-a)) {
                epsilon <- epsilon * 2^a
-               leap <- leapfrog(theta0, r0, grad0, epsilon, Model, Data, Mo0)
+               leap <- leapfrog(theta=theta0, r=r0, grad=grad0,
+                    epsilon=epsilon, Model=Model, Data=Data, Mo0=Mo0)
                if(!is.finite(leap$Mo1[["LP"]]))
                     stop("LP is not finite in find.reasonable.epsilon().",
                          file=LogFile, append=TRUE)
@@ -4344,8 +4347,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      evals <- 0
      grad <- partial(Model, post[1,], Data)
      if(is.null(epsilon))
-          epsilon <- find.reasonable.epsilon(post[1,], grad, Mo0, Model,
-               Data, LogFile)
+          epsilon <- find.reasonable.epsilon(theta0=post[1,], grad0=grad,
+               Mo0=Mo0, Model=Model, Data=Data, LogFile=LogFile)
      DiagCovar[1,] <- epsilon
      ### Dual-Averaging Parameters
      epsilonbar <- 1
@@ -4403,8 +4406,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                v <- 2*(runif(1) < 0.5) - 1
                ### Double the size of the tree.
                if(v == -1) {
-                    tree <- build.tree(thetaminus, rminus, gradminus,
-                         logu, v, j, epsilon, joint)
+                    tree <- build.tree(theta=thetaminus, r=rminus,
+                         grad=gradminus, logu=logu, v=v, j=j,
+                         epsilon=epsilon, joint0=joint, Mo0=Mo0)
                     thetaminus <- tree$thetaminus
                     rminus <- tree$rminus
                     gradminus <- tree$gradminus
@@ -4416,8 +4420,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     alpha <- tree$alphaprime
                     nalpha <- tree$nalphaprime}
                else {
-                    tree <- build.tree(thetaplus, rplus, gradplus, logu,
-                         v, j, epsilon, joint)
+                    tree <- build.tree(theta=thetaplus, r=rplus,
+                         grad=gradplus, logu, v=v, j=j, epsilon=epsilon,
+                         joint0=joint, Mo0=Mo0)
                     thetaplus <- tree$thetaplus
                     rplus <- tree$rplus
                     gradplus <- tree$gradplus

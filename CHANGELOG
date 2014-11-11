@@ -1,3 +1,10 @@
+2014-11-07 Distributions: Fixed bug reported by Francisco Rubio,
+           Francisco.Rubio@warwick.ac.uk, where ppe returned 0 when q=0.
+2014-10-26 LaplacesDemon: Fixed bug reported by Christoph Kurz, 
+           kurz@outlook.com, where NUTS produced an error regarding Mo0.
+2014-08-26 LaplaceApproximation: Fixed bug reported by Aaron Robotham, 
+           aaron.robotham@uwa.edu.au, where a summary said "Mean"
+           rather than "Mode".
 2014-08-09 Examples: Changed the Multivariate Binary Probit example from
            using a Cholesky decomposition to a correlation matrix.
 2014-06-25 GIV: Forced IV to be a vector for identical()

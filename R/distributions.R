@@ -1634,7 +1634,7 @@ ppe <- function(q, mu=0, sigma=1, kappa=2, lower.tail=TRUE, log.p=FALSE)
      p <- pgamma(zz, shape=1/kappa, scale=kappa)
      p <- p / 2
      temp <- which(z < 0); p[temp] <- 0.5 - p[temp]
-     temp <- which(z > 0); p[temp] <- 0.5 + p[temp]
+     temp <- which(z >= 0); p[temp] <- 0.5 + p[temp]
      if(lower.tail == FALSE) p <- 1 - p
      if(log.p == TRUE) p <- log(p)
      return(p)

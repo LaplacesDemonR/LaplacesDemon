@@ -208,7 +208,7 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
           cat("Creating Summary from Posterior Samples\n")
           Summ2 <- matrix(NA, ncol(posterior), 7,
                dimnames=list(Data[["parm.names"]],
-                    c("Mean","SD","MCSE","ESS","LB","Median","UB")))
+                    c("Mode","SD","MCSE","ESS","LB","Median","UB")))
           Summ2[,1] <- colMeans(posterior)
           Summ2[,2] <- sqrt(.colVars(posterior))
           Summ2[,3] <- Summ2[,2] / sqrt(nrow(posterior))
