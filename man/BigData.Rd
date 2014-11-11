@@ -141,7 +141,7 @@ FUN, ...)
   usual, and modify the \code{Model} specification function
   appropriately. For example, change \code{mu <- tcrossprod(X, t(beta))}
   to \code{mu <- tcrossprod(X[], t(beta))}. The \code{ff} package is
-  not included as a dependency in the code{LaplacesDemon} package, so
+  not included as a dependency in the \code{LaplacesDemon} package, so
   it must be installed and activated.
 }
 \value{
