@@ -17,10 +17,13 @@ print.demonoid <- function(x, ...)
      if(is.matrix(x$Covar)) {
           print(diag(x$Covar))
           }
-     else if(is.vector(x$Covar)) {
+     else if(!is.list(x$Covar) & is.vector(x$Covar)) {
           print(x$Covar)
           }
-     else for (i in 1:length(x$Covar)) {print(diag(x$Covar[[i]]))}
+     else for (i in 1:length(x$Covar)) {
+          cat("Block:", i, "\n")
+          print(diag(x$Covar[[i]]))
+          cat("\n")}
      cat("\nCovariance (Diagonal) History: (NOT SHOWN HERE)\n")
      cat("Deviance Information Criterion (DIC):\n")
      DIC <- matrix(c(round(x$DIC1[1],3), round(x$DIC1[2],3),

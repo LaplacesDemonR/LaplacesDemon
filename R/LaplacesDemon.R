@@ -575,13 +575,13 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           else if(Algorithm == "RAM") {
                Algorithm <- "Robust Adaptive Metropolis"
                if(missing(Specs) | is.null(Specs))
-                    Specs=list(alpha.star=0.234, Dist="N", gamma=0.66,
-                         Periodicity=1)
+                    Specs=list(alpha.star=0.234, B=NULL, Dist="N",
+                         gamma=0.66, n=0)
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
                if(!identical(names(Specs),
-                    c("alpha.star","Dist","gamma")))
+                    c("alpha.star","B","Dist","gamma","n")))
                     stop("The Specs argument is incorrect.", file=LogFile,
                          append=TRUE)
                Specs[["alpha.star"]] <- Specs[["alpha.star"]][1]
@@ -590,6 +590,11 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     cat("\nalpha.star not in (0,1). Changed to 0.234.\n",
                          file=LogFile, append=TRUE)
                     Specs[["alpha.star"]] <- 0.234}
+               if(!is.null(Specs[["B"]])) {
+                    if(is.null(Covar)) {
+                         Covar <- list(NULL)
+                         for (b in 1:length(Specs[["B"]])) {
+                              Covar[[b]] <- diag(length(Specs[["B"]][[b]]))}}}
                if(Specs[["Dist"]] != "t" & Specs[["Dist"]] != "N") {
                     cat("\nDist was not t or N, and changed to N.\n",
                          file=LogFile, append=TRUE)
@@ -599,6 +604,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     cat("\ngamma not in (0.5,1]. Changed to 0.66.\n",
                          file=LogFile, append=TRUE)
                     Specs[["gamma"]] <- 0.66}
+               Specs[["n"]] <- abs(Specs[["n"]][1])
                }
           else if(Algorithm == "RDMH") {
                Algorithm <- "Random Dive Metropolis-Hastings"
@@ -2243,7 +2249,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     prop[Block[[b]]] <- rnorm(length(Block[[b]]),
                          Mo0[["parm"]][Block[[b]]], tuning)
                     if(b == 1 & iter %% Status == 0) 
-                         cat(",   Proposal: Non-Adaptive Component,   LP:",
+                         cat(",   Proposal: Blockwise,   LP:",
                               round(Mo0[["LP"]],1), "\n", sep="",
                               file=LogFile, append=TRUE)}
                else {
@@ -2251,7 +2257,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          as.vector(rbind(rnorm(length(Block[[b]]))) %*%
                               prop.R[[b]])
                     if(b == 1 & iter %% Status == 0) 
-                         cat(",   Proposal: Adaptive Component,   LP:",
+                         cat(",   Proposal: Blockwise,   LP:",
                               round(Mo0[["LP"]],1), "\n", sep="",
                               file=LogFile, append=TRUE)}
                ### Log-Posterior of the proposed state
@@ -2849,7 +2855,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                ### Print Status
                if(iter %% Status == 0)
                     cat("Iteration: ", iter,
-                         ",   Proposal: Multivariate,   LP:",
+                         ",   Proposal: Blockwise,   LP:",
                          round(Mo0[["LP"]],1), "\n", sep="",
                          file=LogFile, append=TRUE)
                ### Save Thinned Samples
@@ -3229,7 +3235,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     prop <- Mo0[["parm"]]
                     prop[Block[[b]]] <- prop[Block[[b]]] + runif(1) * d
                     if({b == 1} & {iter %% Status == 0}) 
-                         cat(",   Proposal: Multivariate,   LP:",
+                         cat(",   Proposal: Blockwise,   LP:",
                               round(Mo0[["LP"]],1), "\n", sep="",
                               file=LogFile, append=TRUE)
                     ### Log-Posterior of the proposed state
@@ -3342,7 +3348,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     prop[Block[[b]]] <- prop[Block[[b]]] +
                          runif(1,0,tau[b]) * d
                     if({b == 1} & {iter %% Status == 0}) 
-                         cat(",   Proposal: Multivariate,   LP:",
+                         cat(",   Proposal: Blockwise,   LP:",
                               round(Mo0[["LP"]],1), "\n", sep="",
                               file=LogFile, append=TRUE)
                     ### Log-Posterior of the proposed state
@@ -4622,71 +4628,149 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      LogFile)
      {
      alpha.star <- Specs[["alpha.star"]]
+     Block <- Specs[["B"]]
      Dist <- Specs[["Dist"]]
      gamma <- Specs[["gamma"]]
-     if(!is.symmetric.matrix(VarCov)) {
-          cat("\nAsymmetric Covar, correcting now...\n", file=LogFile,
-               append=TRUE)
-          VarCov <- as.symmetric.matrix(VarCov)}
-     if(!is.positive.definite(VarCov)) {
-          cat("\nNon-Positive-Definite Covar, correcting now...\n",
-               file=LogFile, append=TRUE)
-          VarCov <- as.positive.definite(VarCov)}
-     Iden.Mat <- diag(LIV)
-     S.z <- try(t(chol(VarCov)), silent=TRUE)
-     if(!inherits(S.z, "try-error")) S <- S.z
-     else S <- Iden.Mat
-     DiagCovar <- matrix(diag(VarCov), floor(Iterations/Thinning),
-          LIV, byrow=TRUE)
-     for (iter in 1:Iterations) {
-          ### Print Status
-          if(iter %% Status == 0)
-               cat("Iteration: ", iter,
-                    ",   Proposal: Multivariate,   LP:",
-                    round(Mo0[["LP"]],1), "\n", sep="",
+     n <- Specs[["n"]]
+     B <- length(Block)
+     if(B == 0) {
+          if(!is.symmetric.matrix(VarCov)) {
+               cat("\nAsymmetric Covar, correcting now...\n", file=LogFile,
+                    append=TRUE)
+               VarCov <- as.symmetric.matrix(VarCov)}
+          if(!is.positive.definite(VarCov)) {
+               cat("\nNon-Positive-Definite Covar, correcting now...\n",
                     file=LogFile, append=TRUE)
-          ### Save Thinned Samples
-          if(iter %% Thinning == 0) {
-               t.iter <- floor(iter / Thinning) + 1
-               thinned[t.iter,] <- Mo0[["parm"]]
-               Dev[t.iter] <- Mo0[["Dev"]]
-               Mon[t.iter,] <- Mo0[["Monitor"]]}
-          ### Propose New Parameter Values
-          if(Dist == "t") U <- rt(LIV, df=5)
-          else U <- rnorm(LIV)
-          prop <- Mo0[["parm"]] + rbind(U) %*% S
-          ### Log-Posterior
-          Mo1 <- try(Model(prop, Data), silent=TRUE)
-          if(inherits(Mo1, "try-error")) Mo1 <- Mo0
-          else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
-               Mo1[["Monitor"]]))))
-               Mo1 <- Mo0
-          ### Accept/Reject
-          log.u <- log(runif(1))
-          log.alpha <- Mo1[["LP"]] - Mo0[["LP"]]
-          if(!is.finite(log.alpha)) log.alpha <- 0
-          if(log.u < log.alpha) {
-               Mo0 <- Mo1
-               Acceptance <- Acceptance + 1
+               VarCov <- as.positive.definite(VarCov)}
+          Iden.Mat <- diag(LIV)
+          S.z <- try(t(chol(VarCov)), silent=TRUE)
+          if(!inherits(S.z, "try-error")) S <- S.z
+          else S <- Iden.Mat
+          DiagCovar <- matrix(diag(VarCov), floor(Iterations/Thinning),
+               LIV, byrow=TRUE)
+          for (iter in 1:Iterations) {
+               ### Print Status
+               if(iter %% Status == 0)
+                    cat("Iteration: ", iter,
+                         ",   Proposal: Multivariate,   LP:",
+                         round(Mo0[["LP"]],1), "\n", sep="",
+                         file=LogFile, append=TRUE)
+               ### Save Thinned Samples
                if(iter %% Thinning == 0) {
-                    thinned[t.iter,] <- Mo1[["parm"]]
-                    Dev[t.iter] <- Mo1[["Dev"]]
-                    Mon[t.iter,] <- Mo1[["Monitor"]]}}
-          ### Adaptation
-          eta <- min(1, LIV*iter^(-gamma))
-          VarCov.test <- S %*% {Iden.Mat +
-               eta*(min(1, exp(log.alpha)) - alpha.star) *
-               U %*% t(U) / sum(U*U)} %*% t(S)
-          if(missing(VarCov.test) || !all(is.finite(VarCov.test)) ||
-               !is.matrix(VarCov.test)) {VarCov.test <- VarCov}
-          if(!is.symmetric.matrix(VarCov.test))
-               VarCov.test <- as.symmetric.matrix(VarCov.test)
-          if(is.positive.definite(VarCov.test)) {
-               S.z <- try(t(chol(VarCov)), silent=TRUE)
-               if(!inherits(S.z, "try-error")) {
-                    VarCov <- VarCov.test
-                    S <- S.z}}
-          DiagCovar[floor(iter / Thinning),] <- diag(VarCov)
+                    t.iter <- floor(iter / Thinning) + 1
+                    thinned[t.iter,] <- Mo0[["parm"]]
+                    Dev[t.iter] <- Mo0[["Dev"]]
+                    Mon[t.iter,] <- Mo0[["Monitor"]]}
+               ### Propose New Parameter Values
+               if(Dist == "t") U <- rt(LIV, df=5)
+               else U <- rnorm(LIV)
+               prop <- Mo0[["parm"]] + rbind(U) %*% S
+               ### Log-Posterior
+               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               if(inherits(Mo1, "try-error")) Mo1 <- Mo0
+               else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
+                    Mo1[["Monitor"]]))))
+                    Mo1 <- Mo0
+               ### Accept/Reject
+               log.u <- log(runif(1))
+               log.alpha <- Mo1[["LP"]] - Mo0[["LP"]]
+               if(!is.finite(log.alpha)) log.alpha <- 0
+               if(log.u < log.alpha) {
+                    Mo0 <- Mo1
+                    Acceptance <- Acceptance + 1
+                    if(iter %% Thinning == 0) {
+                         thinned[t.iter,] <- Mo1[["parm"]]
+                         Dev[t.iter] <- Mo1[["Dev"]]
+                         Mon[t.iter,] <- Mo1[["Monitor"]]}}
+               ### Adaptation
+               eta <- min(1, LIV*{n + iter}^(-gamma))
+               VarCov.test <- S %*% {Iden.Mat +
+                    eta*(min(1, exp(log.alpha)) - alpha.star) *
+                    U %*% t(U) / sum(U*U)} %*% t(S)
+               if(missing(VarCov.test) || !all(is.finite(VarCov.test)) ||
+                    !is.matrix(VarCov.test)) {VarCov.test <- VarCov}
+               if(!is.symmetric.matrix(VarCov.test))
+                    VarCov.test <- as.symmetric.matrix(VarCov.test)
+               if(is.positive.definite(VarCov.test)) {
+                    S.z <- try(t(chol(VarCov)), silent=TRUE)
+                    if(!inherits(S.z, "try-error")) {
+                         VarCov <- VarCov.test
+                         S <- S.z}}
+               DiagCovar[floor(iter / Thinning),] <- diag(VarCov)
+               }
+          }
+     else {
+          Iden.Mat <- S <- S.z <- list()
+          for (b in 1:B) {
+               if(!is.symmetric.matrix(VarCov[[b]])) {
+                    cat("\nAsymmetric Covar block, correcting now...\n",
+                         file=LogFile, append=TRUE)
+                    VarCov[[b]] <- as.symmetric.matrix(VarCov[[b]])}
+               if(!is.positive.definite(VarCov[[b]])) {
+                    cat("\nNon-Positive-Definite Covar block, correcting now...\n",
+                         file=LogFile, append=TRUE)
+                    VarCov[[b]] <- as.positive.definite(VarCov[[b]])}
+               Iden.Mat[[b]] <- diag(length(diag(VarCov[[b]])))
+               S.z[[b]] <- try(t(chol(VarCov[[b]])), silent=TRUE)
+               if(!inherits(S.z[[b]], "try-error")) S[[b]] <- S.z[[b]]
+               else S[[b]] <- Iden.Mat[[b]]
+          }
+          DiagCovar <- matrix(0, floor(Iterations/Thinning), LIV)
+          for (iter in 1:Iterations) {
+               ### Print Status
+               if(iter %% Status == 0)
+                    cat("Iteration: ", iter,
+                         ",   Proposal: Blockwise,   LP:",
+                         round(Mo0[["LP"]],1), "\n", sep="",
+                         file=LogFile, append=TRUE)
+               ### Save Thinned Samples
+               if(iter %% Thinning == 0) {
+                    t.iter <- floor(iter / Thinning) + 1
+                    thinned[t.iter,] <- Mo0[["parm"]]
+                    Dev[t.iter] <- Mo0[["Dev"]]
+                    Mon[t.iter,] <- Mo0[["Monitor"]]}
+               ### Proceed by Block
+               for (b in 1:B) {
+                    ### Propose New Parameter Values
+                    if(Dist == "t") U <- rt(length(Block[[b]]), df=5)
+                    else U <- rnorm(length(Block[[b]]))
+                    prop <- Mo0[["parm"]]
+                    prop[Block[[b]]] <- prop[Block[[b]]] +
+                         rbind(U) %*% S[[b]]
+                    ### Log-Posterior
+                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    if(inherits(Mo1, "try-error")) Mo1 <- Mo0
+                    else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
+                         Mo1[["Monitor"]]))))
+                         Mo1 <- Mo0
+                    ### Accept/Reject
+                    log.u <- log(runif(1))
+                    log.alpha <- Mo1[["LP"]] - Mo0[["LP"]]
+                    if(!is.finite(log.alpha)) log.alpha <- 0
+                    if(log.u < log.alpha) {
+                         Mo0 <- Mo1
+                         Acceptance <- Acceptance + length(Block[[b]]) / LIV
+                         if(iter %% Thinning == 0) {
+                              thinned[t.iter,] <- Mo1[["parm"]]
+                              Dev[t.iter] <- Mo1[["Dev"]]
+                              Mon[t.iter,] <- Mo1[["Monitor"]]}}
+                    ### Adaptation
+                    eta <- min(1, length(Block[[b]])*{n + iter}^(-gamma))
+                    VarCov.test <- S[[b]] %*% {Iden.Mat[[b]] +
+                         eta*(min(1, exp(log.alpha)) - alpha.star) *
+                         U %*% t(U) / sum(U*U)} %*% t(S[[b]])
+                    if(missing(VarCov.test) || !all(is.finite(VarCov.test)) ||
+                         !is.matrix(VarCov.test)) {VarCov.test <- VarCov[[b]]}
+                    if(!is.symmetric.matrix(VarCov.test))
+                         VarCov.test <- as.symmetric.matrix(VarCov.test)
+                    if(is.positive.definite(VarCov.test)) {
+                         S.z[[b]] <- try(t(chol(VarCov[[b]])), silent=TRUE)
+                         if(!inherits(S.z[[b]], "try-error")) {
+                              VarCov[[b]] <- VarCov.test
+                              S[[b]] <- S.z[[b]]}}
+                    DiagCovar[floor(iter / Thinning),Block[[b]]] <- diag(VarCov[[b]])
+                    }
+               }
           }
      ### Output
      out <- list(Acceptance=Acceptance,
@@ -5057,7 +5141,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          rbind(rnorm(length(Block[[b]]))) %*%
                          chol(VarCov[[b]])
                     if({b == 1} & {iter %% Status == 0})
-                         cat(",   Proposal: Multivariate,   LP:",
+                         cat(",   Proposal: Blockwise,   LP:",
                               round(Mo0[["LP"]],1), "\n", sep="",
                               file=LogFile, append=TRUE)
                     ### Log-Posterior of the proposed state
@@ -5957,7 +6041,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                ### Print Status
                if(iter %% Status == 0)
                     cat("Iteration: ", iter,
-                         ",   Proposal: Multivariate,   LP:",
+                         ",   Proposal: Blockwise,   LP:",
                          round(Mo0[["LP"]],1), "\n", sep="",
                          file=LogFile, append=TRUE)
                ### Proceed by Block

@@ -410,8 +410,9 @@ Consort <- function(object=NULL)
                     "Thinning=", Rec.Thinning, ",\n", sep="")
                cat("     Algorithm=\"AMM\", ",
                     "Specs=list(Adaptive=", Rec.Adaptive,
-                    ", B=", block, ", n=", n, ", Periodicity=",
-                    Rec.Periodicity, ", w=", w, "))\n\n", sep="")
+                    ", B=", block, ", n=", n, ",\n", sep="")
+               cat("     Periodicity=", Rec.Periodicity, ", w=", w,
+                    "))\n\n", sep="")
                }
           else if({(Alg == "AM") & !Dim.Adapt & Fast & Ready} |
              {(Alg == "AM") & !Dim.Adapt & Fast & !Ready} |
@@ -742,12 +743,19 @@ Consort <- function(object=NULL)
                al <- 0.234
                if(!is.null(object$Specs[["alpha.star"]]))
                     al <- object$Specs[["alpha.star"]]
+               block <- "NULL"
+               if(!is.null(object$Specs[["B"]]) &
+                    !identical(object$Specs[["B"]],list()))
+                    block <- paste(oname, "$Specs$B", sep="")
                Dist <- "N"
                if(!is.null(object$Specs[["Dist"]]))
                     Dist <- object$Specs[["Dist"]]
                gamma <- 0.66
                if(!is.null(object$Specs[["gamma"]]))
                     gamma <- object$Specs[["gamma"]]
+               n <- object$Iterations
+               if(!is.null(object$Specs[["n"]]))
+                    n <- object$Specs[["n"]] + object$Iterations
                if(Rec.Status > Rec.Iterations) Rec.Status <- Rec.Iterations
                cat(oname, " <- LaplacesDemon(Model, Data=", dname,
                     ", Initial.Values,\n", sep="")
@@ -755,9 +763,9 @@ Consort <- function(object=NULL)
                     Rec.Iterations, ", Status=", Rec.Status, ", ",
                     "Thinning=", Rec.Thinning, ",\n", sep="")
                cat("     Algorithm=\"RAM\", ",
-                    "Specs=list(alpha.star=", al,
-                    ", Dist=\"", Dist,
-                    "\", gamma=", gamma, "))\n\n", sep="")
+                    "Specs=list(alpha.star=", al, ", B=", block,
+                    ", Dist=\"", Dist, "\",\n", sep="")
+               cat("     gamma=", gamma, ", n=", n, "))\n\n", sep="")
                }
           else if(Alg == "RDMH") {
                ### RDMH

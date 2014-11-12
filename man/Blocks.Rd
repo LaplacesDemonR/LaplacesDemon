@@ -66,8 +66,8 @@ Blocks(Initial.Values, N, PostCor=NULL)
   of accuracy, generalization, and speed. Blockwise sampling is offered
   in the following algorithms: Adaptive-Mixture Metropolis (AMM),
   Elliptical Slice Sampling (ESS), Hit-And-Run Metropolis (HARM),
-  Random-Walk Metropolis (RWM), and the Univariate Eigenvector Slice
-  Sampler (UESS).
+  Random-Walk Metropolis (RWM), Robust Adaptive Metropolis (RAM), and
+  the Univariate Eigenvector Slice Sampler (UESS).
 
   Large-dimensional models often require blockwise sampling. For
   example, with thousands of parameters, a componentwise algorithm

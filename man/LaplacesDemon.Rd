@@ -322,7 +322,7 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     big data in SGLD.
     \item \code{Nr} is the number of rows of big data in SGLD.
     \item \code{n} is the number of previous iterations in ADMG, AMM,
-    OHSS, and UESS.
+    OHSS, RAM, and UESS.
     \item \code{n1} affects the size of the subset of each set of points
     to adjust, and is used in twalk. It relates to the number of
     parameters, and \code{n1=4} is recommended. If adjusted, it is
@@ -922,7 +922,8 @@ print(Fit)
 ######################  Robust Adaptive Metropolis  #######################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
-#     Algorithm="RAM", Specs=list(alpha.star=0.234, Dist="N", gamma=0.66))
+#     Algorithm="RAM", Specs=list(alpha.star=0.234, B=NULL, Dist="N",
+#     gamma=0.66, n=0))
 
 ###################  Random Dive Metropolis-Hastings  ####################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,

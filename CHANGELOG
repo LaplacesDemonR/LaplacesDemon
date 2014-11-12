@@ -1,4 +1,5 @@
-2014-11-07 Distributions: Fixed bug reported by Francisco Rubio,
+2014-11-11 LaplacesDemon: Added specifications B and n to RAM
+2014-11-11 Distributions: Fixed bug reported by Francisco Rubio,
            Francisco.Rubio@warwick.ac.uk, where ppe returned 0 when q=0.
 2014-10-26 LaplacesDemon: Fixed bug reported by Christoph Kurz, 
            kurz@outlook.com, where NUTS produced an error regarding Mo0.
