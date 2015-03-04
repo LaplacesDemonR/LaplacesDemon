@@ -334,8 +334,7 @@ LaplaceApproximation(Model, parm, Data, Interval=1.0E-6,
   Hessian matrix can be computationally expensive. As programmed here,
   when the Hessian is problematic, it tries to use only the derivatives,
   and when that fails, a jitter is applied. Newton-Raphson should not
-  be the first choice of the user, and Levenberg-Marquardt should always
-  be preferred.
+  be the first choice of the user, and BFGS should always be preferred.
 
   When \code{Method="PSO"}, the Standard Particle Swarm Optimization
   2007 algorithm is used. A swarm of particles is moved according
@@ -590,11 +589,17 @@ y <- log(demonsnacks$Calories)
 X <- cbind(1, as.matrix(log(demonsnacks[,10]+1)))
 J <- ncol(X)
 for (j in 2:J) X[,j] <- CenterScale(X[,j])
+
+#########################  Data List Preparation  #########################
 mon.names <- "mu[1]"
 parm.names <- as.parm.names(list(beta=rep(0,J), sigma=0))
 pos.beta <- grep("beta", parm.names)
 pos.sigma <- grep("sigma", parm.names)
-PGF <- function(Data) return(c(rnormv(Data$J,0,10), rhalfcauchy(1,5)))
+PGF <- function(Data) {
+     beta <- rnorm(Data$J)
+     sigma <- runif(1)
+     return(c(beta, sigma))
+     }
 MyData <- list(J=J, PGF=PGF, X=X, mon.names=mon.names,
      parm.names=parm.names, pos.beta=pos.beta, pos.sigma=pos.sigma, y=y)
 

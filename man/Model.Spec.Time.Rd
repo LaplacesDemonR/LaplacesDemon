@@ -178,6 +178,8 @@ y <- log(demonsnacks$Calories)
 X <- cbind(1, as.matrix(log(demonsnacks[,c(1,4,10)]+1)))
 J <- ncol(X)
 for (j in 2:J) {X[,j] <- CenterScale(X[,j])}
+
+#########################  Data List Preparation  #########################
 mon.names <- "LP"
 parm.names <- as.parm.names(list(beta=rep(0,J), sigma=0))
 pos.beta <- grep("beta", parm.names)

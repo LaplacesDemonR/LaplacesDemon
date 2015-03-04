@@ -31,7 +31,7 @@
 
 \Address{
  Statisticat, LLC\\
- Farmington, CT\\
+ Hot Springs, SD\\
  E-mail: \email{software@bayesian-inference.com}\\
  URL: \url{http://www.bayesian-inference.com/software}
 }
@@ -88,7 +88,11 @@ mon.names <- "LP"
 parm.names <- as.parm.names(list(beta=rep(0,J), sigma=0))
 pos.beta <- grep("beta", parm.names)
 pos.sigma <- grep("sigma", parm.names)
-PGF <- function(Data) return(c(rnormv(Data$J,0,10), rhalfcauchy(1,5)))
+PGF <- function(Data) {
+     beta <- rnorm(Data$J)
+     sigma <- runif(1)
+     return(c(beta, sigma))
+     }
 MyData <- list(J=J, PGF=PGF, X=X, mon.names=mon.names, 
      parm.names=parm.names, pos.beta=pos.beta, pos.sigma=pos.sigma, y=y)
 \end{Scode}
@@ -220,29 +224,29 @@ Here is one of many possible ways to begin:
 
 \begin{Scode}{eval=false}
 Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
-     Covar=NULL, Iterations=150000, Status=50000, Thinning=150,
-     Algorithm="HARM", Specs=NULL)
+     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
+     Algorithm="AFSS", Specs=list(A=500, B=NULL, m=100, n=0, w=1))
 \end{Scode}
 
-In this example, an output object called \code{Fit} will be created as a result of using the \pkg{LaplacesDemon} function. \code{Fit} is an object of class \code{demonoid}, which means that since it has been assigned a customized class, other functions have been custom-designed to work with it. The above example specifies the HARM algorithm for updating.
+In this example, an output object called \code{Fit} will be created as a result of using the \pkg{LaplacesDemon} function. \code{Fit} is an object of class \code{demonoid}, which means that since it has been assigned a customized class, other functions have been custom-designed to work with it. The above example specifies the AFSS algorithm for updating.
 
 This example tells the \pkg{LaplacesDemon} function to maximize the first component in the list output from the user-specified \code{Model} function, given a data set called \code{Data}, and according to several settings.
 \begin{itemize}
 \item The \code{Initial.Values} argument requires a vector of initial values for the parameters.
-\item The \code{Covar=NULL} argument indicates that a user-specified variance vector or covariance matrix has not been supplied. HARM does not use proposal variance or covariance.
-\item The \code{Iterations=150000} argument indicates that the \code{LaplacesDemon} function will update 150,000 times before completion.
-\item The \code{Status=50000} argument indicates that a status message will be printed to the \proglang{R} console every 50,000 iterations.
-\item The \code{Thinning=150} argument indicates that only ever $K$th iteration will be retained in the output, and in this case, every 150th iteration will be retained. See the \code{Thin} function for more information on thinning.
+\item The \code{Covar=NULL} argument indicates that a user-specified variance vector or covariance matrix has not been supplied. AFSS requires proposal covariance, and when not specified, will begin with a scaled identity matrix.
+\item The \code{Iterations=1000} argument indicates that the \code{LaplacesDemon} function will update 1,000 times before completion.
+\item The \code{Status=100} argument indicates that a status message will be printed to the \proglang{R} console every 100 iterations.
+\item The \code{Thinning=1} argument indicates that only ever $K$th iteration will be retained in the output, and in this case, every iteration will be retained. See the \code{Thin} function for more information on thinning.
 \item The \code{Algorithm} argument requires the abbreviated name of the MCMC algorithm in quotes.
-\item Finally, the \code{Specs} argument contains specifications for each algorithm named in the \code{Algorithm} argument. The \code{HARM} algorithm does not require specifications. Details on algorithms and specifications are given later.
+\item Finally, the \code{Specs} argument contains specifications for each algorithm named in the \code{Algorithm} argument. The \code{AFSS} algorithm has several specifications. The \code{A} specification indicates at which iteration adaptation will stop, and it is arbitrarily set here so that it adapts for the first half, and is non-adaptive in the second half. The \code{B} specification is for blockwise sampling, which is not performed here. The \code{m} specification indicates the maximum number of steps when searching for the slice interval. The \code{n} specification is set to zero and indicates the number of previous adaptive iterations. The \code{w} specification is the step-size, which is adapted in this algorithm.
 \end{itemize}
 
 By running\footnote{This is ``turning the Bayesian crank'', as Dennis Lindley used to say.} the \code{LaplacesDemon} function, the following output was obtained:
 
 \begin{Scode}
 Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
-     Covar=NULL, Iterations=150000, Status=50000, Thinning=150,
-     Algorithm="HARM", Specs=NULL)
+     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
+     Algorithm="AFSS", Specs=list(A=500, B=NULL, m=100, n=0, w=1))
 \end{Scode}
 
 \code{LaplacesDemon} finished quickly, though it had a small data set (N=\Sexpr{NROW(X)}), few parameters (K=\Sexpr{J+1}), and the model was very simple. The output object, \code{Fit}, was created as a list. As with any \proglang{R} object, use \code{str()} to examine its structure:
@@ -292,20 +296,20 @@ The additional feature is a second section called \code{Demonic Suggestion}. The
 
 Before making its \code{Demonic Suggestion}, Laplace's Demon considers and presents five conditions: the algorithm, acceptance rate, Monte Carlo standard error (MCSE), effective sample size (ESS), and stationarity. In addition to these conditions, there are other suggested values, such as a recommended number of iterations or values for the \code{Periodicity} and \code{Status} arguments. The suggested value for \code{Status} is seeking to print a status message every minute when the expected time is longer than a minute, and is based on the time in minutes it took, the number of iterations, and the recommended number of iterations.
 
-In the above output, Laplace's Demon is appeased. However, if any of these five conditions is unsatisfactory, then Laplace's Demon is not appeased, and suggests it should continue updating, and that the user should copy, paste, and execute its suggested \proglang{R} code. Here are the criteria it measures against. The final algorithm must be non-adaptive, so that the Markov property holds (this is covered in section \ref{markovchainproperties}). The acceptance rate of most algorithms is considered satisfactory if it is within the interval [15\%, 50\%]\footnote{While \citet{spiegelhalter03} recommend updating until the acceptance rate is within the interval [20\%, 40\%], and \citet{roberts01} suggest [10\%, 40\%], the interval recommended here is [15\%,50\%]. HMC and Refractive must be in the interval [60\%, 70\%].}. LMC or MALA must be in the interval [40\%, 80\%], and others (AGG, ESS, GG, OHSS, SGLD, Slice, and UESS) have an acceptance rate of 100\%. For more information on acceptance rates, see the \code{AcceptanceRate} function. MCSE is considered satisfactory for each target distribution if it is less than 6.27\% of the standard deviation of the target distribution. This allows the true mean to be within 5\% of the area under a Gaussian distribution around the estimated mean. ESS is considered satisfactory for each target distribution if it is at least 100, which is usually enough to describe 95\% probability intervals. And finally, each variable must be estimated as stationary.
+In the above output, Laplace's Demon is appeased. However, if any of these five conditions is unsatisfactory, then Laplace's Demon is not appeased, and suggests it should continue updating, and that the user should copy, paste, and execute its suggested \proglang{R} code. Here are the criteria it measures against. The final algorithm must be non-adaptive, so that the Markov property holds (this is covered in section \ref{markovchainproperties}). The acceptance rate of most algorithms is considered satisfactory if it is within the interval [15\%, 50\%]\footnote{While \citet{spiegelhalter03} recommend updating until the acceptance rate is within the interval [20\%, 40\%], and \citet{roberts01} suggest [10\%, 40\%], the interval recommended here is [15\%,50\%]. HMC and Refractive must be in the interval [60\%, 70\%].}. LMC or MALA must be in the interval [40\%, 80\%], and others (AFSS, AGG, ESS, GG, OHSS, SGLD, Slice, and UESS) have an acceptance rate of 100\%. For more information on acceptance rates, see the \code{AcceptanceRate} function. MCSE is considered satisfactory for each target distribution if it is less than 6.27\% of the standard deviation of the target distribution. This allows the true mean to be within 5\% of the area under a Gaussian distribution around the estimated mean. ESS is considered satisfactory for each target distribution if it is at least 100, which is usually enough to describe 95\% probability intervals. And finally, each variable must be estimated as stationary.
 
-In this example, notice that all criteria have been met: MCSEs are sufficiently small, ESSs are sufficiently large, and all parameters were estimated to be stationary. Since the algorithm was the non-adaptive HARM, the Markov property holds, so let's look at some plots.
+In this example, notice that all criteria have been met: MCSEs are sufficiently small, ESSs are sufficiently large, and all parameters were estimated to be stationary. Although the algorithm adapted in the first half, it was non-adaptive in the second half of the run, the Markov property holds, so let's look at some plots.
 
 \section{Plotting Output} \label{plottingoutput}
 
-The \pkg{LaplacesDemon} package has a \code{plot.demonoid} function to enable its own customized plots with \code{demonoid} objects. The variable \code{BurnIn} (below) may be left as it is so it will show only the stationary samples (samples that are no longer trending), or set equal to one so that all samples can be plotted. In this case, all thinned samples are plotted: \code{BurnIn=0}.
+The \pkg{LaplacesDemon} package has a \code{plot.demonoid} function to enable its own customized plots with \code{demonoid} objects. The variable \code{BurnIn} (below) may be left as it is so it will show only the stationary samples (samples that are no longer trending), or set equal to zero so that all samples can be plotted. In this case, only samples are considered that were generated while the algorithm was non-adaptive, so \code{BurnIn=500}.
 
 The \code{plot} function also enables the user to specify whether or not the plots should be saved as a .pdf file, and allows the user to select the parameters to be plotted. For example, \code{Parms=c("beta[1]","beta[2]")} would plot only the first two regression effects, and \code{Parms=NULL} will plot everything.
 
 \begin{Scode}
 \end{Scode}
 \begin{Scode}{eval=false}
-plot(Fit, BurnIn=0, MyData, PDF=FALSE, Parms=NULL)
+plot(Fit, BurnIn=500, MyData, PDF=FALSE, Parms=NULL)
 \end{Scode}
 
 %% Control graphic size, default width=0.8
@@ -315,21 +319,21 @@ plot(Fit, BurnIn=0, MyData, PDF=FALSE, Parms=NULL)
 \begin{center}
 \begin{Scode}{label=fig1,fig=TRUE,echo=FALSE,width=6,height=6}
 par(mfrow=c(3,3))
-BurnIn <- 1
+BurnIn <- 500
 for (j in 1:3){
-     plot(BurnIn:Fit$Thinned.Samples,
-          Fit$Posterior1[BurnIn:Fit$Thinned.Samples,j],
+     plot((BurnIn+1):Fit$Thinned.Samples,
+          Fit$Posterior1[(BurnIn+1):Fit$Thinned.Samples,j],
           type="l", xlab="Iterations", ylab="Value",
           main=MyData$parm.names[j])
-     panel.smooth(BurnIn:Fit$Thinned.Samples, 
-          Fit$Posterior1[BurnIn:Fit$Thinned.Samples,j], pch="")
-     plot(density(Fit$Posterior1[BurnIn:Fit$Thinned.Samples,j]),
+     panel.smooth((BurnIn+1):Fit$Thinned.Samples, 
+          Fit$Posterior1[(BurnIn+1):Fit$Thinned.Samples,j], pch="")
+     plot(density(Fit$Posterior1[(BurnIn+1):Fit$Thinned.Samples,j]),
           xlab="Value", main=MyData$parm.names[j])
-     polygon(density(Fit$Posterior1[BurnIn:Fit$Thinned.Samples,j]),
+     polygon(density(Fit$Posterior1[(BurnIn+1):Fit$Thinned.Samples,j]),
           col="black", border="black")
      abline(v=0, col="red", lty=2)
-     z <- acf(Fit$Posterior1[BurnIn:Fit$Thinned.Samples,j], plot=FALSE)
-     se <- 1/sqrt(length(Fit$Posterior1[BurnIn:Fit$Thinned.Samples,j]))
+     z <- acf(Fit$Posterior1[(BurnIn+1):Fit$Thinned.Samples,j], plot=FALSE)
+     se <- 1/sqrt(length(Fit$Posterior1[(BurnIn+1):Fit$Thinned.Samples,j]))
      plot(z$lag, z$acf, ylim=c(min(z$acf,-2*se),1), type="h",
           main=MyData$parm.names[j], xlab="Lag", ylab="Correlation")
      abline(h=(2*se), col="red", lty=2)
@@ -345,36 +349,36 @@ for (j in 1:3){
 \begin{Scode}{label=fig2,fig=TRUE,echo=FALSE,width=6,height=6}
 par(mfrow=c(3,3))
 for (j in 4:5){
-     plot(BurnIn:Fit$Thinned.Samples,
-          Fit$Posterior1[BurnIn:Fit$Thinned.Samples,j],
+     plot((BurnIn+1):Fit$Thinned.Samples,
+          Fit$Posterior1[(BurnIn+1):Fit$Thinned.Samples,j],
           type="l", xlab="Iterations", ylab="Value",
           main=MyData$parm.names[j])
-     panel.smooth(BurnIn:Fit$Thinned.Samples, 
-          Fit$Posterior1[BurnIn:Fit$Thinned.Samples,j], pch="")
-     plot(density(Fit$Posterior1[BurnIn:Fit$Thinned.Samples,j]),
+     panel.smooth((BurnIn+1):Fit$Thinned.Samples, 
+          Fit$Posterior1[(BurnIn+1):Fit$Thinned.Samples,j], pch="")
+     plot(density(Fit$Posterior1[(BurnIn+1):Fit$Thinned.Samples,j]),
           xlab="Value", main=MyData$parm.names[j])
-     polygon(density(Fit$Posterior1[BurnIn:Fit$Thinned.Samples,j]),
+     polygon(density(Fit$Posterior1[(BurnIn+1):Fit$Thinned.Samples,j]),
           col="black", border="black")
      abline(v=0, col="red", lty=2)
-     z <- acf(Fit$Posterior1[BurnIn:Fit$Thinned.Samples,j], plot=FALSE)
-     se <- 1/sqrt(length(Fit$Posterior1[BurnIn:Fit$Thinned.Samples,j]))
+     z <- acf(Fit$Posterior1[(BurnIn+1):Fit$Thinned.Samples,j], plot=FALSE)
+     se <- 1/sqrt(length(Fit$Posterior1[(BurnIn+1):Fit$Thinned.Samples,j]))
      plot(z$lag, z$acf, ylim=c(min(z$acf,-2*se),1), type="h",
           main=MyData$parm.names[j], xlab="Lag", ylab="Correlation")
      abline(h=(2*se), col="red", lty=2)
      abline(h=(-2*se), col="red", lty=2)
      }
-plot(BurnIn:length(Fit$Deviance),
-     Fit$Deviance[BurnIn:length(Fit$Deviance)],
+plot((BurnIn+1):length(Fit$Deviance),
+     Fit$Deviance[(BurnIn+1):length(Fit$Deviance)],
      type="l", xlab="Iterations", ylab="Value", main="Deviance")
-panel.smooth(BurnIn:length(Fit$Deviance), 
-     Fit$Deviance[BurnIn:length(Fit$Deviance)], pch="")
-plot(density(Fit$Deviance[BurnIn:length(Fit$Deviance)]),
+panel.smooth((BurnIn+1):length(Fit$Deviance), 
+     Fit$Deviance[(BurnIn+1):length(Fit$Deviance)], pch="")
+plot(density(Fit$Deviance[(BurnIn+1):length(Fit$Deviance)]),
      xlab="Value", main="Deviance")
-polygon(density(Fit$Deviance[BurnIn:length(Fit$Deviance)]),
+polygon(density(Fit$Deviance[(BurnIn+1):length(Fit$Deviance)]),
      col="black", border="black")
 abline(v=0, col="red", lty=2)
-z <- acf(Fit$Deviance[BurnIn:length(Fit$Deviance)], plot=FALSE)
-se <- 1/sqrt(length(Fit$Deviance[BurnIn:length(Fit$Deviance)]))
+z <- acf(Fit$Deviance[(BurnIn+1):length(Fit$Deviance)], plot=FALSE)
+se <- 1/sqrt(length(Fit$Deviance[(BurnIn+1):length(Fit$Deviance)]))
 plot(z$lag, z$acf, ylim=c(min(z$acf,-2*se),1), type="h",
      main="Deviance", xlab="Lag", ylab="Correlation")
 abline(h=(2*se), col="red", lty=2)
@@ -390,19 +394,19 @@ abline(h=(-2*se), col="red", lty=2)
 par(mfrow=c(2,3))
 JJ <- NCOL(Fit$Monitor); nn <- NROW(Fit$Monitor)
 for (j in 1:JJ){
-     plot(BurnIn:nn, 
-          Fit$Monitor[BurnIn:nn,j],
+     plot((BurnIn+1):nn, 
+          Fit$Monitor[(BurnIn+1):nn,j],
           type="l", xlab="Iterations", ylab="Value", 
           main=MyData$mon.names[j])
-     panel.smooth(BurnIn:nn, 
-          Fit$Monitor[BurnIn:nn,j], pch="")
-     plot(density(Fit$Monitor[BurnIn:nn,j]), xlab="Value", 
+     panel.smooth((BurnIn+1):nn, 
+          Fit$Monitor[(BurnIn+1):nn,j], pch="")
+     plot(density(Fit$Monitor[(BurnIn+1):nn,j]), xlab="Value", 
           main=MyData$mon.names[j])
-     polygon(density(Fit$Monitor[BurnIn:nn,j]),
+     polygon(density(Fit$Monitor[(BurnIn+1):nn,j]),
           col="black", border="black")
      abline(v=0, col="red", lty=2)
-     z <- acf(Fit$Monitor[BurnIn:nn,j], plot=FALSE)
-     se <- 1/sqrt(length(Fit$Monitor[BurnIn:nn,j]))
+     z <- acf(Fit$Monitor[(BurnIn+1):nn,j], plot=FALSE)
+     se <- 1/sqrt(length(Fit$Monitor[(BurnIn+1):nn,j]))
      plot(z$lag, z$acf, ylim=c(min(z$acf,-2*se),1), type="h",
           main=MyData$mon.names[j], xlab="Lag", ylab="Correlation")
      abline(h=(2*se), col="red", lty=2)
@@ -418,14 +422,14 @@ There are three plots for each parameter, the deviance, and each monitored varia
 The Hellinger distances between batches of chains can be plotted with
 
 \begin{Scode}{eval=false}
-plot(BMK.Diagnostic(Fit))
+plot(BMK.Diagnostic(Fit$Posterior1[501:1000,]))
 \end{Scode}
 
 \begin{figure}
 \begin{center}
 \begin{Scode}{label=fig4,fig=TRUE,echo=FALSE,width=6,height=6}
 par(mfrow=c(1,1))
-plot(BMK.Diagnostic(Fit))
+plot(BMK.Diagnostic(Fit$Posterior1[501:1000,]))
 \end{Scode}
 \end{center}
 \caption{Hellinger Distances}
@@ -540,7 +544,7 @@ Following are general suggestions on how best to use the \pkg{LaplacesDemon} pac
 \item If sufficient sample size is available, begin with a deterministic numerical approximation algorithm such as Laplace Approximation or variational Bayes.
 \item MCMC and PMC are stochastic methods of numerical approximation, and as such, results may differ with each run due to the use of pseudo-random number generation. It is good practice to set a seed so that each update of the model may be reproduced. Here is an example in \proglang{R}: \code{set.seed(666)}.
 \item Rather than specify the final, intended model in the \code{Model} function, start by specifying the simplest possible form. Rather than beginning with actual data, start by simulating data given specified parameters. Update the simple model on simulated data and verify that the algorithm converges to the correct target distributions. One by one, add components to the model specification, simulate more complicated data, update, verify, and progress toward the intended model. If using MCMC during this phase, then use the \code{Juxtapose} function to compare the inefficiency of several MCMC algorithms (via integrated autocorrelation time or \code{IAT}), and use this information to select the least inefficient algorithm for your particular model. When confident the model is specified correctly and with informed algorithmic selection, finally use actual data, but with few iterations, such as \code{Iterations=20}.
-\item After studying MCMC updates with few iterations, the first ``actual'' update should be long enough that proposals are accepted (the acceptance rate is not zero), adaptation begins to occur (if used), and that enough iterations occur after the first adaptation to allow the user to study the adaptation (assuming an adaptive algorithm is used). In the supplied example, the HARM algorithm is non-adaptive, so this is not a consideration.
+\item After studying MCMC updates with few iterations, the first ``actual'' update should be long enough that proposals are accepted (the acceptance rate is not zero), adaptation begins to occur (if used), and that enough iterations occur after the first adaptation to allow the user to study the adaptation (assuming an adaptive algorithm is used).
 \item Depending on the model specification function, data, and intended iterations, it is a good idea to use the \code{LaplacesDemon.RAM} function to estimate the amount of random-access memory (RAM) that \code{LaplacesDemon} will use. If \code{LaplacesDemon} uses more RAM than the computer has available, then the computer will crash. This can be used to estimate the maximum number of iterations or thinned samples for a particular model and data set on a given computer.
 \item Once the final, intended model has begun (finally!), the mixing of the chains should be observed after a larger trial run, say, arbitrarily, for 10,000 iterations. If the chains do not mix as expected, then try a different algorithm, either one suggested by the \code{Consort} function (such as when diminishing adaptation is violated), or use the next least inefficient algorithm as indicated previously in the \code{Juxtapose} function.
 \item When speed is a concern, such as with complex models, there may be things in the \code{Model} function that can be commented out, such as sometimes calculating \code{yhat}. The model can be updated without some features, that can be un-commented and used for posterior predictive checks. By commenting out things that are strictly unnecessary to updating, the model will update more quickly. Other helpful hints for speed are found in the documentation for the \code{Model.Spec.Time} function.
@@ -559,7 +563,7 @@ The \pkg{LaplacesDemon} package was designed with independence and observability
 
 For example, common MCMC diagnostics and probability distributions (such as Dirichlet, multivariate normal, Wishart, and many others, as well as truncated forms of distributions) in Bayesian inference have been included in the \pkg{LaplacesDemon} package so the user does not have to load numerous \proglang{R} packages, except of course for exotic distributions that have not been included.
 
-\pkg{LaplacesDemonCpp} is an optional extension package that uses \proglang{C++}, and is not an independent package in the sense that it imports \pkg{parallel}, but also \pkg{Rcpp} and \pkg{RcppArmadillo}. Once obtained and activated, its use is seamless to a \pkg{LaplacesDemon} user. \pkg{LaplacesDemonCpp} is a stand-alone replacement of \pkg{LaplacesDemon}.
+\pkg{LaplacesDemonCpp} is an optional extension package that uses \proglang{C++}, and is not an independent package in the sense that it imports \pkg{parallel}, but also \pkg{Rcpp} and \pkg{RcppArmadillo}. Once obtained and activated, its use is seamless to a \pkg{LaplacesDemon} user. \pkg{LaplacesDemonCpp} is a stand-alone replacement of \pkg{LaplacesDemon}, and is currently in development.
 
 By observability, it is meant that the base \pkg{LaplacesDemon} package is written entirely in \proglang{R}. Certain functions could be sped up in another language such as \proglang{C++}, but this may prevent some \proglang{R} users from understanding the code. The base \pkg{LaplacesDemon} package is intended to be open and accessible. The optional \pkg{LaplacesDemonCpp} package is available for faster computations via \proglang{C++}. If a user desires speed and is familiar with a faster language, then the user is encouraged to program the model specification function in the faster language. See the documentation for the \code{Model.Spec.Time} function for more information.
 
@@ -579,7 +583,7 @@ High performance computing (HPC) is a broad term that can mean many different th
 
 \subsection{Big Data}
 
-There are several definitions for big data. Here, big data is defined as data that is too big for the computer memory (RAM). The \code{BigData} function enables updating a Bayesian model with big data by reading in and processing smaller batches or chunks of data and performing a user-specified function on the batch before combining and outputing the result, so the entire data set does not consume RAM. \code{BigData} is also parallelized. The \code{read.matrix} function allows sampling from big data. Finally, the Stochastic Gradient Descent (SGD) algorithm (see \ref{sgd}) in \code{LaplaceApproximation} and the Stochastic Gradient Langevin Dynamics (SGLD) algorithm (see \ref{sgld}) in \code{LaplacesDemon} are designed specifically for use with big data.
+There are several definitions for big data. Here, big data is defined as data that is too big for the computer memory (RAM). The \code{BigData} function enables updating a Bayesian model with big data by reading in and processing smaller batches or chunks of data and performing a user-specified function on the batch before combining and outputing the result, so the entire data set does not consume RAM. \code{BigData} is also parallelized. The \code{read.matrix} function allows sampling from big data. Finally, the Stochastic Gradient Descent (SGD) algorithm (see \ref{sgd}) in \code{LaplaceApproximation} and the Stochastic Gradient Langevin Dynamics (SGLD) algorithm in \code{LaplacesDemon} are designed specifically for use with big data.
 
 \subsection{Parallel Processing}
 
@@ -593,7 +597,7 @@ The \code{IterativeQuadrature} function provides several numerical integration a
 
 \subsection{Parallel Approximation within a Chain} \label{parapprox}
 
-The Griddy-Gibbs (GG) sampler of \citet{ritter92}, Adaptive Griddy-Gibbs (AGG), and Multiple-Try Metropolis (MTM) of \citet{liu00} are examples of algorithms in which an approximation is made within a chain, and the approximation may be parallelized. For more information, see \ref{gg} or \ref{mcmcmc}.
+The Griddy-Gibbs (GG) sampler of \citet{ritter92}, Adaptive Griddy-Gibbs (AGG), and Multiple-Try Metropolis (MTM) of \citet{liu00} are examples of algorithms in which an approximation is made within a chain, and the approximation may be parallelized.
 
 \subsection{Parallel Sets of Independent Chains} \label{indchains}
 
@@ -613,7 +617,7 @@ Parallel sets of independent chains should each run as efficiently as a traditio
 
 In contrast, parallel sets of interactive chains are able to learn from each other through interaction. In the \pkg{LaplacesDemon} package, some of these algorithms are called with the \code{LaplacesDemon} function, and some with the \code{LaplacesDemon.hpc} function.
 
-The Interchain Adaptation (INCA) algorithm \citep{craiu09, solonen12} performs Adaptive Metropolis (AM) with parallel chains that share the adaptive component, and this sharing speeds convergence. Whenever the chains are specified to adapt, adaptation is performed by pooling the historical covariance matrix across all parallel chains, and then returns the combined result to all chains. Network communication time slows the adaptation, but once returned to each CPU, chains iterate at their usual speed. This algorithm must be used with the \code{LaplacesDemon.hpc} function, and there is not an un-parallelized form of it. For more information, see \ref{inca}.
+The Interchain Adaptation (INCA) algorithm \citep{craiu09, solonen12} performs Adaptive Metropolis (AM) with parallel chains that share the adaptive component, and this sharing speeds convergence. Whenever the chains are specified to adapt, adaptation is performed by pooling the historical covariance matrix across all parallel chains, and then returns the combined result to all chains. Network communication time slows the adaptation, but once returned to each CPU, chains iterate at their usual speed. This algorithm must be used with the \code{LaplacesDemon.hpc} function, and there is not an un-parallelized form of it.
 
 The Affine-Invariant Ensemble Sampler (AIES) of \citep{goodman10} must be used with the \code{LaplacesDemon} function, and is available in either a parallelized or un-parallelized form. A large, even number of parallel chains (or walkers) are grouped into two batches, and each iteration, each chain moves in relation to a randomly selected chain (walker) in the other batch. Since these interactive chains interact each iteration, computer network communication is frequent, and this communication may be much slower than processing with one CPU. However, in a large-scale computing environment and when a \code{Model} function is not trivial to evaluate, this form of parallelization can result in very early convergence.
 
@@ -672,7 +676,7 @@ Sparse grids were originally developed by Smolyak for multidimensional quadratur
 
 Monte Carlo is a large family of sampling-based algorithms. \citet{ohagan87} asserts that Monte Carlo is frequentist, inefficient, regards irrelevant information, and disregards relevant information. Quadrature, he maintains \citep{ohagan92}, is the most Bayesian approach, and also the most efficient. In high dimensions, he concedes, a popular subset of Monte Carlo algorithms is currently the best for cheap model function evaluations. These algorithms are called Markov chain Monte Carlo (MCMC). High-dimensional models with expensive model evaluation functions, however, are not well-suited to MCMC. A large number of MCMC algorithms is available in the \code{LaplacesDemon} function.
 
-Following are some reasons to consider iterative quadrature rather than MCMC. Once an MCMC sampler finds equilibrium, it must then draw enough samples to represent all targets. Iterative quadrature does not need to continue drawing samples. Multivariate quadrature is consistently reported as more efficient than MCMC when its assumptions hold, though multivariate quadrature is limited to small dimensions. High-dimensional models therefore default to MCMC, between the two. Componentwise quadrature algorithms like CAGH, however, may also be more efficient with cloc-time than MCMC in high dimensions, especially against componentwise MCMC algorithms. Another reason to consider iterative quadrature are that assessing convergence in MCMC is a difficult topic, but not for iterative quadrature. A user of iterative quadrature does not have to contend with effective sample size and autocorrelation, assessing stationarity, acceptance rates, diminishing adaptation, etc. Stochastic sampling in MCMC is less efficient when samples occur in close proximity (such as when highly autocorrelated), whereas in quadrature the nodes are spread out by design.
+Following are some reasons to consider iterative quadrature rather than MCMC. Once an MCMC sampler finds equilibrium, it must then draw enough samples to represent all targets. Iterative quadrature does not need to continue drawing samples. Multivariate quadrature is consistently reported as more efficient than MCMC when its assumptions hold, though multivariate quadrature is limited to small dimensions. High-dimensional models therefore default to MCMC, between the two. Componentwise quadrature algorithms like CAGH, however, may also be more efficient with clock-time than MCMC in high dimensions, especially against componentwise MCMC algorithms. Another reason to consider iterative quadrature are that assessing convergence in MCMC is a difficult topic, but not for iterative quadrature. A user of iterative quadrature does not have to contend with effective sample size and autocorrelation, assessing stationarity, acceptance rates, diminishing adaptation, etc. Stochastic sampling in MCMC is less efficient when samples occur in close proximity (such as when highly autocorrelated), whereas in quadrature the nodes are spread out by design.
 
 In general, the conditional means and conditional variances progress smoothly to the target in multidimensional quadrature. For componentwise quadrature, movement to the target is not smooth, and often resembles a Markov chain or optimization algorithm.
 
@@ -756,7 +760,7 @@ Gradient ascent is criticized for sometimes being relatively slow when close to 
 
 \subsubsection{BFGS} \label{bfgs}
 
-The Broyden-Fletcher-Goldfarb-Shanno (BFGS) algorithm was proposed independently by \citet{broyden70}, \citet{fletcer70}, \citet{goldfarb70}, and \citet{shanno70}. BFGS may be the most efficient and popular quasi-Newton optimiziation algorithm. As a quasi-Newton algorithm, the Hessian matrix is approximated using rank-one updates specified by (approximate) gradient evaluations. Since BFGS is very popular, there are many variations of it. This is a version by Nash that has been adapted from the Rvmmin package, and is used in the \code{optim} function of base R. The approximate Hessian is not guaranteed to converge to the Hessian. When BFGS is used, the approximate Hessian is not used to calculate the final covariance matrix.
+The Broyden-Fletcher-Goldfarb-Shanno (BFGS) algorithm was proposed independently by \citet{broyden70}, \citet{fletcher70}, \citet{goldfarb70}, and \citet{shanno70}. BFGS may be the most efficient and popular quasi-Newton optimiziation algorithm. As a quasi-Newton algorithm, the Hessian matrix is approximated using rank-one updates specified by (approximate) gradient evaluations. Since BFGS is very popular, there are many variations of it. This is a version by Nash that has been adapted from the Rvmmin package, and is used in the \code{optim} function of base R. The approximate Hessian is not guaranteed to converge to the Hessian. When BFGS is used, the approximate Hessian is not used to calculate the final covariance matrix.
 
 \subsubsection{BHHH} \label{bhhh}
 
@@ -792,7 +796,7 @@ The Nelder-Mead algorithm \citep{nelder65} is a derivative-free, direct search m
 
 \subsubsection{Newton-Raphson} \label{nr}
 
-The Newton-Raphson optimization algorithm, also known as Newton's Method, uses derivatives and a Hessian matrix. The algorithm is included for its historical significance, but is known to be problematic when starting values are far from the targets, and calculating and inverting the Hessian matrix can be computationally expensive. As programmed here, when the Hessian is problematic, it tries to use only the derivatives, and when that fails, a jitter is applied. Newton-Raphson should not be the first choice of the user, and Levenberg-Marquardt should always be preferred.
+The Newton-Raphson optimization algorithm, also known as Newton's Method, uses derivatives and a Hessian matrix. The algorithm is included for its historical significance, but is known to be problematic when starting values are far from the targets, and calculating and inverting the Hessian matrix can be computationally expensive. As programmed here, when the Hessian is problematic, it tries to use only the derivatives, and when that fails, a jitter is applied. Newton-Raphson should not be the first choice of the user, and BFGS should always be preferred.
 
 \subsubsection{Particle Swarm Optimization} \label{pso}
 
@@ -840,7 +844,7 @@ Markov chain Monte Carlo (MCMC) algorithms are also called samplers. There are a
 
 The most generalizable MCMC algorithm is the Metropolis-Hastings (MH) generalization of the MWG algorithm. The MH algorithm extended MWG to include asymmetric proposal distributions. For years, the main disadvantage of the MWG algorithms was that the proposal variance (see below) had to be tuned manually, and therefore other MCMC algorithms have become popular because they do not need to be tuned.
 
-Gibbs sampling became popular for Bayesian inference, though it requires conditional sampling of conjugate distributions, so it is precluded from non-conjugate sampling in its purest form. Gibbs sampling also suffers under high correlations \citep{gilks96}. Due to these limitations, Gibbs sampling is less generalizable than RWM, though RWM and other algorithms are not immune to problems with correlation. The Griddy-Gibbs sampler evaluates a grid of proposals and approximates the conditional distribution, which enables non-conjugate sampling. Componentwise slice sampling is a special case of Gibbs sampling that samples a distribution by sampling uniformly from the region under the plot of its density function, and is more appropriate with bounded distributions that cannot approach infinity, though the improved slice sampler of \citet{neal03} is available here (see \ref{slice}).
+Gibbs sampling became popular for Bayesian inference, though it requires conditional sampling of conjugate distributions, so it is precluded from non-conjugate sampling in its purest form. Gibbs sampling also suffers under high correlations \citep{gilks96}. Due to these limitations, Gibbs sampling is less generalizable than RWM, though RWM and other algorithms are not immune to problems with correlation. The Griddy-Gibbs sampler evaluates a grid of proposals and approximates the conditional distribution, which enables non-conjugate sampling. Componentwise slice sampling is a special case of Gibbs sampling that samples a distribution by sampling uniformly from the region under the plot of its density function, and is more appropriate with bounded distributions that cannot approach infinity, though the improved slice sampler of \citet{neal03} is available here.
 
 \subsubsection{Blockwise Sampling} \label{block}
 
@@ -850,7 +854,7 @@ Parameters are usually grouped into blocks such that parameters within a block a
 
 Advantages of blockwise sampling are that a different MCMC algorithm may be used for each block (or parameter, for that matter), creating a more specialized approach (though different algorithms by block are not supported here), the acceptance of a newly proposed state is likely to be higher than sampling from all target distributions at once in high dimensions, and large proposal covariance matrices can be reduced in size, which is most helpful again in high dimensions.
 
-Disadvantages of blockwise sampling are that correlations probably exist between parameters between blocks, and each block is updated while holding the other blocks constant, ignoring these correlations of parameters between blocks. Without simultaneously taking everything into account, the algorithm may converge slowly or never arrive at the proper solution. However, there are instances when it may be best when everything is not taken into account at once, such as in state-space models. Also, as the number of blocks increases, more computation is required, which slows the algorithm. In general, blockwise sampling allows a more specialized approach at the expense of accuracy, generalization, and speed. Blockwise sampling is offered in the following algorithms: Adaptive-Mixture Metropolis (AMM), Elliptical Slice Sampler (ESS), Hit-And-Run Metropolis (HARM), and Random-Walk Metropolis (RWM).
+Disadvantages of blockwise sampling are that correlations probably exist between parameters between blocks, and each block is updated while holding the other blocks constant, ignoring these correlations of parameters between blocks. Without simultaneously taking everything into account, the algorithm may converge slowly or never arrive at the proper solution. However, there are instances when it may be best when everything is not taken into account at once, such as in state-space models. Also, as the number of blocks increases, more computation is required, which slows the algorithm. In general, blockwise sampling allows a more specialized approach at the expense of accuracy, generalization, and speed. Blockwise sampling is offered in the following algorithms: Adaptive Metropolis-within-Gibbs (AMWG), Adaptive-Mixture Metropolis (AMM), Automated Factor Slice Sampler (AFSS), Elliptical Slice Sampler (ESS), Hit-And-Run Metropolis (HARM), Metropolis-within-Gibbs (MWG), Random-Walk Metropolis (RWM), Robust Adaptive Metropolis (RAM), and the Univariate Eigenvector Slice Sampler (UESS).
 
 \subsubsection{Markov Chain Properties} \label{markovchainproperties}
 
@@ -858,477 +862,7 @@ This tutorial introduces only briefly the basics of Markov chain properties. A M
 
 The non-Markovian chains of an adaptive algorithm that adapt based on the history of the chains should have two conditions: containment and diminishing adaptation. Containment is difficult to implement and is not currently programmed into \pkg{LaplacesDemon}. The condition of diminishing adaptation is fulfilled when the amount of adaptation diminishes with the length of the chain. Diminishing adaptation can be achieved when the proposal variances become smaller or by decreasing the probability of performing adaptations with more iterations \citep{roberts07}. Trace-plots of the output of the \code{LaplacesDemon} function automatically include plots of the absolute differences in proposal variance with each adaptation for adaptive algorithms, and the \code{Consort} function will try to suggest a different adaptive algorithm when these absolute differences are not trending downward.
 
-The MCMC algorithms in the \pkg{LaplacesDemon} package are now presented alphabetically.
-
-\subsubsection{Adaptive Directional Metropolis-within-Gibbs} \label{admg}
-
-The Adaptive Directional Metropolis-within-Gibbs (ADMG) algorithm was proposed by \citet{bai09} as an extension of the Adaptive Metropolis-within-Gibbs (AMWG) algorithm in which the direction and jumping distance of the componentwise proposal is affected by an estimate of the historical covariance matrix. For more information on AMWG, see section \ref{amwg}.
-
-ADMG has two algorithm specifications: \code{n} is the number of previous iterations and \code{Periodicity} is the frequency in iterations of adaptation. The minimum \code{Periodicity} is equal to the number of parameters, and should probably be greater.
-
-Although ADMG is a componentwise algorithm, it does not ignore correlation of parameters, as is typical with componentwise algorithms. ADMG makes each componentwise proposal based on an estimate of the historical covariance matrix. Adaptation is based on the singular value decomposition (SVD) of the estimate of the historical covariance matrix. In large dimensions, SVD is computationally expensive, and less frequent adaptation is recommended. If SVD results in a singularity, then the algorithm defaults to a simple Metropolis-within-Gibbs (MWG) proposal. Otherwise, when SVD is successful, then MWG is performed under the rotated coordinates.
-
-The author notes that the MWG part of the algorithm may proceed by deterministic-scan (which he refers to as system-scan) and random-scan. The algorithm implemented here uses random-scan, and is denoted by the author as ADRSMG. Random-scan updates means that the order of the update of the parameters is randomized each iteration.
-
-Compared to other adaptive algorithms with multivariate proposals, a disadvantage is the time to complete each iteration increases as a function of parameters and model complexity, as noted in MWG. For example, in a 100-parameter model, ADMG completes its first iteration as the AMM algorithm completes its 100th. However, ADMG is more efficient with information per iteration.
-
-The advantage of ADMG to other componentwise algorithms (such as AMWG, MWG, RDMH, and Slice) is that ADMG makes each proposal while accounting for parameter correlation, while other componentwise algorithms traditionally ignore parameter correlation. The author asserts that SVD-based adaptation is more efficient than adapting directly to the historical covariance matrix or an estimate thereof. The disadvantage of ADMG to other componentwise algorithms is that SVD becomes computationally expensive in large dimensions. Since ADMG is adaptive, MWG should be used as the final algorithm.
-
-\subsubsection{Adaptive Griddy-Gibbs} \label{agg}
-
-The Adaptive Griddy-Gibbs (AGG) sampler is an extension of the Griddy-Gibbs (GG) sampler (see \ref{gg}) in which the scale of the centered grid is tuned each iteration for continuous parameters. The scale is calculated as the standard deviation of the conditional distribution. If discrete parameters are used, then the grid of discrete parameters is not tuned, since all discrete values are evaluated.
-
-AGG has six algorithm specifications: \code{Grid} is a vector or list of points in the grid, \code{dparm} is a vector that indicates discrete parameters and defaults to \code{NULL}, \code{smax} is the maximum allowable conditional standard deviation, \code{CPUs} is the number of available central processing units (CPUs), \code{Packages} is a vector of package names, and \code{Dyn.lib} is a vector of shared libraries. The default for \code{Grid} is \code{GaussHermiteQuadRule(3)$nodes}. For each continuous parameter in each iteration, the scaled grid values are added to the latest value of the parameter, and the model is evaluated with the parameter at each point on the grid and a sample is taken. For each discrete parameter, the model is evaluated at each grid point and a sample is taken.
-
-The points in the grid for continuous parameters are selected by the user as the nodes of a Gauss-Hermite quadrature rule (with the \code{GaussHermiteQuadRule} function), and these points are not evenly-spaced. Many problems require as few as 3 nodes, while others require perhaps as many as 99 nodes. When the number of nodes is larger than necessary, time is wasted in computation, fewer points occur within most of the density, and occasional extreme values of LP are observed, but the chains reach the target distributions in fewer iterations due to the wider grid. When the number of nodes is too small, it may not converge on the correct distribution. It is therefore suggested to begin with a small, odd number of grid points, such as 3, to reduce computation time. An odd number of grid points is preferred. If occasional extreme values of LP are observed, set \code{smax} to something reasonable. If \code{smax} is too small, then higher autocorrelation will occur and more thinning is necessary.
-
-Advantages of parallelized AGG over most componentwise algorithms is that it yields a 100\% acceptance rate, and draws from the approximated distribution should be less autocorrelated. A disadvantage is that more model evaluations are required, and even if a parallel environment had zero overhead, AGG would be twice as slow per iteration as other componentwise algorithms. AGG is adaptive in the sense of self-adjusting, but not in the sense of being non-Markovian, so it is suitable as a final algorithm.
-
-\subsubsection{Adaptive Hamiltonian Monte Carlo} \label{ahmc}
-
-This is an adaptive form of Hamiltonian Monte Carlo (HMC) called Adaptive Hamiltonian Monte Carlo (AHMC). For more information on HMC, see section \ref{hmc}. In AHMC, an additional algorithm specification is included called \code{Periodicity}, which specifies how often the algorithm adapts, and it can only begin to adapt after the tenth iteration. Of the remaining algorithm specifications, the vector \code{epsilon} ($\epsilon$) is adapted, and \code{L} ($L$) is not. When adapting, and considering $K$ parameters, AHMC multiplies $\epsilon_k$ by 0.8 when a proposal for parameter $k$ has not been accepted in the last 10 iterations, or multiplies it by 1.2 when a proposal has been accepted at least 8 of the last 10 iterations, as suggested by \citet{neal11}.
-
-AHMC has three algorithm specifications: \code{epsilon} or $\epsilon$ is the step-size, \code{L} or $L$ is the number of leapfrog steps, and \code{Periodicity} is the frequency in iterations for adaptation.
-
-As with HMC, the \code{Demonic Suggestion} section of the output of \code{Consort} treats AHMC differently when $L>1$ than most other algorithms by potentially suggesting a new value for $L$ to achieve independent samples, without altering the latest specification of the user for \code{Iterations} and \code{Thinning}. The suggested value of $L$ may be close to correct or wildly incorrect, so bear in mind that it is not an adaptive parameter here.
-
-As with HMC, the AHMC algorithm is slower per iteration than many other algorithms, but often produces chains with good mixing. Alternatives to AHMC that should perform better are HMCDA and MALA, presented below. AHMC is more consistent with respect to time per iteration, because $L$ remains constant, than HMCDA and NUTS, which may have some iterations that are much slower than others. If AHMC is used for adaptation, then the final, non-adaptive algorithm should be HMC.
-
-\subsubsection{Adaptive Metropolis} \label{am}
-
-The Adaptive Metropolis (AM) algorithm of \citet{haario01} is an extension of Random-Walk Metropolis (RWM) that adapts based on the observed covariance matrix from the history of the chains\footnote{\citet{haario01} assert that the chains remain ergodic in the limit as the amount of change in the adaptations should decrease to zero as the chains approach the target distributions, now referred to as the diminishing adaptation condition of \citet{roberts07}.}. AM is historically significant as the first adaptive MCMC algorithm.
-
-AM has two algorithm specifications: \code{Adaptive} is the iteration at which adaptation begins, and \code{Periodicity} is the frequency in iterations of adaptation. The user should not allow AM to adapt immediately, since AM adapts based on the observed covariance matrix of historical and accepted samples. Since enough samples are needed to obtain a valid covariance matrix before adaptation, a small covariance matrix is often used initially to encourage a high acceptance rate.
-
-As recommended by \citet{haario01}, there are two tricks that may be used to assist the AM algorithm in the beginning. Although the suggested ``greedy start'' method is not used here, the second suggested trick is used, which is to shrink the proposal as long as the acceptance rate is less than 5\%, and there have been at least five acceptances. \citet{haario01} suggest loosely that if ``it has not moved enough during some number of iterations, the proposal could be shrunk by a constant factor''. For each iteration that the acceptance rate is less than 5\% and that the AM algorithm is used but the current iteration is prior to adaptation, \code{LaplacesDemon} multiplies the proposal covariance or variance by (1 - 1/\code{Iterations}). Over pre-adaptive time, this encourages a smaller proposal covariance or variance to increase the acceptance rate so that when adaptation begins, the observed covariance or variance of the chains will not be constant, and then shrinkage will cease and adaptation will take it from there.
-
-AM is best suited for a model with small or medium dimensions (number of parameters). The Adaptive-Mixture Metropolis (AMM) of \citet{roberts09} and Robust Adaptive Metropolis \citep{vihola11} are extensions of the AM algorithm. If AM is used for adaptation, then the final, non-adaptive algorithm should be RWM.
-
-\subsubsection{Adaptive Metropolis-within-Gibbs} \label{amwg}
-
-The Adaptive Metropolis-within-Gibbs (AMWG) algorithm is presented in \citep{roberts09, rosenthal07}. It is an adaptive version of Metropolis-within-Gibbs (MWG). For more information on MWG, see section \ref{mwg}. 
-
-AMWG has one algorithm specification: \code{Periodicity}. The \code{Periodicity} argument indicates the frequency in iterations at which the algorithm adapts.
-
-In AMWG, the standard deviation of the proposal of each parameter is manipulated to optimize the associated acceptance rate toward 0.44. This is much simpler than other adaptive methods that adapt based on sample covariance in large dimensions. Large covariance matrices require a large number of elements to adapt, which takes exponentially longer to adapt as the dimension increases. Regardless of dimension, the AMWG optimizes each parameter to a univariate acceptance rate, and a sample covariance matrix does not need to be estimated for adaptation, which consumes time and memory. The order of the parameters for updating is randomized each iteration (random-scan AMWG), as opposed to sequential updating (deterministic-scan AMWG).
-
-Compared to other adaptive algorithms with multivariate proposals, a disadvantage is the time to complete each iteration increases as a function of parameters and model complexity, as noted in MWG. For example, in a 100-parameter model, AMWG completes its first iteration as the AMM algorithm completes its 100th. However, to adapt accurately, the AMM algorithm must correctly estimate 5,050 elements of a sample covariance matrix, while AMWG must correctly estimate only 100 proposal standard deviations. \citet{roberts09} have shown an example model with 500 parameters that had a burn-in of around 25,000 iterations.
-
-The advantages of AMWG over AMM are that AMWG does not require a burn-in period before it can begin to adapt, and that AMWG does not need to estimate a covariance matrix to adapt properly. The disadvantages of AMWG compared to AMM are that correlation can be problematic since it is not taken into account with a proposal covariance matrix, and AMWG solves the model function once per parameter per iteration, which can be unacceptably slow with large or complicated models. The advantage of AMWG over RAM is that AMWG does not need to estimate a covariance matrix to adapt properly. The disadvantages of AMWG compared to RAM are AMWG is less likely to handle multimodal or heavy-tailed targets, and AMWG solves the model function once per parameter per iteration, which can be unacceptably slow with large or complicated models. If AMWG is used for adaptation, then the final, non-adaptive algorithm should be MWG.
-
-\subsubsection{Adaptive-Mixture Metropolis} \label{amm}
-
-The Adaptive-Mixture Metropolis (AMM) algorithm is an extension by \citet{roberts09} of the Adaptive-Metropolis (AM) algorithm of \citet{haario01}. AMM differs from the AM algorithm in two respects. First, AMM updates a scatter matrix based on the cumulative current parameters and the cumulative associated outer-products, and these are used to generate a multivariate normal proposal. This is more efficient with large numbers of parameters adapting over many iterations, especially with frequent adaptations, and results in a much faster algorithm. The second (and main) difference, is that the proposal is a mixture. The two mixture components are adaptive multivariate and static/symmetric univariate proposals. The mixture is determined at each iteration with a mixture weight. The mixture weight must be in the interval (0,1], and it defaults to 0.05, as in \citet{roberts09}. A higher value of the mixture weight is associated with more static/symmetric univariate proposals, and a lower weight is associated with more adaptive multivariate proposals. The algorithm will be unable to include the multivariate mixture component until it has accumulated some history, and models with more parameters will take longer to be able to use adaptive multivariate proposals.
-
-AMM has five algorithm specifications: \code{Adaptive} is the iteration in which adaptation begins, \code{B} accepts a list of blocked parameters, \code{n} is the number of previous iterations, \code{Periodicity} is the frequency in iterations of adaptation, and \code{w} is the weight of the small-variance mixture component. \code{B} allows the user to organize parameters into blocks. \code{B} accepts a list, in which each component is a block and accepts a vector that consists of numbers that point to the associated parameters in parm.names. \code{B} defaults to \code{NULL}, in which case blocking does not occur. When blocking does occur, the proposal covariance matrix may be either \code{NULL} or a list in which each component is the covariance matrix for a block. As more blocks are added, the algorithm becomes closer to Adaptive Metropolis-within-Gibbs (AMWG).
-
-The advantages of AMM over AMWG are that it takes correlation into account (when \code{B=NULL}) as it adapts, and is much faster to update each iteration. The disadvantages are that AMWG does not require a burn-in period before it can begin to adapt, and more information must be learned in the covariance matrix to adapt properly (see section \ref{amwg} for more). Disadvantages of AMM compared to Robust Adaptive Metropolis (RAM) are that RAM does not require a burn-in period before it can begin to adapt, RAM is more likely to better handle multimodal or heavy-tailed targets, and RAM also adapts to the shape of the target distributions and coerces the acceptance rate. If AMM is used for adaptation, then the final, non-adaptive algorithm should be Random-Walk Metropolis (RWM).
-
-\subsubsection{Affine-Invariant Ensemble Sampler} \label{aies}
-
-The Affine-Invariant Ensemble Sampler (AIES) of \citet{goodman10} uses a complmentary ensemble of at least $2J$ walkers for $J$ parameters. Each walker receives $J$ initial values, and initial values must differ for each walker. At each iteration, AIES makes a multivariate proposal for each walker, given a scaled difference in position by parameter between the current walker and another randomly-selected walker.
-
-AIES has six algorithm specifications: \code{Nc} is the number of walkers, \code{Z} is a $N_c \times J$ matrix of initial values, $\beta$ is a scale parameter, \code{CPUs} is the number of central processing units (CPUs), \code{Packages} as a vector of package names, and \code{Dyn.lib} is a vector of shared libraries. The recommended number of walkers is at least $2J$. If separate sets of initial values are not supplied in \code{Z}, since \code{Z} defaults to \code{NULL}, then the \code{GIV} function is used to generate initial values. The original article referred to the scale parameter as $\alpha$, though it has been renamed here to $\beta$ to avoid a conflict with the acceptance probability $\alpha$ in the Metropolis step. The $\beta$ parameter may be manipulated to affect the desired acceptance rate, though in practice, the acceptance rate may potentially be better affected by increasing the number of walkers. It is recommended to specify \code{CPUs=1} and leave the remaining arguments to \code{NULL}, unless needed.
-
-This version returns the samples from one walker, and the other walkers assist the main walker. A disadvantage of this approach is that all samples from all walkers are not returned. An advantage of this approach is that if a particular walker is an outlier, then it does not affect the main walker, unless of course it is the main walker! Multiple sets of samples are best returned in a list, such as with parallel chains in the \code{LaplacesDemon.hpc} function, though it is not applicable in \code{LaplacesDemon}.
-
-AIES has been parallelized by \citet{foreman12}, and this style of parallelization is available here as well. The user is cautioned to prefer \code{CPUs=1}, because parallelizing may result in a slower algorithm due to communication between the master and slave CPUs each iteration. This communication is costly, and is best overcome with a large number of CPUs available, and when the \code{Model} function is slow to evaluate in comparison to network communication time.
-
-Both the parallelized (CPUs > 1) and un-parallelized (CPUs=1) versions should be called from \code{LaplacesDemon}, not \code{LaplacesDemon.hpc}. When parallelized, the number of walkers must be an even number (odd numbers are not permitted), and the walkers are split into two equal-sized batches. Each iteration, each walker moves in relation to a randomly-selected walker in the other batch. This retains detailed balance.
-
-AIES is attractive for offering affine-invariance, and therefore being generally robust to badly scaled posteriors, such as with highly correlated parameters. It is also attractive for making a multivariate proposal without a proposal covariance matrix. However, since at least $2J$ walkers are recommended, the number of model evaluations per iteration exceeds most componentwise algorithms by at least twice, making AIES a slow algorithm per iteration, and computation scales poorly with model dimension. Large-scale computing environments may overcome this limitation with parallelization, but parallelization is probably not very helpful (and may be detrimental) in small-scale computing environments when evaluating the model function is not slow in comparison with network communication time. AIES is not an adaptive algorithm, and is therefore suitable as a final algorithm.
-
-\subsubsection{Componentwise Hit-And-Run Metropolis} \label{charm}
-
-The Hit-And-Run algorithm is a variation of RWM that has been around as long as Gibbs sampling. Hit-And-Run randomly samples a direction on the unit sphere, and a proposal is made for each parameter in its randomly-selected direction for a uniformly-distributed distance \citet{gilks96}. This version of Hit-And-Run, called Componentwise Hit-And-Run Metropolis (CHARM), includes componentwise proposals and a Metropolis step for rejection. Introduced by \citet{turchin71} along with Gibbs sampling, and popularized by \citet{smith84}, Hit-And-Run was given its name later due to its ability to run across the state-space and arrive at a distant ``hit-point''. It is related to other algorithms with interesting names, such as Hide-And-Seek and Shake-And-Bake.
-
-CHARM has one optional algorithm specification: \code{alpha.star}. When \code{Specs=NULL}, CHARM is non-adaptive. Otherwise, \code{alpha.star} is the target acceptance rate, and is recommended to be 0.44. When a target acceptance rate is declared, CHARM applies the Robbins-Monro stochastic approximation of \citet{garthwaite10} to the proposal distance to attain the target acceptance rate.
-
-As a componentwise algorithm, the model is evaluated after a proposal is made for each parameter, which results in an algorithm that takes more time per iteration. As with the Metropolis-within-Gibbs (MWG) family, the time to complete each iteration grows with the number of parameters. Compared to other algorithms with multivariate proposals, a disadvantage is the time to complete each iteration increases as a function of parameters and model complexity. For example, in a 100-parameter model, CHARM completes its first iteration as HARM completes its 100th.
-
-CHARM enjoys many of the advantages of HARM, such as having no tuning parameters (unless the adaptive form is used), traversing complex spaces with bounded sets in one iteration, not being adaptive (unless specified as adaptive), handling high correlations well, and having the potential to work well with multimodal distributions. When non-adaptive, CHARM may be used as a final algorithm.
-
-\subsubsection{Delayed Rejection Metropolis} \label{drm}
-
-The Delayed Rejection Metropolis (DRM or DR) algorithm is a RWM with one, small twist. Whenever a proposal is rejected, the DRM algorithm will try one or more alternate proposals, and correct for the probability of this conditional acceptance. By delaying rejection, autocorrelation in the chains may be decreased, and the algorithm is encouraged to move. Currently, \code{LaplacesDemon} will attempt one alternate proposal when using the DRAM (see section \ref{dram}) or DRM algorithm. The additional calculations may slow each iteration of the algorithm in which the first set of proposals is rejected, but it may also converge faster. For more information on DRM, see \citet{mira01}.
-
-DRM does not have any algorithm specifications.
-
-DRM may be considered to be an adaptive MCMC algorithm, because it adapts the proposal based on a rejection. However, DRM does not violate the Markov property, because the proposal is based on the current state. For the purposes of \code{LaplacesDemon}, DRM is not considered to be an adaptive MCMC algorithm, because it is not adapting to the target distribution by considering previous states in the Markov chain, but merely makes more attempts from the current state.
-
-\code{LaplacesDemon} also temporarily shrinks the proposal covariance arbitrarily by 50\% for delayed rejection. A smaller proposal covariance is more likely to be accepted, and the goal of delayed rejection is to increase acceptance. In the long-term, a proposal covariance that is too small is undesirable, and so it is only used in this case to assist acceptance.
-
-Since DRM is non-adaptive, it is suitable as a final algorithm.
-
-\subsubsection{Delayed Rejection Adaptive Metropolis} \label{dram}
-
-The Delayed Rejection Adaptive Metropolis (DRAM) algorithm is merely the combination of both Delayed Rejection Metropolis (DRM) and Adaptive Metropolis (AM) \citep{haario06}. DRAM has been demonstrated to be robust in extreme situations where DRM or AM fail separately. \citet{haario06} present an example involving ordinary differential equations in which least squares could not find a stable solution, and DRAM did well.
-
-DRAM has two algorithm specifications: \code{Adaptive} is the iteration in which DRAM becomes adaptive, and \code{Periodicity} is the frequency in iterations of adaptation.
-
-The DRAM algorithm is useful to assist AM when the acceptance rate is low. As an alternative, the Adaptive-Mixture Metropolis (AMM) is an extension of the AM algorithm that includes a mixture of proposals, and one mixture component has a small proposal standard deviation to assist in overcoming initially low acceptance rates. If DRAM is used for adaptation, then the final algorithm should be Random-Walk Metropolis (RWM).
-
-\subsubsection{Differential Evolution Markov Chain} \label{demc}
-
-The original Differential Evolution Markov Chain (DEMC) \citep{terbraak06}, referred to in the literature as DE-MC, included a Metropolis step on a genetic algorithm called Differential Evolution with multiple chains (per parameter), in which the chains learn from each other. It could be considered as parallel adaptive direction sampling (ADS) with the Gibbs sampling (Gibbs) step replaced by a Metropolis step, or as a non-parametric form of Random-Walk Metropolis (RWM). However, for a model with $J$ parameters, the original DEMC required at least $2J$ chains, and often required as much as $20J$ chains. Hence, from $2J$ to $20J$ model evaluations were required per iteration, whereas a typical multivariate sampler such as Adaptive-Mixture Metropolis (AMM) requires one evaluation, or a componentwise sampler such as Adaptive Metropolis-within-Gibbs (AMWG) requires $J$ evaluations per iteration.
-
-The version included here was presented in \citet{terbraak08}, and the required number of chains is drastically reduced by adapting based on historical, thinned samples (the parallel direction move), and periodically using a snooker move instead. In the article, three chains were used to update as many as 50-100 parameters. Larger models may require blocks (as suggested in the article, and blocking is not included here), or more chains (see below). In testing, here, a few 200-dimensional models have been solved with 5-10 chains.
-
-DEMC has four algorithm specifications: \code{Nc} is the number of chains (at least 3), \code{Z} is a $T \times J$ matrix or $T \times J \times N_c$ array of $T$ thinned samples for $J$ parameters and $N_c$ chains, \code{gamma} is a scale parameter, and \code{w} is the probability of a snooker move for each iteration. When \code{gamma=NULL}, the scale parameter defaults to the recommended $2.381204 / \sqrt{2J}$, though for snooker moves, it is $2.381204 / \sqrt{2}$ regardless of the algorithm specification. The default, recommended probability of a snooker move is $w=0.1$.
-
-The parallel direction move consists of a multivariate proposal for each chain in which two randomly selected previous iterations from two randomly selected other chains are differenced and scaled, and a small jitter, $\mathcal{U} \sim (-0.001,0.001)^J$, is added. The snooker move differences these with another randomly selected (current) chain in the current iteration, and with a fixed scale. Another variation is to use snooker with past chain time-periods. The snooker move facilitates mode-jumping behavior for multimodal posteriors.
-
-For the first update, \code{Z} is usually \code{NULL}. Internally, \code{LaplacesDemon} populates \code{Z} with \code{GIV}, and it is strongly recommended that \code{PGF} is specified by the user. As the sampler iterates, \code{Z} is used for adaptation, and elements of \code{Z} are replaced with thinned samples. A short, first run is recommended to obtain thinned samples, such as in \code{Fit$Posterior1}. For consecutive updates, this posterior matrix is used as \code{Z}.
-
-In this implementation, samples are returned of the main chain, for which \code{Initial.Values} are specified. Samples for other chains (associated with \code{PCIV}) are not returned, but are used to assist the main chain. The authors note that too many chains can be problematic when an outlier chain exists. Here, samples of other chains are not returned, outlier or not. If an outlier chain exists, it simply does not help the main chain much and wastes computational resources, but does not negatively affect the main chain.
-
-An attractive property is that DEMC does not require a proposal covariance matrix, but adapts instead based on past (thinned) samples. In the output of \code{LaplacesDemon}, the thinned samples are also stored in \code{CovarDHis}, though they are thinned samples, not the history of the diagonal of the covariance matrix. This is done so the absolute differences can be observed for diminishing adaptation. Another attractive property is that the chains may be parallelized, such as across CPUs, in the future, though the current version is not parallelized.
-
-DEMC has been considered to perform like a version of Metropolis-within-Gibbs (MWG) that updates by chain, rather than by component. DEMC may be one form of a compromise between a one-evaluation multivariate proposal and $J$ componentwise proposals. Since it is adaptive, DEMC is not recommended as a final algorithm.
-
-\subsubsection{Elliptical Slice Sampler} \label{ess}
-
-The Elliptical Slice Sampler (ESS) was introduced by \citet{murray10} as a multivariate extension of componentwise slice sampling (see \ref{slice}) that utilizes ellipse $\nu$ and angle $\theta$. Each iteration, ellipse $\nu$ is drawn from $\mathcal{N}(0, \Sigma)$, where $\Sigma$ is a user-specified prior covariance for the ellipse. The authors recommend using a form of the covariance of the data. Even though other parameters are not discussed, an identity matrix, or a combination thereof, performs well in practice. The prior covariance matrix is accepted as \code{VarCov} in the \code{LaplacesDemon} function, rather than the usual proposal covariance matrix.
-
-ESS has one algorithm specification \code{B} for blocks of parameters, and defaults to \code{B=NULL}. For large-dimensional problems, block updating may be used. To specify block updating, the user gives the \code{B} specification a list in which each component is a block, and each component is a vector of integers pointing to the position of the parameters for that block. Block updating also requires the \code{Covar} argument to receive a list of prior covariance matrices of the appropriate dimension.
-
-Each proposal is an additive, trigonometric function of the current state, ellipse $\nu$, and angle $\theta$. Angle $\theta$ is originally in the interval $(0, 2\pi]$ each iteration, and is shrunk until acceptance occurs. This results in a 100\% acceptance rate, and usually multiple model evaluations per iteration.
-
-This algorithm is applicable only to models in which the prior mean of all parameters is zero. It is often possible to apply ESS when the variables are centered and scaled.
-
-An advantage of ESS over the (componentwise) Slice algorithm is the computational efficiency of a multivariate proposal. A disadvantage is that the user must specify the prior covariance $\Sigma$ for optimal ESS performance, and the algorithm can be very sensitive to this prior. Since ESS is not adaptive, it is suitable as a final algorithm.
-
-\subsubsection{Gibbs Sampler} \label{gibbs}
-
-Gibbs sampling was introduced by \citet{turchin71}, and later by brothers \citet{geman84}. The Geman brothers named the algorithm after the physicist J. W. Gibbs, some eight decades after his death, in reference to an analogy between the sampling algorithm and statistical physics. Geman and Geman introduced Gibbs sampling in the context of image restoration.
-
-Gibbs has two algorithm specifications: \code{FC} accepts a user-specified function to calculate full-conditionals and \code{MWG} defaults to \code{NULL} and otherwise accepts a numeric vector that indicates which parameters are updated with Metropolis-within-Gibbs. \code{FC} accepts two arguments, \code{parm} and \code{Data}, just like the Model specification function, and returns the full vector of parameters \code{parm}. Each iteration, the full-conditional distributions are completed first, then MWG updates, if any.
-
-In its basic version, Gibbs sampling is a special case of the Metropolis-Hastings algorithm. However, in its extended versions, Gibbs sampling can be considered a general framework for sampling from a large set of variables by sampling each variable (or in some cases, each group of variables) in turn, and can incorporate the Metropolis-Hastings algorithm (such as Metropolis-within-Gibbs or similar methods such as slice sampling) to implement one or more of the sampling steps. Currently, Metropolis-within-Gibbs is included.
-
-Gibbs sampling is applicable when the joint distribution is not known explicitly or is difficult to sample from directly, but the conditional distribution of each variable is known and easy to sample from. A Gibbs sampler generates a draw from the distribution of each parameter or variable in turn, conditional on the current values of the other parameters or variables. Therefore, a Gibbs sampler is a componentwise algorithm. As a simplified example, given a joint probability distribution $p(\theta_1, \theta_2 | \textbf{y})$, a Gibbs sampler would draw $p(\theta_1 | \theta_2, \textbf{y})$, then $p(\theta_2 | \theta_1, \textbf{y})$.
-
-For a user to determine each conditional distribution, the joint distribution must be known first, then all parameters are held constant except the current parameter of interest, and the equation is simplified to the conditional distribution.
-
-There are numerous variations of Gibbs sampling, such as blocked Gibbs sampling, collapsed Gibbs sampling, and ordered overrelaxation.
-
-The advantage of Gibbs sampling to other MCMC algorithms is that it is often more efficient when it is appropriate, due to a 100\% acceptance rate. The disadvantages are that a Gibbs sampler is appropriate only with conjugate distributions and low correlations between parameters, and therefore Gibbs sampling is less generally applicable than other MCMC algorithms. Since Gibbs is not adaptive, it is suitable as a final algorithm.
-
-\subsubsection{Griddy-Gibbs} \label{gg}
-
-Introduced by \citet{ritter92}, the Griddy-Gibbs (GG) sampler is a componentwise algorithm that approximates the conditional distribution by evaluating the model at a discrete set of points, the user-specified grid for each parameter. The proposal is a random draw from the approximated distribution. In this implementation, splinetic interpolation is used to approximate the distribution for continuous parameters with 1,000 points, given the evaluated points. The acceptance rate is 100\%.
-
-GG has five algorithm specifications: \code{Grid} is a vector or list of evenly-spaced points in the grid, \code{dparm} is a vector that indicates discrete parameters and defaults to \code{NULL}, \code{CPUs} is the number of available central processing units (CPUs), \code{Packages} is a vector of package names, and \code{Dyn.lib} is a vector of shared libraries. The default for \code{Grid} is \code{seq(from=-0.1, to=0.1, len=5)}, which creates a grid with the values -0.1, -0.05, 0, 0.05, and 0.1. For each continuous parameter in each iteration, the grid values are added to the latest value of the parameter, and the model is evaluated with the parameter at each point on the grid. For each discrete parameter, the model is evaluated at each grid point and a sample is taken.
-
-At least five grid points are recommended for a continuous parameter, and a grid with more points will better approximate the distribution, but requires more evaluations. However, the approximation in GG may be parallelized (within \code{LaplacesDemon}, not \code{LaplacesDemon.hpc}), so a large computer environment may approach an excellent approximation with little inefficiency. It is natural to desire a grid with a larger range, but in practice this becomes problematic, so it is recommended to keep the range of the grid relatively small, say within [-0.1,0.1] or [-0.2,0.2], and may require experimentation. After observing a Markov chain, the user may adjust the range of the grid to decrease autocorrelation in a future update.
-
-When an odd number of grid points is used for a continuous parameter, the current position is evaluated. If there are too few grid points, then the current point may be the only point with appreciable density, and the parameter may never move. This can be checked afterward with the \code{AcceptanceRate} function. If the acceptance rate is less than one for any parameter, then there are too few grid points. This failure may be harder to find when there are numerous parameters, an even number of grid points, and too few grid points, because the acceptance rate may be 100\% for a parameter, yet it may be oscillating between two values.
-
-GG is one of the slower algorithms per iteration, since the model must be evaluated multiple times per parameter per iteration. This may mostly be alleviated in a parallel environment. GG seems appropriate when the problem must be solved with a componentwise algorithm, and excessive thinning is required. GG may help reduce thinning by making proposals from the approximated conditional distribution, though parameter correlation may increase autocorrelation.
-
-Advantages of parallelized GG over most componentwise algorithms is that it yields a 100\% acceptance rate, and draws from the approximated distribution should be less autocorrelated. A disadvantage is that more model evaluations are required, and even if a parallel environment had zero overhead, GG would be twice as slow per iteration as other componentwise algorithms. However, if the user tunes the grid, it may be more efficient than other componentwise algorithms. The Adaptive Griddy-Gibbs (AGG) sampler is available so the user can avoid tuning the grid. Since GG is not adaptive, it is suitable as a final algorithm.
-
-\subsubsection{Hamiltonian Monte Carlo} \label{hmc}
-
-Introduced under the name of hybrid Monte Carlo \citep{duane87}, the name Hamiltonian Monte Carlo (HMC) surpasses it in popularity in statistics literature. HMC introduces auxiliary momentum variables with independent, Gaussian proposals. Momentum variables receive alternate updates, from simple updates to Metropolis updates. Metropolis updates result in the proposal of a new state by computing a trajectory according to Hamiltonian dynamics, from physics. Hamiltonian dynamics is discretized with the leapfrog method. In this way, distant jumps can be proposed and random-walk behavior avoided.
-
-HMC has two algorithm specifications: a vector of the step size of the leapfrog steps, \code{epsilon} ($\epsilon$), that is equal in length to the number of parameters, and the number of leapfrog steps, \code{L} ($L$). When $L=1$, HMC reduces to Langevin Monte Carlo (LMC), also called the Metropolis-Adjusted Langevin Algorithm (MALA), introduced by \citet{rossky78}. An adaptive version is available in section \ref{mala}. For HMC, these tuning parameters must be adjusted until the acceptance rate is appropriate. The optimal acceptance rate of HMC is 65\%, and Laplace's Demon is appeased when it is within the interval [60\%, 70\%], or in the case of LMC or MALA, in the interval [40\%, 80\%], where 57.4\% is optimal. Tuning $\epsilon$ and $L$, however, is very difficult. The trajectory length, $\epsilon L$ must also be considered. The $\epsilon$ vector is output in the list component \code{CovarDHis}, though it is not the diagonal of a covariance matrix.
-
-Suggestions for tuning $\epsilon$ and $L$ are found in \citet{neal11}. When $\epsilon$ is too large, the algorithm becomes unstable and suffers from a low acceptance rate. When $\epsilon$ is too small, the algorithm takes too many small steps and is inefficient. When $L$ is too large, trajectory lengths ($\epsilon L$) result in double-back behavior and become computationally self-defeating. When $L$ is too small, more random-walk behavior occurs and mixing becomes slower.
-
-If a user is new to tuning HMC algorithms, then good advice may be to leave $L=1$ and begin with small values for $\epsilon$, say 0.1 or smaller. To avoid tuning in this case, the adaptive MALA algorithm may be used instead. It is easy to experience problems when inexperienced, but HMC is a rewarding algorithm once proficiency is acquired. As can be expected, the adaptive extensions (AHMC, HMCDA, MALA, and NUTS), will also be easier, since $\epsilon$ is adapted and does not require tuning (and in the case of NUTS, $L$ does not require tuning).
-
-Partial derivatives are required, and hence the parameters must be differentiable\footnote{When the joint posterior is not differentiable, and should be, it has probably encountered an area of flat density. It is recommended that WIPs are used for regularization. For more information on WIPs, see the accompanying vignette entitled ``Bayesian Inference''.} everywhere the algorithm explores. Partial derivatives are approximated with the \code{partial} function. This is computationally intensive, and computational expense increases with the number of parameters. For $K$ parameters and $L$ leapfrog steps, there are $L + KL$ evaluations of the model specification function per iteration. In practice, starting any of the algorithms in the HMC family (AHMC, HMC, HMCDA, MALA, or THMC) in a region that is distant from density may result in failure due to differentiation, unless manipulated with priors.
-
-The \code{Demonic Suggestion} section of the output of \code{Consort} treats HMC (when $L>1$) differently than most other algorithms. For example, after updating a model with HMC, Laplace's Demon will not suggest a different number of iterations and thinning, but instead may suggest a new value of $L$ after taking autocorrelation in the chains into account. As $L$ increases, the speed per iteration decreases due to more calculations, and a higher value of $L$ is not necessarily desirable. Laplace's Demon attempts suggestions in an effort to give independent samples consistent with the latest specification of the user for iterations.
-
-Since HMC requires the approximation of partial derivatives, it is slower per iteration than most algorithms, and much slower in higher dimensions. Tuned well, HMC is an excellent algorithm, but tuning can be very difficult. The AHMC algorithm (described above) and HMCDA (below) are adaptive versions of HMC in which $\epsilon$ is adapted based on recent history of acceptance and rejection. The MALA and NUTS algorithms (below) are fully adaptive versions that do not require tuning of $\epsilon$ or $L$. Since HMC is not adaptive, it is suitable as a final algorithm.
-
-\subsubsection{Hamiltonian Monte Carlo with Dual-Averaging} \label{hmcda}
-
-The Hamiltonian Monte Carlo with Dual-Averaging (HMCDA) algorithm is an extension of Hamiltonian Monte Carlo (HMC) that adapts the scalar step-size parameter, $\epsilon$, according to dual-averaging. This is algorithm \#5 in \citet{hoffman12}, with the addition of an optional constraint, \code{Lmax}. For more information on HMC, see section \ref{hmc}.
-
-HMCDA has five algorithm specifications: the number of adaptive iterations \code{A}, the target acceptance rate \code{delta} or $\delta$ (and 0.65 is recommended), a scalar step-size \code{epsilon} or $\epsilon$, a maximum number of leapfrog steps \code{Lmax}, and the trajectory length \code{lambda} or $\lambda$. When \code{epsilon=NULL}, a reasonable initial value is found. The trajectory length is scalar $\lambda = \epsilon L$, where $L$ is the unspecified number of leapfrog steps that is determined from $\epsilon$ and $\lambda$. The \code{Consort} function requires the acceptance rate to be within 5\% of $\delta$.
-
-Each iteration $i \le A$, HMCDA adapts $\epsilon$ and coerces the target acceptance rate $\delta$. The number of leapfrog steps, $L$, is printed with each \code{Status} message. In \pkg{LaplacesDemon}, all thinned samples are returned, including adaptive samples. This allows the user to examine adaptation. To obtain strictly non-adaptive samples after a previous update that included adaptation, simply update again with \code{A=0} and the last value of $\epsilon$. \code{epsilon=NULL} is recommended.
-
-As with HMC, the HMCDA algorithm is slower per iteration than many other algorithms, but often produces chains with good mixing. HMCDA should outperform Adaptive Hamiltonian Monte Carlo (AHMC), and iterates faster as well, unless $L$ becomes large. When mixing is inadequate, consider switching to the MALA or NUTS algorithm. When parameters are highly correlated, another algorithm should be preferred in which correlation is taken into account, such as MALA, or in which the algorithm is generally invariant to correlation, such as twalk. When adaptive, it is not suitable as a final algorithm.
-
-\subsubsection{Hit-And-Run Metropolis} \label{harm}
-
-The Hit-And-Run algorithm is a variation of Random-Walk Metropolis (RWM) that has been around at least as long as Gibbs sampling (Gibbs). Hit-And-Run randomly samples a direction on the unit sphere as in \citet{gilks96}, and a proposal is made for each parameter in its randomly-selected direction for a uniformly-distributed distance. This version of Hit-And-Run, called Hit-And-Run Metropolis (HARM), includes multivariate proposals and a Metropolis step for rejection. Introduced by \citet{turchin71} along with Gibbs sampling, and popularized by \citet{smith84}, Hit-And-Run was given its name later due to its ability to run across the state-space and arrive at a distant ``hit-point''. It is related to other algorithms with interesting names, such as Hide-And-Seek and Shake-And-Bake.
-
-HARM has two optional algorithm specifications: \code{alpha.star} is the target acceptance rate, and \code{B} is a list of blocked parameters. When \code{alpha.star=NULL}, non-adaptive HARM is used. Otherwise, the Robbins-Monro stochastic approximation of \citet{garthwaite10} is applied to the proposal distance. \code{alpha.star=0.234} is recommended. For blockwise sampling, each component of the list is a block and consists of a vector indicating the position of the parameters per block.
-
-HARM is the fastest MCMC algorithm per iteration in this package, because it is very simple. For example, HARM does not use a proposal covariance matrix, and there are no tuning parameters, with one optional exception discussed below. The proposal is multivariate in the sense that all parameters are proposed at once, though from univariate draws. HARM often mixes better than the Gibbs sampler \citep{gilks96}, especially with correlated parameters \citep{chen92}.
-
-Adaptive HAR (without the Metropolis step) with a multivariate proposal is available in the \code{LaplaceApproximation} function.
-
-The HARM algorithm is able to traverse complex spaces with bounded sets in one iteration. As such, HARM may work well with multimodal posteriors due to potentially good mode-switching behavior. However, HARM may have difficulty sampling regions of high probability that are spike-shaped or near constraints, and this difficulty is likely to be more problematic in high dimensions. When HARM is non-adaptive, it may be used as a final algorithm.
-
-\subsubsection{Independence Metropolis} \label{im}
-
-Proposed by \citet{hastings70} and popularized by \citet{tierney94}, the Independence Metropolis (IM) algorithm (also called the independence sampler) is an algorithm in which the proposal distribution does not depend on the previous state or iteration. The proposal distribution must be a good approximation of the target distribution for IM to peform well, and the proposal distribution should have slightly heavier tails than the target distribution. IM is used most often to obtain additional posterior samples given an algorithm that has already converged.
-
-IM has one algorithm specification: \code{mu}. The usual approach to IM is to update the model with Laplace Approximation, and then supply the posterior mode and covariance to IM. The posterior mode vector of Laplace Approximation becomes the \code{mu} argument in the algorithm specifications for IM. The covariance matrix from Laplace Approximation is expanded by multiplying it by 1.1 so that it has heavier tails. Each iteration, IM draws from a multivariate normal distribution as the proposal distribution. Alternatively, posterior means and covariances may be used from other algorithms, such as other MCMC algorithms.
-
-Since IM is non-adaptive and uses a proposal distribution that remains fixed for all iterations, it may be used as a final algorithm.
-
-\subsubsection{Interchain Adaptation} \label{inca}
-
-The Interchain Adaptation (INCA) algorithm of \citet{craiu09} is an extension of the Adaptive Metropolis (AM) algorithm of \citet{haario01}. \citet{craiu09} refer to INCA as inter-chain adaptation and inter-chain adaptive MCMC. INCA uses parallel chains that are independent, except that they share the adaptive component, and this sharing speeds convergence. Since parallel chains are a defining feature of INCA, this algorithm works only with \code{LaplacesDemon.hpc}, not \code{LaplacesDemon}.
-
-INCA has two algorithm specifications: \code{Adaptive} is the iteration in which it becomes adaptive, and \code{Periodicity} is the frequency in iterations of adaptation.
-
-As with AM, the proposal covariance matrix is set equal to the historical (or sample) covariance matrix. Ample pre-adaptive iterations are recommended \citep{craiu09}, and initial values should be dispersed to aid in discovering multimodal marginal posterior distributions. After adaptation begins, INCA combines the historical covariance matrices from all parallel chains during each adaptation. Each chain learns from experience as in AM, and in INCA, each chain also learns from the other parallel chains.
-
-\citet{solonen12} found a dramatic reduction in the number of iterations to convergence when INCA used 10 parallel chains, compared against a single-chain AM algorithm. Similar improvements have been noted in the \pkg{LaplacesDemon} package, though more time is required per iteration.
-
-The \code{Gelman.Diagnostic} is recommended by \citet{craiu09} to determine when the parallel chains have stopped sharing different information about the target distributions. The exchange of information between chains decreases as the number of iterations increases.
-
-This implementation of INCA uses a server function that is built into \code{LaplacesDemon.hpc}. If the connection to this server fails, then the user must kill the process and then close all open connections with the \code{closeAllConnections} function.
-
-Since INCA is an adaptive algorithm, the final algorithm should be Random-Walk Metropolis (RWM).
-
-\subsubsection{Metropolis-Adjusted Langevin Algorithm} \label{mala}
-
-Also called Langevin Monte Carlo (LMC), the Metropolis-Adjusted Langevin Algorithm (MALA) was proposed in \citet{roberts96}, and an adaptive version in \citet{atchade06}, and an alternative adaptive version in \citet{shaby10}. MALA was inspired by stochastic models of molecular dynamics. MALA is an extension of the multivariate Random-Walk Metropolis (RWM) algorithm that includes partial derivatives to improve mixing. \citet{roberts96} presented ULA, MALA, and MALTA, and recommended MALTA. MALTA is a refinement of MALA that uses a truncated drift, where the drift parameter is a step-size parameter for the partial derivatives. The non-adaptive version of MALA is equivalent to the Hamiltonian Monte Carlo (HMC) algorithm with \code{L=1} leapfrog steps. For more information on HMC, see section \ref{hmc}.
-
-The original, non-adaptive MALA family is difficult to tune, and optimal tuning differs between transience and stationarity. For this reason, the MALA presented here is the adaptive version presented in \citet{atchade06}. This adaptive MALA uses stochastic approximation to update an expectation, scale, and covariance every iteration. The scale of the proposal is adapted to obtain a target acceptance rate.
-
-This version of MALA has five algorithm specifications: \code{A} defaults to 1e7 as the maximum acceptable value of the Euclidean norm of the adaptive parameters mu and sigma, and the Frobenius norm of the covariance matrix, \code{alpha.star} is the target acceptance rate and defaults to $57.4\%$, \code{gamma} defaults to 1 and accepts a constant in $[0,T]$ where $T$ is iterations and controls decay in adaptation, \code{delta} defaults to 1 and is a constant in the bounded drift function, and \code{epsilon} is a vector of length two that defaults to \code{c(1e-6,1e-7)}, in which the first element is the acceptable minimum of adaptive scale sigma, and the second element is added to the diagonal of the covariance matrix for regularization. The expectation, scale, and covariance adapt each iteration, and the amount of adaptation is a decreasing function $\gamma/t$ for $T$ iterations. When \code{gamma=0}, the algorithm does not adapt. Otherwise, \code{gamma} is the iteration through which full adaptation occurs and after which adaptation decays. The optimal acceptance rate is 57.4\%, and is acceptable in the interval [40\%, 80\%].
-
-MALA approximates partial derivatives for multivariate proposals. Approximating partial derivatives is computationally expensive, and requires $J+1$ model evaluations per $J$ parameters per iteration. This results in a multivariate algorithm that is slightly slower per iteration than a traditional componentwise algorithm, though the higher acceptance rate and additional information from partial derivatives may allow it to mix better and approach convergence faster. Unlike most componentwise or HMC algorithms, this version of MALA accounts for parameter correlation.
-
-When non-adaptive, MALA is suitable as a final algorithm.
-
-\subsubsection{Metropolis-Coupled Markov Chain Monte Carlo} \label{mcmcmc}
-
-The Metropolis-Coupled Markov Chain Monte Carlo (MCMCMC) algorithm -- also referred to as MC$^3$, (MC)$^3$, Metropolis-Coupled MCMC, Parallel Tempering, or Replica Exchange -- was introduced by \citet{geyer91} for multimodal distributions. The name `parallel tempering' was introduced in \citet{earl05}.
-
-MCMCMC consists of parallel chains that use different temperatures and combine to form a mixture distribution, where each chain is a mixture component. The chains or mixture components are updated in parallel, each with a Metropolis step that is adjusted by temperature. After this first set of Metropolis steps, two parallel chains are selected at random, and another adjusted Metropolis step is used to accept or reject a swap between chains. The act of swapping is referred to as coupling. Each swap may be a jump between modes. MCMCMC has both within-chain and between-chain proposals each iteration, but only the coolest chain is retained.
-
-MCMCMC has four algorithm specifications: \code{lambda} is either a positive-only scalar that controls the temperature spacing or a vector of temperature spacings, \code{CPUs} is the number of central processing units in the computer, \code{Packages} is a vector of any package names that are required, and \code{Dyn.libs} are any dynamic libaries that are required. A larger scalar value of $\lambda$ results in greater differences in temperature between chains, and often a lower swap acceptance rate (see below). Given a scalar $\lambda$ and $m=1,...,M$ CPUs, the current or proposal distribution is exponentiated to this power: $1/[1 + \lambda(m-1)]$. The number of CPUs must be at least two; as programmed, MCMCMC will not function on a single-core computer.
-
-MCMCMC must be called with \code{LaplacesDemon}, not \code{LaplacesDemon.hpc}, even though MCMCMC requires parallel chains. Each iteration, LaplacesDemon communicates with all CPUs, collects the latest for all the chains, and then the master process calculates the Metropolis steps for each chain, as well as the swap.
-
-As with Random-Walk Metropolis (RWM), the proposal covariance matrix must be tuned. When nothing is known about this matrix, as is often the case, it is suggested to begin with an identity matrix with small-scale diagonal values, such as 1e-3. After a short run that hopefully has some acceptances, another short run can begin with the observed historical covariance matrix. Eventually, the proposal covariance matrix is usually satisfactory.
-
-\citet{atchade11} demonstrate that MCMCMC performance improves as the acceptance rate of proposed swaps approaches 0.234. In <code>LaplacesDemon</code>, the swap acceptance rate is printed to the console at the end of each update. The swap acceptance rate is affected by the temperature spacing between parallel chains. If the default temperature spacing that results from a scalar $\lambda$ is unacceptable, then a different scalar value may be attempted, or the user may enter their own temperature spacing directly as a vector for $\lambda$.
-
-Coupling induces dependence among the chains, and the chains are no longer Markovian. The whole stochastic process of $m$ chains together does form a Markov chain.
-
-Along with the J-walking algorithm of \citet{frantz90}, MCMCMC was one of the first extensions of Metropolis-Hastings for multimodal distributions. Many additional MCMC algorithms, such as serial tempering or simulated tempering, were influenced by or variations of MCMCMC.
-
-The advantage of MCMCMC over RWM is that MCMCMC is better able to approximate multimodal distributions, and that successful coupling (swaps) improves mixing. A disadvantage is that most of the information in the warmer chains is lost, speed per iteration is slower than RWM due to communication with CPUs, and distributions with many modes require at least as many CPUs. Since MCMCMC is not adaptive, it is suitable as a final algorithm.
-
-\subsubsection{Metropolis-within-Gibbs} \label{mwg}
-
-Metropolis-within-Gibbs (MWG) is the original MCMC algorithm, introduced in \citet{metropolis53}. Since it was the original MCMC algorithm, it pre-dated Gibbs sampling, and was not known as Metropolis-within-Gibbs. MWG was later proposed as a hybrid algorithm that combines Metropolis-Hastings and Gibbs sampling, and was suggested in \citet{tierney94}. The idea was to substitute a Metropolis step when Gibbs sampling fails. However, Gibbs sampling is not included in this version in \code{LaplacesDemon} (or most versions), making it an algorithm with a misleading name. Without Gibbs sampling, the more honest name would be componentwise random-walk Metropolis, but the more common name is MWG. MWG is also referred to as Metropolis within Gibbs, Metropolis-in-Gibbs, Random-Walk Metropolis-within-Gibbs, single-site Metropolis, the Metropolis algorithm, or Variable-at-a-Time Metropolis.
-
-MWG is a componentwise algorithm, meaning that each parameter is updated indvidually each iteration. This implies that the model specification function is evalulated a number of times equal to the number of parameters, per iteration. The order of the parameters for updating is randomized each iteration (random-scan MWG), as opposed to sequential updating (deterministic-scan MWG). MWG often uses blocks, but in \pkg{LaplacesDemon}, all blocks have dimension 1, meaning that each parameter is updated in turn. If parameters were grouped into blocks, then they would undesirably share a proposal standard deviation. A componentwise algorithm typically ignores correlated parameters, updating each parameter individually.
-
-The update of each parameter occurs in a Metropolis step, otherwise called an accept/reject step or a Metropolis accept/reject step. A componentwise proposal is generated randomly and the model is evaluated with the proposed parameter. If the proposal is an improvement in the logarithm of the unnormalized joint posterior density, then the proposal is accepted. If the proposal is not an improvement, then the proposal is accepted or rejected according to a probability.
-
-The acceptance rate is the total number of proposals accepted in the Metropolis step divided by the total number of iterations. If the acceptance rate is too high, then the proposal variance is too small. In this case, the algorithm will take longer than necessary to find the target distribution and the samples will be highly autocorrelated. If the acceptance rate is too low, then the proposal variance is too large, and the algorithm is ineffective at exploration. In the worst case scenario, no proposals are accepted and the algorithm fails to move. Under theoretical conditions, the optimal acceptance rate for a sole, independent and identically distributed (IID), Gaussian, marginal posterior distribution is 0.44 or 44\%. The optimal acceptance rate for an infinite number of distributions that are IID and Gaussian is 0.234 or 23.4\%. Since MWG is a componentwise algorithm, it is most efficient when the acceptance rate of each parameter is 0.44.
-
-MWG is a componentwise Random-Walk Metropolis (RWM) algorithm. Random-walk behavior is desirable because it allows the algorithm to explore, and hopefully avoid getting trapped in undesirable regions. On the other hand, random-walk behavior is undesirable because it takes longer to converge to the target distribution while the algorithm explores. The algorithm generally progresses in the right direction, but may periodically wander away. Such exploration may uncover multimodal target distributions, which other algorithms may fail to recognize, and then converge incorrectly. With enough iterations, MWG is guaranteed theoretically to converge to the correct target distribution, regardless of the starting point of each parameter, provided the proposal variance for each proposal of a target distribution is sensible.
-
-Historically, MWG first ran on an early computer that was built specifically for it, called MANIAC I. Metropolis discarded the first 16 iterations as burn-in, and updated an additional 48-64 iterations, which required 4-5 hours on MANIAC I.
-
-The advantage of MWG over its multivariate version, RWM, is that it is more efficient with information per iteration, so convergence is faster in iterations. The disadvantages of MWG are that covariance is not included in proposals, and it is more time-consuming due to the evaluation of the model specification function for each parameter per iteration. As the number of parameters increases, and especially as model complexity increases, the run-time per iteration increases. Since fewer iterations are completed in a given time-interval, the possible amount of thinning is also at a disadvantage. MWG is non-adaptive, and is suitable as a final algorithm.
-
-\subsubsection{Multiple-Try Metropolis} \label{mtm}
-
-The Multiple-Try Metropolis (MTM) algorithm was introduced in \citet{liu00} as a componentwise Metropolis algorithm with an improved acceptance rate due to an increased proposal variance and number of proposals. The user specifies that $K$ proposals will be made. For each parameter at each iteration, $K$ normally-distributed proposals are made around the current parameter, scaled according to the user-specified proposal variance. Each proposal is weighted according to its unnormalized joint posterior density. One proposal is selected randomly, with probability proportional to the weights. A reference set of length $K$ is created, in which the first $K-1$ elements are draws from a normal distribution centered around the selected proposal, again according to proposal variance. The last element, $K$, is the selected proposal itself. A Metropolis step is performed for the weighted reference set. If the weighted reference set is accepted, then the selected proposal becomes the new value for the parameter.
-
-MTM has four algorithm specifications: \code{K} is the number of proposals, \code{CPUs} is the number of CPUs, \code{Packages} accepts any package required for the model function, and \code{Dyn.libs} accepts dynamic libraries for parallelization, if required.
-
-\citep{liu00} demonstrate the combinination of MTM with the Snooker algorithm from Adaptive Directional Sampling (ADS), Conjugate Gradient Monte Carlo (CGMC), Hit-And-Run modified as Random-Ray Monte Carlo (RRMC), and Griddy-Gibbs (GG). MTM has since been extended to multivariate proposals, proposals with different scales, and more.
-
-Advantages of MTM over Metropolis-within-Gibbs (MWG) is that the acceptance rate is higher, and multiple evaluations of the model specification function are parallelized each iteration. The advantage of MTM over Griddy-Gibbs (GG) is exact rather than approximate estimation and that an equilibrium distribution cannot be guaranteed from an approximation of the conditional such as in GG. A disadvantage of MTM compared to MWG is that MTM must evaluate the model specification function multiple times per parameter per iteration, resulting in an algorithm that is slower per iteration. Since MTM is not adaptive, it is suitable as a final algorithm.
-
-\subsubsection{No-U-Turn Sampler} \label{nuts}
-
-The No-U-Turn Sampler (NUTS) is an extension of Hamiltonian Monte Carlo (HMC) that adapts both the scalar step-size $\epsilon$ and scalar number of leapfrog steps $L$. This is algorithm \#6 in \citet{hoffman12}. For more information on HMC, see section \ref{hmc}.
-
-NUTS has four algorithm specifications: the number of adaptive iterations \code{A}, the target acceptance rate \code{delta} or $\delta$ (and 0.6 is recommended), a scalar step-size \code{epsilon} or $\epsilon$, and the maximum number of leapfrog steps \code{Lmax}. When \code{epsilon=NULL}, a reasonable initial value is found. The \code{Consort} function requires the acceptance rate to be within 5\% of $\delta$.
-
-Each iteration $i \le A$, NUTS adapts both $\epsilon$ and $L$, and coerces the target acceptance rate $\delta$. $L$ continues to change after adaptation ends, but is not an adaptive parameter in the sense of destroying ergodicity. The adaptive samples are discarded and only the thinned non-adaptive samples are returned.
-
-If NUTS begins (or begins again) with a value of $\epsilon$ that is too small, then early iterations may take a very long time, since $L$ may be very large before a u-turn is found. \code{epsilon=NULL} is recommended. It is also recommended, in complex models, to set \code{Status=1}. The time per iteration varies greatly by iteration as NUTS searches for $L$. If NUTS seems to hang at an iteration, then most likely $L$ is becoming large, and the search for it is becoming time-consuming. It may be recommended to cancel the update and set \code{Lmax} to a finite vinteger.
-
-The main advantage of NUTS over other HMC algorithms is that NUTS is the algorithm most likely to produce approximately independent samples, in the sense of low autocorrelation. Due to computational complexity, NUTS is slower per iteration than HMC, and the HMC family is among the slowest. Despite this, NUTS often produces chains with excellent mixing, and should outperform other adaptive versions of HMC, such as AHMC and HMCDA. Per iteration, NUTS should generally perform better than any other HMC algortihm. Per minute, however, is another story.
-
-NUTS has been extended elsewhere to allow for a non-diagonal mass matrix (proposal covariance matrix for momentum). This extension is not yet included here.
-
-In complex and high-dimensional models, NUTS may produce approximately independent samples much more slowly in minutes than other MCMC algorithms, such as Adaptive Metropolis-within-Gibbs (AMWG). This is because the combination of calculating partial derivatives and the search each iteration for $L$ is computationally intensive.
-
-\subsubsection{Oblique Hyperrectangle Slice Sampler} \label{ohss}
-
-Oblique Hyperrectangle Slice Sampler (OHSS) is an adaptive algorithm that approximates the sample covariance matrix. Introduced by \citet{thompson11} where it is referred to as ``Oblique Hyperrect'', OHSS is an extension of the hyperrectangle method in \citet{neal03}, which in turn is a multivariate extension of the slice sampler (Slice). The initial hyperrectangle is oriented to have edges that are parallel to the eigenvectors of the sample covariance matrix. The initial hyperrectangle is also scaled to have lengths proportional to the square roots of the eigenvalues of the sample covariance matrix. Rejection sampling is performed, and when a sample is rejected, the slice approximation is shrunk. Aside from specifying the initial hyperrectangle, this is the hyperrectangle method in \citet{neal03}.
-
-OHSS has two algorithm specifications: \code{A} is the number of adaptive iterations, and \code{n} is the number of previous iterations, and defaults to zero. The number of previous iterations, if any, is used to weight the sample covariance matrix.
-
-Each iteration, there is a 5\% probability that a non-adaptive step is taken, rather than an adaptive step. The first ten iterations or so are non-adaptive. Eigenvectors are estimated no more than every tenth iteration. When adaptive, the sample covariance matrix is updated along with the eigenvectors.
-
-Once the slice interval is estimated, a sample is drawn uniformly with rejection sampling from within this interval. If rejected, then the interval is shrunk until an acceptable sample is drawn. OHSS has a 100\% acceptance rate.
-
-The time per iteration varies, since rejection sampling often requires more than one evaluation. When OHSS is adaptive, it is not suitable as a final algorithm.
-
-\subsubsection{Preconditioned Crank-Nicolson} \label{pcn}
-
-Preconditioned Crank-Nicolson (pCN) was introduced originally as the PIA algorithm in \citet{beskos08}, and differs only slightly from Random-Walk Metropolis. The proposal is a first-order autoregressive process, rather than a centered random-walk. The pCN algorithm has an acceptance probability that is invariant to dimension, making pCN useful for large-dimensional models.
-
-pCN has one algorithm specification, \code{beta}, which is the autoregressive parameter in (0,1).
-
-As with RWM, the target acceptance rate is 23.4\%. pCN seems to perform well only with an identity matrix as the proposal covariance matrix.
-
-\subsubsection{Random Dive Metropolis-Hastings} \label{rdmg}
-
-Random Dive Metropolis-Hastings (RDMH) was introduced by \citet{dutta12}. RDMH is a componentwise Metropolis-Hastings algorithm in which the proposal is the product or ratio of a current parameter and a random quantity that does not require any tuning parameters. The random quantity is in the interval $(-1,1)$. Although RDMH is a very simple algorithm, it has excellent convergence and mixing properties. However, if it is reasonable that the origin ($0$) has positive probability, then the model should be reparameterized, because RDMH fails in the obscure case when the origin has positive probability (which can arise if the state-space is the set of integers).
-
-RDMH does not have any algorithm specifications.
-
-RDMH allows the proposed state to be far away from the current state, and yet has a good acceptance rate. Therefore, RDMH can explore the state space faster than many other MCMC algorithms.
-
-RDMH is geometrically ergodic for a class of densities that is much larger than most other MCMC algorithms. RDMH excels at representing target densities that are multimodal or fat-tailed, and has been compared with Gibbs sampling, Metropolis-Adjusted Langevin Algorithm (MALA), and Metropolis-within-Gibbs (MWG). Each of these other algorithms became stuck at local modes in multimodal target densities with large distances between the modes. RDMH explored the multimodal densities, or the fat tails, with ease.
-
-As a componentwise algorithm, the model specification function is evaluated a number of times equal to the number of parameters, per iteration. The order of the parameters for updating is randomized each iteration (random-scan), as opposed to sequential updating (deterministic-scan).
-
-The advantages of RDMH over MWG are that RDMH does not require tuning, better explores multimodal and fat-tailed target distributions, is better able to find acceptable proposals that are distant, and that it may therefore explore the state-space faster. Compared to multivariate MCMC algorithms, RDMH shares common disadvantages that it is slower per iteration, and correlated parameters are not taken into account. Since RDMH is not adaptive, it is suitable as a final algorithm.
-
-\subsubsection{Random-Walk Metropolis} \label{rwm}
-
-Random-Walk Metropolis (RWM) is a multivariate extension of Metropolis-within-Gibbs (MWG). Multiple parameters usually exist, and therefore correlations may occur between the parameters. Many MCMC algorithms attempt to estimate multivariate proposals, usually taking correlations into account through a covariance matrix. Each iteration, a multivariate proposal is made by taking a draw from a multivariate normal distribution, given a proposal covariance matrix.
-
-RWM does not have any required algorithm specifications, though blockwise sampling may be specified with \code{B}, which accepts a list of proposal covariance matrices equal in length to the number of blocks. By default, blockwise sampling is not performed, so all parameters are updated with one multivariate proposal.
-
-Given the number of dimensions ($K$) or parameters, the optimal scale of the proposal covariance, also called the jumping kernel, has been reported as $2.4^2/K$ based on the asymptotic limit of infinite-dimensional Gaussian target distributions that are independent and identically-distributed \citep{gelman96b}. In applied settings, each problem is different, so the amount of correlation varies between variables, target distributions may be non-Gaussian, the target distributions may be non-IID, and the scale should be optimized. There are algorithms in statistical literature that attempt to optimize this scale, such as the Robust Adaptive Metropolis (RAM) algorithm.
-
-There have been numerous methods introduced for tuning the proposal covariance matrix. Many adaptive MCMC algorithms such as Adaptive Metropolis (AM), Adaptive-Mixture Metropolis (AMM), and RAM will tune the proposal covariance matrix. Alternatively, initially specify an identity matrix with small-scale diagonal values such as 1e-3 as the proposal covariance matrix, update with RWM, and then update again but this time with the observed covariance of the historical samples. Done repeatedly, this may arrive at an acceptable proposal covariance matrix, suitable for longer and more serious updates.
-
-Since RWM is not adaptive, it is suitable as a final algorithm.
-
-\subsubsection{Reflective Slice Sampler} \label{rss}
-
-Introduced in \citet{neal97}, the Reflective Slice Sampler (RSS) is a multivariate slice sampler that uses partial derivatives and reflects into a slice interval. As described in \citet{neal03}, each iteration, direction and momentum within the slice interval are determined randomly, partial derivatives are taken once, and a number of steps is taken according to a step size. The distance of each step is the product of the step size and momentum. Direction is changed by reflecting off the boundaries of the slice interval. The reflected momentum direction is a function of the incident momentum and the partial derivatives. Random-walk behavior is suppressed, because a large number of steps may be taken in the same direction. The acceptance rate is 100\%.
-
-RSS has two algorithm specifications: $m$ and $w$. Each iteration, $m$ steps are taken with step size $w$. While $m$ must be a scalar, $w$ may be a scalar or vector equal in length to the number of parameters. A step size that is too small is inefficient, but too small is better than too large, which can entirely avoid the target distribution.
-
-RSS is difficult to tune, but is consistent in time per iteration. citet{neal03} states that Hamiltonian Monte Carlo (HMC) performs better than RSS when both HMC and RSS are optimally tuned. Since RSS is not adaptive, it may be used as a final algorithm.
-
-\subsubsection{Refractive Sampler} \label{refractive}
-
-Refractive sampling was introduced by \citet{boyles12} as an alternative to Hamiltonian Monte Carlo (HMC) and the No-U-Turn Sampler (NUTS). For more information on HMC or NUTS, see sections \ref{hmc} or \ref{nuts}, respectively. While the refractive sampler, HMC, and NUTS all use partial derivatives, the refractive sampler uses partial derivatives only for direction, not magnitude. The partial derivatives always point toward the side with the higher index of refraction. Like HMC and unlike NUTS, the refractive sampler requires tuning.
-
-This version of the Refractive algorithm has four algorithm specifications: \code{Adaptive} indicates the first adaptive iteration, the number \code{m} of steps to take per iteration, step size \code{w}, and \code{r} is the ratio between indices of refraction. The \code{Adaptive} argument does not appear in \citet{boyles12}. When \code{Adaptive} is less than the number of iterations, an optional Robbins-Monro stochastic approximation of \citet{garthwaite10} is applied to step size \code{w}. All specifications must be scalar, and it is recommended that \code{r=1.3}. The number of steps \code{m} is similar to the number of leapfrog steps \code{L} in HMC, and step size \code{w} is similar to \code{epsilon}. Typically, as the number of parameters increases, it is often better for \code{m} to be larger and \code{w} smaller.
-
-Compared to other MCMC algorithms, a higher posterior density is often found. An advantage over NUTS is that iterative speed is consistent. An advantage over HMC is that Refractive is easier to tune. When \code{Adaptive} is greater than the number of iterations, the Refractive sampler is not adaptive and is suitable as a final algorithm.
-
-\subsubsection{Reversible-Jump} \label{rj}
-
-Reversible-jump Markov chain Monte Carlo (RJMCMC) was introduced by \citet{green95} as an extension to MCMC in which the dimension of the model is uncertain and to be estimated. Reversible-jump belongs to a family of trans-dimensional algorithms, and it has many applications, including variable selection, model selection, mixture component selection, and more. The RJ algorithm, here, is one of the simplest possible implementations and is intended for variable selection and Bayesian Model Averaging (BMA).
-
-The Componentwise Hit-And-Run Metropolis (CHARM) algorithm (see section \ref{charm}) was selected, here, to be extended with reversible-jump. CHARM was selected because it does not have tuning parameters, it is not adaptive (which simplifies things with RJ), and it performs well. Even though it is a componentwise algorithm, it does not evaluate all potential predictors each iteration, but only those that are included. This novel combination is Reversible-Jump (RJ) with Componentwise Hit-And-Run Metropolis (CHARM). The optimal acceptance rate, and a good suggested acceptance rate range, are unknowns, so the \code{Consort} function will be little help making suggestions here.
-
-RJ proceeds by making two proposals during each iteration. First, a within-model move is proposed. This means that the model dimension does not change, and the algorithm proceeds like a traditional CHARM algorithm. Next, a between-models move is proposed, where a selectable parameter is sampled, and its status in the model is changed. If this selected parameter is in the current model, then RJ proposes a model that excludes it. If this selected parameter is not in the current model, then RJ proposes a model that includes it. RJ also includes a user-specified binomial prior distribution for the expected size of the model (the number of included, selectable parameters), as well as user-specified prior probabilities for the inclusion of each of the selectable parameters.
-
-Behind the scenes, RJ keeps track of the most recent non-zero value for each selectable parameter. If a parameter is currently excluded, then its value is currently set to zero. When this parameter is proposed to be included, the most recent non-zero value is used as the basis of the proposal, rather than zero. In this way, an excluded parameter does not have to travel back toward its previously included density, which may be far from zero. However, if RJ begins updating after a previous run had ended, then it will not begin again with this most recent non-zero value. Please keep this in mind with this implementation of RJ.
-
-RJ has five algorithm specifications. \code{bin.n} is the scalar size parameter of the binomial prior distribution for model size, and is the maximum size that RJ will explore. \code{bin.p} is the scalar probability parameter of the binomial prior distribution for model size, and the mean or median expected model size is \code{bin.n} $\times$ \code{bin.p}. \code{parm.p} is a vector of parameter-inclusion probabilities that must be equal in length to the number of initial values. \code{selectable} is a vector of indicators (0 or 1) that indicate whether or not a parameter is selectable by reversible-jump. When an element is zero, it is always in the model. Finally, the \code{selected} vector contains indicators of whether or not each parameter is in the model when RJ begins to update. All of these specifications must receive an argument with exactly that name (such as \code{bin.n=bin.n}, for the \code{Consort} function to recognize it, with the exception of the \code{selected} specification.
-
-RJ provides a sampler-based alternative to variable selection, compared with the Bayesian Adaptive Lasso (BAL) or Stochastic Search Variable Selection (SSVS), as two of many other approaches. Examples of BAL and SSVS are in the Examples vignette. Advantages of RJ are that it is easier for the user to apply to a given model than writing the variable-selection code into the model, and RJ requires fewer parameters, because variable-inclusion is handled by the specialized sampler, rather than the model specification function. A disdvantage of RJ is that other methods allow the user to freely change to other MCMC algorithms, if the current algorithm is unsatisfactory.
-
-\subsubsection{Robust Adaptive Metropolis} \label{ram}
-
-The Adaptive Metropolis (AM) and Adaptive-Mixture Metropolis (AMM) algorithms adapt the scale of the proposal distribution to attain a theoretical acceptance rate. However, these algorithms are unable to adapt to the shape of the target distribution. The Robust Adaptive Metropolis (RAM) algorithm estimates the shape of the target distribution and simultaneously coerces the acceptance rate \citep{vihola11}. If the acceptance probability, $\alpha$, is less (or greater) than an acceptance rate target, $\alpha*$, then the proposal distribution is shrunk (or expanded). Matrix \textbf{S} is computed as a rank one Cholesky update. Therefore, the algorithm is computationally efficient up to a relatively high dimension. The AM and AMM algorithms require a burn-in period prior to adaptation, so that these algorithms can adapt to the sample covariance. RAM does not require a burn-in period prior to adaptation. RAM allows the user the option of using the traditional normally-distributed proposals, or t-distributed proposals for heavier-tailed target densities. Unlike AM and AMM, RAM can cope with targets having arbitrarily heavy tails, and handles multimodal targets better than AM. The user is still assumed to know and specify the target acceptance rate.
-
-RAM has five algorithm specifications: \code{alpha.star} is the target acceptance rate, \code{B} is an optional list of blocks that defaults to \code{NULL}, \code{Dist} is the target distribution as either \code{"N"} for normal or \code{"t"} for the Student t with 5 degrees of freedom, \code{gamma} accepts a scalar in the interval (0.5,1] and controls the decay of adaptation (0.66 is recommended), and \code{n} is the number of previous iterations. RAM adapts only when the variance-covariance matrix is positive-definite.
-
-The advantages of RAM over AMM are that RAM does not require a burn-in period before it can begin to adapt, RAM is more likely to better handle multimodal or heavy-tailed targets, RAM also adapts to the shape of the target distributions, and attempts to coerce the acceptance rate. The advantages of RAM over Adaptive Metropolis-within-Gibbs (AMWG) are that RAM takes correlations into account, and is much faster to update each iteration. The disadvantage of RAM compared to AMWG is that more information must be learned in the covariance matrix to adapt properly (see section \ref{amwg} for more), and frequent adaptation may be desirable, but slow. If RAM is used for adaptation, then the final, non-adaptive algorithm should be Random-Walk Metropolis (RWM).
-
-\subsubsection{Sequential Adaptive Metropolis-within-Gibbs} \label{samwg}
-
-The Sequential Adaptive Metropolis-within-Gibbs (SAMWG) algorithm is for state-space models (SSMs), including dynamic linear models (DLMs). It is identical to the Adaptive Metropolis-within-Gibbs (AMWG) algorithm, except with regard to the order of updating parameters (and here, sequential does not refer to deterministic-scan). Parameters are grouped into two blocks: static and dynamic. At each iteration, static parameters are updated first, followed by dynamic parameters, which are updated sequentially through the time-periods of the model. The order of the static parameters is randomly selected at each iteration, and if there are multiple dynamic parameters for each time-period, then the order of the dynamic parameters is also randomly selected. The argument \code{Dyn} receives a $T \times K$ matrix of $T$ time-periods and $K$ dynamic parameters. The SAMWG algorithm is adapted from \citet{geweke01} for \code{LaplacesDemon}. The SAMWG is a single-site update algorithm that is more efficient in terms of iterations, though convergence can be slow with high intercorrelations in the state vector \citep{fearnhead11}. If SAMWG is used for adaptation, then the final, non-adaptive algorithm should be Sequential Metropolis-within-Gibbs (SMWG).
-
-\subsubsection{Sequential Metropolis-within-Gibbs} \label{smwg}
-
-The Sequential Metropolis-within-Gibbs (SMWG) algorithm is the non-adaptive version of the Sequential Adaptive Metropolis-within-Gibbs (SAMWG) algorithm, and is used for final sampling of state-space models (SSMs).
-
-\subsubsection{Slice Sampler} \label{slice}
-
-The origin of slice sampling dates back to \citet{besag93}, and the current algorithm was introduced in \citet{neal97} and improved in \citet{neal03}. In slice sampling, a distribution is sampled by sampling uniformly from the region under the plot of its density function. Here, slice sampling uses two phases as follows. First, an interval is created for the slice, and second, rejection sampling is performed within this interval.
-
-Slice has two algorithm specifications: \code{m} is the number of steps (an integer, and defaults to \code{Inf}), and \code{w} is the step size (and defaults to 1). Both \code{m} and \code{w} may be specified with either a scalar or vector, so that each parameter receives different settings. The step size \code{w} may be in the interval (0, $\infty$). Ideally, \code{w} is 3 standard deviations of the target distribution.
-
-The Slice algorithm implemented here is componentwise and based on figures 3 and 5 in \citet{neal03}, in which the slice is replaced with an interval $I$ that contains most of the slice. For each parameter, an interval $I$ is created and expanded by the ``stepping out'' procedure with step size $w$ until the interval is larger than the slice, and the number of steps $m$ may be limited by the user. The original slice sampler is inappropriate for the unbounded interval (-$\infty$, $\infty$), and this improved version allows this unbounded interval by replacing the slice with the created interval $I$. This algorithm adaptively changes the scale, though it is not an adaptive algorithm in the sense that it retains the Markov property.
-
-The lower and upper bounds of interval $I$ default to ($-\infty$, $\infty$), and adjust automatically to constrained parameters. Once the interval is constructed, a proposal is drawn randomly from within the interval until the proposal is accepted, and the interval is otherwise shrunk. The acceptance rate of this Slice algorithm is 1, though multiple model evalutations occur per iteration.
-
-When this Slice sampler uses the default specifications and begins far from the target distributions, the time per iteration should decrease as the algorithm approaches the target distributions. Considerable time may be spent in the first iterations. One strategy may be to limit $m$.
-
-This componentwise Slice algorithm has been noted to be more efficient than Metropolis updates, may be easier to implement than Gibbs sampling (Gibbs), and is attractive for routine and automated use \citep{neal03}. As a componentwise algorithm, it is slower per iteration than algorithms that use multivariate proposals. Multivariate slice samplers have been proposed, such as ESS (see \ref{ess}), OHSS (see \ref{ohss}), RSS (see \ref{rss}), and UESS (see \ref{uess}). Since Slice is not an adaptive algorithm, it is acceptable as a final algorithm.
-
-\subsubsection{Stochastic Gradient Langevin Dynamics} \label{sgld}
-
-The Stochastic Gradient Langevin Dynamics (SGLD) algorithm of \citet{welling11} is the first MCMC algorithm designed specifically for big data. Traditional MCMC algorithms require the entire data set to be included in the model evaluation each iteration. In contrast, SGLD reads and processes only a small, randomly selected batch of records each iteration. In addition to saving computation time, the entire data set does not need to be loaded into memory at once.
-
-SGLD expands the stochastic gradient descent optimization algorithm to include Gaussian noise with Langevin dynamics. The multivariate proposal is merely the vector of current values plus a step size times the gradient, plus Gaussian noise. The scale of the Gaussian noise is determined by the step size, $\epsilon$.
-
-SGLD has five algorithm specifications: \code{epsilon} or $\epsilon$ is the step size, \code{file} accepts the quoted name of a .csv file that is the big data set, \code{Nr} is the number of rows in the big data set, \code{Nc} is the number of columns in the big data set, and \code{size} is the number of rows to be read and processed each iteration.
-
-Since SGLD is designed for big data, the entire data set is not included in the \code{Data} list, but one small batch must be included and named \code{X}. All data must be included. For example, both the dependent variable \textbf{y} and design matrix \textbf{X} in linear regression are included. The requirement for the small batch to be in \code{Data} is so that numerous checks may be passed after \code{LaplacesDemon} is called and before the SGLD algorithm begins. Each iteration, SGLD uses the \code{scan} function, without headers, to read a random block of rows from, say, \code{X.csv}, stores it in \code{Data$X}, and passes it to the \code{Model} specification function. The \code{Model} function must differ from the other examples found in this package in that multiple objects, such as \code{X} and \code{y} must be read from \code{Data$X}, where usually there is both \code{Data$X} and \code{Data$y}.
-
-The user tunes SGLD with step size $\epsilon$ via the \code{epsilon} argument, which accepts either a scalar for a constant step size or a vector equal in length to the number of iterations for an annealing schedule. The step size must remain in the interval (0,1). The user may define an annealing schedule with any function desired. Examples are given in \citet{welling11} of decreasing schedules, as well as for using a constant. When $\epsilon = 0$, both the stochastic gradient and Langevin dynamics components of the equation are reduced to zero and the algorithm will not move. When $\epsilon$ is too large, degenerate results occur. A good recommendation seems to be to begin with $\epsilon$ set to \code{1/Nr}. From testing on numerous examples, it seems preferable to perform several short runs and experiment with a constant, rather than using a decreasing schedule, but your mileage may vary.
-
-The SGLD algorithm presented here is the simplest one, which is equation 4 in \citet{welling11}. Other components were also proposed such as a preconditioning matrix and covariance matrix, though these are not currently included here.
-
-SGLD does not include a Metropolis step for acceptance and rejection, so the acceptance rate is 100\%. SGLD is slower than a componentwise algorithm for two reasons: first it must read data from an external file each iteration, and second, gradients with numerical differencing are computationally expensive, requiring many model evaluations per iteration. At least \code{Nr / size} iterations are suggested. SGLD has great promise for the application of MCMC to massive data sets.
-
-\subsubsection{Tempered Hamiltonian Monte Carlo} \label{thmc}
-
-The Tempered Hamiltonian Monte Carlo (THMC) algorithm is an extension of Hamiltonian Monte Carlo (HMC) to include another algorithm specification: \code{Temperature}, which must be positive. When greater than 1, the algorithm should explore more diffuse distributions, and may be helpful with multimodal distributions.
-
-There are a variety of ways to include tempering in HMC, and this algorithm, named here as THMC, uses ``tempered trajectory'', as described by \citet{neal11}. When $L > 1$ and during the first half of the leapfrog steps, the momentum is increased (heated) by multiplying it by $\sqrt{T}$, where $T$ is \code{Temperature}, each leapfrog step. In the last half of the leapfrog steps, the momentum decreases (is cooled down) by dividing it by $\sqrt{T}$. The momentum is largest in the middle of the leapfrog steps, where mode-switching behavior becomes most likely to occur. This preserves the trajectory, $\epsilon L$.
-
-As with HMC, THMC is a difficult algorithm to tune. Since THMC is non-adaptive, it is sufficient as a final algorithm.
-
-\subsubsection{t-walk} \label{twalk}
-
-The t-walk (twalk) algorithm of \citet{christen10} is a general-purpose algorithm that requires no tuning, is scale-invariant, is technically non-adaptive (but self-adjusting), and can sample from target distributions with arbitrary scale and correlation structures. A random subset of one of two vectors is moved around the state-space to influence one of two chains, per iteration.
-
-twalk has four algorithm specifications: \code{SIV} is a vector secondary initial values and the default is \code{NULL}, \code{n1} affects the size of the subset of each set of points to adjust and the default is 4, \code{at} affects the traverse move and the default is 6, and \code{aw} affects the walk move and the default is 1.5. The vector of secondary initial values may be left to its default, \code{NULL}, in which case it is generated with the \code{GIV} function and it is recommended that \code{PGF} is specified. \code{SIV} should be similar to, but unique from, \code{Initial.Values}. The secondary initial values are used for a second chain, which is merely used here to help the first chain, and its results are not reported. The $n_1$ specification relates to the number of parameters. For example, if $n_1=4$ and a model has $J=100$ parameters, then there is a $p(0.04) = 4 / 100$ probability that a point is moved that affects each parameter, though this affects only one of two chains per iteration. Put another way, there is a 4\% chance that each parameter changes each iteration, and a 50\% chance each iteration that the observed chain is selected. The traverse specification argument, $a_t$, affects the traverse move, which helps when some parameters are highly correlated, and the correlation structure may change through the state-space. The traverse move is associated with an acceptance rate that decreases as the number of parameters increases, and is the reason that $n_1$ is used to select a subset of parameters each iteration. Finally, the walk specification argument, $a_w$, affects the walk move. The authors recommend keeping these specification arguments in $n_1 \in [2,20]$, $a_t \in [2,10]$, and $a_w \in [0.3,2]$. The hop and blow moves do not have specifications, but help with multimodality, ensure irreducibility, and prevent the two chains from collapsing together. The hop move is centered on the primary chain, and the blow move is centered on the secondary chain.
-
-The authors have provided the t-walk algorithm in \proglang{R} code as well as other languages. It is called the ``t-walk'' for ``traverse'' or ``thoughtful'' walk, as opposed to Random-Walk Metropolis (RWM). Where adaptive algorithms are designed to adapt to the scale and correlation structure of target distributions, the t-walk is invariant to this structure. The step-size and direction continuously ``adjust'' to the local structure. Since it is technically non-adaptive, it may also be used as a final algorithm. The t-walk uses one of four proposal distributions or `moves' per iteration, with the following probabilities: traverse (p=0.4918), walk (p=0.4918), hop (p=0.0082), and blow (p=0.0082).
-
-Testing in \pkg{LaplacesDemon} with the default specifications suggests the t-walk is very promising, but due to the subset of proposals, it is important to note that the reported acceptance rate indicates the proportion of iterations in which moves were accepted, but that only a subset of parameters changed, and only one chain is selected each iteration. Therefore, a user who updates a high-dimensional model should find that parameter values change much less frequently, and this requires more iterations.
-
-The main advantage of t-walk, like the Hit-And-Run Metropolis (HARM) and Metropolis-within-Gibbs (MWG) families, over multivariate adaptive algorithms such as Adaptive-Mixture Metropolis (AMM) and Robust Adaptive Metropolis (RAM) is that t-walk does not adapt to a proposal covariance matrix, which can be limiting in random-access memory (RAM) and other respects in large dimensions, making t-walk suitable for high-dimensional exploration. Other advantages are that t-walk is invariant to all but the most extreme correlation structures, does not need to burn-in before adapting since it technically is non-adaptive (though it `adjusts' continuously), and continuous adjustment is an advantage, so \code{Periodicity} does not need to be specified. The advantage of t-walk over componentwise algorithms such as the MWG family, is that the model specification does not have to be evaluated a number of times equal to the number of parameters in each iteration, allowing the t-walk algorithm to iterate significantly faster in high dimension. The disadvantage of t-walk, compared to these algorithms, is that more iterations are required because only a subset of parameters can change at each iteration (though it still updates twice the number of parameters per iteration, on average, than the MWG family).
-
-Since twalk is technically non-adaptive, it is suitable as a final algorithm.
-
-\subsubsection{Univariate Eigenvector Slice Sampler} \label{uess}
-
-The Univariate Eigenvector Slice Sampler (UESS) is an adaptive algorithm that approximates the sample covariance matrix in the same manner as Adaptive-Mixture Metropolis (AMM). For more information on AMM, see section \ref{amm}. Described as ``Univar Eigen'' in \citet{thompson11}, UESS is a multivariate variation of slice sampling (Slice) that makes univariate updates along the eigenvectors of the sample covariance matrix. For more information on the componentwise slice sampler, see section \ref{slice}.
-
-UESS has four algorithm specifications: \code{A} is the number of adaptive iterations, \code{B} accepts a list of blocks and defaults to \code{NULL}, \code{m} is the number of steps, and \code{n} is the number of previous iterations, and defaults to zero. Each iteration, a slice interval is estimated with up to $m$ steps. The default is $m=100$ steps. The step size is affected by the eigenvectors of the sample covariance matrix. The number of previous iterations, if any, is used to weight the sample covariance matrix.
-
-The contours of the target distribution are approximately ellipsoidal and the eigenvectors of its covariance coincide roughly with the axes of these ellipsoids, provided that the shape of the target distribution is approximately convex. Steps taken along these eigenvectors include steps along the long axes of a slice.
-
-Each iteration, there is a 5\% probability that a non-adaptive step is taken, rather than an adaptive step. The first ten iterations or so are non-adaptive. Eigenvectors are estimated no more than every tenth iteration. When adaptive, the sample covariance matrix is updated each iteration.
-
-Once the slice interval is estimated, a sample is drawn uniformly with rejection sampling from within this interval. If rejected, then the interval is shrunk until an acceptable sample is drawn. UESS has a 100\% acceptance rate.
-
-The time per iteration varies, since building the slice area requires up to $m$ steps, and rejection sampling often requires more than one evaluation. Although UESS is a combination of the AMM and Slice algorithms, it usually performs as well or better than either. When UESS is adaptive, it is not suitable as a final algorithm.
-
-\subsubsection{Updating Sequential Adaptive Metropolis-within-Gibbs} \label{usamwg}
-
-The Updating Sequential Adaptive Metropolis-within-Gibbs (USAMWG) is for state-space models (SSMs), including dynamic linear models (DLMs). After a model is fit with Sequential Adaptive Metropolis-within-Gibbs (SAMWG) and Sequential Metropolis-within-Gibbs (SMWG), and information is later obtained regarding the first future state predicted by the model, the USAMWG algorithm may be applied to update the model given the new information. In SSM terminology, updating is filtering and predicting. The \code{Begin} argument tells the sampler to begin updating at a specified time-period. This is more efficient than re-estimating the entire model each time new information is obtained.
-
-\subsubsection{Updating Sequential Metropolis-within-Gibbs} \label{usmwg}
-
-The Updating Sequential Metropolis-within-Gibbs (USMWG) algorithm is the non-adaptive version of the USAMWG algorithm, and is used for final sampling when updating state-space models (SSMs).
+Descriptions of the MCMC algorithms in the \pkg{LaplacesDemon} package are available online at \url{http://www.bayesian-inference.com/mcmc}.
 
 \subsubsection{Sampler Selection} \label{samplerselection}
 
@@ -1344,19 +878,13 @@ The optimal sampler differs for each problem, and it is recommended that the \co
 \item whether or not the sampler arrived at the correct solution
 \end{itemize}
 
-When the user is ready to select a general-purpose sampler, the best place to begin is with the HARM algorithm. This is not to say that HARM is the best sampler and everything else pales by comparison. Instead, HARM is a great sampler with which to start in the general case, and for beginners. HARM does not have any specifications (though optionally it can be adaptive or block updated), making it one of the easiest samplers to use. Non-adaptive HARM does not need to be followed up with a non-adaptive algorithm, pre-adaptive burn-in is not required, and diminishing adaptation is not a concern. HARM does not have to learn a proposal covariance matrix. Other nice properties are that (un-blocked) HARM is the fastest algorithm per iteration, it performs well when started far from the target, HARM does well with correlated parameters, and it has good potential with multimodal parameters.
+When the user is ready to select a general-purpose sampler, the best place to begin is with the AFSS algorithm. This is not to say that AFSS is the best sampler and everything else pales by comparison. Instead, AFSS is a great sampler with which to start in the general case, and for beginners. Although AFSS has several algorithm specifications, the default specifications are suitable for many cases.
 
-In models with small dimensions, say less than twenty, most MCMC samplers work well. The current, general recommendation is RAM, since it is multivariate and does not require derivatives.
+A new user should not begin to learn AFSS and this package with a complicated and high-dimensional model. When this is necessary, the user of AFSS will need to learn how to create blocks of parameters and a list of proposal covariance matrices. In smaller cases, more suitable to learning, the user should not generally have to adjust the \code{m} or \code{w} specifications, and need only learn \code{A} and \code{n}. A new user should begin with \code{A=Inf} and \code{n=0}, and use code provided by the \code{Consort} function for the next run. When the user is satified that equilibrium is reached, then another run should be made without adaptation: \code{A=0}.
 
-In models with large dimensions, from hundreds to thousands, blockwise sampling is highly recommended, such as with AMM or HARM (non-adaptive with small blocks, adaptive with larger blocks). The disadvantage of AMM is that it must learn the proposal covariance matrix. Un-blocked multivariate proposals have difficulty in large dimensions. Componentwise algorithms such as ADMG, AGG, AMWG, CHARM, GG, MWG, RDMH, and Slice often have faster improvement and convergence in iterations, though the time per iteration becomes unacceptable in large dimensions. Like the componentwise algortihms, algorithms that require derivatives, such as the HMC family, take an unacceptably long time per iteration in large dimensions.
+Models with multimodal marginal posterior distributions are potentially troublesome for any numerical approximation algorithm, though MCMC may be better suited in general. It is best to begin either with MCMCMC or RDMH. Alternatives include AFSS, AGG, CHARM, GG, HARM, RAM, Slice, THMC, or t-walk. The MCMCMC and RDMH algorithms have demonstrated remarkable performance with multimodal distributions. The use of parallel chains in MCMCMC increases the chances that different chains may settle on different modes. Parallel chains from other parallelized algorithms may be helpful in finding multiple modes, but when the chains are combined with the \code{Combine} function for inference, each mode probably is not represented in a proportion correct for the distribution. Consider updating the model with PMC, with multiple mixture components, after MCMC is finished. Unlike MCMC with parallel chains, the proportion of each mode will be correctly represented with PMC.
 
-In models with highly-correlated parameters, algorithms with multivariate proposals such as AMM or RAM are probably best, though HARM and t-walk also perform well. Componentwise algorithms such as the AGG, CHARM, GG, the MWG family (with the exception of ADMG), RDMH, and Slice do not explicitly take correlated parameters into account. In models with small dimensions, as above, RAM is recommended. In models with large dimensions, blockwise sampling is highly recommended, such as with AMM or HARM.
-
-State-space models (SSMs), or dynamic linear models (DLMs), are a special consideration. The \pkg{LaplacesDemon} package has algorithms in the MWG family specifically for SSMs, such as SAMWG, SMWG, USAMWG, and USMWG. Recommendations vary with model dimension and the correlation of parameters. If correlation is not problematic, then SAMWG is recommended. If correlation is problematic, then AMM is recommended for models with small dimensions, and block updating with AMM or adaptive HARM is recommended for models with large dimensions.
-
-Models with multimodal marginal posterior distributions are potentially troublesome for any numerical approximation algorithm, though MCMC may be better suited in general. It is best to begin either with MCMCMC or RDMH. Alternatives include AGG, CHARM, GG, HARM, RAM, Slice, THMC, or t-walk. The MCMCMC and RDMH algorithms have demonstrated remarkable performance with multimodal distributions. The use of parallel chains in MCMCMC increases the chances that different chains may settle on different modes. Parallel chains from other parallelized algorithms may be helpful in finding multiple modes, but when the chains are combined with the \code{Combine} function for inference, each mode probably is not represented in a proportion correct for the distribution. Consider updating the model with PMC, with multiple mixture components, after MCMC is finished. Unlike MCMC with parallel chains, the proportion of each mode will be correctly represented with PMC.
-
-Models with discrete parameters currently require either the AGG or GG algorithm, or converting the discrete parameters to continuous parameters so that any MCMC algorithm may be used. This is performed via the continuous relaxation of a Markov random field (MRF), as in \citet{zhang12}. For more information, see the \code{dcrmrf} and \code{rcrmrf} functions.
+Models with discrete parameters currently require either the AGG, GG, or Slice algorithms, or converting the discrete parameters to continuous parameters so that any MCMC algorithm may be used. This is performed via the continuous relaxation of a Markov random field (MRF), as in \citet{zhang12}. For more information, see the \code{dcrmrf} and \code{rcrmrf} functions.
 
 Models with big data sets, too big for memory, may use the SGLD algorithm, the \code{BigData} function, or opt for alternative methods suggested in the details of the documentation for the \code{BigData} function.
 
@@ -1400,6 +928,7 @@ Many additional resources may be found at \url{http://www.bayesian-inference.com
 \item Bayesian news is aggregated daily as ``The Bayesian Bulletin'': \url{http://www.bayesian-inference.com/newsbayesian}.
 \item Consulting services are available here: \url{http://www.bayesian-inference.com/consulting}.
 \item C++ examples of model functions: \url{http://www.bayesian-inference.com/cpp/LaplacesDemonExamples.txt}.
+\item MCMC algorithms are described at \url{http://www.bayesian-inference.com/mcmc}.
 \item Merchandise may be found at \url{http://www.bayesian-inference.com/merchandise}, such as \pkg{LaplacesDemon} t-shirts, coffee mugs, and more.
 \item \pkg{LaplacesDemon} and \pkg{LaplacesDemonCpp} development is public and occurs at \url{https://github.com/Statisticat/LaplacesDemon} and \url{https://github.com/Statisticat/LaplacesDemonCpp}, respectively.
 \item \pkg{LaplacesDemon} screencasts are available at \url{http://www.bayesian-inference.com/softwarescreencasts}.

@@ -186,6 +186,7 @@ Combine <- function(x, Data, Thinning=1)
      LML <- list(LML=NA, VarCov=NA)
      if(Algorithm %in% c("Adaptive Griddy-Gibbs",
           "Affine-Invariant Ensemble Sampler",
+          "Automated Factor Slice Sampler",
           "Componentwise Hit-And-Run Metropolis",
           "Delayed Rejection Metropolis",
           "Elliptical Slice Sampler",

@@ -534,9 +534,11 @@ plot.demonoid.ppc <- function(x, Style=NULL, Data=NULL, Rows=NULL,
                     type="l", xlab="Time", ylab="y",
                     main=paste("Space-Time at Space s=",s," of ",
                          Data[["S"]], sep=""),
-                    sub="Actual=Black, Fit=Red, Interval=Gray")
-               lines(matrix(temp[,4], Data[["S"]], Data[["T"]])[s,], col="gray")
-               lines(matrix(temp[,6], Data[["S"]], Data[["T"]])[s,], col="gray")
+                    sub="Actual=Black, Fit=Red, Interval=Transparent Red")
+               polygon(c(1:Data[["T"]],rev(1:Data[["T"]])),
+                    c(matrix(temp[,4], Data[["S"]], Data[["T"]])[s,],
+                    rev(matrix(temp[,6], Data[["S"]], Data[["T"]])[s,])),
+                    col=rgb(255, 0, 0, 50, maxColorValue=255), border=FALSE)
                lines(matrix(temp[,5], Data[["S"]], Data[["T"]])[s,], col="red")}}
      if(Style == "Space-Time by Time") {
           if(PDF == TRUE) {

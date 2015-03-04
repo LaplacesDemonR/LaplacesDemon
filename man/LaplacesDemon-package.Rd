@@ -23,6 +23,7 @@
 \alias{.lasr1}
 \alias{.latr}
 \alias{.mcmcadmg}
+\alias{.mcmcafss}
 \alias{.mcmcagg}
 \alias{.mcmcahmc}
 \alias{.mcmcaies}
@@ -79,8 +80,8 @@
   \tabular{ll}{
     Package: \tab LaplacesDemon\cr
     Type: \tab Package\cr
-    Version: \tab 14.11.12\cr
-    Date: \tab 2014-11-12\cr
+    Version: \tab 15.03.01\cr
+    Date: \tab 2015-03-01\cr
     License: \tab MIT\cr
   }
   The goal of LaplacesDemon, often referred to as LD, is to provide a

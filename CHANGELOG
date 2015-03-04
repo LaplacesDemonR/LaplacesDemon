@@ -1,3 +1,24 @@
+2015-03-04 Distributions: Added Normal-Inverse-Wishart and Normal-Wishart
+2015-03-03 Examples: Re-introduced Exploratory Cluster Analysis and the 
+           Infinite Mixture Model
+2015-03-02 Distributions: Added Matrix Normal
+2015-02-28 Distributions: Fixed bug reported by Jarrod Hadfield,
+           j.hadfield@ed.ac.uk, where dmvl returns non-finite results when
+           x and mu are identical, due to division by zero. Zeroes are
+           replaced with 1e-300.
+2015-02-20 Examples: Added VAR(p)-GARCH(1,1)-M
+2015-02-18 Data: Added demonchoice, demonfx, and demontexas
+2015-02-16 Distributions: Changed dhs and rhs from one paper to another
+2015-02-11 LaplacesDemon: Fixed bug in blocked RWM
+2015-02-10 Distributions: Fixed bug reported by Cajo ter Braak,
+           cajo.terbraak@wur.nl, where dinvchisq returns nothing
+2015-02-08 LaplacesDemon: Added the AFSS algorithm
+2015-02-01 Distributions: Fixed bug in rinvgamma
+2015-01-30 LaplacesDemon: Added specification m to AHMC, HMC, and THMC
+2015-01-29 LaplacesDemon: Added specification B to MWG
+2015-01-28 LaplacesDemon: Added specifications B and n to AMWG
+2015-01-27 Distributions: Fixed bug in rslaplace
+2015-01-22 LaplacesDemon: Added specifications B, Bounds, and Type to Slice
 2014-11-11 LaplacesDemon: Added specifications B and n to RAM
 2014-11-11 Distributions: Fixed bug reported by Francisco Rubio,
            Francisco.Rubio@warwick.ac.uk, where ppe returned 0 when q=0.

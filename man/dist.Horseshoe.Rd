@@ -7,8 +7,8 @@
   distribution.
 }
 \usage{
-dhs(x, lambda, tau, sigma, log=FALSE)
-rhs(n, lambda, tau, sigma)
+dhs(x, lambda, tau, log=FALSE)
+rhs(n, lambda, tau)
 }
 \arguments{
   \item{n}{This is the number of draws from the distribution.}
@@ -17,30 +17,27 @@ rhs(n, lambda, tau, sigma)
     \eqn{\lambda}{lambda}.}
   \item{tau}{This scalar is a positive-only global parameter
     \eqn{\tau}{tau}.}
-  \item{sigma}{This scalar is a positive-only global parameter
-    \eqn{\sigma}{sigma}.}
   \item{log}{Logical. If \code{log=TRUE}, then the logarithm of the
     density is returned.}
 }
 \details{
   \itemize{
-    \item Application: Discrete Scale Mixture
+    \item Application: Multivariate Scale Mixture
     \item Density: (see below)
     \item Inventor: Carvalho et al. (2008)
-    \item Notation 1: \eqn{\theta \sim \mathcal{HS}(\lambda, \tau,
-      \sigma)}{theta ~ HS(lambda, tau, sigma)}
+    \item Notation 1: \eqn{\theta \sim \mathcal{HS}(\lambda,
+      \tau)}{theta ~ HS(lambda, tau)}
     \item Notation 2: \eqn{p(\theta) = \mathcal{HS}(\theta | \lambda,
-    \tau, \sigma)}{p(theta) = HS(theta | lambda, tau, sigma)}
+      \tau)}{p(theta) = HS(theta | lambda, tau)}
     \item Parameter 1: local scale \eqn{\lambda > 0}{lambda > 0}
     \item Parameter 2: global scale \eqn{\tau > 0}{tau > 0}
-    \item Parameter 3: global scale \eqn{\sigma > 0}{sigma > 0}
     \item Mean: \eqn{E(\theta)}{E(theta)}
     \item Variance: \eqn{var(\theta)}{var(theta)}
     \item Mode: \eqn{mode(\theta)}{mode(theta)}
 }
 
 The horseshoe distribution (Carvalho et al., 2008) is a heavy-tailed
-discrete mixture distribution that can be considered a variance mixture,
+mixture distribution that can be considered a variance mixture,
 and it is in the family of multivariate scale mixtures of normals.
 
 The horseshoe distribution was proposed as a prior distribution, and
@@ -61,20 +58,9 @@ than parameters far from zero. Therefore, parameters far from zero
 experience less shrinkage and are closer to their true values. The
 horseshoe prior is valuable in discriminating signal from noise.
 
-The horseshoe distribution is the following discrete mixture:
-
-\deqn{p(\theta | \lambda) \sim \mathcal{N}(0, \lambda^2)}{p(theta |
-  lambda) ~ N(0, lambda^2)}
-\deqn{p(\lambda | \tau) \sim \mathcal{HC}(\tau)}{p(lambda | tau) ~
-  HC(tau)}
-\deqn{p(\tau) \sim \mathcal{HC}(\sigma)}{p(tau) ~ HC(sigma)}
-
-where lambda is a vector of local shrinkage parameters, and tau and
-sigma are global shrinkage parameters.
-
 By replacing the Laplace-distributed parameters in LASSO with
-horseshoe-distributed parameters, the result is called horseshoe
-regression.
+horseshoe-distributed parameters and including a global scale, the
+result is called horseshoe regression.
 }
 \value{
   \code{dhs} gives the density and
@@ -97,11 +83,8 @@ library(LaplacesDemon)
 x <- rnorm(100)
 lambda <- rhalfcauchy(100, 5)
 tau <- 5
-sigma <- 10
-x <- dhs(x, lambda, tau, sigma, log=TRUE)
-x <- rhs(100, lambda=lambda, tau=tau, sigma=sigma)
-x <- rhs(100, tau=tau, sigma=sigma)
-x <- rhs(100, sigma=sigma)
+x <- dhs(x, lambda, tau, log=TRUE)
+x <- rhs(100, lambda=lambda, tau=tau)
 plot(density(x))
 }
 \keyword{Distribution}

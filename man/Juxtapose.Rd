@@ -165,8 +165,8 @@ Juxtapose(x)
 }
 \examples{
 ### Update three demonoid objects, each from different MCMC algorithms.
-### Suppose Fit1 was updated with AMWG, Fit2 with NUTS, and
-### Fit3 with twalk. Then, compare the inefficiencies:
+### Suppose Fit1 was updated with AFSS, Fit2 with AMWG, and
+### Fit3 with NUTS. Then, compare the inefficiencies:
 #Juxt <- Juxtapose(list(Fit1=Fit1, Fit2=Fit2, Fit3=Fit3)); Juxt
 #plot(Juxt, Style="ISM")
 }

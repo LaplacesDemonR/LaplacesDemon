@@ -68,6 +68,7 @@ distributed multivariate normal given the model, the Mardia test (see
 \author{Statisticat, LLC. \email{software@bayesian-inference.com}}
 \seealso{
   \code{\link{dinvwishart}},
+  \code{\link{dmatrixnorm}},
   \code{\link{dmvnc}},
   \code{\link{dmvnp}},
   \code{\link{dnorm}},

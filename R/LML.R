@@ -66,8 +66,8 @@ LML <- function(Model=NULL, Data=NULL, Modes=NULL, theta=NULL, LL=NULL,
                return(list(LML=NA, VarCov=NA))}
           if(thetacol > round(LLlen / 2)) {
                cat("\nWARNING: The number of parameters, ", thetacol,
-                    " exceeds half the number of stationary samples, ",
-                    round(LLlen / 2), " required for NSIS.\n")
+                    ",\n exceeds half the number of stationary samples, ",
+                    round(LLlen / 2), ",\n required for NSIS.\n")
                return(list(LML=NA, VarCov=NA))}
           cov.prob <- 0.5
           bounds <- matrix(c(-Inf, Inf), 2, ncol(theta))

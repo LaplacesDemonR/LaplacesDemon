@@ -166,11 +166,17 @@ J <- 2
 y <- log(demonsnacks$Calories)
 X <- cbind(1, as.matrix(log(demonsnacks[,10]+1)))
 X[,2] <- CenterScale(X[,2])
+
+#########################  Data List Preparation  #########################
 mon.names <- "LP"
 parm.names <- as.parm.names(list(beta=rep(0,J), sigma=0))
 pos.beta <- grep("beta", parm.names)
 pos.sigma <- grep("sigma", parm.names)
-PGF <- function(Data) return(c(rnormv(Data$J,0,10), rhalfcauchy(1,5)))
+PGF <- function(Data) {
+     beta <- rnorm(Data$J)
+     sigma <- runif(1)
+     return(c(beta, sigma))
+     }
 MyData <- list(J=J, PGF=PGF, X=X, mon.names=mon.names,
      parm.names=parm.names, pos.beta=pos.beta, pos.sigma=pos.sigma, y=y)
 
@@ -209,6 +215,8 @@ y <- log(demonsnacks$Calories)
 X <- cbind(1, as.matrix(demonsnacks[,c(7,8)]))
 X[,2] <- CenterScale(X[,2])
 X[,3] <- CenterScale(X[,3])
+
+#########################  Data List Preparation  #########################
 mon.names <- c("sigma","mu[1]")
 parm.names <- as.parm.names(list(beta=rep(0,J), sigma=0))
 pos.beta <- grep("beta", parm.names)

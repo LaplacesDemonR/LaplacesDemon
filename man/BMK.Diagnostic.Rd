@@ -12,8 +12,8 @@ BMK.Diagnostic(X, batches=10)
 }
 \arguments{
   \item{X}{This required argument accepts a matrix of posterior
-    samples or an object of class{demonoid}, in which case it uses the
-    posterior samples in \code{X$Posterior1}.}
+    samples or an object of class \code{demonoid}, in which case it uses
+    the posterior samples in \code{X$Posterior1}.}
   \item{batches}{This is the number of batches on which the convergence
     diagnostic will be calculated. The \code{batches} argument defaults
     to 10.}

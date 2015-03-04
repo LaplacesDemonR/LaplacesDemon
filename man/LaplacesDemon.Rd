@@ -14,12 +14,12 @@
 }
 \usage{
 LaplacesDemon(Model, Data, Initial.Values, Covar=NULL, Iterations=10000,
-     Status=100, Thinning=10, Algorithm="MWG", Specs=NULL, LogFile="",
-     ...)
+     Status=100, Thinning=10, Algorithm="MWG", Specs=list(B=NULL),
+     LogFile="", ...)
 LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
      Iterations=10000, Status=100, Thinning=10, Algorithm="MWG",
-     Specs=NULL, LogFile="", Chains=2, CPUs=2, Type="PSOCK", Packages=NULL,
-     Dyn.libs=NULL)
+     Specs=list(B=NULL), LogFile="", Chains=2, CPUs=2, Type="PSOCK",
+     Packages=NULL, Dyn.libs=NULL)
 }
 \arguments{
   \item{Model}{This required argument receives the model from a
@@ -198,11 +198,11 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
   listed below:
 
   \itemize{
-    \item \code{A} is used in HMCDA, MALA, NUTS, OHSS, and UESS. In
+    \item \code{A} is used in AFSS, HMCDA, MALA, NUTS, OHSS, and UESS. In
     MALA, it is the maximum acceptable value of the Euclidean norm of
     the adaptive parameters mu and sigma, and the Frobenius norm of the
-    covariance matrix. In HMCDA, NUTS, OHSS, and UESS, it is the number
-    of initial, adaptive iterations to be discarded as burn-in.
+    covariance matrix. In AFSS, HMCDA, NUTS, OHSS, and UESS, it is the
+    number of initial, adaptive iterations to be discarded as burn-in.
     \item \code{Adaptive} is the iteration in which adaptation begins,
     and is used in AM, AMM, DRAM, INCA, and Refractive. Most of these
     algorithms adapt according to an observed covariance matrix, and
@@ -232,12 +232,20 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     \item \code{B} is a list of blocked parameters. Each component of
     the list represents a block of parameters, and contains a vector in
     which each element is the position of the associated parameter in
-    parm.names. This function is optional in the AMM, ESS, HARM, RWM,
-    and UESS algorithms. For more information on blockwise sampling, see
-    the \code{\link{Blocks}} function.
+    parm.names. This function is optional in the AFSS, AMM, AMWG, ESS,
+    HARM, MWG, RAM, RWM, Slice, and UESS algorithms. For more
+    information on blockwise sampling, see the \code{\link{Blocks}}
+    function.
     \item \code{Begin} indicates the time-period in which to begin
     updating (filtering or predicting) in the USAMWG and USMWG
     algorithms.
+    \item \code{Bounds} is used in the Slice algorithm. It is a vector
+    of length two with the lower and upper boundary of the slice. For
+    continuous parameters, it is often set to negative and positive
+    infinity, while for discrete parameters it is set to the minimum
+    and maximum discrete values to be sampled. When blocks are used,
+    this must be supplied as a list with the same number of list
+    components as the number of blocks.
     \item \code{delta} is used in HMCDA, MALA, and NUTS. In HMCDA and
     NUTS, it is the target acceptance rate, and the recommended value is
     0.65 in HMCDA and 0.6 in NUTS. In MALA, it is a constant in the
@@ -284,7 +292,7 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     adaptation in MALA and RAM. In DEMC, it is positive and defaults to
     \eqn{2.38 / \sqrt{2J}}{2.38/sqrt(2J)} when \code{NULL}, where
     \eqn{J} is the length of initial values. For RAM, it is in the
-    interval (0.5,1], and 0.66 is recommended. For MALA, it  is in the
+    interval (0.5,1], and 0.66 is recommended. For MALA, it is in the
     interval (1,\code{Iterations}), and defaults to 1.
     \item \code{Grid} accepts either a vector or a list of vectors of
     evenly-spaced points on a grid for the AGG or GG algorithm. When the
@@ -304,12 +312,15 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     controls temperature spacing, or a vector of temperature spacings.
     \item \code{Lmax} is a scalar maximum for \code{L} (see above) in
     HMCDA and NUTS.
-    \item \code{m} is used in the Refractive, RSS, Slice, and UESS
-    algorithms. In Refractive, RSS, and UESS, it is a scalar, and is the
-    number of steps to take per iteration. In Slice, it is a scalar (or
-    vector equal in length to the number of initial values) integer in
-    [1,Inf] in which each element indicates the maximum number of steps
-    for creating the slice interval.
+    \item \code{m} is used in the AFSS, AHMC, HMC, Refractive, RSS, Slice,
+    THMC, and UESS algorithms. In AHMC, HMC, and THMC, it is a
+    \eqn{J \times J}{J x J} mass matrix for \eqn{J} initial values. In
+    AFSS and UESS, it is a scalar, and is the maximum number of steps
+    for creating the slice interval. In Refractive and RSS, it is a
+    scalar, and is the number of steps to take per iteration. In Slice,
+    it is either a scalar or a list with as many list components as
+    blocks. It must be an integer in [1,Inf], and indicates the maximum
+    number of steps for creating the slice interval.
     \item \code{mu} is a vector that is equal in length to the initial
     values. This vector will be used as the mean of the proposal
     distribution, and is usually the posterior mode of a
@@ -321,8 +332,8 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     chains in DEMC (and must be at least 3) or the number of columns of
     big data in SGLD.
     \item \code{Nr} is the number of rows of big data in SGLD.
-    \item \code{n} is the number of previous iterations in ADMG, AMM,
-    OHSS, RAM, and UESS.
+    \item \code{n} is the number of previous iterations in ADMG, AFSS,
+    AMM, AMWG, OHSS, RAM, and UESS.
     \item \code{n1} affects the size of the subset of each set of points
     to adjust, and is used in twalk. It relates to the number of
     parameters, and \code{n1=4} is recommended. If adjusted, it is
@@ -365,9 +376,14 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     down the momentum in the last half. \code{Temperature} must be
     positive. When greater than 1, THMC should explore more diffuse
     distributions, and may be helpful with multimodal distributions.
-    \item \code{w} is used in AMM, DEMC, Refractive, RSS, and Slice. It
-    is a mixture weight for both the AMM and DEMC algorithms, and in
-    these algorithms it is in the interval (0,1]. For AMM, it is
+    \item \code{Type} is used in the Slice algorithm. It is either a
+    scalar or a list with the same number of list components as blocks.
+    This accepts \code{"Continuous"} for continuous parameters,
+    \code{"Nominal"} for discrete parameters that are unordered, and
+    \code{"Ordinal"} for discrete parameters that are ordered.
+    \item \code{w} is used in AFSS, AMM, DEMC, Refractive, RSS, and
+    Slice. It is a mixture weight for both the AMM and DEMC algorithms,
+    and in these algorithms it is in the interval (0,1]. For AMM, it is
     recommended to use \code{w=0.05}, as per Roberts and Rosenthal
     (2009). The two mixture components in AMM are adaptive multivariate
     and static/symmetric univariate proposals. The mixture is determined
@@ -381,10 +397,11 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     it indicates the probability that each iteration uses a snooker
     update, rather than a projection update, and the recommended default
     is \code{w=0.1}. In the Refractive algorithm, \code{w} is a scalar
-    step size parameter. In RSS and the Slice algorithms, this argument
-    may be a scalar or a vector equal in length the number of initial
-    values, and each element indicates the step size used for creating
-    the slice interval.
+    step size parameter. In AFSS, RSS, and the Slice algorithms, this is
+    a step size interval for creating the slice interval. In AFSS and
+    RSS, a scalar or vector equal in length the number of initial values
+    is accepted. In Slice, a scalar or a list with a number of list
+    components equal to the number of blocks is accepted.
     \item \code{Z} accepts a \eqn{T \times J}{T x J} matrix or \eqn{T
     \times J \times Nc}{T x J x Nc} array of thinned samples for \eqn{T}
     thinned iterations, \eqn{J} parameters, and \eqn{Nc} chains for
@@ -638,6 +655,10 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
   Markov Chain with Snooker Updater and Fewer Chains", \emph{Statistics
   and Computing}, 18(4), p. 435--446.
 
+  Tibbits, M., Groendyke, C., Haran, M., Liechty, J. (2014). "Automated
+  Factor Slice Sampling". \emph{Journal of Computational and Graphical
+  Statistics}, 23(2), p. 543--563.
+
   Thompson, M.D. (2011). "Slice Sampling with Multivariate Steps".
   \url{http://hdl.handle.net/1807/31955}
 
@@ -683,11 +704,17 @@ y <- log(demonsnacks$Calories)
 X <- cbind(1, as.matrix(log(demonsnacks[,c(1,4,10)]+1)))
 J <- ncol(X)
 for (j in 2:J) X[,j] <- CenterScale(X[,j])
+
+#########################  Data List Preparation  #########################
 mon.names <- "LP"
 parm.names <- as.parm.names(list(beta=rep(0,J), sigma=0))
 pos.beta <- grep("beta", parm.names)
 pos.sigma <- grep("sigma", parm.names)
-PGF <- function(Data) return(c(rnormv(Data$J,0,10), rhalfcauchy(1,5)))
+PGF <- function(Data) {
+     beta <- rnorm(Data$J)
+     sigma <- runif(1)
+     return(c(beta, sigma))
+     }
 MyData <- list(J=J, PGF=PGF, X=X, mon.names=mon.names,
      parm.names=parm.names, pos.beta=pos.beta, pos.sigma=pos.sigma, y=y)
 
@@ -722,10 +749,10 @@ Initial.Values <- GIV(Model, MyData, PGF=TRUE)
 # Examples of MCMC Algorithms                                             #
 ###########################################################################
 
-########################  Hit-And-Run Metropolis  #########################
+####################  Automated Factor Slice Sampler  #####################
 Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
      Covar=NULL, Iterations=1000, Status=100, Thinning=1,
-     Algorithm="HARM", Specs=NULL)
+     Algorithm="AFSS", Specs=list(A=Inf, B=NULL, m=100, n=0, w=1))
 Fit
 print(Fit)
 #Consort(Fit)
@@ -761,8 +788,8 @@ print(Fit)
 ##################  Adaptive Hamiltonian Monte Carlo  #####################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
-#     Algorithm="AHMC", Specs=list(epsilon=rep(0.02, length(Initial.Values)),
-#     L=2, Periodicity=10))
+#     Algorithm="AHMC", Specs=list(epsilon=0.02, L=2, m=NULL,
+#     Periodicity=10))
 
 ##########################  Adaptive Metropolis  ##########################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
@@ -772,7 +799,7 @@ print(Fit)
 ###################  Adaptive Metropolis-within-Gibbs  ####################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
-#     Algorithm="AMWG", Specs=list(Periodicity=50))
+#     Algorithm="AMWG", Specs=list(B=NULL, n=0, Periodicity=50))
 
 ######################  Adaptive-Mixture Metropolis  ######################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
@@ -851,14 +878,18 @@ print(Fit)
 #######################  Hamiltonian Monte Carlo  #########################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
-#     Algorithm="HMC", Specs=list(epsilon=rep(0.02, length(Initial.Values)),
-#     L=2))
+#     Algorithm="HMC", Specs=list(epsilon=0.02, L=2, m=NULL))
 
 #############  Hamiltonian Monte Carlo with Dual-Averaging  ###############
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
 #     Algorithm="HMCDA", Specs=list(A=500, delta=0.65, epsilon=NULL,
 #     Lmax=1000, lambda=0.1))
+
+#######################  Hit-And-Run Metropolis  ##########################
+#Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
+#     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
+#     Algorithm="HARM", Specs=NULL)
 
 ##################  Hit-And-Run (Adaptive) Metropolis  ####################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
@@ -896,7 +927,7 @@ print(Fit)
 #######################  Metropolis-within-Gibbs  #########################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
-#     Algorithm="MWG", Specs=NULL)
+#     Algorithm="MWG", Specs=list(B=NULL))
 
 ########################  Multiple-Try Metropolis  ########################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
@@ -971,7 +1002,8 @@ print(Fit)
 #############################  Slice Sampler  #############################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
-#     Algorithm="Slice", Specs=list(m=Inf, w=1))
+#     Algorithm="Slice", Specs=list(B=NULL, Bounds=c(-Inf,Inf), m=Inf,
+#     Type="Continuous", w=1))
 
 #################  Stochastic Gradient Langevin Dynamics  #################
 #NOTE: The Data and Model functions must be coded differently for SGLD.
@@ -983,8 +1015,8 @@ print(Fit)
 ###################  Tempered Hamiltonian Monte Carlo  ####################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
-#     Algorithm="THMC", Specs=list(epsilon=rep(0.05,length(Initial.Values)),
-#     L=2, Temperature=2))
+#     Algorithm="THMC", Specs=list(epsilon=0.05, L=2, m=NULL,
+#     Temperature=2))
 
 ###############################  t-walk  #################################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,

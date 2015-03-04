@@ -16,8 +16,8 @@ LaplacesDemon.RAM <- function(Model, Data, Iterations, Thinning,
      LIV <- length(Data[["parm.names"]])
      LM <- length(Data[["mon.names"]])
      Covar <- 0
-     if(Algorithm %in% c("ADMG","AM","AMM","DRAM","DRM","ESS","IM","INCA",
-          "MALA","OHSS","RWM","RAM","UESS")) {
+     if(Algorithm %in% c("ADMG","AFSS","AM","AMM","DRAM","DRM","ESS","IM",
+          "INCA","MALA","OHSS","RWM","RAM","UESS")) {
           ### Covariance is required
           Covar <- Covar + as.vector(object.size(matrix(runif(LIV*LIV),
           LIV, LIV))) / Const

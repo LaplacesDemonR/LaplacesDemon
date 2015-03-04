@@ -81,6 +81,7 @@ Juxtapose <- function(x)
                "Adaptive Metropolis-within-Gibbs"="AMWG",
                "Adaptive-Mixture Metropolis"="AMM",
                "Affine-Invariant Ensemble Sampler"="AIES",
+               "Automated Factor Slice Sampler"="AFSS",
                "Componentwise Hit-And-Run Metropolis"="CHARM",
                "Delayed Rejection Adaptive Metropolis"="DRAM",
                "Delayed Rejection Metropolis"="DRM",

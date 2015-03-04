@@ -135,7 +135,8 @@ plot.demonoid <- function(x, BurnIn=0, Data=NULL, PDF=FALSE,
                     title <- "Proposal S.D."
                else if(x$Algorithm %in% c("Differential Evolution Markov Chain"))
                     title <- "Z"
-               else if(x$Algorithm %in% c("Refractive Sampler"))
+               else if(x$Algorithm %in% c("Adaptive Factor Slice Sampler",
+                    "Refractive Sampler"))
                     title <- "Step-Size"
                else title <- "Proposal Variance"
                Diff <- abs(diff(x$CovarDHis))
