@@ -488,7 +488,7 @@ Consort <- function(object=NULL)
                     Rec.Iterations, ", Status=", Rec.Status, ", ",
                     "Thinning=", Rec.Thinning, ",\n", sep="")
                cat("     Algorithm=\"AMWG\", ",
-                    "Specs=list(B=", block, " n=", n, " Periodicity=",
+                    "Specs=list(B=", block, ", n=", n, ", Periodicity=",
                     Rec.Periodicity, "))\n\n", sep="")
                }
           else if(Alg == "CHARM" & Acc.Rate.Level == 2) {
