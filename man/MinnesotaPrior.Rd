@@ -19,7 +19,12 @@ MinnesotaPrior(J, lags=c(1,2), lambda=1, theta=0.5, sigma)
     successive.}
   \item{lambda}{This accepts a scalar, positive-only hyperparameter that
     controls how tightly the parameter of the first lag is concentrated
-    around zero. A smaller value results in smaller diagonal variance.}
+    around zero. A smaller value results in smaller diagonal variance.
+    When equal to zero, the posterior equals the prior and data is not
+    influential. When equal to infinity, no shrinkage occurs and
+    posterior expectations are closest to estimates from ordinary least
+    squares (OLS). It has been asserted that as the number, \eqn{J}, of
+    time-series increases, this hyperparameter should decrease.}
   \item{theta}{This accepts a scalar hyperparameter in the interval
     [0,1]. When one, off-diagonal elements have variance similar or
     equal to diagonal elements. When zero, off-diagonal elements have
@@ -60,7 +65,7 @@ MinnesotaPrior(J, lags=c(1,2), lambda=1, theta=0.5, sigma)
 
   While the Minnesota prior is used to specify the prior covariance for
   VAR autoregressive parameters, prior means are often all set to zero,
-  or sometimes set to an identity matrix.
+  or sometimes the first lag is set to an identity matrix.
 
   An example is provided in the Examples vignette.
 }

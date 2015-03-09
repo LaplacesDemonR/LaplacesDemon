@@ -170,13 +170,15 @@ This vignette will grow over time as examples of more methods become included. C
 \item Threshold Autoregression (TAR) \ref{tar}
 \item Topic Model \ref{lda}
 \item Time Varying AR(1) with Chebyshev Series \ref{tvarcs}
-\item VAR(p)-GARCH(1,1)-M \ref{varpgarchm}
 \item Variable Selection, BAL \ref{bal}
 \item Variable Selection, Horseshoe \ref{horseshoe}
 \item Variable Selection, RJ \ref{rj}
 \item Variable Selection, SSVS \ref{ssvs}
+\item VARMA(p,q) - SSVS \ref{varmapqssvs}
+\item VAR(p)-GARCH(1,1)-M \ref{varpgarchm}
+\item VAR(p) with Minnesota Prior \ref{varp}
+\item VAR(p) with SSVS \ref{varpssvs}
 \item Variety Model \ref{mdcc}
-\item Vector Autoregression, VAR(p) \ref{varp}
 \item Weighted Regression \ref{weighted.reg}
 \item Zellner's g-Prior \ref{linear.reg.g}
 \item Zero-Inflated Poisson (ZIP) \ref{zip}
@@ -7002,115 +7004,6 @@ MyData <- list(D=D, P=P, PGF=PGF, T=T, mon.names=mon.names, \\
 \subsection{Initial Values}
 \code{Initial.Values <- c(rep(0,D+2), 1)}
 
-\section{VAR(p)-GARCH(1,1)-M} \label{varpgarchm}
-The multivariate GARCH component is estimated with BEKK.
-\subsection{Form}
-$$\textbf{Y}_{t,1:J} \sim \mathcal{N}_J(\mu_{t,1:J}, H_{1:J,1:J,t})$$
-$$\mu_{t,j} = \alpha_j + \sum^P_{p=1} \Phi_{1:J,j,p} \textbf{Y}_{t-p,j} + \sum \textbf{H}_{1:J,j,t-1} \delta_{1:J,j}$$
-$$\textbf{H}_{,,t} = \Omega + \textbf{A}^T \epsilon_{t-1,} \epsilon^T_{t-1} \textbf{A} + \textbf{B}^T \textbf{H}_{,,t-1}\textbf{B}, \quad t=2,\dots,T$$
-$$\Omega = \textbf{C}\textbf{C}^T$$
-$$\alpha_j \sim \mathcal{N}(0, 1000)$$
-$$\delta_{i,k} \sim \mathcal{N}(0, 1000), \quad i=1,\dots,J, \quad k=1,\dots,J$$
-$$\Phi_{i,k,p} \sim \mathcal{N}(0, \Sigma), \quad i=1,\dots,J, \quad k=1,\dots,J, \quad p=1,\dots,P$$
-$$\textbf{C}_{i,j} \sim \mathcal{N}(0, 100)$$
-$$\textbf{A}_{i,j} \sim \mathcal{N}(0, 100)$$
-$$\textbf{B}_{i,j} \sim \mathcal{N}(0, 100)$$
-\subsection{Data}
-\code{data(demonfx) \\
-Y.orig <- demonfx \\
-Y <- diff(log(as.matrix(Y.orig[1:100,1:3]))) \\
-Y.scales <- sqrt(.colVars(Y)) \\
-Y <- Y / matrix(Y.scales, nrow(Y), ncol(Y), byrow=TRUE) \\
-T <- nrow(Y) \\
-J <- ncol(Y) \\
-L <- c(1,5,20) \#Autoregressive lags \\
-P <- length(L) \#Autoregressive order \\
-C <- matrix(NA, J, J) \\
-C[lower.tri(C, diag=TRUE)] <- 0 \\
-mon.names <- "LP" \\
-parm.names <- as.parm.names(list(alpha=rep(0,J), delta=matrix(0,J,J), \\
-\hspace*{0.27 in} Phi=array(0, dim=c(J,J,P)), C=C, A=matrix(0,J,J), B=matrix(0,J,J)))\\
-pos.alpha <- grep("alpha", parm.names) \\
-pos.delta <- grep("delta", parm.names) \\
-pos.Phi <- grep("Phi", parm.names) \\
-pos.C <- grep("C", parm.names) \\
-pos.A <- grep("A", parm.names) \\
-pos.B <- grep("B", parm.names) \\
-PGF <- function(Data) \{ \\
-\hspace*{0.27 in} alpha <- rnorm(Data$J) \\
-\hspace*{0.27 in} delta <- rnorm(Data$J*Data$J) \\
-\hspace*{0.27 in} Phi <- runif(Data$J*Data$J*Data$P, -1, 1) \\
-\hspace*{0.27 in} C <- runif(Data$J + Data$J*(Data$J-1)/2) \\
-\hspace*{0.27 in} A <- as.vector(diag(Data$J)) + runif(Data$J*Data$J, -0.1, 0.1) \\
-\hspace*{0.27 in} B <- as.vector(diag(Data$J)) + runif(Data$J*Data$J, -0.1, 0.1) \\
-\hspace*{0.27 in} return(c(alpha, delta, Phi, C, A, B)) \\
-\hspace*{0.27 in} \} \\
-MyData <- list(J=J, L=L, P=P, PGF=PGF, T=T, Y=Y, \\
-\hspace*{0.27 in} mon.names=mon.names, parm.names=parm.names, pos.alpha=pos.alpha, \\
-\hspace*{0.27 in} pos.delta=pos.delta, pos.Phi=pos.Phi, pos.C=pos.C, pos.A=pos.A, \\
-\hspace*{0.27 in} pos.B=pos.B) \\
-}
-\subsection{Model}
-\code{Model <- function(parm, Data) \\
-\hspace*{0.27 in} \{ \\
-\hspace*{0.27 in} \#\#\# Parameters \\
-\hspace*{0.27 in} alpha <- parm[Data$pos.alpha] \\
-\hspace*{0.27 in} delta <- matrix(parm[Data$pos.delta], Data$J, Data$J) \\
-\hspace*{0.27 in} Phi <- array(parm[Data$pos.Phi], dim=c(Data$J, Data$J, Data$P)) \\
-\hspace*{0.27 in} C <- matrix(0, Data$J, Data$J) \\
-\hspace*{0.27 in} C[lower.tri(C, diag=TRUE)] <- parm[Data$pos.C] \\
-\hspace*{0.27 in} diag(C) <- abs(diag(C)) \\
-\hspace*{0.27 in} parm[Data$pos.C] <- C[lower.tri(C, diag=TRUE)] \\
-\hspace*{0.27 in} Omega <- C \%*\% t(C) \\
-\hspace*{0.27 in} A <- matrix(parm[Data$pos.A], Data$J, Data$J) \\
-\hspace*{0.27 in} A[1,1] <- abs(A[1,1]) \\
-\hspace*{0.27 in} parm[Data$pos.A] <- as.vector(A) \\
-\hspace*{0.27 in} B <- matrix(parm[Data$pos.B], Data$J, Data$J) \\
-\hspace*{0.27 in} B[1,1] <- abs(B[1,1]) \\
-\hspace*{0.27 in} parm[Data$pos.B] <- as.vector(B) \\
-\hspace*{0.27 in} \#\#\# Log-Prior \\
-\hspace*{0.27 in} alpha.prior <- sum(dnormv(alpha, 0, 1000, log=TRUE)) \\
-\hspace*{0.27 in} delta.prior <- sum(dnormv(delta, 0, 1000, log=TRUE)) \\
-\hspace*{0.27 in} Sigma <- MinnesotaPrior(Data$J, lags=Data$L, lambda=1, \\
-\hspace*{0.62 in} theta=0.5, sqrt(diag(Omega))) \\
-\hspace*{0.27 in} Phi.prior <- sum(dnormv(Phi, 0, Sigma, log=TRUE)) \\
-\hspace*{0.27 in} C.prior <- sum(dnormv(C[lower.tri(C, diag=TRUE)], 0, 100, log=TRUE)) \\
-\hspace*{0.27 in} A.prior <- sum(dnormv(A, 0, 100, log=TRUE)) \\
-\hspace*{0.27 in} B.prior <- sum(dnormv(B, 0, 100, log=TRUE)) \\
-\hspace*{0.27 in} \#\#\# Log-Likelihood \\
-\hspace*{0.27 in} mu <- matrix(alpha, Data$T, Data$J, byrow=TRUE) \\
-\hspace*{0.27 in} for (p in 1:Data$P) \\
-\hspace*{0.62 in} mu[(1+Data$L[p]):Data$T,] <- mu[(1+Data$L[p]):Data$T,] + \\
-\hspace*{0.95 in} Data$Y[1:(Data$T-Data$L[p]),] \%*\% Phi[ , , p] \\
-\hspace*{0.27 in} LL <- 0 \\
-\hspace*{0.27 in} Yhat <- Data$Y \\
-\hspace*{0.27 in} H <- array(Omega, dim=c(Data$J, Data$J, Data$T)) \\
-\hspace*{0.27 in} for (t in 2:Data$T) \{ \\
-\hspace*{0.62 in} eps <- Data$Y - mu \\
-\hspace*{0.62 in} part1 <- t(A) \%*\% eps[t-1,] \%*\% t(eps[t-1,]) \%*\% A \\
-\hspace*{0.62 in} part2 <- t(B) \%*\% H[ , , t-1] \%*\% B \\
-\hspace*{0.62 in} H0 <- Omega + part1 + part2 \\
-\hspace*{0.62 in} H0[upper.tri(H0, diag=TRUE)] <- t(H0)[upper.tri(H0, diag=TRUE)] \\
-\hspace*{0.62 in} H[ , , t] <- H0 \\
-\hspace*{0.62 in} mu[t-1,] <- mu[t-1,] + colMeans(H[ , , t-1]*delta) \\
-\hspace*{0.62 in} Sigma <- MinnesotaPrior(Data$J, lags=Data$L, lambda=1, \\
-\hspace*{0.95 in} theta=0.5, sqrt(diag(H[ , , t]))) \\
-\hspace*{0.62 in} Phi.prior <- Phi.prior + sum(dnormv(Phi, 0, Sigma, log=TRUE)) \\
-\hspace*{0.62 in} LL <- LL + dmvn(Y[t,], mu[t,], H[ , , t], log=TRUE) \\
-\hspace*{0.62 in} Yhat[t,] <- rmvn(1, mu[t,], H[ , , t]) \\
-\hspace*{0.62 in} \} \\
-\hspace*{0.27 in} Phi.prior <- Phi.prior / Data$T \\
-\hspace*{0.27 in} \#\#\# Log-Posterior \\
-\hspace*{0.27 in} LP <- LL + alpha.prior + delta.prior + Phi.prior + C.prior + \\
-\hspace*{0.62 in} A.prior + B.prior \\
-\hspace*{0.27 in} Modelout <- list(LP=LP, Dev=-2*LL, Monitor=LP, yhat=Yhat, parm=parm) \\
-\hspace*{0.27 in} return(Modelout) \\
-\hspace*{0.27 in} \} \\
-}
-\subsection{Initial Values}
-\code{Initial.Values <- c(colMeans(Y), rnorm(J*J), runif(J*J*P,-1,1), \\
-\hspace*{0.27 in} runif(J+J*(J-1)/2), as.vector(diag(J)), as.vector(diag(J)))}
-
 \section{Variable Selection, BAL} \label{bal}
 This approach to variable selection is one of several forms of the Bayesian Adaptive Lasso (BAL). The lasso applies shrinkage to exchangeable scale parameters, $\gamma$, for the regression effects, $\beta$.
 \subsection{Form}
@@ -7313,7 +7206,8 @@ When the goal is to select the best model, each $\textbf{X}_{1:N,j}$ is retained
 \subsection{Form}
 $$\textbf{y} \sim \mathcal{N}(\mu, \sigma^2)$$
 $$\mu = \textbf{X} \beta$$
-$$(\beta_j | \gamma_j) \sim (1 - \gamma_j)\mathcal{N}(0, 0.01) + \gamma_j \mathcal{N}(0, \beta^2_\sigma) \quad j=1,\dots,J$$
+$$\beta_1 \sim \mathcal{N}(0, 1000)$$
+$$(\beta_j | \gamma_j) \sim (1 - \gamma_j)\mathcal{N}(0, 0.01) + \gamma_j \mathcal{N}(0, \beta^2_\sigma) \quad j=2,\dots,J$$
 $$\beta_\sigma \sim \mathcal{HC}(25)$$
 $$\gamma_j \sim \mathcal{BERN}(1/(J-1)), \quad j=1,\dots,(J-1)$$
 $$\sigma \sim \mathcal{HC}(25)$$
@@ -7356,7 +7250,7 @@ MyData <- list(J=J, PGF=PGF, X=X, mon.names=mon.names, \\
 \hspace*{0.27 in} \#\#\# Log-Hyperprior \\
 \hspace*{0.27 in} beta.sigma.prior <- sum(dhalfcauchy(beta.sigma, 25, log=TRUE)) \\
 \hspace*{0.27 in} \#\#\# Log-Prior \\
-\hspace*{0.27 in} beta.prior <- sum(dnorm(beta, 0, beta.sigma, log=TRUE)) \\
+\hspace*{0.27 in} beta.prior <- sum(dnorm(beta, 0, c(sqrt(1000), beta.sigma, log=TRUE))) \\
 \hspace*{0.27 in} gamma.prior <- sum(dbern(gamma, 1/(Data$J-1), log=TRUE)) \\
 \hspace*{0.27 in} sigma.prior <- dhalfcauchy(sigma, 25, log=TRUE) \\
 \hspace*{0.27 in} \#\#\# Log-Likelihood \\
@@ -7372,25 +7266,253 @@ MyData <- list(J=J, PGF=PGF, X=X, mon.names=mon.names, \\
 \subsection{Initial Values}
 \code{Initial.Values <- c(rep(0,J), rep(1,J-1), rep(1,2))}
 
-\section{Vector Autoregression, VAR(p)} \label{varp}
-This is an example of a simple, unrestricted VAR with $P$ lags that uses the Minnesota prior to estimate $\Sigma$.
+\section{VARMA(p,q) - SSVS} \label{varmapqssvs}
+Stochastic search variable selection (SSVS) is applied to VARMA parameters. Note that the constants for the mixture variances are typically multiplied by the posterior standard deviations from an unrestricted VARMA that was updated previously, and these are not included in this example. Since an unrestricted VARMA model may be difficult to identify, this should be performed only on the AR parameters.
 \subsection{Form}
 $$\textbf{Y}_{t,j} \sim \mathcal{N}(\mu_{t,j}, \sigma^2_j), \quad t=1,\dots,T, \quad j=1,\dots,J$$
-$$\mu_{t,j} = \alpha_j + \sum^P_{p=1} \Phi_{1:J,j,p} \textbf{Y}_{t-p,j}$$
-$$\textbf{y}^{new}_j = \alpha_j + \Phi_{1:J,j} \textbf{Y}_{T,j}$$
+$$\mu_{t,j} = \alpha_j + \sum^P_{p=1} \Gamma^\Phi_{1:J,j,p}\Phi_{1:J,j,p}\textbf{Y}_{t-p,j} + \sum^Q_{q=1} \Gamma^\Theta_{1:J,j,q}\Theta_{1:J,j,q} \epsilon_{t-q,j}$$
 $$\alpha_j \sim \mathcal{N}(0, 1000)$$
+$$\Gamma^\Phi_{i,k,p} \sim \mathcal{BERN}(0.5), \quad i=1,\dots,J, \quad k=1,\dots,J, \quad p=1,\dots,P$$
+$$(\Phi_{i,k,p} | \Gamma^\Phi_{i,k,p}) \sim (1 - \Gamma^\Phi_{i,k,p})\mathcal{N}(0, 0.01) + \Gamma^\Phi_{i,k,p}\mathcal{N}(0, 10), \quad i=1,\dots,J, \quad k=1,\dots,J, \quad p=1,\dots,P$$
+$$\Gamma^\Theta_{i,k,q} \sim \mathcal{BERN}(0.5), \quad i=1,\dots,J, \quad k=1,\dots,J, \quad q=1,\dots,Q$$
+$$(\Theta_{i,k,q} | \Gamma^\Theta_{i,k,q}) \sim (1 - \Gamma^\Theta_{i,k,q})\mathcal{N}(0, 0.01) + \Gamma^\Theta_{i,k,q}\mathcal{N}(0, 10), \quad i=1,\dots,J, \quad k=1,\dots,J, \quad q=1,\dots,Q$$
 $$\sigma_j \sim \mathcal{HC}(25)$$
-$$\Phi_{i,k,p} \sim \mathcal{N}(0, \Sigma), \quad i=1,\dots,J, \quad k=1,\dots,J, \quad p=1,\dots,P$$
 \subsection{Data}
 \code{data(demonfx) \\
-Y.orig <- demonfx \\
-Y <- diff(log(as.matrix(Y.orig[,1:3]))) \\
+Y.orig <- as.matrix(demonfx[,1:3]) \\
+Y <- diff(log(Y.orig[1:100,])) \\
+Y.scales <- sqrt(.colVars(Y)) \\
+Y <- Y / matrix(Y.scales, nrow(Y), ncol(Y), byrow=TRUE) \\
+T <- nrow(Y) \\
+J <- ncol(Y) \\
+L.P <- c(1,5,20) \#Autoregressive lags \\
+L.Q <- c(1,2) \#Moving average lags \\
+P <- length(L.P) \#Autoregressive order \\
+Q <- length(L.Q) \#Moving average order \\
+mon.names <- "LP" \\
+parm.names <- as.parm.names(list(alpha=rep(0,J), \\
+\hspace*{0.27 in} Gamma.phi=array(0, dim=c(J,J,P)), Phi=array(0, dim=c(J,J,P)), \\
+\hspace*{0.27 in} Gamma.theta=array(0, dim=c(J,J,Q)), Theta=array(0, dim=c(J,J,Q)), \\
+\hspace*{0.27 in} sigma=rep(0,J))) \\
+pos.alpha <- grep("alpha", parm.names) \\
+pos.Gamma.phi <- grep("Gamma.phi", parm.names) \\
+pos.Phi <- grep("Phi", parm.names) \\
+pos.Gamma.theta <- grep("Gamma.theta", parm.names) \\
+pos.Theta <- grep("Theta", parm.names) \\
+pos.sigma <- grep("sigma", parm.names) \\
+PGF <- function(Data) \{ \\
+\hspace*{0.27 in} alpha <- rnorm(Data$J) \\
+\hspace*{0.27 in} Gamma.phi <- rep(1, Data$J*Data$J*Data$P) \\
+\hspace*{0.27 in} Phi <- runif(Data$J*Data$J*Data$P, -1, 1) \\
+\hspace*{0.27 in} Gamma.theta <- rep(1, Data$J*Data$J*Data$Q) \\
+\hspace*{0.27 in} Theta <- rnorm(Data$J*Data$J*Data$Q) \\
+\hspace*{0.27 in} sigma <- runif(Data$J) \\
+\hspace*{0.27 in} return(c(alpha, Gamma.phi, Phi, Gamma.theta, Theta, sigma))
+\hspace*{0.27 in} \} \\
+MyData <- list(J=J, L.P=L.P, L.Q=L.Q, P=P, Q=Q, PGF=PGF, T=T, Y=Y, \\
+\hspace*{0.27 in} mon.names=mon.names, parm.names=parm.names, pos.alpha=pos.alpha, \\
+\hspace*{0.27 in} pos.Gamma.phi=pos.Gamma.phi, pos.Phi=pos.Phi, \\
+\hspace*{0.27 in} pos.Gamma.theta=pos.Gamma.theta, pos.Theta=pos.Theta, \\
+\hspace*{0.27 in} pos.sigma=pos.sigma) \\
+}
+\subsection{Model}
+\code{Model <- function(parm, Data) \\
+\hspace*{0.27 in} \{ \\
+\hspace*{0.27 in} \#\#\# Parameters \\
+\hspace*{0.27 in} alpha <- parm[Data$pos.alpha] \\
+\hspace*{0.27 in} Gamma.phi <- array(parm[Data$pos.Gamma.phi], \\
+\hspace*{0.62 in} dim=c(Data$J, Data$J, Data$P)) \\
+\hspace*{0.27 in} Phi.Sigma <- Gamma.phi * 10 \\
+\hspace*{0.27 in} Phi.Sigma[Gamma.phi == 0] <- 0.1 \\
+\hspace*{0.27 in} Phi <- array(parm[Data$pos.Phi], dim=c(Data$J, Data$J, Data$P)) \\
+\hspace*{0.27 in} Gamma.theta <- array(parm[Data$pos.Gamma.theta], \\
+\hspace*{0.62 in} dim=c(Data$J, Data$J, Data$Q)) \\
+\hspace*{0.27 in} Theta.Sigma <- Gamma.theta * 10 \\
+\hspace*{0.27 in} Theta.Sigma[Gamma.theta == 0] <- 0.1 \\
+\hspace*{0.27 in} Theta <- array(parm[Data$pos.Theta], dim=c(Data$J, Data$J, Data$Q)) \\
+\hspace*{0.27 in} sigma <- interval(parm[Data$pos.sigma], 1e-100, Inf) \\
+\hspace*{0.27 in} parm[Data$pos.sigma] <- sigma \\
+\hspace*{0.27 in} \#\#\# Log-Prior \\
+\hspace*{0.27 in} alpha.prior <- sum(dnormv(alpha, 0, 1000, log=TRUE)) \\
+\hspace*{0.27 in} Gamma.phi.prior <- sum(dbern(Gamma.phi, 0.5, log=TRUE)) \\
+\hspace*{0.27 in} Phi.prior <- sum(dnorm(Phi, 0, Phi.Sigma, log=TRUE)) \\
+\hspace*{0.27 in} Gamma.theta.prior <- sum(dbern(Gamma.theta, 0.5, log=TRUE)) \\
+\hspace*{0.27 in} Theta.prior <- sum(dnorm(Theta, 0, Theta.Sigma, log=TRUE)) \\
+\hspace*{0.27 in} sigma.prior <- sum(dhalfcauchy(sigma, 25, log=TRUE)) \\
+\hspace*{0.27 in} \#\#\# Log-Likelihood \\
+\hspace*{0.27 in} mu <- matrix(alpha, Data$T, Data$J, byrow=TRUE) \\
+\hspace*{0.27 in} for (p in 1:Data$P) \\
+\hspace*{0.62 in} mu[(1+Data$L.P[p]):Data$T,] <- mu[(1+Data$L.P[p]):Data$T,] + \\
+\hspace*{0.95 in} Data$Y[1:(Data$T-Data$L.P[p]),] \%*\% \\
+\hspace*{0.95 in} (Gamma.phi[, , p] * Phi[, , p]) \\
+\hspace*{0.27 in} epsilon <- Data$Y - mu \\
+\hspace*{0.27 in} for (q in 1:Data$Q) \\
+\hspace*{0.62 in} mu[(1+Data$L.Q[q]):Data$T,] <- mu[(1+Data$L.Q[q]):Data$T,] + \\
+\hspace*{0.95 in} epsilon[1:(Data$T-Data$L.Q[q]),] \%*\% \\
+\hspace*{0.95 in} (Gamma.theta[, , q] * Theta[, , q]) \\
+\hspace*{0.27 in} Sigma <- matrix(sigma, Data$T, Data$J, byrow=TRUE) \\
+\hspace*{0.27 in} LL <- sum(dnorm(Data$Y[(1+Data$L.P[Data$P]):Data$T,], \\
+\hspace*{0.62 in} mu[(1+Data$L.P[Data$P]):Data$T,], \\
+\hspace*{0.62 in} Sigma[(1+Data$L.P[Data$P]):Data$T,], log=TRUE)) \\
+\hspace*{0.27 in} \#\#\# Log-Posterior \\
+\hspace*{0.27 in} LP <- LL + alpha.prior + Gamma.phi.prior + Phi.prior + \\
+\hspace*{0.27 in} Gamma.theta.prior + Theta.prior + sigma.prior \\
+\hspace*{0.27 in} Modelout <- list(LP=LP, Dev=-2*LL, Monitor=LP, \\
+\hspace*{0.62 in} yhat=rnorm(prod(dim(mu)), mu, Sigma), parm=parm) \\
+\hspace*{0.27 in} return(Modelout) \\
+\hspace*{0.27 in} \} \\
+}
+\subsection{Initial Values}
+\code{Initial.Values <- c(colMeans(Y), rep(1,J*J*P), runif(J*J*P,-1,1), \\
+\hspace*{0.27 in} rep(1,J*J*Q), rep(0,J*J*Q), rep(1,J))}
+
+\section{VAR(p)-GARCH(1,1)-M} \label{varpgarchm}
+The Minnesota prior is applied to the VAR parameters, and the multivariate GARCH component is estimated with asymmetric BEKK. Compared to VAR(p) or VARMA(p,q), this is computationally intensive. However, it also tends to result in a substantial improvement when time for computation is feasible. This model also performs well when SSVS is applied to all parameters except \textbf{C}, though it is even more computationally intensive, and is not shown here.
+\subsection{Form}
+$$\textbf{Y}_{t,1:J} \sim \mathcal{N}_J(\mu_{t,1:J}, H_{1:J,1:J,t})$$
+$$\mu_{t,j} = \alpha_j + \sum^P_{p=1} \Phi_{1:J,j,p} \textbf{Y}_{t-p,j} + \sum \textbf{H}_{1:J,j,t-1} \delta_{1:J,j}$$
+$$\textbf{H}_{,,t} = \Omega + \textbf{A}^T \epsilon_{t-1,}\epsilon^T_{t-1} \textbf{A} + \textbf{B}^T \textbf{H}_{,,t-1}\textbf{B} + \textbf{D}^T\zeta_{t-1,}\zeta^T_{t-1,}\textbf{D}, \quad t=2,\dots,T$$
+$$\Omega = \textbf{C}\textbf{C}^T$$
+$$\alpha_j \sim \mathcal{N}(0, 1000)$$
+$$\delta_{i,k} \sim \mathcal{N}(0, 1000), \quad i=1,\dots,J, \quad k=1,\dots,J$$
+$$\Phi_{i,k,p} \sim \mathcal{N}(\Phi^\mu_{i,k,p}, \Sigma_{i,k,p}), \quad i=1,\dots,J, \quad k=1,\dots,J, \quad p=1,\dots,P$$
+$$\textbf{C}_{i,j} \sim \mathcal{N}(0, 100)$$
+$$\textbf{A}_{i,j} \sim \mathcal{N}(0, 100)$$
+$$\textbf{B}_{i,j} \sim \mathcal{N}(0, 100)$$
+$$\textbf{D}_{i,j} \sim \mathcal{N}(0, 100)$$
+where $\Phi$ has a Minnesota prior, \textbf{C} is lower-triangular with positive-only diagonal elements, and $\textbf{A}_{1,1}$, $\textbf{B}_{1,1}$, and $\textbf{D}_{1,1}$ must be positive.
+\subsection{Data}
+\code{data(demonfx) \\
+Y.orig <- as.matrix(demonfx[,1:3]) \\
+Y <- diff(log(Y.orig[1:100,])) \\
 Y.scales <- sqrt(.colVars(Y)) \\
 Y <- Y / matrix(Y.scales, nrow(Y), ncol(Y), byrow=TRUE) \\
 T <- nrow(Y) \\
 J <- ncol(Y) \\
 L <- c(1,5,20) \#Autoregressive lags \\
 P <- length(L) \#Autoregressive order \\
+Phi.mu <- array(0, dim=c(J,J,P)) \\
+Phi.mu[, , 1] <- diag(J) \\
+C <- matrix(NA, J, J) \\
+C[lower.tri(C, diag=TRUE)] <- 0 \\
+mon.names <- "LP" \\
+parm.names <- as.parm.names(list(alpha=rep(0,J), delta=matrix(0,J,J), \\
+\hspace*{0.27 in} Phi=array(0, dim=c(J,J,P)), C=C, A=matrix(0,J,J), B=matrix(0,J,J), \\
+\hspace*{0.27 in} D=matrix(0,J,J))) \\
+pos.alpha <- grep("alpha", parm.names) \\
+pos.delta <- grep("delta", parm.names) \\
+pos.Phi <- grep("Phi", parm.names) \\
+pos.C <- grep("C", parm.names) \\
+pos.A <- grep("A", parm.names) \\
+pos.B <- grep("B", parm.names) \\
+pos.D <- grep("D", parm.names) \\
+PGF <- function(Data) \{ \\
+\hspace*{0.27 in} alpha <- rnorm(Data$J) \\
+\hspace*{0.27 in} delta <- rnorm(Data$J*Data$J) \\
+\hspace*{0.27 in} Phi <- runif(Data$J*Data$J*Data$P, -1, 1) \\
+\hspace*{0.27 in} C <- runif(Data$J*(Data$J+1)/2) \\
+\hspace*{0.27 in} A <- as.vector(diag(Data$J)) + runif(Data$J*Data$J, -0.1, 0.1) \\
+\hspace*{0.27 in} B <- as.vector(diag(Data$J)) + runif(Data$J*Data$J, -0.1, 0.1) \\
+\hspace*{0.27 in} D <- as.vector(diag(Data$J)) + runif(Data$J*Data$J, -0.1, 0.1) \\
+\hspace*{0.27 in} return(c(alpha, delta, Phi, C, A, B, D)) \\
+\hspace*{0.27 in} \} \\
+MyData <- list(J=J, L=L, P=P, PGF=PGF, Phi.mu=Phi.mu, T=T, Y=Y, \\
+\hspace*{0.27 in} mon.names=mon.names, parm.names=parm.names, pos.alpha=pos.alpha, \\
+\hspace*{0.27 in} pos.delta=pos.delta, pos.Phi=pos.Phi, pos.C=pos.C, pos.A=pos.A, \\
+\hspace*{0.27 in} pos.B=pos.B, pos.D=pos.D) \\
+}
+\subsection{Model}
+\code{Model <- function(parm, Data) \\
+\hspace*{0.27 in} \{ \\
+\hspace*{0.27 in} \#\#\# Parameters \\
+\hspace*{0.27 in} alpha <- parm[Data$pos.alpha] \\
+\hspace*{0.27 in} delta <- matrix(parm[Data$pos.delta], Data$J, Data$J) \\
+\hspace*{0.27 in} Phi <- array(parm[Data$pos.Phi], dim=c(Data$J, Data$J, Data$P)) \\
+\hspace*{0.27 in} C <- matrix(0, Data$J, Data$J) \\
+\hspace*{0.27 in} C[lower.tri(C, diag=TRUE)] <- parm[Data$pos.C] \\
+\hspace*{0.27 in} diag(C) <- abs(diag(C)) \\
+\hspace*{0.27 in} parm[Data$pos.C] <- C[lower.tri(C, diag=TRUE)] \\
+\hspace*{0.27 in} Omega <- C \%*\% t(C) \\
+\hspace*{0.27 in} A <- matrix(parm[Data$pos.A], Data$J, Data$J) \\
+\hspace*{0.27 in} A[1,1] <- abs(A[1,1]) \\
+\hspace*{0.27 in} parm[Data$pos.A] <- as.vector(A) \\
+\hspace*{0.27 in} B <- matrix(parm[Data$pos.B], Data$J, Data$J) \\
+\hspace*{0.27 in} B[1,1] <- abs(B[1,1]) \\
+\hspace*{0.27 in} parm[Data$pos.B] <- as.vector(B) \\
+\hspace*{0.27 in} D <- matrix(parm[Data$pos.D], Data$J, Data$J) \\
+\hspace*{0.27 in} D[1,1] <- abs(D[1,1]) \\
+\hspace*{0.27 in} parm[Data$pos.D] <- as.vector(D) \\
+\hspace*{0.27 in} \#\#\# Log-Prior \\
+\hspace*{0.27 in} alpha.prior <- sum(dnormv(alpha, 0, 1000, log=TRUE)) \\
+\hspace*{0.27 in} delta.prior <- sum(dnormv(delta, 0, 1000, log=TRUE)) \\
+\hspace*{0.27 in} Sigma <- MinnesotaPrior(Data$J, lags=Data$L, lambda=1, \\
+\hspace*{0.62 in} theta=0.5, sqrt(diag(Omega))) \\
+\hspace*{0.27 in} Phi.prior <- sum(dnormv(Phi, Data$Phi.mu, Sigma, log=TRUE)) \\
+\hspace*{0.27 in} C.prior <- sum(dnormv(C[lower.tri(C, diag=TRUE)], 0, 100, log=TRUE)) \\
+\hspace*{0.27 in} A.prior <- sum(dnormv(A, 0, 100, log=TRUE)) \\
+\hspace*{0.27 in} B.prior <- sum(dnormv(B, 0, 100, log=TRUE)) \\
+\hspace*{0.27 in} D.prior <- sum(dnormv(D, 0, 100, log=TRUE)) \\
+\hspace*{0.27 in} \#\#\# Log-Likelihood \\
+\hspace*{0.27 in} mu <- matrix(alpha, Data$T, Data$J, byrow=TRUE) \\
+\hspace*{0.27 in} for (p in 1:Data$P) \\
+\hspace*{0.62 in} mu[(1+Data$L[p]):Data$T,] <- mu[(1+Data$L[p]):Data$T,] + \\
+\hspace*{0.95 in} Data$Y[1:(Data$T-Data$L[p]),] \%*\% Phi[, , p] \\
+\hspace*{0.27 in} LL <- 0 \\
+\hspace*{0.27 in} Yhat <- Data$Y \\
+\hspace*{0.27 in} H <- array(Omega, dim=c(Data$J, Data$J, Data$T)) \\
+\hspace*{0.27 in} for (t in 2:Data$T) \{ \\
+\hspace*{0.62 in} eps <- Data$Y - mu \\
+\hspace*{0.62 in} zeta <- matrix(interval(eps, -Inf, 0, reflect=FALSE), Data$T, \\
+\hspace*{0.95 in} Data$J) \\
+\hspace*{0.62 in} part1 <- t(A) \%*\% eps[t-1,] \%*\% t(eps[t-1,]) \%*\% A \\
+\hspace*{0.62 in} part2 <- t(B) \%*\% H[, , t-1] \%*\% B \\
+\hspace*{0.62 in} part3 <- t(D) \%*\% zeta[t-1,] \%*\% t(zeta[t-1,]) \%*\% D \\
+\hspace*{0.62 in} H0 <- Omega + part1 + part2 + part3 \\
+\hspace*{0.62 in} H0[upper.tri(H0, diag=TRUE)] <- t(H0)[upper.tri(H0, diag=TRUE)] \\
+\hspace*{0.62 in} H[, , t] <- H0 \\
+\hspace*{0.62 in} mu[t-1,] <- mu[t-1,] + colMeans(H[, , t-1]*delta) \\
+\hspace*{0.62 in} Sigma <- MinnesotaPrior(Data$J, lags=Data$L, lambda=1, \\
+\hspace*{0.95 in} theta=0.5, sqrt(diag(H[, , t]))) \\
+\hspace*{0.62 in} Phi.prior <- Phi.prior + sum(dnormv(Phi, Data$Phi.mu, Sigma, \\
+\hspace*{0.95 in} log=TRUE)) \\
+\hspace*{0.62 in} LL <- LL + dmvn(Y[t,], mu[t,], H[, , t], log=TRUE) \\
+\hspace*{0.62 in} Yhat[t,] <- rmvn(1, mu[t,], H[, , t]) \\
+\hspace*{0.62 in} \} \\
+\hspace*{0.27 in} Phi.prior <- Phi.prior / Data$T \\
+\hspace*{0.27 in} \#\#\# Log-Posterior \\
+\hspace*{0.27 in} LP <- LL + alpha.prior + delta.prior + Phi.prior + C.prior + \\
+\hspace*{0.62 in} A.prior + B.prior + D.prior \\
+\hspace*{0.27 in} Modelout <- list(LP=LP, Dev=-2*LL, Monitor=LP, yhat=Yhat, parm=parm) \\
+\hspace*{0.27 in} return(Modelout) \\
+\hspace*{0.27 in} \} \\
+}
+\subsection{Initial Values}
+\code{Initial.Values <- c(colMeans(Y), rnorm(J*J), runif(J*J*P,-1,1), \\
+\hspace*{0.27 in} runif(J*(J+1)/2), as.vector(diag(J)), as.vector(diag(J)), \\
+\hspace*{0.27 in} as.vector(diag(J)))}
+
+\section{VAR(p) - Minnesota Prior} \label{varp}
+This is an example of a vector autoregression or VAR with $P$ lags that uses the Minnesota prior to estimate $\Sigma$.
+\subsection{Form}
+$$\textbf{Y}_{t,j} \sim \mathcal{N}(\mu_{t,j}, \sigma^2_j), \quad t=1,\dots,T, \quad j=1,\dots,J$$
+$$\mu_{t,j} = \alpha_j + \sum^P_{p=1} \Phi_{1:J,j,p} \textbf{Y}_{t-p,j}$$
+$$\textbf{y}^{new}_j = \alpha_j + \Phi_{1:J,j} \textbf{Y}_{T,j}$$
+$$\alpha_j \sim \mathcal{N}(0, 1000)$$
+$$\Phi_{i,k,p} \sim \mathcal{N}(\Phi^\mu_{i,k,p}, \Sigma_{i,k,p}), \quad i=1,\dots,J, \quad k=1,\dots,J, \quad p=1,\dots,P$$
+$$\sigma_j \sim \mathcal{HC}(25)$$
+where $\Phi^\mu$ and $\Sigma$ are set according to the Minnesota prior.
+\subsection{Data}
+\code{data(demonfx) \\
+Y.orig <- as.matrix(demonfx[,1:3]) \\
+Y <- diff(log(Y.orig[1:100,])) \\
+Y.scales <- sqrt(.colVars(Y)) \\
+Y <- Y / matrix(Y.scales, nrow(Y), ncol(Y), byrow=TRUE) \\
+T <- nrow(Y) \\
+J <- ncol(Y) \\
+L <- c(1,5,20) \#Autoregressive lags \\
+P <- length(L) \#Autoregressive order \\
+Phi.mu <- array(0, dim=c(J,J,P)) \\
+Phi.mu[, , 1] <- diag(J) \\
 mon.names <- "LP" \\
 parm.names <- as.parm.names(list(alpha=rep(0,J), \\
 \hspace*{0.27 in} Phi=array(0, dim=c(J,J,P)), sigma=rep(0,J))) \\
@@ -7403,9 +7525,9 @@ PGF <- function(Data) \{ \\
 \hspace*{0.27 in} sigma <- runif(Data$J) \\
 \hspace*{0.27 in} return(c(alpha, Phi, sigma)) \\
 \hspace*{0.27 in} \} \\
-MyData <- list(J=J, L=L, P=P, PGF=PGF, T=T, Y=Y, mon.names=mon.names, \\
-\hspace*{0.27 in} parm.names=parm.names, pos.alpha=pos.alpha, pos.Phi=pos.Phi, \\
-\hspace*{0.27 in} pos.sigma=pos.sigma) \\
+MyData <- list(J=J, L=L, P=P, PGF=PGF, Phi.mu=Phi.mu, T=T, Y=Y, \\
+\hspace*{0.27 in} mon.names=mon.names, parm.names=parm.names, pos.alpha=pos.alpha, \\
+\hspace*{0.27 in} pos.Phi=pos.Phi, pos.sigma=pos.sigma) \\
 }
 \subsection{Model}
 \code{Model <- function(parm, Data) \\
@@ -7419,7 +7541,7 @@ MyData <- list(J=J, L=L, P=P, PGF=PGF, T=T, Y=Y, mon.names=mon.names, \\
 \hspace*{0.27 in} alpha.prior <- sum(dnormv(alpha, 0, 1000, log=TRUE)) \\
 \hspace*{0.27 in} Sigma <- MinnesotaPrior(Data$J, lags=Data$L, lambda=1, theta=0.5, \\
 \hspace*{0.62 in} sigma) \\
-\hspace*{0.27 in} Phi.prior <- sum(dnormv(Phi, 0, Sigma, log=TRUE)) \\
+\hspace*{0.27 in} Phi.prior <- sum(dnormv(Phi, Data$Phi.mu, Sigma, log=TRUE)) \\
 \hspace*{0.27 in} sigma.prior <- sum(dhalfcauchy(sigma, 25, log=TRUE)) \\
 \hspace*{0.27 in} \#\#\# Log-Likelihood \\
 \hspace*{0.27 in} mu <- matrix(alpha, Data$T, Data$J, byrow=TRUE) \\
@@ -7439,6 +7561,79 @@ MyData <- list(J=J, L=L, P=P, PGF=PGF, T=T, Y=Y, mon.names=mon.names, \\
 }
 \subsection{Initial Values}
 \code{Initial.Values <- c(as.vector(colMeans(Y)), rep(0,J*J*P), rep(1,J))}
+
+\section{VAR(p) - SSVS} \label{varpsvss}
+Stochastic search variable selection (SSVS) is applied to VAR autoregressive parameters. Note that the constants for the mixture variances are typically multiplied by the posterior standard deviations from an unrestricted VAR that was updated previously, and these are not included in this example.
+\subsection{Form}
+$$\textbf{Y}_{t,j} \sim \mathcal{N}(\mu_{t,j}, \sigma^2_j), \quad t=1,\dots,T, \quad j=1,\dots,J$$
+$$\mu_{t,j} = \alpha_j + \sum^P_{p=1} \Gamma_{1:J,j,p}\Phi_{1:J,j,p}\textbf{Y}_{t-p,j}$$
+$$\alpha_j \sim \mathcal{N}(0, 1000)$$
+$$\Gamma_{i,k,p} \sim \mathcal{BERN}(0.5), \quad i=1,\dots,J, \quad k=1,\dots,J, \quad p=1,\dots,P$$
+$$(\Phi_{i,k,p} | \Gamma_{i,k,p}) \sim (1 - \Gamma_{i,k,p})\mathcal{N}(0, 0.01) + \Gamma_{i,k,p}\mathcal{N}(0, 10), \quad i=1,\dots,J, \quad k=1,\dots,J, \quad p=1,\dots,P$$
+$$\sigma_j \sim \mathcal{HC}(25)$$
+\subsection{Data}
+\code{data(demonfx) \\
+Y.orig <- as.matrix(demonfx[,1:3]) \\
+Y <- diff(log(Y.orig[1:100,])) \\
+Y.scales <- sqrt(.colVars(Y)) \\
+Y <- Y / matrix(Y.scales, nrow(Y), ncol(Y), byrow=TRUE) \\
+T <- nrow(Y) \\
+J <- ncol(Y) \\
+L <- c(1,5,20) \#Autoregressive lags \\
+P <- length(L) \#Autoregressive order \\
+mon.names <- "LP" \\
+parm.names <- as.parm.names(list(alpha=rep(0,J), \\
+     Gamma=array(0, dim=c(J,J,P)), Phi=array(0, dim=c(J,J,P)), \\
+     sigma=rep(0,J))) \\
+pos.alpha <- grep("alpha", parm.names) \\
+pos.Gamma <- grep("Gamma", parm.names) \\
+pos.Phi <- grep("Phi", parm.names) \\
+pos.sigma <- grep("sigma", parm.names) \\
+PGF <- function(Data) \{ \\
+\hspace*{0.27 in} alpha <- rnorm(Data$J) \\
+\hspace*{0.27 in} Gamma <- rep(1, Data$J*Data$J*Data$P) \\
+\hspace*{0.27 in} Phi <- runif(Data$J*Data$J*Data$P, -1, 1) \\
+\hspace*{0.27 in} sigma <- runif(Data$J) \\
+\hspace*{0.27 in} return(c(alpha, Gamma, Phi, sigma)) \\
+\hspace*{0.27 in} \}
+MyData <- list(J=J, L=L, P=P, PGF=PGF, T=T, Y=Y, mon.names=mon.names, \\
+\hspace*{0.27 in} parm.names=parm.names, pos.alpha=pos.alpha, pos.Gamma=pos.Gamma, \\
+\hspace*{0.27 in} pos.Phi=pos.Phi, pos.sigma=pos.sigma) \\
+}
+\subsection{Model}
+\code{Model <- function(parm, Data) \\
+\hspace*{0.27 in} \{ \\
+\hspace*{0.27 in} \#\#\# Parameters \\
+\hspace*{0.27 in} alpha <- parm[Data$pos.alpha] \\
+\hspace*{0.27 in} Gamma <- array(parm[Data$pos.Gamma], dim=c(Data$J, Data$J, Data$P)) \\
+\hspace*{0.27 in} Phi.Sigma <- Gamma * 10 \\
+\hspace*{0.27 in} Phi.Sigma[Gamma == 0] <- 0.1 \\
+\hspace*{0.27 in} Phi <- array(parm[Data$pos.Phi], dim=c(Data$J, Data$J, Data$P)) \\
+\hspace*{0.27 in} sigma <- interval(parm[Data$pos.sigma], 1e-100, Inf) \\
+\hspace*{0.27 in} parm[Data$pos.sigma] <- sigma \\
+\hspace*{0.27 in} \#\#\# Log-Prior \\
+\hspace*{0.27 in} alpha.prior <- sum(dnormv(alpha, 0, 1000, log=TRUE)) \\
+\hspace*{0.27 in} Gamma.prior <- sum(dbern(Gamma, 0.5, log=TRUE)) \\
+\hspace*{0.27 in} Phi.prior <- sum(dnorm(Phi, 0, Phi.Sigma, log=TRUE)) \\
+\hspace*{0.27 in} sigma.prior <- sum(dhalfcauchy(sigma, 25, log=TRUE)) \\
+\hspace*{0.27 in} \#\#\# Log-Likelihood \\
+\hspace*{0.27 in} mu <- matrix(alpha, Data$T, Data$J, byrow=TRUE) \\
+\hspace*{0.27 in} for (p in 1:Data$P) \\
+\hspace*{0.62 in} mu[(1+Data$L[p]):Data$T,] <- mu[(1+Data$L[p]):Data$T,] + \\
+\hspace*{0.62 in} Data$Y[1:(Data$T-Data$L[p]),] \%*\% (Gamma[, , p]*Phi[, , p]) \\
+\hspace*{0.27 in} Sigma <- matrix(sigma, Data$T, Data$J, byrow=TRUE) \\
+\hspace*{0.27 in} LL <- sum(dnorm(Data$Y[(1+Data$L[Data$P]):Data$T,], \\
+\hspace*{0.62 in} mu[(1+Data$L[Data$P]):Data$T,], \\
+\hspace*{0.62 in} Sigma[(1+Data$L[Data$P]):Data$T,], log=TRUE)) \\
+\hspace*{0.27 in} \#\#\# Log-Posterior \\
+\hspace*{0.27 in} LP <- LL + alpha.prior + Gamma.prior + Phi.prior + sigma.prior \\
+\hspace*{0.27 in} Modelout <- list(LP=LP, Dev=-2*LL, Monitor=LP, \\
+\hspace*{0.62 in} yhat=rnorm(prod(dim(mu)), mu, Sigma), parm=parm) \\
+\hspace*{0.27 in} return(Modelout) \\
+\hspace*{0.27 in} \} \\
+}
+\subsection{Initial Values}
+\code{Initial.Values <- c(colMeans(Y), rep(1,J*J*P), runif(J*J*P,-1,1), rep(1,J))}
 
 \section{Weighted Regression} \label{weighted.reg}
 It is easy enough to apply record-level weights to the likelihood. Here, weights are applied to the linear regression example in section \ref{linear.reg}.

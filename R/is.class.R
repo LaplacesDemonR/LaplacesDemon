@@ -46,6 +46,12 @@ is.demonoid.val <- function(x)
      if(identical(class(x), "demonoid.val")) demonoid.val <- TRUE
      return(demonoid.val)
      }
+is.hangartner <- function(x)
+     {
+     hangartner <- FALSE
+     if(identical(class(x), "hangartner")) hangartner <- TRUE
+     return(hangartner)
+     }
 is.heidelberger <- function(x)
      {
      heidelberger <- FALSE

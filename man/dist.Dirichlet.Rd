@@ -83,8 +83,9 @@ parameter.
 \seealso{
   \code{\link{dbeta}},
   \code{\link{dcat}},
-  \code{\link{dmvpolya}}, and
-  \code{\link{dmultinom}}.
+  \code{\link{dmvpolya}},
+  \code{\link{dmultinom}}, and
+  \code{\link{TransitionMatrix}}.
 }
 \examples{
 library(LaplacesDemon)

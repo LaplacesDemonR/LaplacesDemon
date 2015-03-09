@@ -65,8 +65,8 @@ LML <- function(Model=NULL, Data=NULL, Modes=NULL, theta=NULL, LL=NULL,
                cat("\nWARNING: At least 301 samples are required for NSIS in LML.\n")
                return(list(LML=NA, VarCov=NA))}
           if(thetacol > round(LLlen / 2)) {
-               cat("\nWARNING: The number of parameters, ", thetacol,
-                    ",\n exceeds half the number of stationary samples, ",
+               cat("\nWARNING: The number of parameters,", thetacol,
+                    ",\n exceeds half the number of stationary samples,",
                     round(LLlen / 2), ",\n required for NSIS.\n")
                return(list(LML=NA, VarCov=NA))}
           cov.prob <- 0.5

@@ -4,14 +4,17 @@
 \description{
   Not to be confused with posterior predictive checks, this function
   provides additional information about the marginal posterior
-  distributions, such as the probability that each posterior coefficient
-  of the parameters (referred to generically as \eqn{\theta}{theta}), is
-  greater than zero [\eqn{p(\theta > 0)}{p(theta > 0)}], the estimated
-  number of modes, the kurtosis and skewness of the posterior
-  distributions, the burn-in of each chain (for MCMC only), 
-  integrated autocorrelation time, independent samples per minute, and
-  acceptance rate. A posterior correlation matrix is provided only for
-  objects of class \code{demonoid} or \code{pmc}.
+  distributions of continuous parameters, such as the probability that
+  each posterior coefficient of the parameters (referred to generically
+  as \eqn{\theta}{theta}), is greater than zero
+  [\eqn{p(\theta > 0)}{p(theta > 0)}], the estimated number of modes,
+  the kurtosis and skewness of the posterior distributions, the burn-in
+  of each chain (for MCMC only), integrated autocorrelation time,
+  independent samples per minute, and acceptance rate. A posterior
+  correlation matrix is provided only for objects of class
+  \code{demonoid} or \code{pmc}.
+
+  For discrete parameters, see the \code{\link{Hangartner.Diagnostic}}.
 }
 \usage{
 PosteriorChecks(x, Parms)
@@ -120,6 +123,7 @@ PosteriorChecks(x, Parms)
   \code{\link{Blocks}},
   \code{\link{burnin}},
   \code{\link{ESS}},
+  \code{\link{Hangartner.Diagnostic}},
   \code{\link{joint.density.plot}},
   \code{\link{IAT}},
   \code{\link{Importance}},

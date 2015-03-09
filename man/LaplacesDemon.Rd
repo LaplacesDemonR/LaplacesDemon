@@ -867,7 +867,7 @@ print(Fit)
 ##FC <- cmpfun(FC) #Consider byte-compiling for more speed
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
-#     Algorithm="Gibbs", Specs=list(FC=FC, MWG=5))
+#     Algorithm="Gibbs", Specs=list(FC=FC, MWG=pos.sigma))
 
 #############################  Griddy-Gibbs  ##############################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,

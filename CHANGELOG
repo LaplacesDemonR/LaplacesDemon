@@ -1,3 +1,8 @@
+2013-03-08 Added Hangartner.Diagnostic, is.hangartner, and TransitionMatrix
+2013-03-07 Examples: Upgraded VAR(p)-GARCH(1,1)-M to asymmetric BEKK
+2015-03-06 Examples: Added VARMA(p,q) - SSVS, and VAR(p) - SVSS
+2015-03-05 LaplacesDemon: AFSS is now prevented from incomplete 
+           end-of-chain adaptations
 2015-03-04 Distributions: Added Normal-Inverse-Wishart and Normal-Wishart
 2015-03-03 Examples: Re-introduced Exploratory Cluster Analysis and the 
            Infinite Mixture Model

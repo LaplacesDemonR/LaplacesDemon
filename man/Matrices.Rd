@@ -18,6 +18,7 @@
 \alias{lower.triangle}
 \alias{read.matrix}
 \alias{SparseGrid}
+\alias{TransitionMatrix}
 \alias{tr}
 \alias{upper.triangle}
 \title{Matrix Utility Functions}
@@ -44,6 +45,7 @@ logdet(x)
 lower.triangle(x, diag=FALSE)
 read.matrix(file, header=FALSE, sep=",", nrow=0, samples=0, size=0, na.rm=FALSE)
 SparseGrid(J, K)
+TransitionMatrix(theta.y=NULL, y.theta=NULL, p.theta=NULL)
 tr(x)
 upper.triangle(x, diag=FALSE)
 }
@@ -117,6 +119,9 @@ upper.triangle(x, diag=FALSE)
   \item{nrow}{This is the number of rows of the numeric matrix, and
     defaults to \code{nrow=0}. If the number is known, the function will
     perform noticeably faster when it does not have to check.}
+  \item{p.theta}{This accepts a matrix of prior probabilities for a
+    transition matrix, and defaults to \code{NULL}. If used, each row
+    must sum to 1.}
   \item{samples}{This is the number of samples to take from the numeric
     matrix. When \code{samples=0}, sampling is not performed and the
     entire matrix is returned.}
@@ -129,12 +134,18 @@ upper.triangle(x, diag=FALSE)
     of a big data matrix is performed by first determining the records
     to keep, and then reading batches, one by one, and keeping the
     matching records.}
+  \item{theta.y}{This accepts a vector of posterior samples of a
+    discrete Markov chain, and defaults to \code{NULL}. If used, the
+    order of the samples affects the transition probability.}
   \item{na.rm}{Logical. When \code{TRUE}, rows with missing values are
     removed from the matrix after it is read. Rather than removing
     missing values, the user may consider imputing missing values inside
     the model, or before the model with the \code{\link{MISS}}
     function. Examples of within-model imputation may be found in the
     accompanying "Examples" vignette.}
+  \item{y.theta}{This accepts a vector of data that are samples of a
+    discrete distribution, and defaults to \code{NULL}. If used, the
+    order of the samples affects the transition probability.}
 }
 \details{
   The \code{as.indicator.matrix} function creates an indicator matrix
@@ -309,6 +320,14 @@ upper.triangle(x, diag=FALSE)
   \code{GaussHermiteCubeRule} function. This has been adapted from the
   SparseGrid package.
 
+  The \code{TransitionMatrix} function has several uses. A user may
+  supply a vector of posterior samples of a discrete Markov chain as
+  \code{theta.y}, and an observed posterior transition matrix is
+  returned. Otherwise, a user may supply data (\code{y.theta}) and/or
+  a prior (\code{p.theta}), in which case a posterior transition matrix
+  is returned. A common row-wise prior is the dirichlet distribution.
+  Transition probabilities are from row element to column element.
+
   The \code{tr} function returns the trace of a matrix. The trace of a
   matrix is the sum of the elements in the main diagonal of a square
   matrix. For example, the trace of a \eqn{k \times k}{k x k} matrix
@@ -329,6 +348,7 @@ upper.triangle(x, diag=FALSE)
   \code{\link{BayesianBootstrap}},
   \code{\link{Cov2Prec}},
   \code{\link{cov2cor}},
+  \code{\link{ddirichlet}},
   \code{\link{GaussHermiteQuadRule}},
   \code{\link{isSymmetric}},
   \code{\link{LaplaceApproximation}},

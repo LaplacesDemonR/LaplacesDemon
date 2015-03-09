@@ -919,6 +919,30 @@ SparseGrid <- function(J, K)
      weights <- abs(weights)/sum(abs(weights))
      return(list(nodes=nodes, weights=weights))
      }
+TransitionMatrix <- function(theta.y=NULL, y.theta=NULL, p.theta=NULL)
+     {
+     if(!is.null(theta.y)) {
+          theta.y <- as.vector(theta.y)
+          N <- length(theta.y)
+          theta.y <- as.matrix(table(theta.y[-N], theta.y[-1]))
+          theta.y <- theta.y / rowSums(theta.y)
+          return(theta.y)
+          }
+     else {
+          N <- length(y.theta)
+          y.theta <- as.matrix(table(From=y.theta[-N], To=y.theta[-1]))
+          y.theta <- y.theta / rowSums(y.theta)
+          if(!is.null(p.theta)) {
+               if(!is.matrix(p.theta)) p.theta <- as.matrix(p.theta)
+               if(!identical(dim(y.theta),dim(p.theta)))
+                    stop("Dimensions of p.theta differ from the matrix of y.theta.")
+               theta.y <- y.theta * p.theta
+               theta.y <- theta.y / rowSums(theta.y)
+               }
+          else p.theta <- y.theta
+          return(p.theta)
+          }
+     }
 tr <- function(x) {return(sum(diag(x)))}
 upper.triangle <- function(x, diag=FALSE)
      {

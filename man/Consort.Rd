@@ -31,6 +31,10 @@
   argument is suggested to be set equal to the value of
   \code{Rec.Thinning}.
 
+  Appeasement applies only when all parameters are continuous.The
+  \code{\link{Hangartner.Diagnostic}} should be considered for discrete
+  parameters.
+
   Appeasement Conditions
   \itemize{
     \item Algorithm: The final algorithm must be non-adaptive, so that
@@ -122,6 +126,7 @@
 \seealso{
   \code{\link{BMK.Diagnostic}},
   \code{\link{ESS}},
+  \code{\link{Hangartner.Diagnostic}},
   \code{\link{LaplacesDemon}},
   \code{\link{LaplacesDemon.hpc}},
   \code{\link{LPL.interval}},

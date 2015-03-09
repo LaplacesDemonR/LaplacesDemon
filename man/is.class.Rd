@@ -6,6 +6,7 @@
 \alias{is.demonoid.hpc}
 \alias{is.demonoid.ppc}
 \alias{is.demonoid.val}
+\alias{is.hangartner}
 \alias{is.heidelberger}
 \alias{is.importance}
 \alias{is.iterquad}
@@ -35,6 +36,7 @@ is.demonoid(x)
 is.demonoid.hpc(x)
 is.demonoid.ppc(x)
 is.demonoid.val(x)
+is.hangartner(x)
 is.heidelberger(x)
 is.importance(x)
 is.iterquad(x)
@@ -101,6 +103,9 @@ is.vb.ppc(x)
   The \code{is.demonoid.val} function returns a logical value indicating
   whether or not the supplied object is of class \code{demonoid.val}.
 
+  The \code{is.hangartner} function returns a logical value indicating
+  whether or not the supplied object is of class \code{hangartner}.
+
   The \code{is.heidelberger} function returns a logical value indicating
   whether or not the supplied object is of class \code{heidelberger}.
 
@@ -159,6 +164,7 @@ is.vb.ppc(x)
   \code{\link{Blocks}},
   \code{\link{BMK.Diagnostic}},
   \code{\link{class}},
+  \code{\link{Hangartner.Diagnostic}},
   \code{\link{Heidelberger.Diagnostic}},
   \code{\link{Importance}},
   \code{\link{IterativeQuadrature}},

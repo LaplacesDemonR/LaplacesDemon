@@ -93,7 +93,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(!identical(names(Specs), c("A","B","m","n","w")))
                     stop("The Specs argument is incorrect.", file=LogFile,
                          append=TRUE)
-               Specs[["A"]] <- abs(round(Specs[["A"]]))[1]
+               Specs[["A"]] <- min(round(abs(Specs[["A"]])), Iterations)
                Specs[["m"]] <- abs(round(Specs[["m"]]))
                if(!identical(length(Specs[["m"]]), length(Initial.Values)))
                     Specs[["m"]] <- rep(Specs[["m"]],
@@ -1819,7 +1819,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                obs.sum <- obs.sum + Mo0[["parm"]]
                obs.scatter <- obs.scatter + tcrossprod(Mo0[["parm"]])
                ### Adaptation
-               if(iter <= A) {
+               if({iter <= A} & {A - iter >= decomp.freq}) {
                     ### Tune Interval Widths
                     if(nProposals %% IterPerAdapt == 0) {
                          denom <- nExpands + nShrinks
@@ -1965,7 +1965,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     obs.scatter[[b]] <- obs.scatter[[b]] +
                          tcrossprod(Mo0[["parm"]][Block[[b]]])
                     ### Adaptation
-                    if(iter <= A) {
+                    if({iter <= A} & {A - iter >= decomp.freq[b]}) {
                          ### Tune Interval Widths
                          if(nProposals[b] %% IterPerAdapt[b] == 0) {
                               for (j in Block[[b]]) {
