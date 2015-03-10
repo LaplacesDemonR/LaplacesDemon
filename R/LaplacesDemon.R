@@ -76,7 +76,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
-               if(!identical(names(Specs), c("n","Periodicity")))
+               if(!all(c("n","Periodicity") %in% names(Specs)))
                     stop("The Specs argument is incorrect.", file=LogFile,
                          append=TRUE)
                Specs[["n"]] <- abs(round(Specs[["n"]]))
@@ -90,7 +90,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
-               if(!identical(names(Specs), c("A","B","m","n","w")))
+               if(!all(c("A","B","m","n","w") %in% names(Specs)))
                     stop("The Specs argument is incorrect.", file=LogFile,
                          append=TRUE)
                Specs[["A"]] <- min(round(abs(Specs[["A"]])), Iterations)
@@ -209,7 +209,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
-               if(!identical(names(Specs), c("Adaptive","Periodicity")))
+               if(!all(c("Adaptive","Periodicity") %in% names(Specs)))
                     stop("The Specs argument is incorrect.", file=LogFile,
                          append=TRUE)
                }
@@ -244,7 +244,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
-               if(!identical(names(Specs), c("B","n","Periodicity")))
+               if(!all(c("B","n","Periodicity") %in% names(Specs)))
                     stop("The Specs argument is incorrect.", file=LogFile,
                          append=TRUE)
                }
@@ -273,7 +273,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
-               if(!identical(names(Specs), c("Nc","Z","gamma","w")))
+               if(!all(c("Nc","Z","gamma","w") %in% names(Specs)))
                     stop("The Specs argument is incorrect.", file=LogFile,
                          append=TRUE)
                Specs[["Nc"]] <- max(abs(round(Specs[["Nc"]])), 3)
@@ -317,7 +317,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
-               if(!identical(names(Specs), c("Adaptive","Periodicity")))
+               if(!all(c("Adaptive","Periodicity") %in% names(Specs)))
                     stop("The Specs argument is incorrect.", file=LogFile,
                          append=TRUE)
                }
@@ -332,7 +332,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
-               if(!identical(names(Specs), c("B")))
+               if(!all(c("B") %in% names(Specs)))
                     stop("The Specs argument is incorrect.", file=LogFile,
                          append=TRUE)
                if(is.null(Specs[["B"]])) Specs[["B"]] <- list()
@@ -384,7 +384,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     if(!is.list(Specs))
                          stop("The Specs argument is not a list.",
                               file=LogFile, append=TRUE)
-                    if(!identical(names(Specs), c("FC","MWG")))
+                    if(!all(c("FC","MWG") %in% names(Specs)))
                          stop("The Specs argument is incorrect",
                               file=LogFile, append=TRUE)
                     if(!is.function(Specs[["FC"]]))
@@ -414,7 +414,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     if(!is.list(Specs))
                          stop("The Specs argument is not a list.",
                               file=LogFile, append=TRUE)
-                    if(!identical(names(Specs), c("alpha.star","B")))
+                    if(!all(c("alpha.star","B") %in% names(Specs)))
                          stop("The Specs argument is incorrect",
                               file=LogFile, append=TRUE)
                     Specs[["alpha.star"]] <- abs(as.vector(Specs[["alpha.star"]])[1])
@@ -435,7 +435,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
-               if(!identical(names(Specs), c("epsilon","L","m")))
+               if(!all(c("epsilon","L","m") %in% names(Specs)))
                     stop("The Specs argument is incorrect.", file=LogFile,
                          append=TRUE)
                Specs[["epsilon"]] <- abs(Specs[["epsilon"]])
@@ -497,7 +497,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
-               if(!identical(names(Specs), c("Adaptive","Periodicity")))
+               if(!all(c("Adaptive","Periodicity") %in% names(Specs)))
                     stop("The Specs argument is incorrect.", file=LogFile,
                          append=TRUE)
                }
@@ -572,7 +572,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
-               if(!identical(names(Specs), c("A","delta","epsilon","Lmax")))
+               if(!all(c("A","delta","epsilon","Lmax") %in% names(Specs)))
                     stop("The Specs argument is incorrect.", file=LogFile,
                          append=TRUE)
                Specs[["A"]] <- max(min(round(abs(Specs[["A"]])),
@@ -591,7 +591,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     if(!is.list(Specs))
                          stop("The Specs argument is not a list.",
                               file=LogFile, append=TRUE)
-                    if(!identical(names(Specs), c("A", "n")))
+                    if(!all(c("A", "n") %in% names(Specs)))
                           stop("The Specs argument is incorrect.",
                                file=LogFile, append=TRUE)
                     Specs[["A"]] <- round(abs(Specs[["A"]]))
@@ -654,7 +654,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
-               if(!identical(names(Specs), c("Adaptive","m","w","r")))
+               if(!all(c("Adaptive","m","w","r") %in% names(Specs)))
                     stop("The Specs argument is incorrect.", file=LogFile,
                          append=TRUE)
                Specs[["m"]] <- abs(round(Specs[["m"]]))
@@ -718,7 +718,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
-               if(!identical(names(Specs), c("m","w")))
+               if(!all(c("m","w") %in% names(Specs)))
                     stop("The Specs argument is incorrect.", file=LogFile,
                          append=TRUE)
                Specs[["m"]] <- abs(round(Specs[["m"]]))
@@ -756,7 +756,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
-               if(!identical(names(Specs), c("Dyn","Periodicity")))
+               if(!all(c("Dyn","Periodicity") %in% names(Specs)))
                     stop("The Specs argument is incorrect.", file=LogFile,
                          append=TRUE)
                if(!is.matrix(Specs[["Dyn"]]))
@@ -795,7 +795,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
-               if(!identical(names(Specs), c("B","Bounds","m","Type","w")))
+               if(!all(c("B","Bounds","m","Type","w") %in% names(Specs)))
                     stop("The Specs argument is incorrect.", file=LogFile,
                          append=TRUE)
                if(is.null(Specs[["B"]])) {
@@ -865,8 +865,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
-               if(!identical(names(Specs), c("epsilon","L","m",
-                    "Temperature")))
+               if(!all(c("epsilon","L","m",
+                    "Temperature") %in% names(Specs)))
                     stop("The Specs argument is incorrect.", file=LogFile,
                          append=TRUE)
                Specs[["epsilon"]] <- as.vector(abs(Specs[["epsilon"]]))
@@ -894,7 +894,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
-               if(!identical(names(Specs), c("SIV","n1","at","aw")))
+               if(!all(c("SIV","n1","at","aw") %in% names(Specs)))
                     stop("The Specs argument is incorrect.", file=LogFile,
                          append=TRUE)
                if(is.null(Specs[["SIV"]])) {
@@ -938,7 +938,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
-               if(!identical(names(Specs), c("A","B","m","n")))
+               if(!all(c("A","B","m","n") %in% names(Specs)))
                     stop("The Specs argument is incorrect.", file=LogFile,
                          append=TRUE)
                Specs[["A"]] <- abs(round(Specs[["A"]]))
@@ -973,7 +973,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(!is.list(Specs))
                     stop("The Specs argument is not a list.", file=LogFile,
                          append=TRUE)
-               if(!identical(names(Specs), c("Dyn","Fit","Begin")))
+               if(!all(c("Dyn","Fit","Begin") %in% names(Specs)))
                     stop("The Specs argument is incorrect.", file=LogFile,
                          append=TRUE)
                if(!is.matrix(Specs[["Dyn"]]))
