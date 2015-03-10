@@ -1,5 +1,10 @@
-2013-03-08 Added Hangartner.Diagnostic, is.hangartner, and TransitionMatrix
-2013-03-07 Examples: Upgraded VAR(p)-GARCH(1,1)-M to asymmetric BEKK
+2015-03-10 Distributions: Added Asymmetric Multivariate Laplace
+2015-03-10 LaplacesDemon: Allow different order of Specs, by
+           Richard Hermanson on Github, Pull request 17
+2015-03-09 Consort: Added missing commas in AMWG suggestion, by
+           Rhicard Hermanson on Github, Pull request 15
+2015-03-08 Added Hangartner.Diagnostic, is.hangartner, and TransitionMatrix
+2015-03-07 Examples: Upgraded VAR(p)-GARCH(1,1)-M to asymmetric BEKK
 2015-03-06 Examples: Added VARMA(p,q) - SSVS, and VAR(p) - SVSS
 2015-03-05 LaplacesDemon: AFSS is now prevented from incomplete 
            end-of-chain adaptations
