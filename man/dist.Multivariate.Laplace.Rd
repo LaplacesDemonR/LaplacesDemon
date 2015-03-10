@@ -125,6 +125,7 @@ multivariate normal distribution.
 }
 \author{Statisticat, LLC. \email{software@bayesian-inference.com}}
 \seealso{
+  \code{\link{daml}},
   \code{\link{dlaplace}},
   \code{\link{dmvn}},
   \code{\link{dmvnp}},

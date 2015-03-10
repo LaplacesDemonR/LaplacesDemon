@@ -149,6 +149,46 @@ rallaplace <- function(n, location=0, scale=1, kappa=1)
      }
 
 ###########################################################################
+# Asymmetric Multivariate Laplace Distribution                            #
+###########################################################################
+
+daml <- function (x, mu, Sigma, log=FALSE) 
+     {
+     if(!is.matrix(x)) x <- rbind(x)
+     if(!is.matrix(mu)) mu <- matrix(mu, nrow(x), ncol(x), byrow=TRUE)
+     if(missing(Sigma)) Sigma <- diag(ncol(x))
+     if(!is.matrix(Sigma)) Sigma <- matrix(Sigma)
+     Sigma <- as.symmetric.matrix(Sigma)
+     if(!is.positive.definite(Sigma)) 
+          stop("Matrix Sigma is not positive-definite.")
+     k <- nrow(Sigma)
+     Omega <- as.inverse(Sigma)
+     x.Omega.mu <- rowSums(x %*% Omega * mu)
+     x.Omega.x <- rowSums(x %*% Omega * x)
+     mu.Omega.mu <- rowSums(mu %*% Omega * mu)
+     dens <- as.vector(log(2) + x.Omega.mu -
+          (log(2*pi)*(k/2) + logdet(Sigma)*0.5) +
+          (log(x.Omega.x) - (log(2 + mu.Omega.mu)))*((2-k)/4) +
+          log(besselK(sqrt((2 + mu.Omega.mu) * x.Omega.x), (2-k)/2)))
+     if(log == FALSE) dens <- exp(dens)
+     return(dens)
+     }
+raml <- function(n, mu, Sigma) 
+     {
+     mu <- rbind(mu)
+     if(missing(Sigma)) Sigma <- diag(ncol(mu))
+     if(!is.matrix(Sigma)) Sigma <- matrix(Sigma)
+     if(!is.positive.definite(Sigma))
+          stop("Matrix Sigma is not positive-definite.")
+     k <- ncol(Sigma)
+     if(n > nrow(mu)) mu <- matrix(mu, n, k, byrow=TRUE)
+     e <- matrix(rexp(n, 1), n, k)
+     z <- rmvn(n, rep(0, k), Sigma)
+     x <- mu*e + sqrt(e)*z
+     return(x)
+     }
+
+###########################################################################
 # Bernoulli Distribution                                                  #
 #                                                                         #
 # These functions are similar to those in the Rlab package.               #
