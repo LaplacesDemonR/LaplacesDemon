@@ -321,9 +321,9 @@ upper.triangle(x, diag=FALSE)
   SparseGrid package.
 
   The \code{TransitionMatrix} function has several uses. A user may
-  supply a vector of posterior samples of a discrete Markov chain as
-  \code{theta.y}, and an observed posterior transition matrix is
-  returned. Otherwise, a user may supply data (\code{y.theta}) and/or
+  supply a vector of marginal posterior samples of a discrete Markov
+  chain as \code{theta.y}, and an observed posterior transition matrix
+  is returned. Otherwise, a user may supply data (\code{y.theta}) and/or
   a prior (\code{p.theta}), in which case a posterior transition matrix
   is returned. A common row-wise prior is the dirichlet distribution.
   Transition probabilities are from row element to column element.
