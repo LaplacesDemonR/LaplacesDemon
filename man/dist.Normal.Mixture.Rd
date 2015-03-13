@@ -16,7 +16,7 @@ rnormm(n, p, mu, sigma)
 \arguments{
   \item{x,q}{This is vector of values at which the density will be evaluated.}
   \item{p}{This is a vector of length \eqn{M} of probabilities for \eqn{M}
-    components. The sum of the vector  must be one.}
+    components. The sum of the vector must be one.}
   \item{n}{This is the number of observations, which must be a positive
     integer that has length 1.}
   \item{mu}{This is a vector of length \eqn{M} that is the mean
@@ -59,7 +59,8 @@ A normal mixture, or Gaussian mixture, distribution is a combination of
 normal probability distributions.
 }
 \value{
-  \code{dnormm} gives the density, and
+  \code{dnormm} gives the density,
+  \code{pnormm} returns the CDF, and
   \code{rnormm} generates random deviates.
 }
 \author{Statisticat, LLC. \email{software@bayesian-inference.com}}

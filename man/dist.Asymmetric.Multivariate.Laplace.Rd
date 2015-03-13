@@ -12,7 +12,7 @@ daml(x, mu, Sigma, log=FALSE)
 raml(n, mu, Sigma)
 }
 \arguments{
-  \item{x}{This is a \eqn{N \times K}{N x K} matrix of quantiles, or a
+  \item{x}{This is a \eqn{N \times K}{N x K} matrix of data, or a
     vector of length \eqn{K}.}
   \item{n}{This is the number of observations, which must be a positive
     integer that has length 1.}
@@ -75,7 +75,7 @@ distribution, regarding stocks and bonds. They find that it
 }
 \references{
   Anderson, D.N. (1992). "A Multivariate Linnik Distribution".
-  \emph{Statistical Probability Letters}, 14, p. 333-336.
+  \emph{Statistical Probability Letters}, 14, p. 333--336.
   
   Cajigas, J.P. and Urga, G. (2005) "Dynamic Conditional Correlation
   Models with Asymmetric Laplace Innovations". Centre for Economic
@@ -86,7 +86,7 @@ distribution, regarding stocks and bonds. They find that it
     
   Kozubowski, T.J. and Podgorski, K. (2001). "Asymmetric Laplace
   Laws and Modeling Financial Data". \emph{Mathematical and Computer
-  Modelling}, 34, p. 1003-1021.
+  Modelling}, 34, p. 1003--1021.
 }
 \seealso{\code{\link{dalaplace}} and
   \code{\link{dmvl}}
