@@ -1,3 +1,6 @@
+2015-03-13 Examples: Added PVAR(p)
+2015-03-13 Data: Added demonsessions
+2015-03-10 Distributions: Added Laplace Mixture
 2015-03-10 Distributions: Added Asymmetric Multivariate Laplace
 2015-03-10 LaplacesDemon: Allow different order of Specs, by
            Richard Hermanson on Github, Pull request 17
