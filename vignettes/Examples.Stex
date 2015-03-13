@@ -136,6 +136,7 @@ This vignette will grow over time as examples of more methods become included. C
 \item Multiple Discrete-Continuous Choice \ref{mdcc}
 \item Multivariate Binary Probit \ref{multiv.bin.probit}
 \item Multivariate Laplace Regression \ref{multivariate.lap.reg}
+\item Multivariate Poisson Regression \ref{multivariate.pois.reg}
 \item Multivariate Regression \ref{multivariate.reg}
 \item Negative Binomial Regression \ref{negbin.reg}
 \item Normal, Multilevel \ref{norm.ml}
@@ -5177,6 +5178,63 @@ MyData <- list(J=J, K=K, N=N, PGF=PGF, S=S, X=X, Y=Y, mon.names=mon.names, \\
 }
 \subsection{Initial Values}
 \code{Initial.Values <- c(rep(0,J*K), upper.triangle(S, diag=TRUE))}
+
+\section{Multivariate Poisson Regression} \label{multivariate.pois.reg}
+\subsection{Form}
+$$\textbf{Y}_{i,k} \sim \mathcal{P}(\lambda_{i,k}), \quad i=1,\dots,N \quad k=1,\dots,K$$
+$$\lambda_{i,k} = \exp(\textbf{X}_{i,k}\beta_{k,1:J} + \gamma_{i,k}), \quad i=1,\dots,N, \quad k=1,\dots,K$$
+$$\beta_{k,j} \sim \mathcal{N}(0, 1000), \quad j=1,\dots,J, \quad k=1,\dots,K$$
+$$\gamma_{i,1:K} \sim \mathcal{N}_K(0, \Omega^{-1}), \quad i=1,\dots,N$$
+$$\Omega \sim \mathcal{W}_{K+1}(\textbf{S}), \quad \textbf{S} = \textbf{I}_K$$  
+\subsection{Data}
+\code{N <- 20 \#Number of records \\
+J <- 4 \#Number of columns in design matrix \\
+K <- 3 \#Number of DVs \\
+X <- matrix(runif(N*J),N,J); X[,1] <- 1 \\
+beta <- matrix(rnorm(K*J),K,J) \\
+Omega <- matrix(runif(K*K),K,K); diag(Omega) <- runif(K,1,K) \\
+Omega <- as.symmetric.matrix(Omega) \\
+gamma <- rmvnp(N, 0, Omega) \\
+Y <- round(exp(tcrossprod(X, beta) + gamma)) \\
+S <- diag(K) \\
+mon.names <- "LP" \\
+parm.names <- as.parm.names(list(beta=matrix(0,K,J), gamma=matrix(0,N,K), \\
+\hspace*{0.27 in} U=S), uppertri=c(0,0,1)) \\
+pos.beta <- grep("beta", parm.names) \\
+pos.gamma <- grep("gamma", parm.names) \\
+PGF <- function(Data) \{ \\
+\hspace*{0.27 in} beta <- rnorm(Data$K*Data$J) \\
+\hspace*{0.27 in} gamma <- rnorm(Data$N*Data$K) \\
+\hspace*{0.27 in} U <- rwishartc(Data$K+1, Data$S) \\
+\hspace*{0.27 in} return(c(beta, gamma, U[upper.tri(U, diag=TRUE)])) \\
+\hspace*{0.27 in} \} \\
+MyData <- list(J=J, K=K, N=N, PGF=PGF, S=S, X=X, Y=Y, mon.names=mon.names, \\
+\hspace*{0.27 in} parm.names=parm.names, pos.beta=pos.beta, pos.gamma=pos.gamma) \\
+}
+\subsection{Model}
+\code{Model <- function(parm, Data) \\
+\hspace*{0.27 in} \{ \\
+\hspace*{0.27 in} \#\#\# Parameters \\
+\hspace*{0.27 in} beta <- matrix(parm[Data$pos.beta], Data$K, Data$J) \\
+\hspace*{0.27 in} gamma <- matrix(parm[Data$pos.gamma], Data$N, Data$K) \\
+\hspace*{0.27 in} U <- as.parm.matrix(U, Data$K, parm, Data, chol=TRUE) \\
+\hspace*{0.27 in} diag(U) <- exp(diag(U)) \\
+\hspace*{0.27 in} \#\#\# Log-Prior \\
+\hspace*{0.27 in} beta.prior <- sum(dnormv(beta, 0, 1000, log=TRUE)) \\
+\hspace*{0.27 in} gamma.prior <- sum(dmvnpc(gamma, 0, U, log=TRUE)) \\
+\hspace*{0.27 in} U.prior <- dwishartc(U, Data$K+1, Data$S, log=TRUE) \\
+\hspace*{0.27 in} \#\#\# Log-Likelihood \\
+\hspace*{0.27 in} lambda <- exp(tcrossprod(Data$X, beta) + gamma) \\
+\hspace*{0.27 in} LL <- sum(dpois(Data$Y, lambda, log=TRUE)) \\
+\hspace*{0.27 in} \#\#\# Log-Posterior \\
+\hspace*{0.27 in} LP <- LL + beta.prior + gamma.prior + U.prior \\
+\hspace*{0.27 in} Modelout <- list(LP=LP, Dev=-2*LL, Monitor=LP, \\
+\hspace*{0.62 in} yhat=rpois(prod(dim(lambda)), lambda), parm=parm) \\
+\hspace*{0.27 in} return(Modelout) \\
+\hspace*{0.27 in} \}
+}
+\subsection{Initial Values}
+\code{Initial.Values <- c(rep(0,K*J), rep(0,N*K), rep(0,K*(K+1)/2))}
 
 \section{Multivariate Regression} \label{multivariate.reg}
 \subsection{Form}

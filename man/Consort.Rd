@@ -55,11 +55,12 @@
     of the standard deviation of the target distribution. This allows
     the true mean to be within 5\% of the area under a Gaussian
     distribution around the estimated mean. The \code{\link{MCSE}}
-    function is used. The criterion of 6.27\% for this stopping rule is
-    arbitrary, and may be too lenient or strict, depending on the needs
-    of the user. Nonetheless, it has performed well, and this type of
-    stopping rule has been observed to perform better than MCMC
-    convergence diagnostics (Flegal et al., 2008).
+    function is used. Toft et al. (2007) propose a stricter criterion of
+    5\%. The criterion of 6.27\% for this stopping rule is arbitrary,
+    and may be too lenient or strict, depending on the needs of the
+    user. Nonetheless, it has performed well, and this type of stopping
+    rule has been observed to perform better than MCMC convergence
+    diagnostics (Flegal et al., 2008).
     \item ESS: The effective sample size (ESS) is considered
     satisfactory for each target distribution if it is at least 100,
     which is usually enough to describe 95\% probability intervals (see
@@ -121,6 +122,11 @@
   Flegal, J.M., Haran, M., and Jones, G.L. (2008). "Markov chain Monte
   Carlo: Can We Trust the Third Significant Figure?". \emph{Statistical
   Science}, 23, p. 250--260.
+
+  Toft, N., Innocent, G., Gettinby, G., and Reid, S. (2007). "Assessing
+  the Convergence of Markov Chain Monte Carlo Methods: An Example from
+  Evaluation of Diagnostic Tests in Absence of a Gold Standard".
+  \emph{Preventive Veterinary Medicine}, 79, p. 244--256.
 }
 \author{Statisticat, LLC. \email{software@bayesian-inference.com}}
 \seealso{

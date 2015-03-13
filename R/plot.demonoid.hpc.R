@@ -55,7 +55,7 @@ plot.demonoid.hpc <- function(x, BurnIn=0, Data=NULL, PDF=FALSE,
                     max(matrix(sapply(Posterior, function(x) {
                          max = max(x[,j])}), nn, Chains)[Stat.at:nn,])),
                col=rgb(0,0,0,50,maxColorValue=255), type="l",
-               xlab="Iterations", ylab="Value",
+               xlab="Thinned Samples", ylab="Value",
                main=colnames(Posterior[[1]])[j])
           for (n in 2:Chains) {
                lines(Stat.at:nn, Posterior[[n]][Stat.at:nn,j],
@@ -98,7 +98,7 @@ plot.demonoid.hpc <- function(x, BurnIn=0, Data=NULL, PDF=FALSE,
           ylim=c(min(sapply(Deviance, function(x) {min(x[Stat.at:nn])})),
                max(sapply(Deviance, function(x) {max(x[Stat.at:nn])}))),
           col=rgb(0,0,0,50,maxColorValue=255),
-          type="l", xlab="Iterations", ylab="Value", main="Deviance")
+          type="l", xlab="Thinned Samples", ylab="Value", main="Deviance")
      for (n in 2:Chains) {
           lines(Stat.at:nn, Deviance[[n]][Stat.at:nn],
                col=rgb(col2rgb(n)[1], col2rgb(n)[2],col2rgb(n)[3],50,
@@ -140,7 +140,7 @@ plot.demonoid.hpc <- function(x, BurnIn=0, Data=NULL, PDF=FALSE,
                ylim=c(min(sapply(Monitor, function(x) {min(x[Stat.at:nn,j])})),
                     max(sapply(Monitor, function(x) {max(x[Stat.at:nn,j])}))),
                col=rgb(0,0,0,50,maxColorValue=255),
-               type="l", xlab="Iterations", ylab="Value",
+               type="l", xlab="Thinned Samples", ylab="Value",
                main=Data[["mon.names"]][j])
           for (n in 2:Chains) {
                lines(Stat.at:nn, Monitor[[n]][Stat.at:nn,j],

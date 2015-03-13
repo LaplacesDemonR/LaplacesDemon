@@ -1283,7 +1283,7 @@ rmvnp <- function(n=1, mu=rep(0, k), Omega)
           stop("Matrix Omega is not positive-definite.")
      k <- ncol(Omega)
      if(n > nrow(mu)) mu <- matrix(mu, n, k, byrow=TRUE)
-     z <- matrix(rnorm(n*k),n,k) %*% as.inverse(t(chol(Omega)))
+     z <- matrix(rnorm(n*k),n,k) %*% solve(t(chol(Omega)))
      x <- mu + z
      return(x)
      }
