@@ -52,12 +52,21 @@ additional degrees of freedom parameter, \eqn{\nu}{nu}. When
 distribution. When \eqn{\nu=-1}{nu=-1}, the density becomes an improper,
 uniform prior distribution. For more information on propriety, see
 \code{is.proper}.
+
+Wand et al. (2011) demonstrated that the half-t distribution may be
+represented as a scale mixture of inverse-gamma distributions. This
+representation is useful for conjugacy.
 }
 \value{
   \code{dhalft} gives the density,
   \code{phalft} gives the distribution function,
   \code{qhalft} gives the quantile function, and
   \code{rhalft} generates random deviates.
+}
+\references{
+  Wand, M.P., Ormerod, J.T., Padoan, S.A., and Fruhwirth, R. (2011).
+  "Mean Field Variational Bayes for Elaborate Distributions".
+  \emph{Bayesian Analysis}, 6: p. 847--900.
 }
 \seealso{
   \code{\link{dhalfcauchy}},

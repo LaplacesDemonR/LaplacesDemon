@@ -88,32 +88,18 @@ include an identity matrix or sample covariance matrix. When the model
 sample size is small, the specification of the scale matrix can be
 influential.
 
-One of many alternatives is to use hierarchical priors,
-in which the main diagonal of the (identity) scale matrix and the
-degrees of freedom are treated as unknowns (Bouriga and Feron, 2011;
-Daniels and Kass, 1999). A hierarchical Wishart prior provides
-shrinkage toward diagonality. Another alternative is to abandon the
-Wishart distribution altogether for the more flexible method of Barnard
-et al. (2000) or the horseshoe distribution (\code{\link{dhs}})
-for sparse covariance matrices.
+Although the related inverse Wishart distribution has a dependency
+between variance and correlation, the Wishart distribution does not
+have this dependency.
+
+The matrix gamma (\code{\link{dmatrixgamma}}) distribution is a more
+general version of the Wishart distribution.
 }
 \value{
   \code{dwishartc} gives the density and
   \code{rwishartc} generates random deviates.
 }
 \references{
-  Barnard, J., McCulloch, R., and Meng, X. (2000). "Modeling Covariance
-  Matrices in Terms of Standard Deviations and Correlations, with
-  Application to Shrinkage". \emph{Statistica Sinica}, 10, p. 1281--1311.
-  
-  Bouriga, M. and Feron, O. (2011). "Estimation of Covariance Matrices
-  Based on Hierarchical Inverse-Wishart Priors". URL:
-  http://www.citebase.org/abstract?id=oai:arXiv.org:1106.3203.
-  
-  Daniels, M., and Kass, R. (1999). "Nonconjugate Bayesian Estimation of
-  Covariance Matrices and its use in Hierarchical Models". \emph{Journal
-  of the American Statistical Association}, 94(448), p. 1254--1263.
-
   Wishart, J. (1928). "The Generalised Product Moment Distribution in
   Samples from a Normal Multivariate Population". \emph{Biometrika},
   20A(1-2), p. 32--52.
@@ -122,9 +108,9 @@ for sparse covariance matrices.
   \code{\link{chol}},
   \code{\link{dchisq}},
   \code{\link{dgamma}},
-  \code{\link{dhs}},
   \code{\link{dinvwishart}},
   \code{\link{dinvwishartc}},
+  \code{\link{dmatrixgamma}},
   \code{\link{dmvnp}},
   \code{\link{dmvnpc}}, and
   \code{\link{Prec2Cov}}.

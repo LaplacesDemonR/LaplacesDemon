@@ -73,32 +73,24 @@ include an identity matrix or sample covariance matrix. When the model
 sample size is small, the specification of the scale matrix can be
 influential.
 
-One of many alternatives is to use hierarchical priors,
-in which the main diagonal of the (identity) scale matrix and the
-degrees of freedom are treated as unknowns (Bouriga and Feron, 2011;
-Daniels and Kass, 1999). A hierarchical inverse Wishart prior provides
-shrinkage toward diagonality. Another alternative is to abandon the
-inverse Wishart distribution altogether for the more flexible method of
-Barnard et al. (2000) or the horseshoe distribution (\code{\link{dhs}})
-for sparse covariance matrices.
+The inverse Wishart distribution has a dependency between variance and
+correlation, although its relative for a precision matrix (inverse
+covariance matrix), the Wishart distribution, does not have this
+dependency. This relationship becomes weaker with more degrees of
+freedom.
+
+Due to these limitations (lack of flexibility, and dependence between
+variance and correlation), alternative distributions have been
+developed. Alternative distributions that are available here include the
+inverse matrix gamma (\code{\link{dinvmatrixgamma}}), Scaled Inverse
+Wishart (\code{\link{dsiw}}) and Huang-Wand (\code{\link{dhuangwand}}).
+Huang-Wand is recommended.
 }
 \value{
   \code{dinvwishartc} gives the density and
   \code{rinvwishartc} generates random deviates.
 }
 \references{
-  Barnard, J., McCulloch, R., and Meng, X. (2000). "Modeling Covariance
-  Matrices in Terms of Standard Deviations and Correlations, with
-  Application to Shrinkage". \emph{Statistica Sinica}, 10, p. 1281--1311.
-  
-  Bouriga, M. and Feron, O. (2011). "Estimation of Covariance Matrices
-  Based on Hierarchical Inverse-Wishart Priors". URL:
-  http://www.citebase.org/abstract?id=oai:arXiv.org:1106.3203.
-  
-  Daniels, M., and Kass, R. (1999). "Nonconjugate Bayesian Estimation of
-  Covariance Matrices and its use in Hierarchical Models". \emph{Journal
-  of the American Statistical Association}, 94(448), p. 1254--1263.
-
   Wishart, J. (1928). "The Generalised Product Moment Distribution in
   Samples from a Normal Multivariate Population". \emph{Biometrika},
   20A(1-2), p. 32--52.
@@ -106,10 +98,12 @@ for sparse covariance matrices.
 \seealso{
   \code{\link{chol}},
   \code{\link{Cov2Prec}},
-  \code{\link{dhs}},
+  \code{\link{dhuangwand}},
+  \code{\link{dinvmatrixgamma}},
   \code{\link{dmvn}},
   \code{\link{dmvnc}},
   \code{\link{dmvtc}},
+  \code{\link{dsiw}},
   \code{\link{dwishart}}, and
   \code{\link{dwishartc}}.
 }

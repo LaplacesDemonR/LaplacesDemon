@@ -24,7 +24,8 @@ rmatrixnorm(M, U, V)
 \details{
   \itemize{
     \item Application: Continuous Multivariate Matrix
-    \item Density: \eqn{\frac{\exp(-0.5tr[V^{-1}(X-M)'U^{-1}(X-M)])}{(2\pi)^{nk/2}|V|^{n/2}|U|^{k/2}}}{exp(-0.5tr[V^(-1)(X-M)'U^(-1)(X-M)])/[(2*pi)^(nk/2)|V|^(n/2)|U|(k/2)]}
+    \item Density: \eqn{p(\theta) =
+      \frac{\exp(-0.5tr[V^{-1}(X-M)'U^{-1}(X-M)])}{(2\pi)^{nk/2}|V|^{n/2}|U|^{k/2}}}{p(theta) = exp(-0.5tr[V^(-1)(X-M)'U^(-1)(X-M)])/[(2*pi)^(nk/2)|V|^(n/2)|U|(k/2)]}
   \item Inventors: Unknown
   \item Notation 1: \eqn{\theta \sim \mathcal{MN}_{n \times k}(M, U,
     V)}{theta ~ MN[n x k](M, U, V)}
@@ -43,7 +44,7 @@ matrix-variate normal, or matrix-variate Gaussian distribution. It is a
 generalization of the multivariate normal distribution to matrix-valued
 random variables.
 
-An example of a the use of a matrix normal distribution is multivariate
+An example of the use of a matrix normal distribution is multivariate
 regression, in which there is a \eqn{j \times k}{j x k} matrix of
 regression effects of \eqn{j} predictors for \eqn{k} dependent
 variables. For univariate regression, having only one dependent
@@ -64,7 +65,9 @@ independent. When \eqn{V} is diagonal, the columns are independent.
 }
 \author{Statisticat, LLC. \email{software@bayesian-inference.com}}
 \seealso{
-  \code{\link{dmvn}}
+  \code{\link{dinvmatrixgamma}},
+  \code{\link{dmatrixgamma}}, and
+  \code{\link{dmvn}}.
 }
 \examples{
 library(LaplacesDemon)
