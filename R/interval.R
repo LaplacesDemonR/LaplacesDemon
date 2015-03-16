@@ -13,8 +13,7 @@ interval <- function(x, a=-Inf, b=Inf, reflect=TRUE)
      if(reflect & !all(is.finite(x))) {
                if(is.array(x)) {
                     d <- dim(x)
-                    x <- as.vector(x)
-                    }
+                    x <- as.vector(x)}
                x.inf.pos <- is.infinite(x);
                x[x.inf.pos] <- interval(x[x.inf.pos], a, b, reflect=FALSE)
                if(is.array(x)) x <- array(x, dim=d)
