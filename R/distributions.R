@@ -494,6 +494,62 @@ rhs <- function(n, lambda, tau)
      }
 
 ###########################################################################
+# Huang-Wand Distribution                                                 #
+###########################################################################
+
+dhuangwand <- function(x, nu=2, a, A, log=FALSE)
+     {
+     if(!is.matrix(x)) x <- matrix(x)
+     if(!is.positive.definite(x)) 
+          stop("Matrix x is not positive-definite.")
+     a <- as.vector(a)
+     A <- as.vector(A)
+     k <- nrow(x)
+     if(!identical(length(a), length(A), k, ncol(x)))
+          stop("Dimensions of x, a, and A do not agree.")
+     dens <- sum(dinvgamma(a, 0.5, 1/A^2, log=TRUE)) +
+          dinvwishart(x, nu + k - 1, 2*nu*diag(1/a), log=TRUE)
+     if(log == FALSE) dens <- exp(dens)
+     return(dens)
+     }
+rhuangwand <- function(nu=2, a, A)
+     {
+     if(missing(A)) k <- length(a)
+     else {
+          k <- length(A)
+          a <- rinvgamma(k, 0.5, 1/A^2)}
+     x <- rinvwishart(nu + k - 1, 2*nu*diag(1/a))
+     return(x)
+     }
+
+###########################################################################
+# Huang-Wand Distribution (Cholesky Parameterization)                     #
+###########################################################################
+
+dhuangwandc <- function(x, nu=2, a, A, log=FALSE)
+     {
+     if(!is.matrix(x)) x <- matrix(x)
+     a <- as.vector(a)
+     A <- as.vector(A)
+     k <- nrow(x)
+     if(!identical(length(a), length(A), k, ncol(x)))
+          stop("Dimensions of x, a, and A do not agree.")
+     dens <- sum(dinvgamma(a, 0.5, 1/A^2, log=TRUE)) +
+          dinvwishartc(x, nu + k - 1, 2*nu*diag(1/a), log=TRUE)
+     if(log == FALSE) dens <- exp(dens)
+     return(dens)
+     }
+rhuangwandc <- function(nu=2, a, A)
+     {
+     if(missing(A)) k <- length(a)
+     else {
+          k <- length(A)
+          a <- rinvgamma(k, 0.5, 1/A^2)}
+     x <- rinvwishartc(nu + k - 1, 2*nu*diag(1/a))
+     return(x)
+     }
+
+###########################################################################
 # Inverse Beta Distribution                                               #
 ###########################################################################
 
@@ -603,6 +659,30 @@ rinvgaussian <- function(n, mu, lambda)
      temp <- which(z > {mu / (mu + x)})
      x[temp] <- mu[temp] * mu[temp] / x[temp]
      return(x)
+     }
+
+###########################################################################
+# Inverse Matrix Gamma Distribution                                       #
+###########################################################################
+
+dinvmatrixgamma <- function(X, alpha, beta, Psi, log=FALSE)
+     {
+     if(!is.matrix(X)) stop("X is not a matrix.")
+     if(alpha <= 2) stop("The alpha parameter must be greater than 2.")
+     if(beta <= 0) stop("The beta parameter must be positive.")
+     if(missing(Psi)) Psi <- diag(ncol(X))
+     if(!is.positive.definite(Psi))
+          stop("Matrix Psi is not positive-definite.")
+     k <- nrow(Psi)
+     gamsum <- 0
+     for (i in 1:k) gamsum <- gamsum + lgamma(alpha - 0.5*(i-1))
+     gamsum <- gamsum + log(pi)*(k*(k-1)/4)
+     Omega <- as.inverse(Psi)
+     dens <- logdet(Psi)*(-alpha) - (log(beta)*(k*alpha) + gamsum) +
+          logdet(X)*(-alpha-(k+1)/2) +
+          tr(-(1/beta)*(Psi %*% as.inverse(X)))
+     if(log == FALSE) dens <- exp(dens)
+     return(dens)
      }
 
 ###########################################################################
@@ -820,6 +900,22 @@ rlaplacem <- function(n, p, location, scale)
      }
 
 ###########################################################################
+# LASSO Distribution                                                      #
+###########################################################################
+
+dlasso <- function(x, sigma, tau, lambda, a, b, v, w, log=FALSE)
+     {
+     if(any(c(sigma, tau, lambda, a, b, v, w) <= 0))
+          stop("Scale parameters must be positive.")
+     dens <- sum(dnorm(x, 0, sigma*tau, log=TRUE)) +
+          sum(dexp(tau, lambda/2, log=TRUE)) +
+          dinvgamma(sigma, v, w, log=TRUE) +
+          dgamma(lambda, a, b, log=TRUE)
+     if(log == FALSE) dens <- exp(dens)
+     return(dens)
+     }
+
+###########################################################################
 # Log-Laplace Distribution                                                #
 ###########################################################################
 
@@ -927,6 +1023,29 @@ rlnormp <- function(n, mu, tau)
      if(any(tau <= 0)) stop("The tau parameter must be positive.")
      x <- rnorm(n, mu, sqrt(1/tau))
      return(x)
+     }
+
+###########################################################################
+# Matrix Gamma Distribution                                               #
+###########################################################################
+
+dmatrixgamma <- function(X, alpha, beta, Sigma, log=FALSE)
+     {
+     if(!is.matrix(X)) stop("X is not a matrix.")
+     if(alpha <= 2) stop("The alpha parameter must be greater than 2.")
+     if(beta <= 0) stop("The beta parameter must be positive.")
+     if(missing(Sigma)) Sigma <- diag(ncol(X))
+     if(!is.positive.definite(Sigma))
+          stop("Matrix Sigma is not positive-definite.")
+     k <- nrow(Sigma)
+     gamsum <- 0
+     for (i in 1:k) gamsum <- gamsum + lgamma(alpha - 0.5*(i-1))
+     gamsum <- gamsum + log(pi)*(k*(k-1)/4)
+     Omega <- as.inverse(Sigma)
+     dens <- logdet(Omega) + logdet(X)*(alpha - 0.5*(k+1)) -
+          (log(beta)*(k*alpha) + gamsum) + (-1/beta)*tr(Omega %*% X)
+     if(log == FALSE) dens <- exp(dens)
+     return(dens)
      }
 
 ###########################################################################
@@ -1720,6 +1839,56 @@ rnorminvwishart <- function(n=1, mu0, lambda, S, nu)
      }
 
 ###########################################################################
+# Normal-Laplace Distribution                                             #
+###########################################################################
+
+dnormlaplace <- function(x, mu=0, sigma=1, alpha=1, beta=1, log=FALSE)
+     {
+     x <- as.vector(x)
+     mu <- as.vector(mu)
+     sigma <- as.vector(sigma)
+     alpha <- as.vector(alpha)
+     beta <- as.vector(beta)
+     if(any(sigma <= 0)) 
+          stop("The sigma parameter must be positive.")
+     if(any(alpha <= 0)) 
+          stop("The alpha parameter must be positive.")
+     if(any(beta <= 0)) 
+          stop("The beta parameter must be positive.")
+    NN <- max(length(x), length(mu), length(sigma), length(alpha),
+          length(beta))
+    x <- rep(x, len=NN)
+    mu <- rep(mu, len=NN)
+    sigma <- rep(sigma, len=NN)
+    alpha <- rep(alpha, len=NN)
+    beta <- rep(beta, len=NN)
+     a <- dnorm((x - mu) / sigma, log=TRUE)
+     z <- alpha*sigma - (x - mu) / sigma
+     b <- pnorm(z, lower.tail=FALSE, log.p=TRUE) -
+          dnorm(z, log=TRUE)
+     z <- beta*sigma + (x - mu) / sigma
+     cc <- pnorm(z, lower.tail=FALSE, log.p=TRUE) -
+          dnorm(z, log=TRUE)
+     z <- log(alpha*beta / (alpha + beta))
+     d <- pnorm(z, lower.tail=FALSE, log.p=TRUE) -
+          dnorm(z, log=TRUE)
+     if(log == FALSE) dens <- exp(d + a + b) + exp(d + a + cc)
+     else {
+          dens <- rep(NA, NN)
+          e <- d + a + b
+          f <- d + a + cc
+          for (i in 1:NN) dens[i] <- logadd(c(e[i], f[i]))
+      }
+     return(dens)
+     }
+rnormlaplace <- function(n, mu=0, sigma=1, alpha=1, beta=1)
+     {
+     z <- rnorm(n, 0, sigma^2)
+     w <- rslaplace(n, mu, 1/beta, 1/alpha)
+     return(z + w)
+     }
+
+###########################################################################
 # Normal-Wishart Distribution                                             #
 ###########################################################################
 
@@ -1855,6 +2024,25 @@ rpe <- function(n, mu=0, sigma=1, kappa=2)
      u <- runif(n)
      temp <- which(u < 0.5); z[temp] <- -z[temp]
      x <- mu + z * sigma
+     return(x)
+     }
+
+###########################################################################
+# Scaled Inverse Wishart Distribution                                     #
+###########################################################################
+
+dsiw <- function(Q, nu, S, zeta, mu, delta, log=FALSE)
+     {
+     dens <- dinvwishart(Q, nu, S, log=TRUE) +
+          sum(dmvn(log(zeta), mu, diag(delta), log=TRUE))
+     if(log == FALSE) dens <- exp(dens)
+     return(dens)
+     }
+rsiw <- function(nu, S, mu, delta)
+     {
+     Q <- rinvwishart(nu, S)
+     Zeta <- diag(as.vector(exp(rmvn(1, mu, diag(delta)))))
+     x <- Zeta %*% Q %*% Zeta
      return(x)
      }
 
