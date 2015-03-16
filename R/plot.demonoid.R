@@ -41,7 +41,7 @@ plot.demonoid <- function(x, BurnIn=0, Data=NULL, PDF=FALSE,
           {
           plot(Stat.at:x$Thinned.Samples,
                Posterior[Stat.at:x$Thinned.Samples,j],
-               type="l", xlab="Iterations", ylab="Value",
+               type="l", xlab="Thinned Samples", ylab="Value",
                main=colnames(Posterior)[j])
           panel.smooth(Stat.at:x$Thinned.Samples,
                Posterior[Stat.at:x$Thinned.Samples,j], pch="")
@@ -66,7 +66,7 @@ plot.demonoid <- function(x, BurnIn=0, Data=NULL, PDF=FALSE,
      ### Plot Deviance
      plot(Stat.at:length(x$Deviance),
           x$Deviance[Stat.at:length(x$Deviance)],
-          type="l", xlab="Iterations", ylab="Value", main="Deviance")
+          type="l", xlab="Thinned Samples", ylab="Value", main="Deviance")
      panel.smooth(Stat.at:length(x$Deviance),
           x$Deviance[Stat.at:length(x$Deviance)], pch="")
      plot(density(x$Deviance[Stat.at:length(x$Deviance)]),
@@ -91,7 +91,7 @@ plot.demonoid <- function(x, BurnIn=0, Data=NULL, PDF=FALSE,
      for (j in 1:J)
           {
           plot(Stat.at:nn, x$Monitor[Stat.at:nn,j],
-               type="l", xlab="Iterations", ylab="Value",
+               type="l", xlab="Thinned Samples", ylab="Value",
                main=Data[["mon.names"]][j])
           panel.smooth(Stat.at:nn, x$Monitor[Stat.at:nn,j], pch="")
           plot(density(x$Monitor[Stat.at:nn,j]),

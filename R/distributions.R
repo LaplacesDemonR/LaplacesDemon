@@ -149,6 +149,46 @@ rallaplace <- function(n, location=0, scale=1, kappa=1)
      }
 
 ###########################################################################
+# Asymmetric Multivariate Laplace Distribution                            #
+###########################################################################
+
+daml <- function (x, mu, Sigma, log=FALSE) 
+     {
+     if(!is.matrix(x)) x <- rbind(x)
+     if(!is.matrix(mu)) mu <- matrix(mu, nrow(x), ncol(x), byrow=TRUE)
+     if(missing(Sigma)) Sigma <- diag(ncol(x))
+     if(!is.matrix(Sigma)) Sigma <- matrix(Sigma)
+     Sigma <- as.symmetric.matrix(Sigma)
+     if(!is.positive.definite(Sigma)) 
+          stop("Matrix Sigma is not positive-definite.")
+     k <- nrow(Sigma)
+     Omega <- as.inverse(Sigma)
+     x.Omega.mu <- rowSums(x %*% Omega * mu)
+     x.Omega.x <- rowSums(x %*% Omega * x)
+     mu.Omega.mu <- rowSums(mu %*% Omega * mu)
+     dens <- as.vector(log(2) + x.Omega.mu -
+          (log(2*pi)*(k/2) + logdet(Sigma)*0.5) +
+          (log(x.Omega.x) - (log(2 + mu.Omega.mu)))*((2-k)/4) +
+          log(besselK(sqrt((2 + mu.Omega.mu) * x.Omega.x), (2-k)/2)))
+     if(log == FALSE) dens <- exp(dens)
+     return(dens)
+     }
+raml <- function(n, mu, Sigma) 
+     {
+     mu <- rbind(mu)
+     if(missing(Sigma)) Sigma <- diag(ncol(mu))
+     if(!is.matrix(Sigma)) Sigma <- matrix(Sigma)
+     if(!is.positive.definite(Sigma))
+          stop("Matrix Sigma is not positive-definite.")
+     k <- ncol(Sigma)
+     if(n > nrow(mu)) mu <- matrix(mu, n, k, byrow=TRUE)
+     e <- matrix(rexp(n, 1), n, k)
+     z <- rmvn(n, rep(0, k), Sigma)
+     x <- mu*e + sqrt(e)*z
+     return(x)
+     }
+
+###########################################################################
 # Bernoulli Distribution                                                  #
 #                                                                         #
 # These functions are similar to those in the Rlab package.               #
@@ -715,6 +755,71 @@ rlaplacep <- function(n, mu=0, tau=1)
      }
 
 ###########################################################################
+# Laplace Distribution Mixture                                            #
+###########################################################################
+
+dlaplacem <- function(x, p, location, scale, log=FALSE)
+     {
+     if(missing(x)) stop("x is a required argument.")
+     x <- as.vector(x)
+     n <- length(x)
+     if(missing(p)) stop("p is a required argument.")
+     p <- as.vector(p)
+     if(any(p <= 0) | any(p > 1)) stop("p must be in (0,1].")
+     if(sum(p) != 1) stop("p must sum to 1 for all components.")
+     m <- length(p)
+     p <- matrix(p, n, m, byrow=TRUE)
+     if(missing(location)) stop("location is a required argument.")
+     location <- as.vector(location)
+     if(!identical(m, length(location)))
+          stop("p and location differ in length.")
+     location <- matrix(location, n, m, byrow=TRUE)
+     if(missing(scale)) stop("scale is a required argument.")
+     scale <- as.vector(scale)
+     if(!identical(m, length(scale)))
+          stop("p and scale differ in length.")
+     scale <- matrix(scale, n, m, byrow=TRUE)
+     dens <- matrix(dlaplace(x, location, scale, log=TRUE), n, m)
+     dens <- dens + log(p)
+     if(log == TRUE) dens <- apply(dens, 1, logadd)
+     else dens <- rowSums(exp(dens))
+     return(dens)
+     }
+plaplacem <- function(q, p, location, scale)
+     {
+     n <- length(q)
+     m <- length(p)
+     q <- matrix(q, n, m)
+     p <- matrix(p, n, m, byrow=TRUE)
+     location <- matrix(location, n, m, byrow=TRUE)
+     scale <- matrix(scale, n, m, byrow=TRUE)
+     cdf <- matrix(plaplace(q, location, scale), n, m)
+     cdf <- rowSums(cdf * p)
+     return(cdf)
+     }
+rlaplacem <- function(n, p, location, scale)
+     {
+     if(missing(p)) stop("p is a required argument.")
+     p <- as.vector(p)
+     if(any(p <= 0) | any(p > 1)) stop("p must be in (0,1].")
+     if(sum(p) != 1) stop("p must sum to 1 for all components.")
+     m <- length(p)
+     p <- matrix(p, n, m, byrow=TRUE)
+     if(missing(location)) stop("location is a required argument.")
+     location <- as.vector(location)
+     if(!identical(m, length(location)))
+          stop("p and location differ in length.")
+     if(missing(scale)) stop("scale is a required argument.")
+     scale <- as.vector(scale)
+     if(!identical(m, length(scale)))
+          stop("p and scale differ in length.")
+     if(any(scale <= 0)) stop("scale must be positive.")
+     z <- rcat(n, p)
+     x <- rlaplace(n, location=location[z], scale=scale[z])
+     return(x)
+     }
+
+###########################################################################
 # Log-Laplace Distribution                                                #
 ###########################################################################
 
@@ -1030,10 +1135,9 @@ dmvl <- function(x, mu, Sigma, log=FALSE)
      ss <- x - mu
      z <- rowSums({ss %*% Omega} * ss)
      z[which(z == 0)] <- 1e-300
-     dens <- as.vector(log(2 / ((2*pi)^(k/2) *
-          sqrt(exp(logdet(Sigma))))) +
-          log((sqrt(pi / (2*sqrt(2*z))) * exp(-sqrt(2*z))) /
-          sqrt(z/2)^(k/2 - 1)))
+     dens <- as.vector(log(2) - log(2*pi)*(k/2) + logdet(Sigma)*0.5 +
+          (log(pi) - log(2) + log(2*z)*0.5)*0.5 - log(2*z)*0.5 -
+          log(z/2)*0.5*(k/2 - 1))
      if(log == FALSE) dens <- exp(dens)
      return(dens)
      }
@@ -1067,9 +1171,9 @@ dmvlc <- function(x, mu, U, log=FALSE)
      ss <- x - mu
      z <- rowSums({ss %*% Omega} * ss)
      z[which(z == 0)] <- 1e-300
-     dens <- as.vector(log(2 / ((2*pi)^(k/2) * sqrt(exp(logdet(Sigma))))) +
-          log((sqrt(pi / (2*sqrt(2*z))) * exp(-sqrt(2*z))) /
-          sqrt(z/2)^(k/2 - 1)))
+     dens <- as.vector(log(2) - log(2*pi)*(k/2) + logdet(Sigma)*0.5 +
+          (log(pi) - log(2) + log(2*z)*0.5)*0.5 - log(2*z)*0.5 -
+          log(z/2)*0.5*(k/2 - 1))
      if(log == FALSE) dens <- exp(dens)
      return(dens)
      }
@@ -1179,7 +1283,7 @@ rmvnp <- function(n=1, mu=rep(0, k), Omega)
           stop("Matrix Omega is not positive-definite.")
      k <- ncol(Omega)
      if(n > nrow(mu)) mu <- matrix(mu, n, k, byrow=TRUE)
-     z <- matrix(rnorm(n*k),n,k) %*% as.inverse(t(chol(Omega)))
+     z <- matrix(rnorm(n*k),n,k) %*% solve(t(chol(Omega)))
      x <- mu + z
      return(x)
      }

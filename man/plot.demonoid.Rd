@@ -19,7 +19,7 @@
     \code{demonoid.hpc}.}
   \item{BurnIn}{
     This argument requires zero or a positive integer that indicates the
-    number of iterations to discard as burn-in for the purposes of
+    number of thinned samples to discard as burn-in for the purposes of
     plotting. For more information on burn-in, see \code{\link{burnin}}.}
   \item{Data}{
     This required argument must receive the list of data that was
@@ -50,7 +50,7 @@
   plots.
 
   Trace plots show the thinned history of the chain or Markov chain,
-  with its value in the y-axis moving by iteration across the x-axis.
+  with its value in the y-axis moving by thinned sample across the x-axis.
   A chain or Markov chain with good properties does not suggest a trend
   upward or downward as it progresses across the x-axis (it should
   appear stationary), and it should mix well, meaning it should appear
@@ -61,15 +61,16 @@
   to aid visual inspection.
 
   Kernel density plots depict the marginal posterior distribution.
-  There is no distributional assumption about this density.
+  Although there is no distributional assumption about this density,
+  kernel density estimation uses Gaussian basis functions.
 
   Autocorrelation plots show the autocorrelation or serial correlation
-  between sampled values at nearby iterations. Samples with
+  between values of thinned samples at nearby thinned samples. Samples with
   autocorrelation do not violate any assumption, but are inefficient
   because they reduce the effective sample size (\code{\link{ESS}}), and
   indicate that the chain is not mixing well, since each value is
   influenced by values that are previous and nearby. The x-axis
-  indicates lags with respect to samples by iteration, and the y-axis
+  indicates lags with respect to thinned samples, and the y-axis
   represents autocorrelation. The ideal autocorrelation plot shows
   perfect correlation at zero lag, and quickly falls to zero
   autocorrelation for all other lags.

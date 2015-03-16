@@ -45,7 +45,8 @@
   for the deviance and monitored variables.
   
   Kernel density plots depict the marginal posterior distribution.
-  There is no distributional assumption about this density.
+  Although there is no distributional assumption about this density,
+  kernel density estimation uses Gaussian basis functions.
 
   Following these plots are three plots for convergence. First, ESSN
   (red) and perplexity (black) are plotted by iteration. Convergence

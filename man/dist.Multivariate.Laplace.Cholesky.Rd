@@ -138,6 +138,7 @@ has already been performed.
 \author{Statisticat, LLC. \email{software@bayesian-inference.com}}
 \seealso{
   \code{\link{chol}},
+  \code{\link{daml}},
   \code{\link{dlaplace}},
   \code{\link{dmvnc}},
   \code{\link{dmvnpc}},

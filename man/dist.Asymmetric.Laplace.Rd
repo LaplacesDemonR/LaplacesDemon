@@ -62,7 +62,11 @@ ranges from 3 to 6 as \eqn{\kappa}{kappa} ranges from 1 to infinity. The
 skewness of the AL has been useful in engineering and finance. As an
 example, the AL distribution has been used as a replacement for
 Gaussian-distributed GARCH residuals. There is also an extension to the
-multivariate asymmetric Laplace distribution.
+asymmetric multivariate Laplace distribution.
+
+The asymmetric Laplace distribution is demonstrated in Kozubowski and
+Podgorski (2001) to be well-suited for financial modeling, specifically
+with currency exchange rates.
 
 These functions are similar to those in the \code{VGAM} package.
 }
@@ -77,6 +81,10 @@ These functions are similar to those in the \code{VGAM} package.
   Distribution and Generalizations: a Revisit with Applications to
   Communications, Economics, Engineering, and Finance". Boston:
   Birkhauser.
+
+  Kozubowski, T.J. and Podgorski, K. (2001). "Asymmetric Laplace
+  Laws and Modeling Financial Data". \emph{Mathematical and Computer
+  Modelling}, 34, p. 1003-1021.
 }
 \seealso{\code{\link{dlaplace}} and
   \code{\link{dallaplace}}
