@@ -10,7 +10,7 @@ interval <- function(x, a=-Inf, b=Inf, reflect=TRUE)
      ### Initial Checks
      if(missing(x)) stop("The x argument is required.")
      if(a > b) stop("a > b.")
-     if(reflect & !all(is.finite(x))) {
+     if(reflect & is.finite(a) & is.finite(b) & !all(is.finite(x))) {
                if(is.array(x)) {
                     d <- dim(x)
                     x <- as.vector(x)}
