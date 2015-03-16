@@ -1,14 +1,17 @@
 \name{dist.Zellner}
 \alias{dhyperg}
 \alias{dzellner}
+\alias{rzellner}
 \title{Hyperprior-g Prior and Zellner's g-Prior}
 \description{
   These functions provide the density of the hyper-g prior (Liang et
-  al., 2008), and the density of Zellner's g-prior (Zellner, 1986).
+  al., 2008), and both the density and random generation of Zellner's
+  g-prior (Zellner, 1986).
 }
 \usage{
 dhyperg(g, alpha=3, log=FALSE)
 dzellner(beta, g, sigma, X, log=FALSE)
+rzellner(n, g, sigma, X)
 }
 \arguments{
   \item{alpha}{This is a positive scale hyperhyperparameter that is
@@ -17,6 +20,7 @@ dzellner(beta, g, sigma, X, log=FALSE)
   \item{beta}{This is regression effects \eqn{\beta}{beta}, a vector of
     length \eqn{J}.}
   \item{g}{This is hyperparameter \eqn{g}, a positive scalar.}
+  \item{n}{This is the number of random deviates to generate.}
   \item{sigma}{This is the residual standard deviation
     \eqn{\sigma}{sigma}, a positive scalar.}
   \item{X}{This is a full-rank \eqn{N \times J}{N x J} design matrix
@@ -99,8 +103,8 @@ the interval \eqn{(2,4]} may be reasonable.
 }
 \value{
   \code{dhyperg} gives the density of the hyper-g prior of Liang et
-  al. (2008), and  \code{dzellner} gives the density of Zellner's
-  g-prior.
+  al. (2008), \code{dzellner} gives the density of Zellner's g-prior,
+  and \code{rzellner} generates random deviates.
 }
 \references{
   Bove, D.S. and Held, L. (2011). "Hyper-g Priors for Generalized
@@ -135,5 +139,6 @@ sigma <- 2
 X <- cbind(1,matrix(rnorm(100*9),100,9))
 dhyperg(g, alpha=3)
 dzellner(beta, g, sigma, X)
+rzellner(1, g, sigma, X)
 }
 \keyword{Distribution}

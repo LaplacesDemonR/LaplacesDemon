@@ -1,3 +1,6 @@
+2015-03-16 interval: Now handles infinite values, from Richard Hermanson 
+           on GitHub, Pull request 21
+2015-03-16 Distributions: Added rzellner
 2015-03-14 Distributions: Added Huang-Wand, Matrix Gamma, 
            Matrix Inverse Gamma, and Scaled Inverse Wishart
 2015-03-13 Distributions: Added LASSO and Normal-Laplace
