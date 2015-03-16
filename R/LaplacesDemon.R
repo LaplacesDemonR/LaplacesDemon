@@ -5495,8 +5495,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     if(!is.finite(log.alpha)) log.alpha <- 0
                     if(log.u < log.alpha) {
                         Mo0 <- Mo1
-                        Acceptance <- Acceptance + 1}
-               }
+                        Acceptance <- Acceptance + 1}}
                ### Save Thinned Samples
                if(iter %% Thinning == 0) {
                     t.iter <- floor(iter / Thinning) + 1
