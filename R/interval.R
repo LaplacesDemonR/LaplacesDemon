@@ -10,6 +10,8 @@ interval <- function(x, a=-Inf, b=Inf, reflect=TRUE)
      ### Initial Checks
      if(missing(x)) stop("The x argument is required.")
      if(a > b) stop("a > b.")
+     if(is.infinite(a) || is.infinite(b) || is.infinite(x))
+          reflect <- FALSE; #otherwise we have an infinite loop
      ### Scalar
      if(is.vector(x) & {length(x) == 1}) {
           if(reflect == FALSE) x <- max(a, min(b, x))
