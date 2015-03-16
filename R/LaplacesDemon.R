@@ -8,7 +8,8 @@
 
 LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      Iterations=10000, Status=100, Thinning=10, Algorithm="MWG",
-     Specs=list(B=NULL), LogFile="", ...)
+     Specs=list(B=NULL), Debug=list(DB.chol=FALSE, DB.eigen=FALSE,
+     DB.MCSE=FALSE, DB.Model=TRUE), LogFile="", ...)
      {
      cat("\nLaplace's Demon was called on ", date(), "\n", sep="",
           file=LogFile, append=TRUE)
@@ -392,7 +393,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          stop("FC must be a function.", file=LogFile,
                               append=TRUE)
                     FCtest <- try(Specs[["FC"]](Initial.Values, Data),
-                         silent=TRUE)
+                         silent=!Debug[["DB.Model"]])
                     if(inherits(FCtest, "try-error"))
                          stop("Error in FC.", file=LogFile, append=TRUE)
                     if(!is.vector(FCtest))
@@ -1231,181 +1232,185 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      if(Algorithm == "Adaptive Directional Metropolis-within-Gibbs") {
           mcmc.out <- .mcmcadmg(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, VarCov, LogFile)}
+               thinned, VarCov, Debug, LogFile)}
      else if(Algorithm == "Adaptive Griddy-Gibbs") {
           mcmc.out <- .mcmcagg(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, tuning, LogFile)}
+               thinned, tuning, Debug, LogFile)}
      else if(Algorithm == "Adaptive Hamiltonian Monte Carlo") {
           mcmc.out <- .mcmcahmc(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, LogFile)}
+               thinned, Debug, LogFile)}
      else if(Algorithm == "Affine-Invariant Ensemble Sampler") {
           mcmc.out <- .mcmcaies(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, LogFile)}
+               thinned, Debug, LogFile)}
      else if(Algorithm == "Adaptive Metropolis") {
           mcmc.out <- .mcmcam(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, tuning, VarCov, LogFile)}
+               thinned, tuning, VarCov, Debug, LogFile)}
      else if(Algorithm == "Adaptive-Mixture Metropolis" & !is.list(VarCov)) {
           mcmc.out <- .mcmcamm(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, tuning, VarCov, LogFile)}
+               thinned, tuning, VarCov, Debug, LogFile)}
      else if(Algorithm == "Adaptive-Mixture Metropolis" & is.list(VarCov)) {
           mcmc.out <- .mcmcamm.b(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, tuning, VarCov, LogFile)}
+               thinned, tuning, VarCov, Debug, LogFile)}
      else if(Algorithm == "Adaptive Metropolis-within-Gibbs") {
           mcmc.out <- .mcmcamwg(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, tuning, LogFile)}
+               thinned, tuning, Debug, LogFile)}
      else if(Algorithm == "Automated Factor Slice Sampler") {
           mcmc.out <- .mcmcafss(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, VarCov, LogFile)}
+               thinned, VarCov, Debug, LogFile)}
      else if(Algorithm == "Componentwise Hit-And-Run Metropolis") {
           mcmc.out <- .mcmccharm(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, LogFile)}
+               thinned, Debug, LogFile)}
      else if(Algorithm == "Delayed Rejection Adaptive Metropolis") {
           mcmc.out <- .mcmcdram(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, tuning, VarCov, LogFile)}
+               thinned, tuning, VarCov, Debug, LogFile)}
      else if(Algorithm == "Delayed Rejection Metropolis") {
           mcmc.out <- .mcmcdrm(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, tuning, VarCov, LogFile)}
+               thinned, tuning, VarCov, Debug, LogFile)}
      else if(Algorithm == "Differential Evolution Markov Chain") {
           mcmc.out <- .mcmcdemc(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, LogFile)}
+               thinned, Debug, LogFile)}
      else if(Algorithm == "Elliptical Slice Sampler") {
           mcmc.out <- .mcmcess(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, VarCov, LogFile)}
+               thinned, VarCov, Debug, LogFile)}
      else if(Algorithm == "Experimental") {
 #          mcmc.out <- .mcmcexperimental(Model, Data, Iterations, Status,
 #               Thinning, Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0,
-#               ScaleF, thinned, LogFile)}
+#               ScaleF, thinned, Debug, LogFile)}
           stop("Experimental function not found.", file=LogFile,
                append=TRUE)}
      else if(Algorithm == "Gibbs Sampler") {
           mcmc.out <- .mcmcgibbs(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, tuning, LogFile)}
+               thinned, tuning, Debug, LogFile)}
      else if(Algorithm == "Griddy-Gibbs") {
           mcmc.out <- .mcmcgg(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, LogFile)}
+               thinned, Debug, LogFile)}
      else if(Algorithm == "Hamiltonian Monte Carlo") {
           mcmc.out <- .mcmchmc(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, VarCov, LogFile)}
+               thinned, VarCov, Debug, LogFile)}
      else if(Algorithm == "Hamiltonian Monte Carlo with Dual-Averaging") {
           mcmc.out <- .mcmchmcda(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, LogFile)}
+               thinned, Debug, LogFile)}
      else if(Algorithm == "Hit-And-Run Metropolis") {
           mcmc.out <- .mcmcharm(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, LogFile)}
+               thinned, Debug, LogFile)}
      else if(Algorithm == "Independence Metropolis") {
           mcmc.out <- .mcmcim(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, VarCov, LogFile)}
+               thinned, VarCov, Debug, LogFile)}
      else if(Algorithm == "Interchain Adaptation") {
           mcmc.out <- .mcmcinca(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, tuning, VarCov, LogFile)}
+               thinned, tuning, VarCov, Debug, LogFile)}
      else if(Algorithm == "Metropolis-Adjusted Langevin Algorithm") {
           mcmc.out <- .mcmcmala(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, VarCov, LogFile)}
+               thinned, VarCov, Debug, LogFile)}
      else if(Algorithm == "Metropolis-Coupled Markov Chain Monte Carlo") {
           mcmc.out <- .mcmcmcmcmc(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, tuning, VarCov, LogFile)}
+               thinned, tuning, VarCov, Debug, LogFile)}
      else if(Algorithm == "Multiple-Try Metropolis") {
           mcmc.out <- .mcmcmtm(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, thinned,
-               tuning, LogFile)}
+               tuning, Debug, LogFile)}
      else if(Algorithm == "Metropolis-within-Gibbs") {
           mcmc.out <- .mcmcmwg(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, tuning, LogFile)}
+               thinned, tuning, Debug, LogFile)}
      else if(Algorithm == "No-U-Turn Sampler") {
           mcmc.out <- .mcmcnuts(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, LogFile)}
+               thinned, Debug, LogFile)}
      else if(Algorithm == "Oblique Hyperrectangle Slice Sampler") {
           mcmc.out <- .mcmcohss(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, VarCov, LogFile)}
+               thinned, VarCov, Debug, LogFile)}
      else if(Algorithm == "Preconditioned Crank-Nicolson") {
           mcmc.out <- .mcmcpcn(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, VarCov, LogFile)}
+               thinned, VarCov, Debug, LogFile)}
      else if(Algorithm == "Random Dive Metropolis-Hastings") {
           mcmc.out <- .mcmcrdmh(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, LogFile)}
+               thinned, Debug, LogFile)}
      else if(Algorithm == "Random-Walk Metropolis") {
           mcmc.out <- .mcmcrwm(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, tuning, VarCov, LogFile)}
+               thinned, tuning, VarCov, Debug, LogFile)}
      else if(Algorithm == "Refractive Sampler") {
           mcmc.out <- .mcmcrefractive(Model, Data, Iterations, Status,
                Thinning, Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0,
-               thinned, LogFile)}
+               thinned, Debug, LogFile)}
      else if(Algorithm == "Reflective Slice Sampler") {
           mcmc.out <- .mcmcrss(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, thinned,
-               LogFile)}
+               Debug, LogFile)}
      else if(Algorithm == "Reversible-Jump") {
           mcmc.out <- .mcmcrj(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, LogFile)}
+               thinned, Debug, LogFile)}
      else if(Algorithm == "Robust Adaptive Metropolis") {
           mcmc.out <- .mcmcram(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, VarCov, LogFile)}
+               thinned, VarCov, Debug, LogFile)}
      else if(Algorithm == "Sequential Adaptive Metropolis-within-Gibbs") {
           mcmc.out <- .mcmcsamwg(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, tuning, parm.names=Data[["parm.names"]], LogFile)}
+               thinned, tuning, parm.names=Data[["parm.names"]], Debug,
+               LogFile)}
      else if(Algorithm == "Sequential Metropolis-within-Gibbs") {
           mcmc.out <- .mcmcsmwg(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, tuning, parm.names=Data[["parm.names"]], LogFile)}
+               thinned, tuning, parm.names=Data[["parm.names"]], Debug,
+               LogFile)}
      else if(Algorithm == "Stochastic Gradient Langevin Dynamics") {
           mcmc.out <- .mcmcsgld(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, LogFile)}
+               thinned, Debug, LogFile)}
      else if(Algorithm == "Slice Sampler") {
           mcmc.out <- .mcmcslice(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, LogFile)}
+               thinned, Debug, LogFile)}
      else if(Algorithm == "Tempered Hamiltonian Monte Carlo") {
           mcmc.out <- .mcmcthmc(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, LogFile)}
+               thinned, Debug, LogFile)}
      else if(Algorithm == "t-walk") {
           mcmc.out <- .mcmctwalk(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, LogFile)}
+               thinned, Debug, LogFile)}
      else if(Algorithm == "Univariate Eigenvector Slice Sampler") {
           mcmc.out <- .mcmcuess(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, VarCov, LogFile)}
+               thinned, VarCov, Debug, LogFile)}
      else if(Algorithm == "Updating Sequential Adaptive Metropolis-within-Gibbs") {
           mcmc.out <- .mcmcusamwg(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, tuning, parm.names=Data[["parm.names"]], LogFile)}
+               thinned, tuning, parm.names=Data[["parm.names"]], Debug,
+               LogFile)}
      else if(Algorithm == "Updating Sequential Metropolis-within-Gibbs") {
           mcmc.out <- .mcmcusmwg(Model, Data, Iterations, Status, Thinning,
                Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF,
-               thinned, tuning, parm.names=Data[["parm.names"]], LogFile)}
+               thinned, tuning, parm.names=Data[["parm.names"]], Debug,
+               LogFile)}
      else stop("The algorithm is unrecognized.", file=LogFile, append=TRUE)
      options(warn=0)
      #########################  MCMC is Finished  #########################
@@ -1475,13 +1480,13 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      Summ1[,6] <- apply(thinned, 2, quantile, c(0.500), na.rm=TRUE)
      Summ1[,7] <- apply(thinned, 2, quantile, c(0.975), na.rm=TRUE)
      for (i in 1:ncol(thinned)) {
-          temp <- try(MCSE(thinned[,i]), silent=TRUE)
+          temp <- try(MCSE(thinned[,i]), silent=!Debug[["DB.MCSE"]])
           if(!inherits(temp, "try-error")) Summ1[i,3] <- temp
           else Summ1[i,3] <- MCSE(thinned[,i], method="sample.variance")}
      Deviance <- rep(NA,7)
      Deviance[1] <- mean(Dev)
      Deviance[2] <- sd(as.vector(Dev))
-     temp <- try(MCSE(as.vector(Dev)), silent=TRUE)
+     temp <- try(MCSE(as.vector(Dev)), silent=!Debug[["DB.MCSE"]])
      if(inherits(temp, "try-error"))
           temp <- MCSE(as.vector(Dev), method="sample.variance")
      Deviance[3] <- temp
@@ -1494,7 +1499,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           Monitor <- rep(NA,7)
           Monitor[1] <- mean(Mon[,j])
           Monitor[2] <- sd(as.vector(Mon[,j]))
-          temp <- try(MCSE(as.vector(Mon[,j])), silent=TRUE)
+          temp <- try(MCSE(as.vector(Mon[,j])), silent=!Debug[["DB.MCSE"]])
           if(inherits(temp, "try-error")) 
                temp <- MCSE(Mon[,j], method="sample.variance")
           Monitor[3] <- temp
@@ -1527,14 +1532,14 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           Summ2[,6] <- apply(thinned2, 2, quantile, c(0.500), na.rm=TRUE)
           Summ2[,7] <- apply(thinned2, 2, quantile, c(0.975), na.rm=TRUE)
           for (i in 1:ncol(thinned2)) {
-               temp <- try(MCSE(thinned2[,i]), silent=TRUE)
+               temp <- try(MCSE(thinned2[,i]), silent=!Debug[["DB.MCSE"]])
                if(!inherits(temp, "try-error")) Summ2[i,3] <- temp
                else Summ2[i,3] <- MCSE(thinned2[,i],
                     method="sample.variance")}
           Deviance <- rep(NA,7)
           Deviance[1] <- mean(Dev2)
           Deviance[2] <- sd(as.vector(Dev2))
-          temp <- try(MCSE(as.vector(Dev2)), silent=TRUE)
+          temp <- try(MCSE(as.vector(Dev2)), silent=!Debug[["DB.MCSE"]])
           if(inherits(temp, "try-error"))
                temp <- MCSE(as.vector(Dev2), method="sample.variance")
           Deviance[3] <- temp
@@ -1550,7 +1555,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                Monitor <- rep(NA,7)
                Monitor[1] <- mean(Mon2[,j])
                Monitor[2] <- sd(as.vector(Mon2[,j]))
-               temp <- try(MCSE(as.vector(Mon[,j])), silent=TRUE)
+               temp <- try(MCSE(as.vector(Mon[,j])),
+                    silent=!Debug[["DB.MCSE"]])
                if(inherits(temp, "try-error"))
                     temp <- MCSE(as.vector(Mon[,j]),
                     method="sample.variance")
@@ -1651,7 +1657,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      }
 .mcmcadmg <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, VarCov,
-     LogFile)
+     Debug, LogFile)
      {
      n <- Specs[["n"]]
      Periodicity <- Specs[["Periodicity"]]
@@ -1682,7 +1688,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop <- Mo0[["parm"]]
                prop[j] <- prop[j] + lambda[j]
                ### Log-Posterior of the proposed state
-               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
@@ -1723,7 +1729,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      }
 .mcmcafss <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, VarCov,
-     LogFile)
+     Debug, LogFile)
      {
      A <- Specs[["A"]]
      Block <- Specs[["B"]]
@@ -1768,7 +1774,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     count <- 0
                     while (count <= m[j]) {
                          Mo1 <- try(Model(Mo0[["parm"]] +
-                              lower*factors[,j], Data), silent=TRUE)
+                              lower*factors[,j], Data),
+                              silent=!Debug[["DB.Model"]])
                          if(inherits(Mo1, "try-error")) {
                               lower <- lower + w[j]
                               break}
@@ -1783,7 +1790,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     count <- 0
                     while (count <= m[j]) {
                          Mo1 <- try(Model(Mo0[["parm"]] +
-                              upper*factors[,j], Data), silent=TRUE)
+                              upper*factors[,j], Data),
+                              silent=!Debug[["DB.Model"]])
                          if(inherits(Mo1, "try-error")) {
                               upper <- upper - w[j]
                               break}
@@ -1801,7 +1809,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          upper <- abs(max(lower, upper))
                          prop <- runif(1, lower, upper)
                          Mo1 <- try(Model(Mo0[["parm"]] + prop *
-                              factors[,j], Data), silent=TRUE)
+                              factors[,j], Data),
+                              silent=!Debug[["DB.Model"]])
                          if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                          else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                               Mo1[["Monitor"]]))))
@@ -1871,7 +1880,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     VarCov[[b]] <- as.positive.definite(VarCov[[b]])}
                decomp.freq[b] <- max(length(Block[[b]]) *
                     floor(Iterations / Thinning / 100), 10)
-               factors[[b]] <-try(eigen(VarCov[[b]])$vectors, silent=TRUE)
+               factors[[b]] <-try(eigen(VarCov[[b]])$vectors,
+                    silent=!Debug[["DB.eigen"]])
                if(inherits(factors[[b]], "try-error"))
                     factors[[b]] <- diag(length(Block[[b]]))
                obs.sum[[b]] <- matrix(Mo0[["parm"]][Block[[b]]]*n,
@@ -1909,7 +1919,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                               prop <- Mo0[["parm"]]
                               prop[Block[[b]]] <- prop[Block[[b]]] +
                                    lower*factors[[b]][,bj]
-                              Mo1 <- try(Model(prop, Data), silent=TRUE)
+                              Mo1 <- try(Model(prop, Data),
+                                   silent=!Debug[["DB.Model"]])
                               if(inherits(Mo1, "try-error")) {
                                    lower <- lower + w[j]
                                    break}
@@ -1926,7 +1937,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                               prop <- Mo0[["parm"]]
                               prop[Block[[b]]] <- prop[Block[[b]]] +
                                    upper*factors[[b]][,bj]
-                              Mo1 <- try(Model(prop, Data), silent=TRUE)
+                              Mo1 <- try(Model(prop, Data),
+                                   silent=!Debug[["DB.Model"]])
                               if(inherits(Mo1, "try-error")) {
                                    upper <- upper - w[j]
                                    break}
@@ -1946,7 +1958,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                               u <- runif(1, lower, upper)
                               prop[Block[[b]]] <- prop[Block[[b]]] +
                                    u*factors[[b]][,bj]
-                              Mo1 <- try(Model(prop, Data), silent=TRUE)
+                              Mo1 <- try(Model(prop, Data),
+                                   silent=!Debug[["DB.Model"]])
                               if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                               else if(any(!is.finite(c(Mo1[["LP"]],
                                    Mo1[["Dev"]], Mo1[["Monitor"]]))))
@@ -2011,7 +2024,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      }
 .mcmcagg <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
-     LogFile)
+     Debug, LogFile)
      {
      Grid <- Specs[["Grid"]]
      dparm <- Specs[["dparm"]]
@@ -2019,7 +2032,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      CPUs <- Specs[["CPUs"]]
      Packages <- Specs[["Packages"]]
      Dyn.libs <- Specs[["Dyn.libs"]]
-     AGGCP <- function(Model, Data, j, Mo0, Grid, tuning, smax)
+     AGGCP <- function(Model, Data, j, Mo0, Grid, tuning, smax, Debug)
           {
           G <- length(Grid[[j]])
           x <- Grid[[j]] * sqrt(2) * tuning[j]
@@ -2028,7 +2041,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           theta <- prop[j] + x
           for (g in 1:G) {
                prop[j] <- theta[g]
-               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                LP.grid[g] <- Mo1[["LP"]]
                theta[g] <- Mo1[["parm"]][j]}
@@ -2041,7 +2054,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           if(length(which(s$y > 0)) == 0)
                prop[j] <- theta[which.max(LP.grid)[1]]
           else prop[j] <- sample(s$x, 1, prob=s$y)
-          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]])))) Mo1 <- Mo0
@@ -2050,7 +2063,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           Mo0 <- Mo1
           return(list(Mo0=Mo0, tuning=tuning))
           }
-     AGGCPP <- function(Model, Data, j, Mo0, Grid, tuning, smax, cl)
+     AGGCPP <- function(Model, Data, j, Mo0, Grid, tuning, smax, Debug, cl)
           {
           G <- length(Grid[[j]])
           x <- Grid[[j]] * sqrt(2) * tuning[j]
@@ -2075,7 +2088,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           if(length(which(s$y > 0)) == 0)
                prop[j] <- theta[which.max(LP.grid)[1]]
           else prop[j] <- sample(s$x, 1, prob=s$y)
-          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]])))) Mo1 <- Mo0
@@ -2095,10 +2108,11 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          round(Mo0[["LP"]],1), "\n", sep="",
                          file=LogFile, append=TRUE)
                for (j in sample.int(LIV)) {
-                    if(j %in% dparm) Mo0 <- .mcmcggdp(Model, Data, j, Mo0, Grid)
+                    if(j %in% dparm)
+                         Mo0 <- .mcmcggdp(Model, Data, j, Mo0, Grid, Debug)
                     else {
                          agg <- AGGCP(Model, Data, j, Mo0, Grid, tuning,
-                              smax)
+                              smax, Debug)
                          Mo0 <- agg$Mo0
                          tuning[j] <- agg$tuning[j]}}
                if(iter %% Thinning == 0) {
@@ -2139,10 +2153,11 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          file=LogFile, append=TRUE)
                for (j in sample.int(LIV)) {
                     if(j %in% dparm)
-                         Mo0 <- .mcmcggdpp(Model, Data, j, Mo0, Grid, cl)
+                         Mo0 <- .mcmcggdpp(Model, Data, j, Mo0, Grid,
+                              Debug, cl)
                     else {
                          agg <- AGGCPP(Model, Data, j, Mo0, Grid,
-                              tuning, smax, cl)
+                              tuning, smax, Debug, cl)
                          Mo0 <- agg$Mo0
                          tuning[j] <- agg$tuning[j]}
                     }
@@ -2158,7 +2173,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      return(out)
      }
 .mcmcahmc <- function(Model, Data, Iterations, Status, Thinning, Specs,
-     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, LogFile)
+     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, Debug,
+     LogFile)
      {
      epsilon <- Specs[["epsilon"]]
      L <- Specs[["L"]]
@@ -2185,7 +2201,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           Mo0.1 <- Mo0
           for (l in 1:L) {
                prop <- prop + as.vector(epsilon %*% invm) * momentum1
-               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) Mo1 <- Mo0.1
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
@@ -2194,7 +2210,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     nomove <- which(Mo0.1[["parm"]] == Mo1[["parm"]])
                     momentum1[nomove] <- -momentum1[nomove]
                     prop[nomove] <- prop[nomove] + momentum1[nomove]
-                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    Mo1 <- try(Model(prop, Data),
+                         silent=!Debug[["DB.Model"]])
                     if(inherits(Mo1, "try-error")) Mo1 <- Mo0.1
                     else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]]))))
@@ -2244,7 +2261,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      return(out)
      }
 .mcmcaies <- function(Model, Data, Iterations, Status, Thinning, Specs,
-     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, LogFile)
+     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, Debug,
+     LogFile)
      {
      Nc <- Specs[["Nc"]]
      Z <- Specs[["Z"]]
@@ -2286,7 +2304,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                               round(Mo0[[1]][["LP"]],1), "\n", sep="",
                               file=LogFile, append=TRUE)
                     ### Log-Posterior of the proposed state
-                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    Mo1 <- try(Model(prop, Data),
+                         silent=!Debug[["DB.Model"]])
                     if(inherits(Mo1, "try-error")) Mo1 <- Mo0[[i]]
                     else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]]))))
@@ -2405,7 +2424,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      }
 .mcmcam <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
-     VarCov, LogFile)
+     VarCov, Debug, LogFile)
      {
      Adaptive <- Specs[["Adaptive"]]
      Periodicity <- Specs[["Periodicity"]]
@@ -2427,7 +2446,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                Mon[t.iter,] <- Mo0[["Monitor"]]}
           ### Propose new parameter values
           MVNz <- try(rbind(rnorm(LIV)) %*% chol(VarCov),
-               silent=TRUE)
+               silent=!Debug[["DB.chol"]])
           if(!inherits(MVNz, "try-error") &
                ((Acceptance / iter) >= 0.05)) {
                if(iter %% Status == 0) 
@@ -2445,7 +2464,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                j <- ceiling(runif(1,0,LIV))
                prop[j] <- rnorm(1, post[iter,j], tuning[j])}
           ### Log-Posterior of the proposed state
-          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]]))))
@@ -2491,7 +2510,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      }
 .mcmcamm <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
-     VarCov, LogFile)
+     VarCov, Debug, LogFile)
      {
      Adaptive <- Specs[["Adaptive"]]
      Block <- Specs[["B"]]
@@ -2524,7 +2543,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          round(Mo0[["LP"]],1), "\n", sep="",
                          file=LogFile, append=TRUE)}
           ### Log-Posterior of the proposed state
-          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]]))))
@@ -2546,7 +2565,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                diag(VarCov) <- diag(VarCov) + 1e-05
                a.iter <- floor(iter / Periodicity)
                DiagCovar[a.iter,] <- diag(VarCov)
-               prop.R <- try(ScaleF * chol(VarCov), silent=TRUE)
+               prop.R <- try(ScaleF * chol(VarCov),
+                    silent=!Debug[["DB.chol"]])
                if(!is.matrix(prop.R)) prop.R <- NULL}
           ### Save Thinned Samples
           if(iter %% Thinning == 0) {
@@ -2566,7 +2586,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      }
 .mcmcamm.b <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
-     VarCov, LogFile)
+     VarCov, Debug, LogFile)
      {
      Adaptive <- Specs[["Adaptive"]]
      Block <- Specs[["B"]]
@@ -2611,7 +2631,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                               round(Mo0[["LP"]],1), "\n", sep="",
                               file=LogFile, append=TRUE)}
                ### Log-Posterior of the proposed state
-               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
@@ -2634,7 +2654,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     diag(VarCov[[b]]) <- diag(VarCov[[b]]) + 1e-05
                     if(b == 1) DiagCovar <- rbind(DiagCovar, rep(0,LIV))
                     DiagCovar[nrow(DiagCovar),Block[[b]]] <- diag(VarCov[[b]])
-                    prop.R[[b]] <- try(ScaleF * chol(VarCov[[b]]), silent=TRUE)
+                    prop.R[[b]] <- try(ScaleF * chol(VarCov[[b]]),
+                         silent=!Debug[["DB.chol"]])
                     if(!is.matrix(prop.R[[b]])) prop.R[[b]] <- NA}
                }
           ### Save Thinned Samples
@@ -2655,7 +2676,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      }
 .mcmcamwg <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
-     LogFile)
+     Debug, LogFile)
      {
      Block <- Specs[["B"]]
      n <- Specs[["n"]]
@@ -2679,7 +2700,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     prop <- Mo0[["parm"]]
                     prop[j] <- prop[j] + propdraw[j]
                     ### Log-Posterior of the proposed state
-                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    Mo1 <- try(Model(prop, Data),
+                         silent=!Debug[["DB.Model"]])
                     if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                     else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]]))))
@@ -2725,7 +2747,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          prop <- Mo0[["parm"]]
                          prop[j] <- prop[j] + propdraw[j]
                          ### Log-Posterior of the proposed state
-                         Mo1 <- try(Model(prop, Data), silent=TRUE)
+                         Mo1 <- try(Model(prop, Data),
+                              silent=!Debug[["DB.Model"]])
                          if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                          else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                               Mo1[["Monitor"]]))))
@@ -2765,7 +2788,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      return(out)
      }
 .mcmccharm <- function(Model, Data, Iterations, Status, Thinning, Specs,
-     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, LogFile)
+     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, Debug,
+     LogFile)
      {
      alpha.star <- Specs[["alpha.star"]]
      if(is.na(alpha.star)) {
@@ -2786,7 +2810,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     prop <- Mo0[["parm"]]
                     prop[j] <- prop[j] + lambda*theta[j]
                     ### Log-Posterior of the proposed state
-                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    Mo1 <- try(Model(prop, Data),
+                         silent=!Debug[["DB.Model"]])
                     if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                     else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]]))))
@@ -2832,7 +2857,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     prop <- Mo0[["parm"]]
                     prop[j] <- prop[j] + tau[j]*lambda*theta[j]
                     ### Log-Posterior of the proposed state
-                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    Mo1 <- try(Model(prop, Data),
+                         silent=!Debug[["DB.Model"]])
                     if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                     else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]]))))
@@ -2867,7 +2893,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           }
      }
 .mcmcdemc <- function(Model, Data, Iterations, Status, Thinning, Specs,
-     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, LogFile)
+     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, Debug,
+     LogFile)
      {
      Nc <- Specs[["Nc"]]
      Z <- Specs[["Z"]]
@@ -2926,7 +2953,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          round(Mo0[[1]][["LP"]],1), "\n", sep="",
                          file=LogFile, append=TRUE)
                ### Log-Posterior of the proposed state
-               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) Mo1 <- Mo0[[i]]
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
@@ -2959,7 +2986,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      }
 .mcmcdram <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
-     VarCov, LogFile)
+     VarCov, Debug, LogFile)
      {
      Adaptive <- Specs[["Adaptive"]]
      DR <- 1
@@ -2981,7 +3008,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                Dev[t.iter] <- Mo0[["Dev"]]
                Mon[t.iter,] <- Mo0[["Monitor"]]}
           ### Propose new parameter values
-          MVNz <- try(rbind(rnorm(LIV)) %*% chol(VarCov), silent=TRUE)
+          MVNz <- try(rbind(rnorm(LIV)) %*% chol(VarCov),
+               silent=!Debug[["DB.chol"]])
           if(!inherits(MVNz, "try-error") &
                ((Acceptance / iter) >= 0.05)) {
                if(iter %% Status == 0) 
@@ -2999,7 +3027,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                j <- ceiling(runif(1,0,LIV))
                prop[j] <- rnorm(1, post[iter,j], tuning[j])}
           ### Log-Posterior of the proposed state
-          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]]))))
@@ -3020,7 +3048,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           ### Delayed Rejection: Second Stage Proposals
           else if(log.u >= log.alpha) {
                MVNz <- try(rbind(rnorm(LIV)) %*%
-                    chol(VarCov * 0.5), silent=TRUE)
+                    chol(VarCov * 0.5), silent=!Debug[["DB.chol"]])
                if(!inherits(MVNz, "try-error") &
                     ((Acceptance / iter) >= 0.05)) {
                     MVNz <- as.vector(MVNz)
@@ -3030,7 +3058,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     j <- ceiling(runif(1,0,LIV))
                     prop[j] <- rnorm(1, post[iter,j], tuning[j])}
                ### Log-Posterior of the proposed state
-               Mo2 <- try(Model(prop, Data), silent=TRUE)
+               Mo2 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo2, "try-error")) Mo2 <- Mo0
                else if(any(!is.finite(c(Mo2[["LP"]], Mo2[["Dev"]],
                     Mo2[["Monitor"]]))))
@@ -3083,7 +3111,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      }
 .mcmcdrm <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
-     VarCov, LogFile)
+     VarCov, Debug, LogFile)
      {
      DR <- 1
      U <- chol(VarCov)
@@ -3111,7 +3139,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                j <- ceiling(runif(1,0,LIV))
                prop[j] <- rnorm(1, Mo0[["parm"]][j], tuning[j])}
           ### Log-Posterior of the proposed state
-          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]]))))
@@ -3126,7 +3154,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           ### Delayed Rejection: Second Stage Proposals
           else if(log.u >= log.alpha) {
                MVNz <- try(rbind(rnorm(LIV)) %*%
-                    chol(VarCov * 0.5), silent=TRUE)
+                    chol(VarCov * 0.5), silent=!Debug[["DB.chol"]])
                if(!inherits(MVNz, "try-error") &
                     ((Acceptance / iter) >= 0.05)) {
                     MVNz <- as.vector(MVNz)
@@ -3136,7 +3164,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     j <- ceiling(runif(1,0,LIV))
                     prop[j] <- rnorm(1, Mo0[["parm"]][j], tuning[j])}
                ### Log-Posterior of the proposed state
-               Mo2 <- try(Model(prop, Data), silent=TRUE)
+               Mo2 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo2, "try-error")) Mo2 <- Mo0
                else if(any(!is.finite(c(Mo2[["LP"]], Mo2[["Dev"]],
                     Mo2[["Monitor"]]))))
@@ -3172,7 +3200,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      }
 .mcmcess <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, VarCov,
-     LogFile)
+     Debug, LogFile)
      {
      Block <- Specs[["B"]]
      if(length(Block) == 0) {
@@ -3203,7 +3231,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                while (shrink == TRUE) {
                     prop <- Mo0[["parm"]]*cos(theta) + nu*sin(theta)
                     ### Log-Posterior of the proposed state
-                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    Mo1 <- try(Model(prop, Data),
+                         silent=!Debug[["DB.Model"]])
                     if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                     else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]]))))
@@ -3267,7 +3296,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          prop[Block[[b]]] <- Mo0[["parm"]][Block[[b]]]*cos(theta) +
                               nu[Block[[b]]]*sin(theta)
                          ### Log-Posterior of the proposed state
-                         Mo1 <- try(Model(prop, Data), silent=TRUE)
+                         Mo1 <- try(Model(prop, Data),
+                              silent=!Debug[["DB.Model"]])
                          if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                          else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                               Mo1[["Monitor"]]))))
@@ -3303,7 +3333,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      }
 .mcmcgibbs <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
-     LogFile)
+     Debug, LogFile)
      {
      FC <- Specs[["FC"]]
      MWG <- Specs[["MWG"]]
@@ -3321,9 +3351,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     round(Mo0[["LP"]],1), "\n", sep="",
                     file=LogFile, append=TRUE)
           ### Gibbs Sampling of Full Conditionals
-          prop <- try(FC(Mo0[["parm"]], Data), silent=TRUE)
+          prop <- try(FC(Mo0[["parm"]], Data), silent=!Debug[["DB.Model"]])
           if(inherits(prop, "try-error")) prop <- Mo0[["parm"]]
-          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           Mo0 <- Mo1
           ### Metropolis-within-Gibbs
@@ -3334,7 +3364,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     prop <- Mo0[["parm"]]
                     prop[j] <- rnorm(1, prop[j], tuning[j])
                     ### Log-Posterior of the proposed state
-                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    Mo1 <- try(Model(prop, Data),
+                         silent=!Debug[["DB.Model"]])
                     if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                     else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]]))))
@@ -3363,7 +3394,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      return(out)
      }
 .mcmcgg <- function(Model, Data, Iterations, Status, Thinning, Specs,
-     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, LogFile)
+     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, Debug,
+     LogFile)
      {
      Grid <- Specs[["Grid"]]
      dparm <- Specs[["dparm"]]
@@ -3378,8 +3410,9 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          round(Mo0[["LP"]],1), "\n", sep="",
                          file=LogFile, append=TRUE)
                for (j in sample.int(LIV)) {
-                    if(j %in% dparm) Mo0 <- .mcmcggdp(Model, Data, j, Mo0, Grid)
-                    else Mo0 <- .mcmcggcp(Model, Data, j, Mo0, Grid)
+                    if(j %in% dparm)
+                         Mo0 <- .mcmcggdp(Model, Data, j, Mo0, Grid, Debug)
+                    else Mo0 <- .mcmcggcp(Model, Data, j, Mo0, Grid, Debug)
                     }
                if(iter %% Thinning == 0) {
                     t.iter <- floor(iter/Thinning) + 1
@@ -3418,8 +3451,10 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          file=LogFile, append=TRUE)
                for (j in sample.int(LIV)) {
                     if(j %in% dparm)
-                         Mo0 <- .mcmcggdpp(Model, Data, j, Mo0, Grid, cl)
-                    else Mo0 <- .mcmcggcpp(Model, Data, j, Mo0, Grid, cl)
+                         Mo0 <- .mcmcggdpp(Model, Data, j, Mo0, Grid,
+                              Debug, cl)
+                    else Mo0 <- .mcmcggcpp(Model, Data, j, Mo0, Grid,
+                              Debug, cl)
                     }
                if(iter %% Thinning == 0) {
                     t.iter <- floor(iter/Thinning) + 1
@@ -3431,7 +3466,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      return(out)
      }
 ### Griddy-Gibbs Continuous Parameter (Non-Parallelized)
-.mcmcggcp <- function(Model, Data, j, Mo0, Grid)
+.mcmcggcp <- function(Model, Data, j, Mo0, Grid, Debug)
      {
      G <- length(Grid[[j]])
      LP.grid <- rep(0, G)
@@ -3439,7 +3474,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      theta <- prop[j] + Grid[[j]]
      for (g in 1:G) {
           prop[j] <- theta[g]
-          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           LP.grid[g] <- Mo1[["LP"]]
           theta[g] <- Mo1[["parm"]][j]}
@@ -3452,7 +3487,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      if(length(which(s$y > 0)) == 0)
           prop[j] <- theta[which.max(LP.grid)[1]]
      else prop[j] <- sample(s$x, 1, prob=s$y)
-     Mo1 <- try(Model(prop, Data), silent=TRUE)
+     Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
      if(inherits(Mo1, "try-error")) Mo1 <- Mo0
      else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
           Mo1[["Monitor"]])))) Mo1 <- Mo0
@@ -3460,7 +3495,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      return(Mo0)
      }
 ### Griddy-Gibbs Continuous Parameter (Parallelized)
-.mcmcggcpp <- function(Model, Data, j, Mo0, Grid, cl)
+.mcmcggcpp <- function(Model, Data, j, Mo0, Grid, Debug, cl)
      {
      G <- length(Grid[[j]])
      LP.grid <- rep(0, G)
@@ -3484,7 +3519,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      if(length(which(s$y > 0)) == 0)
           prop[j] <- theta[which.max(LP.grid)[1]]
      else prop[j] <- sample(s$x, 1, prob=s$y)
-     Mo1 <- try(Model(prop, Data), silent=TRUE)
+     Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
      if(inherits(Mo1, "try-error")) Mo1 <- Mo0
      else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
           Mo1[["Monitor"]])))) Mo1 <- Mo0
@@ -3493,7 +3528,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      }
 ### Griddy-Gibbs Discrete Parameter (Non-Parallelized)
 #where j is which parameter, and Grid are discrete values
-.mcmcggdp <- function(Model, Data, j, Mo0, Grid)
+.mcmcggdp <- function(Model, Data, j, Mo0, Grid, Debug)
      {
      G <- length(Grid[[j]])
      LP.grid <- rep(0, G)
@@ -3501,7 +3536,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      theta <- Grid[[j]]
      for (g in 1:G) {
           prop[j] <- theta[g]
-          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           LP.grid[g] <- Mo1[["LP"]]
           theta[g] <- Mo1[["parm"]][j]}
@@ -3510,7 +3545,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      LP.grid <- exp(LP.grid - logadd(LP.grid))
      LP.grid <- LP.grid / sum(LP.grid)
      prop[j] <- sample(theta, 1, prob=LP.grid)
-     Mo1 <- try(Model(prop, Data), silent=TRUE)
+     Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
      if(inherits(Mo1, "try-error")) Mo1 <- Mo0
      else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
           Mo1[["Monitor"]])))) Mo1 <- Mo0
@@ -3518,7 +3553,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      return(Mo0)
      }
 ### Griddy-Gibbs Discrete Parameter (Parallelized)
-.mcmcggdpp <- function(Model, Data, j, Mo0, Grid, cl)
+.mcmcggdpp <- function(Model, Data, j, Mo0, Grid, Debug, cl)
      {
      G <- length(Grid[[j]])
      LP.grid <- rep(0, G)
@@ -3538,7 +3573,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      LP.grid <- exp(LP.grid - logadd(LP.grid))
      LP.grid <- LP.grid / sum(LP.grid)
      prop[j] <- sample(theta, 1, prob=LP.grid)
-     Mo1 <- try(Model(prop, Data), silent=TRUE)
+     Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
      if(inherits(Mo1, "try-error")) Mo1 <- Mo0
      else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
           Mo1[["Monitor"]])))) Mo1 <- Mo0
@@ -3547,7 +3582,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      }
 .mcmcharm <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-     LogFile)
+     Debug, LogFile)
      {
      alpha.star <- Specs[["alpha.star"]]
      Block <- Specs[["B"]]
@@ -3567,7 +3602,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          round(Mo0[["LP"]],1), "\n", sep="",
                          file=LogFile, append=TRUE)
                ### Log-Posterior of the proposed state
-               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
@@ -3614,7 +3649,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                               round(Mo0[["LP"]],1), "\n", sep="",
                               file=LogFile, append=TRUE)
                     ### Log-Posterior of the proposed state
-                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    Mo1 <- try(Model(prop, Data),
+                         silent=!Debug[["DB.Model"]])
                     if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                     else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]]))))
@@ -3661,7 +3697,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          round(Mo0[["LP"]],1), "\n", sep="",
                          file=LogFile, append=TRUE)
                ### Log-Posterior of the proposed state
-               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
@@ -3724,7 +3760,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                               round(Mo0[["LP"]],1), "\n", sep="",
                               file=LogFile, append=TRUE)
                     ### Log-Posterior of the proposed state
-                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    Mo1 <- try(Model(prop, Data),
+                         silent=!Debug[["DB.Model"]])
                     if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                     else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]]))))
@@ -3763,7 +3800,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      }
 .mcmchmc <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, VarCov,
-     LogFile)
+     Debug, LogFile)
      {
      epsilon <- Specs[["epsilon"]]
      L <- Specs[["L"]]
@@ -3786,7 +3823,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           Mo0.1 <- Mo0
           for (l in 1:L) {
                prop <- prop + as.vector(epsilon %*% invm) * momentum1
-               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) Mo1 <- Mo0.1
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
@@ -3795,7 +3832,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     nomove <- which(Mo0.1[["parm"]] == Mo1[["parm"]])
                     momentum1[nomove] <- -momentum1[nomove]
                     prop[nomove] <- prop[nomove] + momentum1[nomove]
-                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    Mo1 <- try(Model(prop, Data),
+                         silent=!Debug[["DB.Model"]])
                     if(inherits(Mo1, "try-error")) Mo1 <- Mo0.1
                     else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]]))))
@@ -3835,18 +3873,19 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      return(out)
      }
 .mcmchmcda <- function(Model, Data, Iterations, Status, Thinning, Specs,
-     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, LogFile)
+     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, Debug,
+     LogFile)
      {
      A <- Specs[["A"]]
      delta <- Specs[["delta"]]
      epsilon <- Specs[["epsilon"]]
      Lmax <- Specs[["Lmax"]]
      lambda <- Specs[["lambda"]]
-     leapfrog <- function(theta, r, grad, epsilon, Model, Data, Mo0)
+     leapfrog <- function(theta, r, grad, epsilon, Model, Data, Mo0, Debug)
           {
           rprime <- r + 0.5 * epsilon * grad
           thetaprime <-  theta + epsilon * rprime
-          Mo1 <- try(Model(thetaprime, Data), silent=TRUE)
+          Mo1 <- try(Model(thetaprime, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]]))))
@@ -3868,7 +3907,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           epsilon <- 0.001
           r0 <- runif(length(theta0))
           ### Figure out which direction to move epsilon
-          leap <- leapfrog(theta0, r0, grad0, epsilon, Model, Data, Mo0)
+          leap <- leapfrog(theta0, r0, grad0, epsilon, Model, Data, Mo0,
+               Debug)
           if(!is.finite(leap$Mo1[["LP"]]))
                stop("LP is not finite in find.reasonable.epsilon().",
                     file=LogFile, append=TRUE)
@@ -3880,7 +3920,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           ### crosses 0.5
           while (acceptprob^a > 2^(-a)) {
                epsilon <- epsilon * 2^a
-               leap <- leapfrog(theta0, r0, grad0, epsilon, Model, Data, Mo0)
+               leap <- leapfrog(theta0, r0, grad0, epsilon, Model, Data,
+                    Mo0, Debug)
                if(!is.finite(leap$Mo1[["LP"]]))
                     stop("LP is not finite in find.reasonable.epsilon().",
                          file=LogFile, append=TRUE)
@@ -3926,7 +3967,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           for (l in 1:L) {
                momentum1 <- momentum1 + 0.5 * epsilon * gr1
                prop <- prop + epsilon * momentum1
-               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) Mo1 <- Mo0.1
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
@@ -3935,7 +3976,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     nomove <- which(Mo0.1[["parm"]] == Mo1[["parm"]])
                     momentum1[nomove] <- -momentum1[nomove]
                     prop[nomove] <- prop[nomove] + momentum1[nomove]
-                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    Mo1 <- try(Model(prop, Data),
+                         silent=!Debug[["DB.Model"]])
                     if(inherits(Mo1, "try-error")) Mo1 <- Mo0.1
                     else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]]))))
@@ -3981,7 +4023,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      }
 .mcmcim <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, VarCov,
-     LogFile)
+     Debug, LogFile)
      {
      mu <- Specs[["mu"]]
      VarCov <- as.positive.definite(as.symmetric.matrix(VarCov * 1.1))
@@ -4002,7 +4044,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop <- as.vector(mu) + as.vector(MVNz)}
           else {prop <- as.vector(Mo0[["parm"]])}
           ### Log-Posterior of the proposed state
-          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]]))))
@@ -4039,7 +4081,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      }
 .mcmcinca <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
-     VarCov, LogFile)
+     VarCov, Debug, LogFile)
      {
      Adaptive <- Specs[["Adaptive"]]
      Periodicity <- Specs[["Periodicity"]]
@@ -4068,7 +4110,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                Dev[t.iter] <- Mo0[["Dev"]]
                Mon[t.iter,] <- Mo0[["Monitor"]]}
           ### Propose new parameter values
-          MVNz <- try(rbind(rnorm(LIV)) %*% chol(VarCov), silent=TRUE)
+          MVNz <- try(rbind(rnorm(LIV)) %*% chol(VarCov),
+               silent=!Debug[["DB.chol"]])
           if(!inherits(MVNz, "try-error") &
                ((Acceptance / iter) >= 0.05)) {
                if(iter %% Status == 0) 
@@ -4085,7 +4128,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                j <- ceiling(runif(1,0,LIV))
                prop[j] <- rnorm(1, post[iter,j], tuning[j])}
           ### Log-Posterior of the proposed state
-          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]]))))
@@ -4164,7 +4207,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      }
 .mcmcmala <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-     VarCov, LogFile)
+     VarCov, Debug, LogFile)
      {
      A <- Specs[["A"]]
      alpha.star <- Specs[["alpha.star"]]
@@ -4188,14 +4231,14 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           Dx <- {delta/max(delta, abs(gr))}*gr
           gamm <- min(gamma.const/iter, 1)
           Lambda <- Gamm + epsilon[2]*Iden
-          U <- try(chol(sigma2*Lambda), silent=TRUE)
+          U <- try(chol(sigma2*Lambda), silent=!Debug[["DB.chol"]])
           if(inherits(U, "try-error"))
                U <- chol(as.positive.definite(sigma2*Lambda))
           prop <- as.vector((Mo0[["parm"]] +
                {sigma2/2}*as.vector(Lambda %*% Dx)*Dx) +
                rbind(rnorm(LIV)) %*% U)
           ### Log-Posterior of the proposed state
-          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]]))))
@@ -4242,7 +4285,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      }
 .mcmcmcmcmc <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
-     VarCov, LogFile)
+     VarCov, Debug, LogFile)
      {
      lambda <- Specs[["lambda"]]
      CPUs <- Specs[["CPUs"]]
@@ -4298,7 +4341,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop[i,] <- Mo0[[i]][["parm"]] + rbind(rnorm(LIV)) %*% U
           ### Log-Posterior of the proposed state
           Mo1 <- parLapply(cl, 1:CPUs, function(x)
-               try(Model(prop[x,], Data), silent=TRUE))
+               try(Model(prop[x,], Data), silent=!Debug[["DB.Model"]]))
           for (i in 1:CPUs) {
                if(inherits(Mo1[[i]], "try-error")) Mo1[[i]] <- Mo0[[i]]
                else if(any(!is.finite(c(Mo1[[i]][["LP"]], Mo1[[i]][["Dev"]],
@@ -4347,7 +4390,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      return(out)
      }
 .mcmcmtm <- function(Model, Data, Iterations, Status, Thinning, Specs,
-     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, thinned, tuning, LogFile)
+     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, thinned, tuning, Debug,
+     LogFile)
      {
      K <- Specs[["K"]]
      CPUs <- Specs[["CPUs"]]
@@ -4396,7 +4440,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(CPUs == 1) {
                     ### Non-parallel
                     for (k in 1:K) {
-                         Mo1[[k]] <- try(Model(prop1[k,], Data), silent=TRUE)
+                         Mo1[[k]] <- try(Model(prop1[k,], Data),
+                              silent=!Debug[["DB.Model"]])
                          if(inherits(Mo1[[k]], "try-error"))
                               Mo1[[k]] <- Mo0
                          else if(any(!is.finite(c(Mo1[[k]][["LP"]],
@@ -4408,7 +4453,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                else {
                     ### Parallel
                     Mo1 <- parLapply(cl, 1:K, function(x)
-                         try(Model(prop1[x,], Data), silent=TRUE))
+                         try(Model(prop1[x,], Data),
+                              silent=!Debug[["DB.Model"]]))
                     for (k in 1:K) {
                          if(inherits(Mo1[[k]], "try-error"))
                               Mo1[[k]] <- Mo0
@@ -4426,7 +4472,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop2 <- sample(prop1[,j], size=1, prob=w)
                prop5[j] <- prop2
                ### Create Reference Set
-               Mo2 <- try(Model(prop5, Data), silent=TRUE)
+               Mo2 <- try(Model(prop5, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo2, "try-error")) Mo2 <- Mo0
                prop3 <- c(rnorm(K-1, Mo2[["parm"]][j], tuning[j]),
                     Mo2[["parm"]][j])
@@ -4438,7 +4484,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(CPUs == 1) {
                     ### Non-parallel
                     for (k in 1:K) {
-                         Mo1[[k]] <- try(Model(prop4[k,], Data), silent=TRUE)
+                         Mo1[[k]] <- try(Model(prop4[k,], Data),
+                              silent=!Debug[["DB.Model"]])
                          if(inherits(Mo1[[k]], "try-error")) Mo1[[k]] <- Mo0
                          else if(any(!is.finite(c(Mo1[[k]][["LP"]],
                               Mo1[[k]][["Dev"]], Mo1[[k]][["Monitor"]]))))
@@ -4448,7 +4495,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                else {
                     ### Parallel
                     Mo1 <- parLapply(cl, 1:K, function(x)
-                         try(Model(prop4[x,], Data), silent=TRUE))
+                         try(Model(prop4[x,], Data),
+                              silent=!Debug[["DB.Model"]]))
                     for (k in 1:K) {
                          if(inherits(Mo1[[k]], "try-error")) Mo1[[k]] <- Mo0
                          else if(any(!is.finite(c(Mo1[[k]][["LP"]],
@@ -4478,7 +4526,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      }
 .mcmcmwg <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
-     LogFile)
+     Debug, LogFile)
      {
      Block <- Specs[["B"]]
      B <- length(Block)
@@ -4498,7 +4546,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     prop <- Mo0[["parm"]]
                     prop[j] <- prop[j] + propdraw[j]
                     ### Log-Posterior of the proposed state
-                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    Mo1 <- try(Model(prop, Data),
+                         silent=!Debug[["DB.Model"]])
                     if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                     else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]]))))
@@ -4533,7 +4582,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          prop <- Mo0[["parm"]]
                          prop[j] <- prop[j] + propdraw[j]
                          ### Log-Posterior of the proposed state
-                         Mo1 <- try(Model(prop, Data), silent=TRUE)
+                         Mo1 <- try(Model(prop, Data),
+                              silent=!Debug[["DB.Model"]])
                          if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                          else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                               Mo1[["Monitor"]]))))
@@ -4561,18 +4611,19 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      return(out)
      }
 .mcmcnuts <- function(Model, Data, Iterations, Status, Thinning, Specs,
-     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, LogFile)
+     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, Debug,
+     LogFile)
      {
      A <- Specs[["A"]]
      delta <- Specs[["delta"]]
      epsilon <- Specs[["epsilon"]]
      Lmax <- Specs[["Lmax"]]
      post <- matrix(Mo0[["parm"]], Iterations, LIV, byrow=TRUE)
-     leapfrog <- function(theta, r, grad, epsilon, Model, Data, Mo0)
+     leapfrog <- function(theta, r, grad, epsilon, Model, Data, Mo0, Debug)
           {
           rprime <- r + 0.5 * epsilon * grad
           thetaprime <-  theta + epsilon * rprime
-          Mo1 <- try(Model(thetaprime, Data), silent=TRUE)
+          Mo1 <- try(Model(thetaprime, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]]))))
@@ -4598,7 +4649,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           if(j == 0) {
                ### Base case: Take a single leapfrog step in direction v
                leap <- leapfrog(theta=theta, r=r, grad=grad,
-                    epsilon=v*epsilon, Model=Model, Data=Data, Mo0=Mo0)
+                    epsilon=v*epsilon, Model=Model, Data=Data, Mo0=Mo0,
+                    Debug=Debug)
                rprime <- leap$rprime
                thetaprime <- leap$thetaprime
                Mo1 <- leap$Mo1
@@ -4710,7 +4762,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           r0 <- runif(length(theta0))
           ### Figure out which direction to move epsilon
           leap <- leapfrog(theta=theta0, r=r0, grad=grad0,
-               epsilon=epsilon, Model=Model, Data=Data, Mo0=Mo0)
+               epsilon=epsilon, Model=Model, Data=Data, Mo0=Mo0,
+               Debug=Debug)
           if(!is.finite(leap$Mo1[["LP"]]))
                stop("LP is not finite in find.reasonable.epsilon().",
                     file=LogFile, append=TRUE)
@@ -4723,7 +4776,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           while (acceptprob^a > 2^(-a)) {
                epsilon <- epsilon * 2^a
                leap <- leapfrog(theta=theta0, r=r0, grad=grad0,
-                    epsilon=epsilon, Model=Model, Data=Data, Mo0=Mo0)
+                    epsilon=epsilon, Model=Model, Data=Data, Mo0=Mo0,
+                    Debug=Debug)
                if(!is.finite(leap$Mo1[["LP"]]))
                     stop("LP is not finite in find.reasonable.epsilon().",
                          file=LogFile, append=TRUE)
@@ -4873,7 +4927,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      }
 .mcmcohss <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-     VarCov, LogFile)
+     VarCov, Debug, LogFile)
      {
      A <- Specs[["A"]]
      n <- Specs[["n"]]
@@ -4889,7 +4943,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      decomp.freq <- max(floor(Iterations / Thinning / 100), 10)
      cat("\nEigendecomposition will occur every", decomp.freq,
                "iterations.\n\n")
-     S.eig <-try(eigen(VarCov), silent=TRUE)
+     S.eig <-try(eigen(VarCov), silent=!Debug[["DB.eigen"]])
      if(inherits(S.eig, "try-error")) {
           S.eig <- NULL
           DiagCovar <- matrix(0, floor(Iterations/Thinning)+1, LIV)
@@ -4918,7 +4972,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     VarCov2 <- as.symmetric.matrix(VarCov2)
                if(!is.positive.definite(VarCov2))
                     VarCov2 <- as.positive.definite(VarCov2)
-               S.eig <- try(eigen(VarCov2), silent=TRUE)
+               S.eig <- try(eigen(VarCov2), silent=!Debug[["DB.eigen"]])
                if(inherits(S.eig, "try-error")) S.eig <- eigen(VarCov)}
           ### Hypercube or Eigenvector
           if(runif(1) < w || is.null(S.eig)) {
@@ -4929,7 +4983,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                vals <- S.eig$values
                vecs <- S.eig$vectors}
           ### Slice Interval
-          Mo0.1 <- try(Model(Mo0[["parm"]], Data), silent=TRUE)
+          Mo0.1 <- try(Model(Mo0[["parm"]], Data),
+               silent=!Debug[["DB.Model"]])
           if(inherits(Mo0.1, "try-error")) Mo0.1 <- Mo0
           Mo0 <- Mo0.1
           y.slice <- Mo0[["LP"]] - rexp(1)
@@ -4940,7 +4995,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                wt <- runif(LIV, min=L, max=U)
                v <- as.numeric(vecs %*% {edge.scale * wt * vals})
                prop <- Mo0[["parm"]] + v
-               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
@@ -4973,7 +5028,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      }
 .mcmcpcn <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, VarCov,
-     LogFile)
+     Debug, LogFile)
      {
      beta <- Specs[["beta"]]
      U <- chol(VarCov)
@@ -4988,7 +5043,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           prop <- as.vector(sqrt(1 - beta*beta)*Mo0[["parm"]] +
                beta*(rbind(rnorm(LIV)) %*% U))
           ### Log-Posterior of the proposed state
-          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]]))))
@@ -5018,7 +5073,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      }
 .mcmcram <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, VarCov,
-     LogFile)
+     Debug, LogFile)
      {
      alpha.star <- Specs[["alpha.star"]]
      Block <- Specs[["B"]]
@@ -5036,7 +5091,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     file=LogFile, append=TRUE)
                VarCov <- as.positive.definite(VarCov)}
           Iden.Mat <- diag(LIV)
-          S.z <- try(t(chol(VarCov)), silent=TRUE)
+          S.z <- try(t(chol(VarCov)), silent=!Debug[["DB.chol"]])
           if(!inherits(S.z, "try-error")) S <- S.z
           else S <- Iden.Mat
           DiagCovar <- matrix(diag(VarCov), floor(Iterations/Thinning)+1,
@@ -5053,7 +5108,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                else U <- rnorm(LIV)
                prop <- Mo0[["parm"]] + rbind(U) %*% S
                ### Log-Posterior
-               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
@@ -5075,7 +5130,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                if(!is.symmetric.matrix(VarCov.test))
                     VarCov.test <- as.symmetric.matrix(VarCov.test)
                if(is.positive.definite(VarCov.test)) {
-                    S.z <- try(t(chol(VarCov)), silent=TRUE)
+                    S.z <- try(t(chol(VarCov)), silent=!Debug[["DB.chol"]])
                     if(!inherits(S.z, "try-error")) {
                          VarCov <- VarCov.test
                          S <- S.z}}
@@ -5105,7 +5160,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          file=LogFile, append=TRUE)
                     VarCov[[b]] <- as.positive.definite(VarCov[[b]])}
                Iden.Mat[[b]] <- diag(length(diag(VarCov[[b]])))
-               S.z[[b]] <- try(t(chol(VarCov[[b]])), silent=TRUE)
+               S.z[[b]] <- try(t(chol(VarCov[[b]])),
+                    silent=!Debug[["DB.chol"]])
                if(!inherits(S.z[[b]], "try-error")) S[[b]] <- S.z[[b]]
                else S[[b]] <- Iden.Mat[[b]]
                DiagCovar[Block[[b]]] <- diag(VarCov[[b]])
@@ -5128,7 +5184,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     prop[Block[[b]]] <- prop[Block[[b]]] +
                          rbind(U) %*% S[[b]]
                     ### Log-Posterior
-                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    Mo1 <- try(Model(prop, Data),
+                         silent=!Debug[["DB.Model"]])
                     if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                     else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]]))))
@@ -5151,7 +5208,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     if(!is.symmetric.matrix(VarCov.test))
                          VarCov.test <- as.symmetric.matrix(VarCov.test)
                     if(is.positive.definite(VarCov.test)) {
-                         S.z[[b]] <- try(t(chol(VarCov[[b]])), silent=TRUE)
+                         S.z[[b]] <- try(t(chol(VarCov[[b]])),
+                              silent=!Debug[["DB.chol"]])
                          if(!inherits(S.z[[b]], "try-error")) {
                               VarCov[[b]] <- VarCov.test
                               S[[b]] <- S.z[[b]]}}
@@ -5176,7 +5234,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      }
 .mcmcrdmh <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-     LogFile)
+     Debug, LogFile)
      {
      Acceptance <- matrix(0, 1, LIV)
      for (iter in 1:Iterations) {
@@ -5195,7 +5253,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop <- Mo0[["parm"]]
                prop[j] <- prop[j]*epsilon1[j]
                ### Log-Posterior of the proposed state
-               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
@@ -5224,7 +5282,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      return(out)
      }
 .mcmcrefractive <- function(Model, Data, Iterations, Status, Thinning,
-     Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, thinned, LogFile)
+     Specs, Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, thinned, Debug,
+     LogFile)
      {
      Adaptive <- Specs[["Adaptive"]]
      m <- Specs[["m"]]
@@ -5265,7 +5324,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          cos.theta.2)*u
                     a <- (r1 / r2)^(LIV-1)*(cos.theta.1 / cos.theta.2)*a}
                prop <- prop + w*p
-               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
@@ -5302,7 +5361,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      return(out)
      }
 .mcmcrj <- function(Model, Data, Iterations, Status, Thinning, Specs,
-     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, LogFile)
+     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, Debug,
+     LogFile)
      {
      bin.n <- Specs[["bin.n"]]
      bin.p <- Specs[["bin.p"]]
@@ -5348,7 +5408,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop <- Mo0[["parm"]] <- temp.post
                prop[j] <- prop[j] + lambda*theta[j]
                ### Log-Posterior of the proposed state
-               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
@@ -5363,7 +5423,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           prop[v.change] <- prop.sel[v.change]*(prop[v.change] +
                lambda*theta[v.change])
           ### Log-Posterior of the proposed state
-          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]]))))
@@ -5395,7 +5455,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      return(out)
      }
 .mcmcrss <- function(Model, Data, Iterations, Status, Thinning, Specs,
-     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, thinned, LogFile)
+     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, thinned, Debug, LogFile)
      {
      m <- Specs[["m"]]
      w <- Specs[["w"]]
@@ -5423,7 +5483,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           for (i in 1:m) {
                prop0 <- prop
                prop <- prop + w*p
-               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
@@ -5435,7 +5495,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     prop <- prop0
                     g <- partial(Model, prop, Data)
                     p <- p - 2*g*{(t(p) %*% g) / Norm(g)^2}}}
-          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]]))))
@@ -5459,7 +5519,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      }
 .mcmcrwm <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
-     VarCov, LogFile)
+     VarCov, Debug, LogFile)
      {
      Block <- Specs[["B"]]
      if(length(Block) == 0) {
@@ -5483,7 +5543,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop <- as.vector(Mo0[["parm"]] +
                     rbind(rnorm(LIV)) %*% U)
                ### Log-Posterior of the proposed state
-               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                else if(any(is.infinite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
@@ -5536,7 +5596,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                               round(Mo0[["LP"]],1), "\n", sep="",
                               file=LogFile, append=TRUE)
                     ### Log-Posterior of the proposed state
-                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    Mo1 <- try(Model(prop, Data),
+                         silent=!Debug[["DB.Model"]])
                     if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                     else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]]))))
@@ -5569,7 +5630,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      }
 .mcmcsamwg <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
-     parm.names, LogFile)
+     parm.names, Debug, LogFile)
      {
      Dyn <- Specs[["Dyn"]]
      Periodicity <- Specs[["Periodicity"]]
@@ -5599,7 +5660,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop <- Mo0[["parm"]]
                prop[j] <- rnorm(1, prop[j], tuning[j])
                ### Log-Posterior of the proposed state
-               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
@@ -5637,7 +5698,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      return(out)
      }
 .mcmcsgld <- function(Model, Data, Iterations, Status, Thinning, Specs,
-     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, LogFile)
+     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, Debug,
+     LogFile)
      {
      epsilon <- Specs[["epsilon"]]
      file <- Specs[["file"]]
@@ -5664,7 +5726,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           eta <- rnorm(LIV, 0, epsilon[iter])
           prop <- Mo0[["parm"]] + {epsilon[iter]/2}*g + eta
           ### Log-Posterior of the proposed state
-          Mo1 <- try(Model(prop, Data), silent=TRUE)
+          Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) Mo1 <- Mo0
           else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]]))))
@@ -5687,7 +5749,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      return(out)
      }
 .mcmcslice <- function(Model, Data, Iterations, Status, Thinning, Specs,
-     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, LogFile)
+     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, Debug,
+     LogFile)
      {
      Block <- Specs[["B"]]
      B <- length(Block)
@@ -5717,7 +5780,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                               repeat {
                                    if(L <= Bounds[[b]][1]) break
                                    intL[j] <- L
-                                   MoL <- try(Model(intL, Data), silent=TRUE)
+                                   MoL <- try(Model(intL, Data),
+                                        silent=!Debug[["DB.Model"]])
                                    if(inherits(MoL, "try-error")) {
                                         L <- L + w[[b]]
                                         break}
@@ -5729,7 +5793,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                               repeat {
                                    if(R >= Bounds[[b]][2]) break
                                    intR[j] <- R
-                                   MoR <- try(Model(intR, Data), silent=TRUE)
+                                   MoR <- try(Model(intR, Data),
+                                        silent=!Debug[["DB.Model"]])
                                    if(inherits(MoR, "try-error")) {
                                         R <- R - w[[b]]
                                         break}
@@ -5746,7 +5811,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                               while (J > 0) {
                                    if(L <= Bounds[[b]][1]) break
                                    intL[j] <- L
-                                   MoL <- try(Model(intL, Data), silent=TRUE)
+                                   MoL <- try(Model(intL, Data),
+                                        silent=!Debug[["DB.Model"]])
                                    if(inherits(MoL, "try-error")) {
                                         L <- L + w[[b]]
                                         break}
@@ -5759,7 +5825,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                               while (K > 0) {
                                    if(R >= Bounds[[b]][2]) break
                                    intR[j] <- R
-                                   MoR <- try(Model(intR, Data), silent=TRUE)
+                                   MoR <- try(Model(intR, Data),
+                                        silent=!Debug[["DB.Model"]])
                                    if(inherits(MoR, "try-error")) {
                                         R <- R - w[[b]]
                                         break}
@@ -5777,7 +5844,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                               L <- min(L,R)
                               R <- max(L,R)
                               prop[j] <- runif(1,L,R)
-                              Mo1 <- try(Model(prop, Data), silent=TRUE)
+                              Mo1 <- try(Model(prop, Data),
+                                   silent=!Debug[["DB.Model"]])
                               if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                               else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                                    Mo1[["Monitor"]]))))
@@ -5796,7 +5864,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          LP.grid <- theta <- Bounds[[b]][1]:Bounds[[b]][2]
                          for (i in 1:length(LP.grid)) {
                               prop[j] <- theta[i]
-                              Mo1 <- try(Model(prop, Data), silent=TRUE)
+                              Mo1 <- try(Model(prop, Data),
+                                   silent=!Debug[["DB.Model"]])
                               if(inherits(Mo1, "try-error"))
                                    LP.grid[i] <- 0
                               else if(!is.finite(Mo1[["LP"]]))
@@ -5812,7 +5881,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          repeat {
                               prop[j] <- theta[sample(1:length(LP.grid),1,
                                    prob=LP.grid)]
-                              Mo1 <- try(Model(prop, Data), silent=TRUE)
+                              Mo1 <- try(Model(prop, Data),
+                                   silent=!Debug[["DB.Model"]])
                               if(is.finite(Mo1[["LP"]])) {
                                    if(Mo1[["LP"]] >= y.slice) break}}
                          Mo0 <- Mo1
@@ -5829,7 +5899,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                               repeat {
                                    if(L <= Bounds[[b]][1]) break
                                    intL[j] <- L
-                                   MoL <- try(Model(intL, Data), silent=TRUE)
+                                   MoL <- try(Model(intL, Data),
+                                        silent=!Debug[["DB.Model"]])
                                    if(inherits(MoL, "try-error")) {
                                         L <- L + w[[b]]
                                         break}
@@ -5841,7 +5912,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                               repeat {
                                    if(R >= Bounds[[b]][2]) break
                                    intR[j] <- R
-                                   MoR <- try(Model(intR, Data), silent=TRUE)
+                                   MoR <- try(Model(intR, Data),
+                                        silent=!Debug[["DB.Model"]])
                                    if(inherits(MoR, "try-error")) {
                                         R <- R - w[[b]]
                                         break}
@@ -5858,7 +5930,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                               while (J > 0) {
                                    if(L <= Bounds[[b]][1]) break
                                    intL[j] <- L
-                                   MoL <- try(Model(intL, Data), silent=TRUE)
+                                   MoL <- try(Model(intL, Data),
+                                        silent=!Debug[["DB.Model"]])
                                    if(inherits(MoL, "try-error")) {
                                         L <- L + w[[b]]
                                         break}
@@ -5871,7 +5944,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                               while (K > 0) {
                                    if(R >= Bounds[[b]][2]) break
                                    intR[j] <- R
-                                   MoR <- try(Model(intR, Data), silent=TRUE)
+                                   MoR <- try(Model(intR, Data),
+                                       silent=!Debug[["DB.Model"]])
                                    if(inherits(MoR, "try-error")) {
                                        R <- R - w[[b]]
                                         break}
@@ -5887,7 +5961,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          ### Rejection Sampling
                          repeat {
                               prop[j] <- sample.int(L:R,1)
-                              Mo1 <- try(Model(prop, Data), silent=TRUE)
+                              Mo1 <- try(Model(prop, Data),
+                                   silent=!Debug[["DB.Model"]])
                               if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                               else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                                    Mo1[["Monitor"]]))))
@@ -5918,7 +5993,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      }
 .mcmcsmwg <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
-     parm.names, LogFile)
+     parm.names, Debug, LogFile)
      {
      Dyn <- Specs[["Dyn"]]
      Acceptance <- matrix(0, 1, LIV)
@@ -5945,7 +6020,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop <- Mo0[["parm"]]
                prop[j] <- rnorm(1, prop[j], tuning[j])
                ### Log-Posterior of the proposed state
-               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
@@ -5972,7 +6047,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      return(out)
      }
 .mcmcthmc <- function(Model, Data, Iterations, Status, Thinning, Specs,
-     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, LogFile)
+     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, Debug,
+     LogFile)
      {
      epsilon <- Specs[["epsilon"]]
      L <- Specs[["L"]]
@@ -5999,7 +6075,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                else momentum1 <- momentum1 / sqrt.Temp
                momentum1 <- momentum1 + (epsilon/2) * gr
                prop <- prop + as.vector(epsilon %*% invm) * momentum1
-               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) Mo1 <- Mo0.1
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
@@ -6008,7 +6084,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     nomove <- which(Mo0.1[["parm"]] == Mo1[["parm"]])
                     momentum1[nomove] <- -momentum1[nomove]
                     prop[nomove] <- prop[nomove] + momentum1[nomove]
-                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    Mo1 <- try(Model(prop, Data),
+                         silent=!Debug[["DB.Model"]])
                     if(inherits(Mo1, "try-error")) Mo1 <- Mo0.1
                     else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]]))))
@@ -6048,7 +6125,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      return(out)
      }
 .mcmctwalk <- function(Model, Data, Iterations, Status, Thinning, Specs,
-     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, LogFile)
+     Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, Debug,
+     LogFile)
      {
      xp0 <- SIV <- Specs[["SIV"]]
      n1 <- Specs[["n1"]]
@@ -6133,7 +6211,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     nphi <- tmp$nphi
                     y  <- x
                     propU <- U
-                    Mo1.2 <- try(Model(yp, Data), silent=TRUE)
+                    Mo1.2 <- try(Model(yp, Data),
+                         silent=!Debug[["DB.Model"]])
                     check1 <- check2 <- FALSE
                     if(!inherits(Mo1.2, "try-error")) {
                          check1 <- TRUE
@@ -6159,7 +6238,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     nphi <- tmp$nphi
                     yp  <- xp
                     propUp <- Up
-                    Mo1.1 <- try(Model(y, Data), silent=TRUE)
+                    Mo1.1 <- try(Model(y, Data),
+                         silent=!Debug[["DB.Model"]])
                     check1 <- check2 <- FALSE
                     if(!inherits(Mo1.1, "try-error")) {
                          check1 <- TRUE
@@ -6189,7 +6269,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     nphi <- tmp$nphi
                     y  <- x
                     propU <- U
-                    Mo1.2 <- try(Model(yp, Data), silent=TRUE)
+                    Mo1.2 <- try(Model(yp, Data),
+                         silent=!Debug[["DB.Model"]])
                     check1 <- check2 <- FALSE
                     if(!inherits(Mo1.2, "try-error")) {
                          check1 <- TRUE
@@ -6211,7 +6292,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     nphi <- tmp$nphi
                     yp  <- xp
                     propUp <- Up
-                    Mo1.1 <- try(Model(y, Data), silent=TRUE)
+                    Mo1.1 <- try(Model(y, Data),
+                         silent=!Debug[["DB.Model"]])
                     check1 <- check2 <- FALSE
                     if(!inherits(Mo1.1, "try-error")) {
                          check1 <- TRUE
@@ -6238,7 +6320,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     sigma <- tmp$sigma
                     y  <- x
                     propU <- U
-                    Mo1.2 <- try(Model(yp, Data), silent=TRUE)
+                    Mo1.2 <- try(Model(yp, Data),
+                         silent=!Debug[["DB.Model"]])
                     check1 <- check2 <- FALSE
                     if(!inherits(Mo1.2, "try-error")) {
                          check1 <- TRUE
@@ -6263,7 +6346,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     sigma <- tmp$sigma
                     yp  <- xp
                     propUp <- Up
-                    Mo1.1 <- try(Model(y, Data), silent=TRUE)
+                    Mo1.1 <- try(Model(y, Data),
+                         silent=!Debug[["DB.Model"]])
                     check1 <- check2 <- FALSE
                     if(!inherits(Mo1.1, "try-error")) {
                          check1 <- TRUE
@@ -6292,7 +6376,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     sigma <- tmp$sigma
                     y  <- x
                     propU <- U
-                    Mo1.2 <- try(Model(yp, Data), silent=TRUE)
+                    Mo1.2 <- try(Model(yp, Data),
+                         silent=!Debug[["DB.Model"]])
                     check1 <- check2 <- FALSE
                     if(!inherits(Mo1.2, "try-error")) {
                          check1 <- TRUE
@@ -6317,7 +6402,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     sigma <- tmp$sigma
                     yp  <- xp
                     propUp <- Up
-                    Mo1.1 <- try(Model(y, Data), silent=TRUE)
+                    Mo1.1 <- try(Model(y, Data),
+                         silent=!Debug[["DB.Model"]])
                     check1 <- check2 <- FALSE
                     if(!inherits(Mo1.1, "try-error")) {
                          check1 <- TRUE
@@ -6345,12 +6431,12 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           }
      Runtwalk <- function(Iterations, dim, x0, xp0, pphi, at, aw,
           F1=0.4918, F2=F1+0.4918, F3=F2+0.0082, Model, Data, Status,
-          Thinning, Acceptance, Dev, Mon, Mo0, thinned, LogFile)
+          Thinning, Acceptance, Dev, Mon, Mo0, thinned, Debug, LogFile)
           {
           x <- x0 ### Primary vector of initial values
           xp <- xp0 ### Secondary vector of initial values
-          Mo0.1 <- try(Model(x, Data), silent=TRUE)
-          Mo0.2 <- try(Model(xp, Data), silent=TRUE)
+          Mo0.1 <- try(Model(x, Data), silent=!Debug[["DB.Model"]])
+          Mo0.2 <- try(Model(xp, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo0.1, "try-error") | inherits(Mo0.2, "try-error"))
                stop("Error in estimating the log-posterior.",
                     file=LogFile, append=TRUE)
@@ -6415,13 +6501,13 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           xp0=xp0, pphi=min(LIV, n1)/LIV, at=6, aw=1.5, Model=Model,
           Data=Data, Status=Status, Thinning=Thinning,
           Acceptance=Acceptance, Dev=Dev, Mon=Mon, Mo0=Mo0,
-          thinned=thinned, LogFile=LogFile)
+          thinned=thinned, Debug=Debug, LogFile=LogFile)
      ### Output
      return(out)
      }
 .mcmcuess <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned,
-     VarCov, LogFile)
+     VarCov, Debug, LogFile)
      {
      A <- Specs[["A"]]
      Block <- Specs[["B"]]
@@ -6441,7 +6527,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           decomp.freq <- max(LIV * floor(Iterations / Thinning / 100), 10)
           cat("\nEigendecomposition will occur every", decomp.freq,
                "iterations.\n\n")
-          S.eig <-try(eigen(VarCov), silent=TRUE)
+          S.eig <-try(eigen(VarCov), silent=!Debug[["DB.eigen"]])
           if(inherits(S.eig, "try-error")) S.eig <- NULL
           obs.sum <- matrix(Mo0[["parm"]]*n, LIV, 1)
           obs.scatter <- tcrossprod(Mo0[["parm"]])*n
@@ -6469,7 +6555,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     v <- S.eig$vectors[,which.eig] *
                          sqrt(abs(S.eig$values[which.eig]))}
                ### Slice Interval
-               Mo0.1 <- try(Model(Mo0[["parm"]], Data), silent=TRUE)
+               Mo0.1 <- try(Model(Mo0[["parm"]], Data),
+                    silent=!Debug[["DB.Model"]])
                if(inherits(Mo0.1, "try-error")) Mo0.1 <- Mo0
                Mo0 <- Mo0.1
                y.slice <- Mo0[["LP"]] - rexp(1)
@@ -6477,11 +6564,11 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                U <- L + 1
                if(m > 0) {
                     L.y <- try(Model(Mo0[["parm"]] + v*L, Data)[["LP"]],
-                         silent=TRUE)
+                         silent=!Debug[["DB.Model"]])
                     if(inherits(L.y, "try-error")) L.y <- Mo0[["LP"]]
                     else if(!is.finite(L.y)) L.y <- Mo0[["LP"]]
                     U.y <- try(Model(Mo0[["parm"]] + v*U, Data)[["LP"]],
-                         silent=TRUE)
+                         silent=!Debug[["DB.Model"]])
                     if(inherits(U.y, "try-error")) U.y <- Mo0[["LP"]]
                     else if(!is.finite(U.y)) U.y <- Mo0[["LP"]]
                     step <- 0
@@ -6490,21 +6577,22 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          if(runif(1) < 0.5) {
                               L <- L - 1
                               L.y <- try(Model(Mo0[["parm"]] + v*L, Data)[["LP"]],
-                                   silent=TRUE)
+                                   silent=!Debug[["DB.Model"]])
                               if(inherits(L.y, "try-error")) L.y <- Mo0[["LP"]]
                               else if(!is.finite(L.y)) L.y <- Mo0[["LP"]]
                               }
                          else {
                               U <- U + 1
                               U.y <- try(Model(Mo0[["parm"]] + v*U, Data)[["LP"]],
-                                   silent=TRUE)
+                                   silent=!Debug[["DB.Model"]])
                               if(inherits(U.y, "try-error")) U.y <- Mo0[["LP"]]
                               else if(!is.finite(U.y)) U.y <- Mo0[["LP"]]}}}
                ### Rejection Sampling
                repeat {
                     prop.offset <- runif(1, min=L, max=U)
                     prop <- Mo0[["parm"]] + prop.offset * v
-                    Mo1 <- try(Model(prop, Data), silent=TRUE)
+                    Mo1 <- try(Model(prop, Data),
+                         silent=!Debug[["DB.Model"]])
                     if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                     else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]]))))
@@ -6546,7 +6634,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     VarCov[[b]] <- as.positive.definite(VarCov[[b]])}
                decomp.freq[b] <- max(length(Block[[b]]) *
                     floor(Iterations / Thinning / 100), 10)
-               S.eig[[b]] <-try(eigen(VarCov[[b]]), silent=TRUE)
+               S.eig[[b]] <-try(eigen(VarCov[[b]]),
+                    silent=!Debug[["DB.eigen"]])
                if(inherits(S.eig[[b]], "try-error")) S.eig[[b]] <- NULL
                obs.sum[[b]] <- matrix(Mo0[["parm"]][Block[[b]]]*n,
                     length(Block[[b]]), 1)
@@ -6585,7 +6674,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          v <- S.eig[[b]]$vectors[,which.eig] *
                               sqrt(abs(S.eig[[b]]$values[which.eig]))}
                     ### Slice Interval
-                    Mo0.1 <- try(Model(Mo0[["parm"]], Data), silent=TRUE)
+                    Mo0.1 <- try(Model(Mo0[["parm"]], Data),
+                         silent=!Debug[["DB.Model"]])
                     if(inherits(Mo0.1, "try-error")) Mo0.1 <- Mo0
                     Mo0 <- Mo0.1
                     y.slice <- Mo0[["LP"]] - rexp(1)
@@ -6594,12 +6684,14 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     if(m > 0) {
                          prop <- Mo0[["parm"]]
                          prop[Block[[b]]] <- prop[Block[[b]]] + v*L
-                         L.y <- try(Model(prop, Data)[["LP"]], silent=TRUE)
+                         L.y <- try(Model(prop, Data)[["LP"]],
+                              silent=!Debug[["DB.Model"]])
                          if(inherits(L.y, "try-error")) L.y <- Mo0[["LP"]]
                          else if(!is.finite(L.y)) L.y <- Mo0[["LP"]]
                          prop <- Mo0[["parm"]]
                          prop[Block[[b]]] <- prop[Block[[b]]] + v*U
-                         U.y <- try(Model(prop, Data)[["LP"]], silent=TRUE)
+                         U.y <- try(Model(prop, Data)[["LP"]],
+                              silent=!Debug[["DB.Model"]])
                          if(inherits(U.y, "try-error")) U.y <- Mo0[["LP"]]
                          else if(!is.finite(U.y)) U.y <- Mo0[["LP"]]
                          step <- 0
@@ -6610,7 +6702,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                                    prop <- Mo0[["parm"]]
                                    prop[Block[[b]]] <- prop[Block[[b]]] + v*L
                                    L.y <- try(Model(prop, Data)[["LP"]],
-                                        silent=TRUE)
+                                        silent=!Debug[["DB.Model"]])
                                    if(inherits(L.y, "try-error")) L.y <- Mo0[["LP"]]
                                    else if(!is.finite(L.y)) L.y <- Mo0[["LP"]]
                                    }
@@ -6619,7 +6711,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                                    prop <- Mo0[["parm"]]
                                    prop[Block[[b]]] <- prop[Block[[b]]] + v*U
                                    U.y <- try(Model(prop, Data)[["LP"]],
-                                        silent=TRUE)
+                                        silent=!Debug[["DB.Model"]])
                                    if(inherits(U.y, "try-error")) U.y <- Mo0[["LP"]]
                                    else if(!is.finite(U.y)) U.y <- Mo0[["LP"]]}}}
                     ### Rejection Sampling
@@ -6627,7 +6719,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          prop.offset <- runif(1, min=L, max=U)
                          prop <- Mo0[["parm"]]
                          prop[Block[[b]]] <- prop[Block[[b]]] + prop.offset*v
-                         Mo1 <- try(Model(prop, Data), silent=TRUE)
+                         Mo1 <- try(Model(prop, Data),
+                              silent=!Debug[["DB.Model"]])
                          if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                          else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                               Mo1[["Monitor"]]))))
@@ -6663,7 +6756,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      }
 .mcmcusamwg <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
-     parm.names, LogFile)
+     parm.names, Debug, LogFile)
      {
      Dyn <- Specs[["Dyn"]]
      Periodicity <- Specs[["Periodicity"]]
@@ -6703,7 +6796,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop <- post[iter,]
                prop[j] <- rnorm(1, prop[j], tuning[j])
                ### Log-Posterior of the proposed state
-               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
@@ -6743,7 +6836,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
      }
 .mcmcusmwg <- function(Model, Data, Iterations, Status, Thinning, Specs,
      Acceptance, Dev, DiagCovar, LIV, Mon, Mo0, ScaleF, thinned, tuning,
-     parm.names, LogFile)
+     parm.names, Debug, LogFile)
      {
      Dyn <- Specs[["Dyn"]]
      Fit <- Specs[["Fit"]]
@@ -6786,7 +6879,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop <- post[iter,]
                prop[j] <- rnorm(1, prop[j], tuning[j])
                ### Log-Posterior of the proposed state
-               Mo1 <- try(Model(prop, Data), silent=TRUE)
+               Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) Mo1 <- Mo0
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))

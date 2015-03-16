@@ -10,8 +10,9 @@
 
 LaplacesDemon.hpc <- function(Model, Data, Initial.Values, Covar=NULL,
      Iterations=10000, Status=100, Thinning=10, Algorithm="MWG",
-     Specs=list(B=NULL), LogFile="", Chains=2, CPUs=2, Type="PSOCK",
-     Packages=NULL, Dyn.libs=NULL)
+     Specs=list(B=NULL), Debug=list(DB.chol=FALSE, DB.eigen=FALSE,
+     DB.MCSE=FALSE, DB.Model=TRUE), LogFile="", Chains=2, CPUs=2,
+     Type="PSOCK", Packages=NULL, Dyn.libs=NULL)
      {
      detectedCores <- max(detectCores(), as.integer(Sys.getenv("NSLOTS")),
           na.rm=TRUE)
@@ -60,7 +61,8 @@ LaplacesDemon.hpc <- function(Model, Data, Initial.Values, Covar=NULL,
                     function(x) dyn.unload(paste(wd, x, sep = "/"))))}
           LaplacesDemon(Model, Data, Initial.Values[x,],
                Covar, Iterations, Status, Thinning,
-               Algorithm, Specs, LogFile=paste(LogFile, ".", x, sep=""))
+               Algorithm, Specs, Debug,
+               LogFile=paste(LogFile, ".", x, sep=""))
           }
      cat("\nStatus messages are not displayed for parallel processing.",
           file=LogFile, append=TRUE)
@@ -88,7 +90,7 @@ LaplacesDemon.hpc <- function(Model, Data, Initial.Values, Covar=NULL,
                append=TRUE)}
      LaplacesDemon.out <- clusterApply(cl, 1:Chains, demon.wrapper,
           Model, Data, Initial.Values, Covar, Iterations, Status,
-          Thinning, Algorithm, Specs)
+          Thinning, Algorithm, Specs, Debug)
      class(LaplacesDemon.out) <- "demonoid.hpc"
      if(Algorithm == "INCA") {
           ### Stop server_Listening

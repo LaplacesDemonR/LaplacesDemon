@@ -15,11 +15,13 @@
 \usage{
 LaplacesDemon(Model, Data, Initial.Values, Covar=NULL, Iterations=10000,
      Status=100, Thinning=10, Algorithm="MWG", Specs=list(B=NULL),
-     LogFile="", ...)
+     Debug=list(DB.chol=FALSE, DB.eigen=FALSE, DB.MCSE=FALSE,
+     DB.Model=TRUE), LogFile="", ...)
 LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
      Iterations=10000, Status=100, Thinning=10, Algorithm="MWG",
-     Specs=list(B=NULL), LogFile="", Chains=2, CPUs=2, Type="PSOCK",
-     Packages=NULL, Dyn.libs=NULL)
+     Specs=list(B=NULL), Debug=list(DB.chol=FALSE, DB.eigen=FALSE,
+     DB.MCSE=FALSE, DB.Model=TRUE), LogFile="", Chains=2, CPUs=2,
+     Type="PSOCK", Packages=NULL, Dyn.libs=NULL)
 }
 \arguments{
   \item{Model}{This required argument receives the model from a
@@ -110,6 +112,12 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     \code{Algorithm} argument. The specifications associated with each
     algorithm may be seen below in the examples, must appear in the
     order shown, and are described in the details section below.}
+  \item{Debug}{This argument accepts a list of logical scalars that
+    control whether or not errors or warnings are shown due to a
+    \code{try} function. List components include \code{DB.chol} 
+    regarding \code{chol}, \code{DB.eigen} regarding \code{eigen},
+    \code{DB.MCSE} regarding \code{\link{MCSE}}, and \code{DB.Model}
+    regarding the model specification function.}
   \item{LogFile}{This argument is used to specify a log file name in
     quotes in the working directory as a destination, rather than the
     console, for the output messages of \code{cat} and \code{stop}
@@ -878,11 +886,11 @@ print(Fit)
 #######################  Hamiltonian Monte Carlo  #########################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
-#     Algorithm="HMC", Specs=list(epsilon=0.02, L=2, m=NULL))
+#     Algorithm="HMC", Specs=list(epsilon=0.001, L=2, m=NULL))
 
 #############  Hamiltonian Monte Carlo with Dual-Averaging  ###############
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
-#     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
+#     Covar=NULL, Iterations=1000, Status=1, Thinning=1,
 #     Algorithm="HMCDA", Specs=list(A=500, delta=0.65, epsilon=NULL,
 #     Lmax=1000, lambda=0.1))
 
@@ -936,7 +944,7 @@ print(Fit)
 
 ##########################  No-U-Turn Sampler  ############################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
-#     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
+#     Covar=NULL, Iterations=1000, Status=1, Thinning=1,
 #     Algorithm="NUTS", Specs=list(A=500, delta=0.6, epsilon=NULL,
 #     Lmax=Inf))
 
@@ -1001,8 +1009,8 @@ print(Fit)
 
 #############################  Slice Sampler  #############################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
-#     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
-#     Algorithm="Slice", Specs=list(B=NULL, Bounds=c(-Inf,Inf), m=Inf,
+#     Covar=NULL, Iterations=1000, Status=1, Thinning=1,
+#     Algorithm="Slice", Specs=list(B=NULL, Bounds=c(-Inf,Inf), m=100,
 #     Type="Continuous", w=1))
 
 #################  Stochastic Gradient Langevin Dynamics  #################
@@ -1015,7 +1023,7 @@ print(Fit)
 ###################  Tempered Hamiltonian Monte Carlo  ####################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
-#     Algorithm="THMC", Specs=list(epsilon=0.05, L=2, m=NULL,
+#     Algorithm="THMC", Specs=list(epsilon=0.001, L=2, m=NULL,
 #     Temperature=2))
 
 ###############################  t-walk  #################################
