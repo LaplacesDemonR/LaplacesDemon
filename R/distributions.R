@@ -2494,7 +2494,7 @@ dzellner <- function(beta, g, sigma, X, log=FALSE)
           g*sigma*sigma*as.inverse(t(X) %*% X), log=log)
      return(dens)
      }
-rzellner <- function(n, g, sigma, X, log=FALSE)
+rzellner <- function(n, g, sigma, X)
      {
      x <- rmvn(n, rep(0, ncol(X)), g*sigma*sigma*as.inverse(t(X) %*% X))
      return(x)
