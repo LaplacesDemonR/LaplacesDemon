@@ -5485,16 +5485,18 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                ### Log-Posterior of the proposed state
                Mo1 <- try(Model(prop, Data), silent=TRUE)
                if(inherits(Mo1, "try-error")) Mo1 <- Mo0
-               else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
+               else if(any(is.infinite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]]))))
                     Mo1 <- Mo0
-               ### Accept/Reject
-               log.u <- log(runif(1))
-               log.alpha <- Mo1[["LP"]] - Mo0[["LP"]]
-               if(!is.finite(log.alpha)) log.alpha <- 0
-               if(log.u < log.alpha) {
-                    Mo0 <- Mo1
-                    Acceptance <- Acceptance + 1}
+               else {
+                    ### Accept/Reject
+                    log.u <- log(runif(1))
+                    log.alpha <- Mo1[["LP"]] - Mo0[["LP"]]
+                    if(!is.finite(log.alpha)) log.alpha <- 0
+                    if(log.u < log.alpha) {
+                        Mo0 <- Mo1
+                        Acceptance <- Acceptance + 1}
+               }
                ### Save Thinned Samples
                if(iter %% Thinning == 0) {
                     t.iter <- floor(iter / Thinning) + 1
