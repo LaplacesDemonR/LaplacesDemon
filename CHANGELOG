@@ -1,3 +1,6 @@
+2015-03-14 Distributions: Added Huang-Wand, Matrix Gamma, 
+           Matrix Inverse Gamma, and Scaled Inverse Wishart
+2015-03-13 Distributions: Added LASSO and Normal-Laplace
 2015-03-13 Examples: Added Multivariate Poisson Regression and PVAR(p)
 2015-03-13 Data: Added demonsessions
 2015-03-10 Distributions: Added Laplace Mixture
@@ -5,7 +8,7 @@
 2015-03-10 LaplacesDemon: Allow different order of Specs, by
            Richard Hermanson on Github, Pull request 17
 2015-03-09 Consort: Added missing commas in AMWG suggestion, by
-           Rhicard Hermanson on Github, Pull request 15
+           Richard Hermanson on Github, Pull request 15
 2015-03-08 Added Hangartner.Diagnostic, is.hangartner, and TransitionMatrix
 2015-03-07 Examples: Upgraded VAR(p)-GARCH(1,1)-M to asymmetric BEKK
 2015-03-06 Examples: Added VARMA(p,q) - SSVS, and VAR(p) - SVSS
