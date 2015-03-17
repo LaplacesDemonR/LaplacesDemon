@@ -113,11 +113,16 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     algorithm may be seen below in the examples, must appear in the
     order shown, and are described in the details section below.}
   \item{Debug}{This argument accepts a list of logical scalars that
-    control whether or not errors or warnings are shown due to a
-    \code{try} function. List components include \code{DB.chol} 
-    regarding \code{chol}, \code{DB.eigen} regarding \code{eigen},
-    \code{DB.MCSE} regarding \code{\link{MCSE}}, and \code{DB.Model}
-    regarding the model specification function.}
+    control whether or not errors or warnings are reported due to a
+    \code{try} function or non-finite values. List components include
+    \code{DB.chol} regarding \code{chol}, \code{DB.eigen} regarding
+    \code{eigen}, \code{DB.MCSE} regarding \code{\link{MCSE}}, and
+    \code{DB.Model} regarding the Model specification function. If
+    the Model specification function is not faulty and there is a bug
+    in \code{LaplacesDemon}, then please report it by sending an email
+    to \email{software@bayesian-inference.com}. Please place
+    "Bug in LaplacesDemon" in the subject, and the body of the email
+    should describe the bug and include reproducible code.}
   \item{LogFile}{This argument is used to specify a log file name in
     quotes in the working directory as a destination, rather than the
     console, for the output messages of \code{cat} and \code{stop}
