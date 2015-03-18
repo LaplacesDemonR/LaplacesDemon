@@ -2363,17 +2363,23 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop <- prop + as.vector(epsilon %*% invm) * momentum1
                Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal failed in leapfrog", l,
                               ".\n", file=LogFile, append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop, collapse=","),")",
+                              sep=""), "\n", file=LogFile, append=TRUE)}
                     Mo1 <- Mo0.1
                     }
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]])))) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal in leapfrog", l,
                               "resulted in non-finite value(s).\n",
                               file=LogFile, append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop, collapse=","),")",
+                              sep=""), "\n", file=LogFile, append=TRUE)}
                     Mo1 <- Mo0.1}
                if(any(Mo0.1[["parm"]] == Mo1[["parm"]])) {
                     nomove <- which(Mo0.1[["parm"]] == Mo1[["parm"]])
@@ -2382,17 +2388,25 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     Mo1 <- try(Model(prop, Data),
                          silent=!Debug[["DB.Model"]])
                     if(inherits(Mo1, "try-error")) {
-                         if(Debug[["DB.Model"]] == TRUE)
+                         if(Debug[["DB.Model"]] == TRUE) {
                               cat("\nWARNING: Proposal failed in leapfrog",
                                    l, ".\n", file=LogFile, append=TRUE)
+                              cat("  Iteration:", iter, "Proposal:\n",
+                                   paste("c(",paste(prop, collapse=","),
+                                   ")",sep=""), "\n", file=LogFile,
+                                   append=TRUE)}
                          Mo1 <- Mo0.1
                          }
                     else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]])))) {
-                         if(Debug[["DB.Model"]] == TRUE)
+                         if(Debug[["DB.Model"]] == TRUE) {
                               cat("\nWARNING: Proposal in leapfrog",
                                    l, "resulted in non-finite value(s).\n",
                                    file=LogFile, append=TRUE)
+                              cat("  Iteration:", iter, "Proposal:\n",
+                                   paste("c(",paste(prop, collapse=","),
+                                   ")", sep=""), "\n", file=LogFile,
+                                   append=TRUE)}
                          Mo1 <- Mo0.1}}
                Mo0.1 <- Mo1
                prop <- Mo1[["parm"]]
@@ -2485,17 +2499,25 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     Mo1 <- try(Model(prop, Data),
                          silent=!Debug[["DB.Model"]])
                     if(inherits(Mo1, "try-error")) {
-                         if(Debug[["DB.Model"]] == TRUE)
-                              cat("\nWARNING: Proposal failed in walker", i,
-                                   ".\n", file=LogFile, append=TRUE)
+                         if(Debug[["DB.Model"]] == TRUE) {
+                              cat("\nWARNING: Proposal failed in walker",
+                                   i, ".\n", file=LogFile, append=TRUE)
+                              cat("  Iteration:", iter, "Proposal:\n",
+                                   paste("c(",paste(prop, collapse=","),
+                                   ")",sep=""), "\n", file=LogFile,
+                                   append=TRUE)}
                          Mo1 <- Mo0[[i]]
                          }
                     else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]])))) {
-                         if(Debug[["DB.Model"]] == TRUE)
+                         if(Debug[["DB.Model"]] == TRUE) {
                               cat("\nWARNING: Proposal in walker", i,
                                    "resulted in non-finite value(s).\n",
                                    file=LogFile, append=TRUE)
+                              cat("  Iteration:", iter, "Proposal:\n",
+                                   paste("c(",paste(prop, collapse=","),
+                                   ")",sep=""), "\n", file=LogFile,
+                                   append=TRUE)}
                          Mo1 <- Mo0[[i]]}
                     ### Accept/Reject
                     log.u <- log(runif(1))
@@ -2580,8 +2602,16 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     Model, Data, prop)
                for (i in 1:Nc) {
                     if(any(!is.finite(c(Mo1[[i]][["LP"]],
-                         Mo1[[i]][["Dev"]], Mo1[[i]][["Monitor"]]))))
-                         Mo1[[i]] <- Mo0[[i]]
+                         Mo1[[i]][["Dev"]], Mo1[[i]][["Monitor"]])))) {
+                         if(Debug[["DB.Model"]] == TRUE) {
+                              cat("\nWARNING: Proposal in walker", i,
+                                   "resulted in non-finite value(s).\n",
+                                   file=LogFile, append=TRUE)
+                              cat("  Iteration:", iter, "Proposal:\n",
+                                   paste("c(",paste(prop[i,],
+                                   collapse=","),")",sep=""), "\n",
+                                   file=LogFile, append=TRUE)}
+                         Mo1[[i]] <- Mo0[[i]]}
                     ### Accept/Reject
                     log.u <- log(runif(1))
                     log.alpha <- (LIV-1)*log(z) + Mo1[[i]][["LP"]] -
@@ -2649,23 +2679,30 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          file=LogFile, append=TRUE)
                if(Debug[["DB.chol"]] == TRUE)
                     cat("\nWARNING: Cholesky decomposition failed for",
-                         "proposal.\n", file=LogFile, append=TRUE)
+                         "proposal in iteration", iter, ".\n",
+                         file=LogFile, append=TRUE)
                prop <- post[iter,]
                j <- ceiling(runif(1,0,LIV))
                prop[j] <- rnorm(1, post[iter,j], tuning[j])}
           ### Log-Posterior of the proposed state
           Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) {
-               if(Debug[["DB.Model"]] == TRUE)
+               if(Debug[["DB.Model"]] == TRUE) {
                     cat("\nWARNING: Proposal failed.\n", file=LogFile,
                          append=TRUE)
+                    cat("  Iteration:", iter, "Proposal:\n",
+                         paste("c(",paste(prop, collapse=","),")",sep=""),
+                         "\n", file=LogFile, append=TRUE)}
                Mo1 <- Mo0
                }
           else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]])))) {
-               if(Debug[["DB.Model"]] == TRUE)
+               if(Debug[["DB.Model"]] == TRUE) {
                     cat("\nWARNING: Proposal resulted in non-finite",
                          "value(s).\n", file=LogFile, append=TRUE)
+                    cat("  Iteration:", iter, "Proposal:\n",
+                         paste("c(",paste(prop, collapse=","),")",sep=""),
+                         "\n", file=LogFile, append=TRUE)}
                Mo1 <- Mo0}
           ### Accept/Reject
           log.u <- log(runif(1))
@@ -2692,9 +2729,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                a.iter <- floor(iter / Periodicity)
                DiagCovar[a.iter,] <- diag(VarCov)
                ### Univariate Standard Deviations
-               for (j in 1:LIV) {
-                    tuning[j] <- sqrt(ScaleF * {var(post[1:iter,j])} +
-                         ScaleF * 1.0E-5)}
+               tuning <- sqrt(ScaleF * .colVars(post[1:iter,]) +
+                    ScaleF * 1.0E-5)
                }
           }
      ### Output
@@ -2743,16 +2779,22 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           ### Log-Posterior of the proposed state
           Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) {
-               if(Debug[["DB.Model"]] == TRUE)
+               if(Debug[["DB.Model"]] == TRUE) {
                     cat("\nWARNING: Proposal failed.\n", file=LogFile,
                          append=TRUE)
+                    cat("  Iteration:", iter, "Proposal:\n",
+                         paste("c(",paste(prop, collapse=","),")",sep=""),
+                         "\n", file=LogFile, append=TRUE)}
                Mo1 <- Mo0
                }
           else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]])))) {
-               if(Debug[["DB.Model"]] == TRUE)
+               if(Debug[["DB.Model"]] == TRUE) {
                     cat("\nWARNING: Proposal resulted in non-finite",
                          "value(s).\n", file=LogFile, append=TRUE)
+                    cat("  Iteration:", iter, "Proposal:\n",
+                         paste("c(",paste(prop, collapse=","),")",sep=""),
+                         "\n", file=LogFile, append=TRUE)}
                Mo1 <- Mo0
                }
           else {
@@ -2777,8 +2819,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     silent=!Debug[["DB.chol"]])
                if(Debug[["DB.chol"]] == TRUE)
                     cat("\nWARNING: Cholesky decomposition failed for",
-                         "proposal covariance.\n", file=LogFile,
-                         append=TRUE)
+                         "proposal covariance in iteration", iter, ".\n",
+                         file=LogFile, append=TRUE)
                if(!is.matrix(prop.R)) prop.R <- NULL}
           ### Save Thinned Samples
           if(iter %% Thinning == 0) {
@@ -2847,16 +2889,24 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                ### Log-Posterior of the proposed state
                Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal failed.\n", file=LogFile,
                               append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop[Block[[b]]],
+                              collapse=","),")",sep=""), "\n",
+                              file=LogFile, append=TRUE)}
                     Mo1 <- Mo0
                     }
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]])))) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal resulted in non-finite",
                               "value(s).\n", file=LogFile, append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop[Block[[b]]],
+                              collapse=","),")",sep=""), "\n",
+                              file=LogFile, append=TRUE)}
                     Mo1 <- Mo0
                     }
                else {
@@ -2883,8 +2933,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          silent=!Debug[["DB.chol"]])
                     if(Debug[["DB.chol"]] == TRUE)
                          cat("\nWARNING: Cholesky decomposition failed for",
-                              "proposal covariance.\n", file=LogFile,
-                              append=TRUE)
+                              "proposal covariance in iteration", iter,
+                              ".\n", file=LogFile, append=TRUE)
                     if(!is.matrix(prop.R[[b]])) prop.R[[b]] <- NA}
                }
           ### Save Thinned Samples
@@ -3269,17 +3319,23 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                ### Log-Posterior of the proposed state
                Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal failed in chain", i,
                               ".\n", file=LogFile, append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop, collapse=","),")",
+                              sep=""), "\n", file=LogFile, append=TRUE)}
                     Mo1 <- Mo0[[i]]
                     }
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]])))) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal in chain", i,
                               "resulted in non-finite value(s).\n",
                               file=LogFile, append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop, collapse=","),")",
+                              sep=""), "\n", file=LogFile, append=TRUE)}
                     Mo1 <- Mo0[[i]]
                     }
                else {
@@ -3351,23 +3407,30 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          file=LogFile, append=TRUE)
                if(Debug[["DB.chol"]] == TRUE)
                     cat("\nWARNING: Cholesky decomposition failed for",
-                         "proposal.\n", file=LogFile, append=TRUE)
+                         "proposal 1 in iteration", iter, ".\n",
+                         file=LogFile, append=TRUE)
                prop <- post[iter,]
                j <- ceiling(runif(1,0,LIV))
                prop[j] <- rnorm(1, post[iter,j], tuning[j])}
           ### Log-Posterior of the proposed state
           Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) {
-               if(Debug[["DB.Model"]] == TRUE)
+               if(Debug[["DB.Model"]] == TRUE) {
                     cat("\nWARNING: Proposal 1 failed.\n", file=LogFile,
                          append=TRUE)
+                    cat("  Iteration:", iter, "Proposal:\n",
+                         paste("c(",paste(prop, collapse=","),")",sep=""),
+                         "\n", file=LogFile, append=TRUE)}
                Mo1 <- Mo0
                }
           else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]])))) {
-               if(Debug[["DB.Model"]] == TRUE)
+               if(Debug[["DB.Model"]] == TRUE) {
                     cat("\nWARNING: Proposal 1 resulted in non-finite",
                          "value(s).\n", file=LogFile, append=TRUE)
+                    cat("  Iteration:", iter, "Proposal:\n",
+                         paste("c(",paste(prop, collapse=","),")",sep=""),
+                         "\n", file=LogFile, append=TRUE)}
                Mo1 <- Mo0}
           ### Accept/Reject
           log.u <- log(runif(1))
@@ -3393,23 +3456,30 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                else {
                     if(Debug[["DB.chol"]] == TRUE)
                          cat("\nWARNING: Cholesky decomposition failed for",
-                              "proposal.\n", file=LogFile, append=TRUE)
+                              "proposal 2 in iteration", iter, ".\n",
+                              file=LogFile, append=TRUE)
                     prop <- post[iter,]
                     j <- ceiling(runif(1,0,LIV))
                     prop[j] <- rnorm(1, post[iter,j], tuning[j])}
                ### Log-Posterior of the proposed state
                Mo2 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo2, "try-error")) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal 2 failed.\n", file=LogFile,
                               append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop, collapse=","),")",
+                              sep=""), "\n", file=LogFile, append=TRUE)}
                     Mo2 <- Mo0
                     }
                else if(any(!is.finite(c(Mo2[["LP"]], Mo2[["Dev"]],
                     Mo2[["Monitor"]])))) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal 2 resulted in non-finite",
                               "value(s).\n", file=LogFile, append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop, collapse=","),")",
+                              sep=""), "\n", file=LogFile, append=TRUE)}
                     Mo2 <- Mo0
                     }
                else {
@@ -3472,8 +3542,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           if(iter %% Status == 0)
                cat("Iteration: ", iter, sep="", file=LogFile, append=TRUE)
           ### Propose new parameter values
-          MVNz <- try(rbind(rnorm(LIV)) %*% U,
-               silent=TRUE)
+          MVNz <- try(rbind(rnorm(LIV)) %*% U, silent=TRUE)
           if(!inherits(MVNz, "try-error") &
                ((Acceptance / iter) >= 0.05)) {
                if(iter %% Status == 0) 
@@ -3493,16 +3562,22 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           ### Log-Posterior of the proposed state
           Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) {
-               if(Debug[["DB.Model"]] == TRUE)
+               if(Debug[["DB.Model"]] == TRUE) {
                     cat("\nWARNING: Proposal 1 failed.\n", file=LogFile,
                          append=TRUE)
+                    cat("  Iteration:", iter, "Proposal:\n",
+                         paste("c(",paste(prop, collapse=","),")",sep=""),
+                         "\n", file=LogFile, append=TRUE)}
                Mo1 <- Mo0
                }
           else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]])))) {
-               if(Debug[["DB.Model"]] == TRUE)
+               if(Debug[["DB.Model"]] == TRUE) {
                     cat("\nWARNING: Proposal 1 resulted in non-finite",
                          "value(s).\n", file=LogFile, append=TRUE)
+                    cat("  Iteration:", iter, "Proposal:\n",
+                         paste("c(",paste(prop, collapse=","),")",sep=""),
+                         "\n", file=LogFile, append=TRUE)}
                Mo1 <- Mo0}
           ### Accept/Reject
           log.u <- log(runif(1))
@@ -3522,23 +3597,30 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                else {
                     if(Debug[["DB.chol"]] == TRUE)
                          cat("\nWARNING: Cholesky decomposition failed for",
-                              "proposal.\n", file=LogFile, append=TRUE)
+                              "proposal 2 in iteration", iter, ".\n",
+                              file=LogFile, append=TRUE)
                     prop <- Mo0[["parm"]]
                     j <- ceiling(runif(1,0,LIV))
                     prop[j] <- rnorm(1, Mo0[["parm"]][j], tuning[j])}
                ### Log-Posterior of the proposed state
                Mo2 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo2, "try-error")) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal 2 failed.\n", file=LogFile,
                               append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop, collapse=","),")",
+                              sep=""), "\n", file=LogFile, append=TRUE)}
                     Mo2 <- Mo0
                     }
                else if(any(!is.finite(c(Mo2[["LP"]], Mo2[["Dev"]],
                     Mo2[["Monitor"]])))) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal 2 resulted in non-finite",
                               "value(s).\n", file=LogFile, append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop, collapse=","),")",
+                              sep=""),"\n", file=LogFile, append=TRUE)}
                     Mo2 <- Mo0
                     }
                else {
@@ -3609,17 +3691,23 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     Mo1 <- try(Model(prop, Data),
                          silent=!Debug[["DB.Model"]])
                     if(inherits(Mo1, "try-error")) {
-                         if(Debug[["DB.Model"]] == TRUE)
+                         if(Debug[["DB.Model"]] == TRUE) {
                               cat("\nWARNING: Rejection sampling failed.\n",
                                    file=LogFile, append=TRUE)
+                              cat("  Iteration:", iter, "Proposal:\n",
+                                   paste("c(",paste(prop, collapse=","),")",
+                                   sep=""), "\n", file=LogFile, append=TRUE)}
                          Mo1 <- Mo0
                          }
                     else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]])))) {
-                         if(Debug[["DB.Model"]] == TRUE)
+                         if(Debug[["DB.Model"]] == TRUE) {
                               cat("\nWARNING: Rejection sampling resulted",
                                    "in non-finite value(s).\n",
                                    file=LogFile, append=TRUE)
+                              cat("  Iteration:", iter, "Proposal:\n",
+                                   paste("c(",paste(prop, collapse=","),")",
+                                   sep=""), "\n", file=LogFile, append=TRUE)}
                          Mo1 <- Mo0}
                     ### Accept/Reject
                     log.alpha <- Mo1[["LP"]] - Mo0[["LP"]]
@@ -3686,17 +3774,25 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          Mo1 <- try(Model(prop, Data),
                               silent=!Debug[["DB.Model"]])
                          if(inherits(Mo1, "try-error")) {
-                              if(Debug[["DB.Model"]] == TRUE)
+                              if(Debug[["DB.Model"]] == TRUE) {
                                    cat("\nWARNING: Rejection sampling failed.\n",
                                         file=LogFile, append=TRUE)
+                                   cat("  Iteration:", iter, "Proposal:\n",
+                                        paste("c(",paste(prop[Block[[b]]],
+                                        collapse=","),")",sep=""), "\n",
+                                        file=LogFile, append=TRUE)}
                               Mo1 <- Mo0
                               }
                          else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                               Mo1[["Monitor"]])))) {
-                              if(Debug[["DB.Model"]] == TRUE)
+                              if(Debug[["DB.Model"]] == TRUE) {
                                    cat("\nWARNING: Rejection sampling resulted",
                                         "in non-finite value(s).\n",
                                         file=LogFile, append=TRUE)
+                                   cat("  Iteration:", iter, "Proposal:\n",
+                                        paste("c(",paste(prop[Block[[b]]],
+                                        collapse=","),")",sep=""), "\n",
+                                        file=LogFile, append=TRUE)}
                               Mo1 <- Mo0}
                          ### Accept/Reject
                          log.alpha <- Mo1[["LP"]] - Mo0[["LP"]]
@@ -3749,15 +3845,21 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           ### Gibbs Sampling of Full Conditionals
           prop <- try(FC(Mo0[["parm"]], Data), silent=!Debug[["DB.Model"]])
           if(inherits(prop, "try-error")) {
-               if(Debug[["DB.Model"]] == TRUE)
+               if(Debug[["DB.Model"]] == TRUE) {
                     cat("\nWARNING: Gibbs proposal for full conditionals",
                          "failed.\n", file=LogFile, append=TRUE)
+                    cat("  Iteration:", iter, "Proposal:\n",
+                         paste("c(",paste(Mo0[["parm"]], collapse=","),")",
+                         sep=""), "\n", file=LogFile, append=TRUE)}
                prop <- Mo0[["parm"]]}
           Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) {
-               if(Debug[["DB.Model"]] == TRUE)
+               if(Debug[["DB.Model"]] == TRUE) {
                     cat("\nWARNING: Gibbs proposal failed.\n",
                          file=LogFile, append=TRUE)
+                    cat("  Iteration:", iter, "Proposal:\n",
+                         paste("c(",paste(prop, collapse=","),")",sep=""),
+                         "\n", file=LogFile, append=TRUE)}
                Mo1 <- Mo0}
           Mo0 <- Mo1
           ### Metropolis-within-Gibbs
@@ -4091,16 +4193,22 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                ### Log-Posterior of the proposed state
                Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal failed.\n", file=LogFile,
                               append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop, collapse=","),")",
+                              sep=""), "\n", file=LogFile, append=TRUE)}
                     Mo1 <- Mo0
                     }
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]])))) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal resulted in non-finite",
                               "value(s).\n", file=LogFile, append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop, collapse=","),")",
+                              sep=""), "\n", file=LogFile, append=TRUE)}
                     Mo1 <- Mo0
                     }
                else {
@@ -4149,17 +4257,25 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     Mo1 <- try(Model(prop, Data),
                          silent=!Debug[["DB.Model"]])
                     if(inherits(Mo1, "try-error")) {
-                         if(Debug[["DB.Model"]] == TRUE)
+                         if(Debug[["DB.Model"]] == TRUE) {
                               cat("\nWARNING: Proposal failed.\n",
                                    file=LogFile, append=TRUE)
+                              cat("  Iteration:", iter, "Proposal:\n",
+                                   paste("c(",paste(prop[Block[[b]]],
+                                   collapse=","),")",sep=""), "\n",
+                                   file=LogFile, append=TRUE)}
                          Mo1 <- Mo0
                          }
                     else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]])))) {
-                         if(Debug[["DB.Model"]] == TRUE)
+                         if(Debug[["DB.Model"]] == TRUE) {
                               cat("\nWARNING: Proposal resulted in",
                                    "non-finite value(s).\n",
                                    file=LogFile, append=TRUE)
+                              cat("  Iteration:", iter, "Proposal:\n",
+                                   paste("c(",paste(prop[Block[[b]]],
+                                   collapse=","),")",sep=""), "\n",
+                                   file=LogFile, append=TRUE)}
                          Mo1 <- Mo0
                          }
                     else {
@@ -4207,16 +4323,22 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                ### Log-Posterior of the proposed state
                Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal failed.\n", file=LogFile,
                               append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop, collapse=","),")",
+                              sep=""), "\n", file=LogFile, append=TRUE)}
                     Mo1 <- Mo0
                     }
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]])))) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal resulted in non-finite",
                               "value(s).\n", file=LogFile, append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop, collapse=","),")",
+                              sep=""), "\n", file=LogFile, append=TRUE)}
                     Mo1 <- Mo0
                     }
                else {
@@ -4281,17 +4403,25 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     Mo1 <- try(Model(prop, Data),
                          silent=!Debug[["DB.Model"]])
                     if(inherits(Mo1, "try-error")) {
-                         if(Debug[["DB.Model"]] == TRUE)
+                         if(Debug[["DB.Model"]] == TRUE) {
                               cat("\nWARNING: Proposal failed.\n",
                                    file=LogFile, append=TRUE)
+                              cat("  Iteration:", iter, "Proposal:\n",
+                                   paste("c(",paste(prop[Block[[b]]],
+                                   collapse=","),")",sep=""), "\n",
+                                   file=LogFile, append=TRUE)}
                          Mo1 <- Mo0
                          }
                     else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]])))) {
-                         if(Debug[["DB.Model"]] == TRUE)
+                         if(Debug[["DB.Model"]] == TRUE) {
                               cat("\nWARNING: Proposal resulted in",
                                    "non-finite value(s).\n",
                                    file=LogFile, append=TRUE)
+                              cat("  Iteration:", iter, "Proposal:\n",
+                                   paste("c(",paste(prop[Block[[b]]],
+                                   collapse=","),")",sep=""), "\n",
+                                   file=LogFile, append=TRUE)}
                          Mo1 <- Mo0
                          }
                     else {
@@ -4356,17 +4486,23 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop <- prop + as.vector(epsilon %*% invm) * momentum1
                Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal failed in leapfrog", l,
                               ".\n", file=LogFile, append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop, collapse=","),")",
+                              sep=""), "\n", file=LogFile, append=TRUE)}
                     Mo1 <- Mo0.1
                     }
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]])))) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal in leapfrog", l,
                               "resulted in non-finite value(s).\n",
                               file=LogFile, append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop, collapse=","),")",
+                              sep=""), "\n", file=LogFile, append=TRUE)}
                     Mo1 <- Mo0.1}
                if(any(Mo0.1[["parm"]] == Mo1[["parm"]])) {
                     nomove <- which(Mo0.1[["parm"]] == Mo1[["parm"]])
@@ -4375,17 +4511,23 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     Mo1 <- try(Model(prop, Data),
                          silent=!Debug[["DB.Model"]])
                     if(inherits(Mo1, "try-error")) {
-                         if(Debug[["DB.Model"]] == TRUE)
+                         if(Debug[["DB.Model"]] == TRUE) {
                               cat("\nWARNING: Proposal failed in leapfrog",
                                    l, ".\n", file=LogFile, append=TRUE)
+                              cat("  Iteration:", iter, "Proposal:\n",
+                                   paste("c(",paste(prop, collapse=","),")",
+                                   sep=""), "\n", file=LogFile, append=TRUE)}
                          Mo1 <- Mo0.1
                          }
                     else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]])))) {
-                         if(Debug[["DB.Model"]] == TRUE)
+                         if(Debug[["DB.Model"]] == TRUE) {
                               cat("\nWARNING: Proposal in leapfrog",
                                    l, "resulted in non-finite value(s).\n",
                                    file=LogFile, append=TRUE)
+                              cat("  Iteration:", iter, "Proposal:\n",
+                                   paste("c(",paste(prop, collapse=","),")",
+                                   sep=""), "\n", file=LogFile, append=TRUE)}
                          Mo1 <- Mo0.1}}
                Mo0.1 <- Mo1
                prop <- Mo1[["parm"]]
@@ -4436,17 +4578,23 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           thetaprime <-  theta + epsilon * rprime
           Mo1 <- try(Model(thetaprime, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) {
-               if(Debug[["DB.Model"]] == TRUE)
+               if(Debug[["DB.Model"]] == TRUE) {
                     cat("\nWARNING: Proposal failed in leapfrog.\n",
                          file=LogFile, append=TRUE)
+                    cat("  Iteration:", iter, "Proposal:\n",
+                         paste("c(",paste(thetaprime, collapse=","),")",
+                         sep=""), "\n", file=LogFile, append=TRUE)}
                Mo1 <- Mo0
                }
           else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]])))) {
-               if(Debug[["DB.Model"]] == TRUE)
+               if(Debug[["DB.Model"]] == TRUE) {
                     cat("\nWARNING: Proposal in leapfrog", 
                          "resulted in non-finite value(s).\n",
                          file=LogFile, append=TRUE)
+                    cat("  Iteration:", iter, "Proposal:\n",
+                         paste("c(",paste(thetaprime, collapse=","),")",
+                         sep=""), "\n", file=LogFile, append=TRUE)}
                Mo1 <- Mo0}
           thetaprime <- Mo1[["parm"]]
           gradprime <- partial(Model, thetaprime, Data)
@@ -4527,17 +4675,23 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop <- prop + epsilon * momentum1
                Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal failed in leapfrog", l,
                               ".\n", file=LogFile, append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop, collapse=","),")",
+                              sep=""),"\n", file=LogFile, append=TRUE)}
                     Mo1 <- Mo0.1
                     }
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]])))) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal in leapfrog", l, 
                               "resulted in non-finite value(s).\n",
                               file=LogFile, append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop, collapse=","),")",
+                              sep=""), "\n", file=LogFile, append=TRUE)}
                     Mo1 <- Mo0.1}
                if(any(Mo0.1[["parm"]] == Mo1[["parm"]])) {
                     nomove <- which(Mo0.1[["parm"]] == Mo1[["parm"]])
@@ -4546,17 +4700,23 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     Mo1 <- try(Model(prop, Data),
                          silent=!Debug[["DB.Model"]])
                     if(inherits(Mo1, "try-error")) {
-                         if(Debug[["DB.Model"]] == TRUE)
+                         if(Debug[["DB.Model"]] == TRUE) {
                               cat("\nWARNING: Proposal failed in leapfrog",
                                    l, ".\n", file=LogFile, append=TRUE)
+                              cat("  Iteration:", iter, "Proposal:\n",
+                                   paste("c(",paste(prop, collapse=","),")",
+                                   sep=""), "\n", file=LogFile, append=TRUE)}
                          Mo1 <- Mo0.1
                          }
                     else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]])))) {
-                         if(Debug[["DB.Model"]] == TRUE)
+                         if(Debug[["DB.Model"]] == TRUE) {
                               cat("\nWARNING: Proposal in leapfrog", l, 
                                    "resulted in non-finite value(s).\n",
                                    file=LogFile, append=TRUE)
+                              cat("  Iteration:", iter, "Proposal:\n",
+                                   paste("c(",paste(prop, collapse=","),")",
+                                   sep=""), "\n", file=LogFile, append=TRUE)}
                          Mo1 <- Mo0.1}}
                Mo0.1 <- Mo1
                prop <- Mo1[["parm"]]
@@ -4622,16 +4782,22 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           ### Log-Posterior of the proposed state
           Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) {
-               if(Debug[["DB.Model"]] == TRUE)
+               if(Debug[["DB.Model"]] == TRUE) {
                     cat("\nWARNING: Proposal failed.\n", file=LogFile,
                          append=TRUE)
+                    cat("  Iteration:", iter, "Proposal:\n",
+                         paste("c(",paste(prop, collapse=","),")",
+                         sep=""), "\n", file=LogFile, append=TRUE)}
                Mo1 <- Mo0
                }
           else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]])))) {
-               if(Debug[["DB.Model"]] == TRUE)
+               if(Debug[["DB.Model"]] == TRUE) {
                     cat("\nWARNING: Proposal resulted in non-finite",
                          "value(s).\n", file=LogFile, append=TRUE)
+                    cat("  Iteration:", iter, "Proposal:\n",
+                         paste("c(",paste(prop, collapse=","),")",
+                         sep=""), "\n", file=LogFile, append=TRUE)}
                Mo1 <- Mo0
                }
           ### Importance Densities (dmvn)
@@ -4705,23 +4871,30 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          file=LogFile, append=TRUE)
                if(Debug[["DB.chol"]] == TRUE)
                     cat("\nWARNING: Cholesky decomposition failed for",
-                         "proposal.\n", file=LogFile, append=TRUE)
+                         "proposal in iteration", iter, ".\n",
+                         file=LogFile, append=TRUE)
                prop <- post[iter,]
                j <- ceiling(runif(1,0,LIV))
                prop[j] <- rnorm(1, post[iter,j], tuning[j])}
           ### Log-Posterior of the proposed state
           Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) {
-               if(Debug[["DB.Model"]] == TRUE)
+               if(Debug[["DB.Model"]] == TRUE) {
                     cat("\nWARNING: Proposal failed.\n", file=LogFile,
                          append=TRUE)
+                    cat("  Iteration:", iter, "Proposal:\n",
+                         paste("c(",paste(prop, collapse=","),")",
+                         sep=""), "\n", file=LogFile, append=TRUE)}
                Mo1 <- Mo0
                }
           else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]])))) {
-               if(Debug[["DB.Model"]] == TRUE)
+               if(Debug[["DB.Model"]] == TRUE) {
                     cat("\nWARNING: Proposal resulted in non-finite",
                          "value(s).\n", file=LogFile, append=TRUE)
+                    cat("  Iteration:", iter, "Proposal:\n",
+                         paste("c(",paste(prop, collapse=","),")",
+                         sep=""), "\n", file=LogFile, append=TRUE)}
                Mo1 <- Mo0
                }
           else {
@@ -4830,7 +5003,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           if(inherits(U, "try-error")) {
                if(Debug[["DB.chol"]] == TRUE)
                     cat("\nWARNING: Cholesky decomposition failed for",
-                         "proposal.\n", file=LogFile, append=TRUE)
+                         "proposal in iteration", iter, ".\n",
+                         file=LogFile, append=TRUE)
                U <- chol(as.positive.definite(sigma2*Lambda))}
           prop <- as.vector((Mo0[["parm"]] +
                {sigma2/2}*as.vector(Lambda %*% Dx)*Dx) +
@@ -4838,16 +5012,22 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           ### Log-Posterior of the proposed state
           Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) {
-               if(Debug[["DB.Model"]] == TRUE)
+               if(Debug[["DB.Model"]] == TRUE) {
                     cat("\nWARNING: Proposal failed.\n", file=LogFile,
                          append=TRUE)
+                    cat("  Iteration:", iter, "Proposal:\n",
+                         paste("c(",paste(prop, collapse=","),")",
+                         sep=""), "\n", file=LogFile, append=TRUE)}
                Mo1 <- Mo0
                }
           else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]])))) {
-               if(Debug[["DB.Model"]] == TRUE)
+               if(Debug[["DB.Model"]] == TRUE) {
                     cat("\nWARNING: Proposal resulted in non-finite",
                          "value(s).\n", file=LogFile, append=TRUE)
+                    cat("  Iteration:", iter, "Proposal:\n",
+                         paste("c(",paste(prop, collapse=","),")",
+                         sep=""), "\n", file=LogFile, append=TRUE)}
                Mo1 <- Mo0
                }
           else {
@@ -4952,17 +5132,23 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                try(Model(prop[x,], Data), silent=!Debug[["DB.Model"]]))
           for (i in 1:CPUs) {
                if(inherits(Mo1[[i]], "try-error")) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal failed in chain", i,
                               ".\n", file=LogFile, append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop[i,], collapse=","),")",
+                              sep=""), "\n", file=LogFile, append=TRUE)}
                     Mo1[[i]] <- Mo0[[i]]
                     }
                else if(any(!is.finite(c(Mo1[[i]][["LP"]], Mo1[[i]][["Dev"]],
                     Mo1[[i]][["Monitor"]])))) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal in chain", i,
                               "resulted in non-finite value(s).\n",
                               file=LogFile, append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop[i,], collapse=","),")",
+                              sep=""), "\n", file=LogFile, append=TRUE)}
                     Mo1[[i]] <- Mo0[[i]]
                     }
                }
@@ -5375,17 +5561,23 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           thetaprime <-  theta + epsilon * rprime
           Mo1 <- try(Model(thetaprime, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) {
-               if(Debug[["DB.Model"]] == TRUE)
+               if(Debug[["DB.Model"]] == TRUE) {
                     cat("\nWARNING: Proposal failed in leapfrog.\n",
                          file=LogFile, append=TRUE)
+                    cat("  Iteration:", iter, "Proposal:\n",
+                         paste("c(",paste(thetaprime, collapse=","),")",
+                         sep=""), "\n", file=LogFile, append=TRUE)}
                Mo1 <- Mo0
                }
           else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]])))) {
-               if(Debug[["DB.Model"]] == TRUE)
+               if(Debug[["DB.Model"]] == TRUE) {
                     cat("\nWARNING: Proposal in leapfrog", 
                          "resulted in non-finite value(s).\n",
                          file=LogFile, append=TRUE)
+                    cat("  Iteration:", iter, "Proposal:\n",
+                         paste("c(",paste(thetaprime, collapse=","),")",
+                         sep=""), "\n", file=LogFile, append=TRUE)}
                Mo1 <- Mo0}
           thetaprime <- Mo1[["parm"]]
           gradprime <- partial(Model, thetaprime, Data)
@@ -5737,7 +5929,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                S.eig <- try(eigen(VarCov2), silent=!Debug[["DB.eigen"]])
                if(inherits(S.eig, "try-error")) {
                     if(Debug[["DB.eigen"]] == TRUE)
-                         cat("\nWARNING: Eigendecomposition failed.\n",
+                         cat("\nWARNING: Eigendecomposition failed in",
+                              "iteration", iter, ".\n",
                               file=LogFile, append=TRUE)
                     S.eig <- eigen(VarCov)}}
           ### Hypercube or Eigenvector
@@ -5752,9 +5945,12 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           Mo0.1 <- try(Model(Mo0[["parm"]], Data),
                silent=!Debug[["DB.Model"]])
           if(inherits(Mo0.1, "try-error")) {
-               if(Debug[["DB.Model"]] == TRUE)
+               if(Debug[["DB.Model"]] == TRUE) {
                     cat("\nWARNING: Proposal failed.\n",
                          file=LogFile, append=TRUE)
+                    cat("  Iteration:", iter, "Proposal:\n",
+                         paste("c(",paste(Mo0[["parm"]], collapse=","),")",
+                         sep=""), "\n", file=LogFile, append=TRUE)}
                Mo0.1 <- Mo0}
           Mo0 <- Mo0.1
           y.slice <- Mo0[["LP"]] - rexp(1)
@@ -5767,17 +5963,23 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop <- Mo0[["parm"]] + v
                Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Rejection sampling failed.\n",
                               file=LogFile, append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop, collapse=","),")",
+                              sep=""), "\n", file=LogFile, append=TRUE)}
                     Mo1 <- Mo0
                     }
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]])))) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Rejection sampling resulted",
                               "in non-finite value(s).\n",
                               file=LogFile, append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop, collapse=","),")",
+                              sep=""), "\n", file=LogFile, append=TRUE)}
                     Mo1 <- Mo0}
                if(Mo1[["LP"]] >= y.slice) break
                else if(all(abs(wt) < 1e-100)) {
@@ -5824,16 +6026,22 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           ### Log-Posterior of the proposed state
           Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) {
-               if(Debug[["DB.Model"]] == TRUE)
+               if(Debug[["DB.Model"]] == TRUE) {
                     cat("\nWARNING: Proposal failed.\n", file=LogFile,
                          append=TRUE)
+                    cat("  Iteration:", iter, "Proposal:\n",
+                         paste("c(",paste(prop, collapse=","),")",
+                         sep=""), "\n", file=LogFile, append=TRUE)}
                Mo1 <- Mo0
                }
           else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]])))) {
-               if(Debug[["DB.Model"]] == TRUE)
+               if(Debug[["DB.Model"]] == TRUE) {
                     cat("\nWARNING: Proposal resulted in non-finite",
                          "value(s).\n", file=LogFile, append=TRUE)
+                    cat("  Iteration:", iter, "Proposal:\n",
+                         paste("c(",paste(prop, collapse=","),")",
+                         sep=""), "\n", file=LogFile, append=TRUE)}
                Mo1 <- Mo0
                }
           else {
@@ -5903,16 +6111,22 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                ### Log-Posterior
                Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal failed.\n", file=LogFile,
                               append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop, collapse=","),")",
+                              sep=""), "\n", file=LogFile, append=TRUE)}
                     Mo1 <- Mo0
                     }
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]])))) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal resulted in non-finite",
                               "value(s).\n", file=LogFile, append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop, collapse=","),")",
+                              sep=""), "\n", file=LogFile, append=TRUE)}
                     Mo1 <- Mo0
                     }
                else {
@@ -5940,7 +6154,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          }
                     else if(Debug[["DB.chol"]] == TRUE)
                          cat("\nWARNING: Cholesky decomposition failed for",
-                              "proposal.\n", file=LogFile, append=TRUE)}
+                              "proposal in iteration", iter, ".\n",
+                              file=LogFile, append=TRUE)}
                ### Save Thinned Samples
                if(iter %% Thinning == 0) {
                     t.iter <- floor(iter / Thinning) + 1
@@ -6001,17 +6216,25 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     Mo1 <- try(Model(prop, Data),
                          silent=!Debug[["DB.Model"]])
                     if(inherits(Mo1, "try-error")) {
-                         if(Debug[["DB.Model"]] == TRUE)
+                         if(Debug[["DB.Model"]] == TRUE) {
                               cat("\nWARNING: Proposal failed in block",
                                    b, ".\n", file=LogFile, append=TRUE)
+                              cat("  Iteration:", iter, "Proposal:\n",
+                                   paste("c(",paste(prop[Block[[b]]],
+                                   collapse=","),")",sep=""), "\n",
+                                   file=LogFile, append=TRUE)}
                          Mo1 <- Mo0
                          }
                     else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]])))) {
-                         if(Debug[["DB.Model"]] == TRUE)
+                         if(Debug[["DB.Model"]] == TRUE) {
                               cat("\nWARNING: Proposal in block", b,
                                    "resulted in non-finite value(s).\n",
                                    file=LogFile, append=TRUE)
+                              cat("  Iteration:", iter, "Proposal:\n",
+                                   paste("c(",paste(prop[Block[[b]]],
+                                   collapse=","),")",sep=""), "\n",
+                                   file=LogFile, append=TRUE)}
                          Mo1 <- Mo0
                          }
                     else {
@@ -6041,7 +6264,8 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          else if(Debug[["DB.chol"]] == TRUE)
                               cat("\nWARNING: Cholesky decomposition",
                                    "failed for proposal in block", b,
-                                   ".\n", file=LogFile, append=TRUE)}
+                                   "in iteration", iter, ".\n",
+                                   file=LogFile, append=TRUE)}
                     DiagCovar[floor(iter / Thinning)+1,Block[[b]]] <- diag(VarCov[[b]])
                     }
                ### Save Thinned Samples
@@ -6178,16 +6402,22 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop <- prop + w*p
                Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal failed.\n", file=LogFile,
                               append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop, collapse=","),")",
+                              sep=""), "\n", file=LogFile, append=TRUE)}
                     Mo1 <- Mo0
                     }
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]])))) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal resulted in non-finite",
                               "value(s).\n", file=LogFile, append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop, collapse=","),")",
+                              sep=""), "\n", file=LogFile, append=TRUE)}
                     Mo1 <- Mo0
                     }
                prop <- Mo1[["parm"]]}
@@ -6386,18 +6616,24 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop <- prop + w*p
                Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Stepping out proposal failed",
                               "in step", i, ".\n", file=LogFile,
                               append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop, collapse=","),")",
+                              sep=""), "\n", file=LogFile, append=TRUE)}
                     Mo1 <- Mo0
                     }
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]])))) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Stepping out proposal resulted",
                               "in non-finite value(s) in step", i, ".\n",
                               file=LogFile, append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop, collapse=","),")",
+                              sep=""), "\n", file=LogFile, append=TRUE)}
                     Mo1 <- Mo0}
                prop <- Mo1[["parm"]]
                ### Reflect at boundary
@@ -6408,17 +6644,23 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     p <- p - 2*g*{(t(p) %*% g) / Norm(g)^2}}}
           Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) {
-               if(Debug[["DB.Model"]] == TRUE)
+               if(Debug[["DB.Model"]] == TRUE) {
                     cat("\nWARNING: Final proposal failed.\n",
                          file=LogFile, append=TRUE)
+                    cat("  Iteration:", iter, "Proposal:\n",
+                         paste("c(",paste(prop, collapse=","),")",
+                         sep=""), "\n", file=LogFile, append=TRUE)}
                Mo1 <- Mo0
                }
           else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]])))) {
-               if(Debug[["DB.Model"]] == TRUE)
+               if(Debug[["DB.Model"]] == TRUE) {
                     cat("\nWARNING: Final proposal resulted",
                          "in non-finite value(s).\n", file=LogFile,
                          append=TRUE)
+                    cat("  Iteration:", iter, "Proposal:\n",
+                         paste("c(",paste(prop, collapse=","),")",
+                         sep=""), "\n", file=LogFile, append=TRUE)}
                Mo1 <- Mo0
                }
           Mo0 <- Mo1
@@ -6466,17 +6708,23 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                ### Log-Posterior of the proposed state
                Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) {
-                   if(Debug[["DB.Model"]] == TRUE)
+                   if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal failed.\n",
                               file=LogFile, append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop, collapse=","),")",
+                              sep=""), "\n", file=LogFile, append=TRUE)}
                     Mo1 <- Mo0
                     }
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]])))) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal resulted",
                               "in non-finite value(s).\n", file=LogFile,
                               append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop, collapse=","),")",
+                              sep=""), "\n", file=LogFile, append=TRUE)}
                     Mo1 <- Mo0
                     }
                else {
@@ -6532,17 +6780,25 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     Mo1 <- try(Model(prop, Data),
                          silent=!Debug[["DB.Model"]])
                     if(inherits(Mo1, "try-error")) {
-                         if(Debug[["DB.Model"]] == TRUE)
+                         if(Debug[["DB.Model"]] == TRUE) {
                               cat("\nWARNING: Proposal in block", b,
                                    "failed.\n", file=LogFile, append=TRUE)
+                              cat("  Iteration:", iter, "Proposal:\n",
+                                   paste("c(",paste(prop[Block[[b]]],
+                                   collapse=","),")",sep=""), "\n",
+                                   file=LogFile, append=TRUE)}
                          Mo1 <- Mo0
                          }
                     else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]])))) {
-                         if(Debug[["DB.Model"]] == TRUE)
+                         if(Debug[["DB.Model"]] == TRUE) {
                               cat("\nWARNING: Proposal in block", b,
                                    "resulted in non-finite value(s).\n",
                                    file=LogFile, append=TRUE)
+                              cat("  Iteration:", iter, "Proposal:\n",
+                                   paste("c(",paste(prop[Block[[b]]],
+                                   collapse=","),")",sep=""), "\n",
+                                   file=LogFile, append=TRUE)}
                          Mo1 <- Mo0
                          }
                     else {
@@ -6693,16 +6949,22 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
           ### Log-Posterior of the proposed state
           Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
           if(inherits(Mo1, "try-error")) {
-               if(Debug[["DB.Model"]] == TRUE)
+               if(Debug[["DB.Model"]] == TRUE) {
                     cat("\nWARNING: Proposal failed.\n", file=LogFile,
                          append=TRUE)
+                    cat("  Iteration:", iter, "Proposal:\n",
+                         paste("c(",paste(prop, collapse=","),")",
+                         sep=""), "\n", file=LogFile, append=TRUE)}
                Mo1 <- Mo0
                }
           else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                Mo1[["Monitor"]])))) {
-               if(Debug[["DB.Model"]] == TRUE)
+               if(Debug[["DB.Model"]] == TRUE) {
                     cat("\nWARNING: Proposal resulted in non-finite",
                          "value(s).\n", file=LogFile, append=TRUE)
+                    cat("  Iteration:", iter, "Proposal:\n",
+                         paste("c(",paste(prop, collapse=","),")",
+                         sep=""), "\n", file=LogFile, append=TRUE)}
                Mo1 <- Mo0
                }
           Mo0 <- Mo1
@@ -7229,17 +7491,23 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                prop <- prop + as.vector(epsilon %*% invm) * momentum1
                Mo1 <- try(Model(prop, Data), silent=!Debug[["DB.Model"]])
                if(inherits(Mo1, "try-error")) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal failed in leapfrog", l,
                               ".\n", file=LogFile, append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop, collapse=","),")",
+                              sep=""), "\n", file=LogFile, append=TRUE)}
                     Mo1 <- Mo0.1
                     }
                else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                     Mo1[["Monitor"]])))) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal in leapfrog", l,
                               "resulted in non-finite value(s).\n",
                               file=LogFile, append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(prop, collapse=","),")",
+                              sep=""), "\n", file=LogFile, append=TRUE)}
                     Mo1 <- Mo0.1}
                if(any(Mo0.1[["parm"]] == Mo1[["parm"]])) {
                     nomove <- which(Mo0.1[["parm"]] == Mo1[["parm"]])
@@ -7248,17 +7516,23 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     Mo1 <- try(Model(prop, Data),
                          silent=!Debug[["DB.Model"]])
                     if(inherits(Mo1, "try-error")) {
-                         if(Debug[["DB.Model"]] == TRUE)
+                         if(Debug[["DB.Model"]] == TRUE) {
                               cat("\nWARNING: Proposal failed in leapfrog",
                                    l, ".\n", file=LogFile, append=TRUE)
+                              cat("  Iteration:", iter, "Proposal:\n",
+                                   paste("c(",paste(prop, collapse=","),")",
+                                   sep=""), "\n", file=LogFile, append=TRUE)}
                          Mo1 <- Mo0.1
                          }
                     else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]])))) {
-                         if(Debug[["DB.Model"]] == TRUE)
+                         if(Debug[["DB.Model"]] == TRUE) {
                               cat("\nWARNING: Proposal in leapfrog",
                                    l, "resulted in non-finite value(s).\n",
                                    file=LogFile, append=TRUE)
+                              cat("  Iteration:", iter, "Proposal:\n",
+                                   paste("c(",paste(prop, collapse=","),")",
+                                   sep=""), "\n", file=LogFile, append=TRUE)}
                          Mo1 <- Mo0.1}}
                Mo0.1 <- Mo1
                prop <- Mo1[["parm"]]
@@ -7728,9 +8002,13 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                Mo0.1 <- try(Model(Mo0[["parm"]], Data),
                     silent=!Debug[["DB.Model"]])
                if(inherits(Mo0.1, "try-error")) {
-                    if(Debug[["DB.Model"]] == TRUE)
+                    if(Debug[["DB.Model"]] == TRUE) {
                          cat("\nWARNING: Proposal failed.\n", file=LogFile,
                               append=TRUE)
+                         cat("  Iteration:", iter, "Proposal:\n",
+                              paste("c(",paste(Mo0[["parm"]],
+                              collapse=","),")",sep=""), "\n",
+                              file=LogFile, append=TRUE)}
                     Mo0.1 <- Mo0}
                Mo0 <- Mo0.1
                y.slice <- Mo0[["LP"]] - rexp(1)
@@ -7740,32 +8018,48 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     L.y <- try(Model(Mo0[["parm"]] + v*L, Data)[["LP"]],
                          silent=!Debug[["DB.Model"]])
                     if(inherits(L.y, "try-error")) {
-                         if(Debug[["DB.Model"]] == TRUE)
+                         if(Debug[["DB.Model"]] == TRUE) {
                               cat("\nWARNING: Stepping out the lower",
                                    "bound failed.\n", file=LogFile,
                                    append=TRUE)
+                              cat("  Iteration:", iter, "Proposal:\n",
+                                   paste("c(",paste(Mo0[["parm"]] + v*L,
+                                   collapse=","),")",sep=""), "\n",
+                                   file=LogFile, append=TRUE)}
                          L.y <- Mo0[["LP"]]
                          }
                     else if(!is.finite(L.y)) {
-                         if(Debug[["DB.Model"]] == TRUE)
+                         if(Debug[["DB.Model"]] == TRUE) {
                               cat("\nWARNING: Stepping out the lower",
                                    "bound resulted in non-finite LP.\n",
                                    file=LogFile, append=TRUE)
+                              cat("  Iteration:", iter, "Proposal:\n",
+                                   paste("c(",paste(Mo0[["parm"]] + v*L,
+                                   collapse=","),")",sep=""), "\n",
+                                   file=LogFile, append=TRUE)}
                          L.y <- Mo0[["LP"]]}
                     U.y <- try(Model(Mo0[["parm"]] + v*U, Data)[["LP"]],
                          silent=!Debug[["DB.Model"]])
                     if(inherits(U.y, "try-error")) {
-                         if(Debug[["DB.Model"]] == TRUE)
+                         if(Debug[["DB.Model"]] == TRUE) {
                               cat("\nWARNING: Stepping out the upper",
                                    "bound failed.\n", file=LogFile,
                                    append=TRUE)
+                              cat("  Iteration:", iter, "Proposal:\n",
+                                   paste("c(",paste(Mo0[["parm"]] + v*U,
+                                   collapse=","),")",sep=""), "\n",
+                                   file=LogFile, append=TRUE)}
                          U.y <- Mo0[["LP"]]
                          }
                     else if(!is.finite(U.y)) {
-                         if(Debug[["DB.Model"]] == TRUE)
+                         if(Debug[["DB.Model"]] == TRUE) {
                               cat("\nWARNING: Stepping out the upper",
                                    "bound resulted in non-finite LP.\n",
                                    file=LogFile, append=TRUE)
+                              cat("  Iteration:", iter, "Proposal:\n",
+                                   paste("c(",paste(Mo0[["parm"]] + v*U,
+                                   collapse=","),")",sep=""), "\n",
+                                   file=LogFile, append=TRUE)}
                          U.y <- Mo0[["LP"]]}
                     step <- 0
                     while({L.y > y.slice || U.y > y.slice} && step < m) {
@@ -7775,17 +8069,25 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                               L.y <- try(Model(Mo0[["parm"]] + v*L,
                                    Data)[["LP"]], silent=!Debug[["DB.Model"]])
                               if(inherits(L.y, "try-error")) {
-                                   if(Debug[["DB.Model"]] == TRUE)
+                                   if(Debug[["DB.Model"]] == TRUE) {
                                         cat("\nWARNING: Stepping out the lower",
                                              "bound failed.\n", file=LogFile,
                                              append=TRUE)
+                                        cat("  Iteration:", iter, "Proposal:\n",
+                                             paste("c(",paste(Mo0[["parm"]] +
+                                             v*L, collapse=","),")",sep=""),
+                                             "\n", file=LogFile, append=TRUE)}
                                    L.y <- Mo0[["LP"]]
                                    }
                               else if(!is.finite(L.y)) {
-                                   if(Debug[["DB.Model"]] == TRUE)
+                                   if(Debug[["DB.Model"]] == TRUE) {
                                         cat("\nWARNING: Stepping out the lower",
                                              "bound resulted in non-finite LP.\n",
                                              file=LogFile, append=TRUE)
+                                        cat("  Iteration:", iter, "Proposal:\n",
+                                             paste("c(",paste(Mo0[["parm"]] +
+                                             v*L, collapse=","),")",sep=""),
+                                             "\n", file=LogFile, append=TRUE)}
                                    L.y <- Mo0[["LP"]]
                                    }
                               }
@@ -7794,17 +8096,25 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                               U.y <- try(Model(Mo0[["parm"]] + v*U,
                                    Data)[["LP"]], silent=!Debug[["DB.Model"]])
                               if(inherits(U.y, "try-error")) {
-                                   if(Debug[["DB.Model"]] == TRUE)
+                                   if(Debug[["DB.Model"]] == TRUE) {
                                         cat("\nWARNING: Stepping out the upper",
                                              "bound failed.\n", file=LogFile,
                                              append=TRUE)
+                                        cat("  Iteration:", iter, "Proposal:\n",
+                                             paste("c(",paste(Mo0[["parm"]] +
+                                             v*U, collapse=","),")",sep=""),
+                                             "\n", file=LogFile, append=TRUE)}
                                    U.y <- Mo0[["LP"]]
                                    }
                               else if(!is.finite(U.y)) {
-                                   if(Debug[["DB.Model"]] == TRUE)
+                                   if(Debug[["DB.Model"]] == TRUE) {
                                         cat("\nWARNING: Stepping out the upper",
                                              "bound resulted in non-finite LP.\n",
                                              file=LogFile, append=TRUE)
+                                        cat("  Iteration:", iter, "Proposal:\n",
+                                             paste("c(",paste(Mo0[["parm"]] +
+                                             v*U, collapse=","),")",sep=""),
+                                             "\n", file=LogFile, append=TRUE)}
                                    U.y <- Mo0[["LP"]]}}}}
                ### Rejection Sampling
                repeat {
@@ -7813,17 +8123,23 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                     Mo1 <- try(Model(prop, Data),
                          silent=!Debug[["DB.Model"]])
                     if(inherits(Mo1, "try-error")) {
-                         if(Debug[["DB.Model"]] == TRUE)
+                         if(Debug[["DB.Model"]] == TRUE) {
                               cat("\nWARNING: Rejection sampling failed.\n",
                                    file=LogFile, append=TRUE)
+                              cat("  Iteration:", iter, "Proposal:\n",
+                                   paste("c(",paste(prop, collapse=","),")",
+                                   sep=""), "\n", file=LogFile, append=TRUE)}
                          Mo1 <- Mo0
                          }
                     else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                          Mo1[["Monitor"]])))) {
-                         if(Debug[["DB.Model"]] == TRUE)
+                         if(Debug[["DB.Model"]] == TRUE) {
                               cat("\nWARNING: Rejection sampling resulted",
                                    "in non-finite value(s).\n",
                                    file=LogFile, append=TRUE)
+                              cat("  Iteration:", iter, "Proposal:\n",
+                                   paste("c(",paste(prop, collapse=","),")",
+                                   sep=""), "\n", file=LogFile, append=TRUE)}
                          Mo1 <- Mo0}
                     prop <- Mo1[["parm"]]
                     if(Mo1[["LP"]] >= y.slice) break
@@ -7905,12 +8221,16 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          v <- S.eig[[b]]$vectors[,which.eig] *
                               sqrt(abs(S.eig[[b]]$values[which.eig]))}
                     ### Slice Interval
-                    Mo0.1 <- try(Model(Mo0[["parm"]], Data),
+                    Mo0.1 <- try(Model(Mo0[["parm"]][Block[[b]]], Data),
                          silent=!Debug[["DB.Model"]])
                     if(inherits(Mo0.1, "try-error")) {
-                         if(Debug[["DB.Model"]] == TRUE)
+                         if(Debug[["DB.Model"]] == TRUE) {
                               cat("\nWARNING: Proposal for block", b,
                                    "failed.\n", file=LogFile, append=TRUE)
+                              cat("  Iteration:", iter, "Proposal:\n",
+                                   paste("c(",paste(Mo0[["parm"]][Block[[b]]],
+                                   collapse=","),")",sep=""), "\n",
+                                   file=LogFile, append=TRUE)}
                          Mo0.1 <- Mo0}
                     Mo0 <- Mo0.1
                     y.slice <- Mo0[["LP"]] - rexp(1)
@@ -7922,36 +8242,52 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          L.y <- try(Model(prop, Data)[["LP"]],
                               silent=!Debug[["DB.Model"]])
                          if(inherits(L.y, "try-error")) {
-                              if(Debug[["DB.Model"]] == TRUE)
+                              if(Debug[["DB.Model"]] == TRUE) {
                                    cat("\nWARNING: Stepping out the lower",
                                         "bound failed for block", b, ".\n",
                                         file=LogFile, append=TRUE)
+                                   cat("  Iteration:", iter, "Proposal:\n",
+                                        paste("c(",paste(prop[Block[[b]]],
+                                        collapse=","),")",sep=""), "\n",
+                                        file=LogFile, append=TRUE)}
                               L.y <- Mo0[["LP"]]
                               }
                          else if(!is.finite(L.y)) {
-                              if(Debug[["DB.Model"]] == TRUE)
+                              if(Debug[["DB.Model"]] == TRUE) {
                                    cat("\nWARNING: Stepping out the lower",
                                         "bound resulted in non-finite LP",
                                         "for block", b, ".\n",
                                         file=LogFile, append=TRUE)
+                                   cat("  Iteration:", iter, "Proposal:\n",
+                                        paste("c(",paste(prop[Block[[b]]],
+                                        collapse=","),")",sep=""), "\n",
+                                        file=LogFile, append=TRUE)}
                               L.y <- Mo0[["LP"]]}
                          prop <- Mo0[["parm"]]
                          prop[Block[[b]]] <- prop[Block[[b]]] + v*U
                          U.y <- try(Model(prop, Data)[["LP"]],
                               silent=!Debug[["DB.Model"]])
                          if(inherits(U.y, "try-error")) {
-                              if(Debug[["DB.Model"]] == TRUE)
+                              if(Debug[["DB.Model"]] == TRUE) {
                                    cat("\nWARNING: Stepping out the upper",
                                         "bound failed for block", b, ".\n",
                                         file=LogFile, append=TRUE)
+                                   cat("  Iteration:", iter, "Proposal:\n",
+                                        paste("c(",paste(prop[Block[[b]]],
+                                        collapse=","),")",sep=""), "\n",
+                                        file=LogFile, append=TRUE)}
                               U.y <- Mo0[["LP"]]
                               }
                          else if(!is.finite(U.y)) {
-                              if(Debug[["DB.Model"]] == TRUE)
+                              if(Debug[["DB.Model"]] == TRUE) {
                                    cat("\nWARNING: Stepping out the upper",
                                         "bound resulted in non-finite LP",
                                         "for block", b, ".\n",
                                         file=LogFile, append=TRUE)
+                                   cat("  Iteration:", iter, "Proposal:\n",
+                                        paste("c(",paste(prop[Block[[b]]],
+                                        collapse=","),")",sep=""), "\n",
+                                        file=LogFile, append=TRUE)}
                               U.y <- Mo0[["LP"]]}
                          step <- 0
                          while({L.y > y.slice || U.y > y.slice} && step < m) {
@@ -7963,20 +8299,32 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                                    L.y <- try(Model(prop, Data)[["LP"]],
                                         silent=!Debug[["DB.Model"]])
                                    if(inherits(L.y, "try-error")) {
-                                        if(Debug[["DB.Model"]] == TRUE)
+                                        if(Debug[["DB.Model"]] == TRUE) {
                                              cat("\nWARNING: Stepping out the",
                                                   "lower bound failed for",
                                                   "block", b, ".\n",
                                                   file=LogFile, append=TRUE)
+                                             cat("  Iteration:", iter,
+                                                  "Proposal:\n", paste("c(",
+                                                  paste(prop[Block[[b]]],
+                                                  collapse=","),")",sep=""),
+                                                  "\n", file=LogFile,
+                                                  append=TRUE)}
                                         L.y <- Mo0[["LP"]]
                                         }
                                    else if(!is.finite(L.y)) {
-                                        if(Debug[["DB.Model"]] == TRUE)
+                                        if(Debug[["DB.Model"]] == TRUE) {
                                              cat("\nWARNING: Stepping out the",
                                                   "lower bound resulted in ",
                                                   "non-finite LP for block",
                                                   b, ".\n", file=LogFile,
                                                   append=TRUE)
+                                             cat("  Iteration:", iter,
+                                                  "Proposal:\n", paste("c(",
+                                                  paste(prop[Block[[b]]],
+                                                  collapse=","),")",sep=""),
+                                                  "\n", file=LogFile,
+                                                  append=TRUE)}
                                         L.y <- Mo0[["LP"]]
                                         }
                                    }
@@ -7987,20 +8335,32 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                                    U.y <- try(Model(prop, Data)[["LP"]],
                                         silent=!Debug[["DB.Model"]])
                                    if(inherits(U.y, "try-error")) {
-                                        if(Debug[["DB.Model"]] == TRUE)
+                                        if(Debug[["DB.Model"]] == TRUE) {
                                              cat("\nWARNING: Stepping out the",
                                                   "upper bound failed for",
                                                   "block", b, ".\n",
                                                   file=LogFile, append=TRUE)
+                                             cat("  Iteration:", iter,
+                                                  "Proposal:\n", paste("c(",
+                                                  paste(prop[Block[[b]]],
+                                                  collapse=","),")",sep=""),
+                                                  "\n", file=LogFile,
+                                                  append=TRUE)}
                                         U.y <- Mo0[["LP"]]
                                         }
                                    else if(!is.finite(U.y)) {
-                                        if(Debug[["DB.Model"]] == TRUE)
+                                        if(Debug[["DB.Model"]] == TRUE) {
                                              cat("\nWARNING: Stepping out the",
                                                   "upper bound resulted in",
                                                   "non-finite LP for block",
                                                   b, ".\n", file=LogFile,
                                                   append=TRUE)
+                                             cat("  Iteration:", iter,
+                                                  "Proposal:\n", paste("c(",
+                                                  paste(prop[Block[[b]]],
+                                                  collapse=","),")",sep=""),
+                                                  "\n", file=LogFile,
+                                                  append=TRUE)}
                                         U.y <- Mo0[["LP"]]}}}}
                     ### Rejection Sampling
                     repeat {
@@ -8010,19 +8370,27 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          Mo1 <- try(Model(prop, Data),
                               silent=!Debug[["DB.Model"]])
                          if(inherits(Mo1, "try-error")) {
-                              if(Debug[["DB.Model"]] == TRUE)
+                              if(Debug[["DB.Model"]] == TRUE) {
                                    cat("\nWARNING: Rejection sampling",
                                         "failed for block", b, ".\n",
                                         file=LogFile, append=TRUE)
+                                   cat("  Iteration:", iter, "Proposal:\n",
+                                        paste("c(",paste(prop[Block[[b]]],
+                                        collapse=","),")",sep=""), "\n",
+                                        file=LogFile, append=TRUE)}
                               Mo1 <- Mo0
                               }
                          else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
                               Mo1[["Monitor"]])))) {
-                              if(Debug[["DB.Model"]] == TRUE)
+                              if(Debug[["DB.Model"]] == TRUE) {
                                    cat("\nWARNING: Rejection sampling",
                                         "resulted in non-finite",
                                         "value(s) for block", b, ".\n",
                                         file=LogFile, append=TRUE)
+                                   cat("  Iteration:", iter, "Proposal:\n",
+                                        paste("c(",paste(prop[Block[[b]]],
+                                        collapse=","),")",sep=""), "\n",
+                                        file=LogFile, append=TRUE)}
                               Mo1 <- Mo0}
                          prop <- Mo1[["parm"]]
                          if(Mo1[["LP"]] >= y.slice) break
