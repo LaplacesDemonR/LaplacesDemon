@@ -20,6 +20,10 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
           cat("Initial values were not supplied, and\n")
           cat("have been set to zero prior to LaplaceApproximation().\n")
           parm <- rep(0, length(Data[["parm.names"]]))}
+     if(is.null(Data[["mon.names"]]))
+          stop("In Data, mon.names is NULL.")
+     if(is.null(Data[["parm.names"]]))
+          stop("In Data, parm.names is NULL.")
      for (i in 1:length(Data)) {
           if(is.matrix(Data[[i]])) {
                if(all(is.finite(Data[[i]]))) {

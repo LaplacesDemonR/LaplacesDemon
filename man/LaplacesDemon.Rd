@@ -87,16 +87,15 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     with \code{Iterations}. If computer memory is exceeded, then all
     will be lost. The \code{\link{Combine}} function can be used later
     to combine multiple updates.}
-  \item{Status}{
-    This argument accepts integers between 1 and the number of
-    iterations, and indicates how often the user would like the status
-    of the number of iterations and proposal type (for example,
-    multivariate or componentwise, or mixture, or subset) printed to
-    the screen. For example, if a model is updated for 1,000 iterations
-    and \code{Status=200}, then a status message will be printed at the
-    following iterations: 200, 400, 600, and 800 in
-    \code{LaplacesDemon}. The \code{LaplacesDemon.hpc} function
-    does not print the status during parallel processing.}
+  \item{Status}{This argument accepts an integer between 1 and the
+    number of iterations, and indicates how often, in iterations, the
+    user would like the status printed to the screen or log
+    file. Usually, the following is reported: the number of iterations,
+    the proposal type (for example, multivariate or componentwise, or
+    mixture, or subset), and LP. For example, if a model is updated for
+    1,000 iterations and \code{Status=200}, then a status message will
+    be printed at the following iterations: 200, 400, 600, 800, and
+    1,000.}
   \item{Thinning}{This argument accepts integers between 1 and the
     number of iterations, and indicates that every nth iteration will be
     retained, while the other iterations are discarded. If
@@ -117,12 +116,27 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     \code{try} function or non-finite values. List components include
     \code{DB.chol} regarding \code{chol}, \code{DB.eigen} regarding
     \code{eigen}, \code{DB.MCSE} regarding \code{\link{MCSE}}, and
-    \code{DB.Model} regarding the Model specification function. If
-    the Model specification function is not faulty and there is a bug
-    in \code{LaplacesDemon}, then please report it by sending an email
-    to \email{software@bayesian-inference.com}. Please place
-    "Bug in LaplacesDemon" in the subject, and the body of the email
-    should describe the bug and include reproducible code.}
+    \code{DB.Model} regarding the Model specification function. Errors
+    and warnings should be investigated, but do not necessarily indicate
+    a faulty Model specification function or a bug in the software. For
+    example, a sampler may make a proposal that would result in a matrix
+    that is not positive definite, when it should be. This kind of error
+    or warning is acceptable, provided the sampler handles it correctly
+    by rejecting the proposal, and provided the Model specification
+    function is not causing the issue. Oftentimes, blockwise sampling
+    with carefully chosen blocks will mostly or completely eliminate
+    errors or warnings that occur otherwise in larger, multivariate
+    proposals. Similarly, debugged componentwise algorithms tend to
+    provide more information than multivariate algorithms, since
+    usually the parameter and both its current and proposed values may
+    be reported. If confident in the Model specification function, and
+    errors or warnings are produced frequently that are acceptable,
+    then consider setting \code{DB.Model=FALSE} for cleaner output and
+    faster sampling. If the Model specification function is not faulty
+    and there is a bug in \code{LaplacesDemon}, then please report it
+    by sending an email to \email{software@bayesian-inference.com}.
+    Please place "Bug in LaplacesDemon" in the subject, and the body of
+    the email should describe the bug and include reproducible code.}
   \item{LogFile}{This argument is used to specify a log file name in
     quotes in the working directory as a destination, rather than the
     console, for the output messages of \code{cat} and \code{stop}
