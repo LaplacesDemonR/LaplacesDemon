@@ -1,6 +1,6 @@
 Package: LaplacesDemon
-Version: 15.03.01
-Date: 2015-03-01
+Version: 15.03.19
+Date: 2015-03-19
 Title: Complete Environment for Bayesian Inference
 Author: Statisticat, LLC <software@bayesian-inference.com>
 Maintainer: Statisticat, LLC <software@bayesian-inference.com>
@@ -10,4 +10,4 @@ ByteCompile: TRUE
 Description: LaplacesDemon is a complete environment for Bayesian inference.
 License: MIT + file LICENSE
 URL: http://www.bayesian-inference.com/software
-Packaged: 2015-03-01 06:06:06 UTC; statisticat
+Packaged: 2015-03-19 06:06:06 UTC; statisticat

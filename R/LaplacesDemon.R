@@ -7143,7 +7143,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                                         cat("  Iteration:", iter,
                                              "Current:", round(Mo0[["parm"]][j]),
                                              "Proposed:", round(prop[j],5),
-                                             file=LogFile, append=TRUE)}
+                                             "\n", file=LogFile, append=TRUE)}
                                    Mo1 <- Mo0
                                    }
                               else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
@@ -7156,7 +7156,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                                         cat("  Iteration:", iter,
                                              "Current:", round(Mo0[["parm"]][j]),
                                              "Proposed:", round(prop[j],5),
-                                             file=LogFile, append=TRUE)}
+                                             "\n", file=LogFile, append=TRUE)}
                                    Mo1 <- Mo0}
                               if(Mo1[["LP"]] >= y.slice) break
                               else if(abs(R-L) < 1e-100) break
@@ -7345,7 +7345,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                                         cat("  Iteration:", iter,
                                              "Current:", round(Mo0[["parm"]][j]),
                                              "Proposed:", round(prop[j],5),
-                                             file=LogFile, append=TRUE)}
+                                             "\n", file=LogFile, append=TRUE)}
                                    Mo1 <- Mo0
                                    }
                               else if(any(!is.finite(c(Mo1[["LP"]], Mo1[["Dev"]],
@@ -7358,7 +7358,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                                         cat("  Iteration:", iter,
                                              "Current:", round(Mo0[["parm"]][j]),
                                              "Proposed:", round(prop[j],5),
-                                             file=LogFile, append=TRUE)}
+                                             "\n", file=LogFile, append=TRUE)}
                                    Mo1 <- Mo0}
                               if(Mo1[["LP"]] >= y.slice) break
                               else if(abs(R-L) < 1e-100) break
