@@ -903,16 +903,27 @@ rlaplacem <- function(n, p, location, scale)
 # LASSO Distribution                                                      #
 ###########################################################################
 
-dlasso <- function(x, sigma, tau, lambda, a, b, v, w, log=FALSE)
+dlasso <- function(x, sigma, tau, lambda, a=1, b=1, log=FALSE)
      {
-     if(any(c(sigma, tau, lambda, a, b, v, w) <= 0))
+     if(any(c(sigma, tau, lambda, a, b) <= 0))
           stop("Scale parameters must be positive.")
-     dens <- sum(dnorm(x, 0, sigma*tau, log=TRUE)) +
-          sum(dexp(tau, lambda/2, log=TRUE)) +
-          dinvgamma(sigma, v, w, log=TRUE) +
-          dgamma(lambda, a, b, log=TRUE)
+     dens <- sum(dmvn(x, 0, sigma^2*diag(tau^2), log=TRUE)) +
+          log(1/sigma^2) + sum(dexp(tau^2, lambda^2/2, log=TRUE)) +
+          dgamma(lambda^2, a, b, log=TRUE)
      if(log == FALSE) dens <- exp(dens)
      return(dens)
+     }
+rlasso <- function(n, sigma, tau, lambda, a=1, b=1)
+     {
+     a <- as.vector(a)[1]
+     b <- as.vector(b)[1]
+     if(missing(sigma)) sigma <- runif(1, 1e-100, 1000)
+     if(missing(lambda)) lambda <- sqrt(rgamma(1, a, b))
+     if(missing(tau)) stop("The tau parameter is a required argument.")
+     sigma <- as.vector(sigma)[1]
+     lambda <- as.vector(lambda)[1]
+     x <- rnorm(n, 0, sigma^2*diag(tau^2))
+     return(x)
      }
 
 ###########################################################################
@@ -2472,6 +2483,36 @@ rwishartc <- function(nu, S)
           Z[rep(k*kseq, kseq) +
                unlist(lapply(kseq, seq))] <- rnorm(k*{k - 1}/2)}
      return(chol(crossprod(Z %*% chol(S))))
+     }
+
+###########################################################################
+# Yang-Burger Distribution                                                #
+###########################################################################
+
+dyangburger <- function(x, log=FALSE)
+     {
+     if(missing(x)) stop("Matrix x is a required argument.")
+     if(!is.matrix(x)) x <- as.matrix(x)
+     x <- as.symmetric.matrix(x)
+     if(!is.positive.definite(x))
+          stop("Matrix x is not positive-definite.")
+     k <- ncol(x)
+     d <- sort(eigen(x)$values, decreasing=TRUE)
+     dens <- log(1) - logdet(x) * sum(cumsum(d[1:(k-1)]))
+     if(log == FALSE) dens <- exp(dens)
+     return(dens)
+     }
+dyangburgerc <- function(x, log=FALSE)
+     {
+     if(missing(x))
+          stop("Upper triangular matrix x is a required argument.")
+     if(!is.matrix(x)) x <- as.matrix(x)
+     x <- t(x) %*% x
+     k <- ncol(x)
+     d <- sort(eigen(x)$values, decreasing=TRUE)
+     dens <- log(1) - logdet(x) * sum(cumsum(d[1:(k-1)]))
+     if(log == FALSE) dens <- exp(dens)
+     return(dens)
      }
 
 ###########################################################################

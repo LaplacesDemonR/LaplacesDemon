@@ -104,8 +104,9 @@ Huang-Wand is recommended.
   \code{\link{dmvnc}},
   \code{\link{dmvtc}},
   \code{\link{dsiw}},
-  \code{\link{dwishart}}, and
-  \code{\link{dwishartc}}.
+  \code{\link{dwishart}},
+  \code{\link{dwishartc}}, and
+  \code{\link{dyangburgerc}}.
 }
 \examples{
 library(LaplacesDemon)

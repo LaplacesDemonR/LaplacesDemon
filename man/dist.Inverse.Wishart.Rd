@@ -69,10 +69,10 @@ freedom.
 
 Due to these limitations (lack of flexibility, and dependence between
 variance and correlation), alternative distributions have been
-developed. Alternative distributions that are available here include the
-inverse matrix gamma (\code{\link{dinvmatrixgamma}}), Scaled Inverse
-Wishart (\code{\link{dsiw}}) and Huang-Wand (\code{\link{dhuangwand}}).
-Huang-Wand is recommended.
+developed. Alternative distributions that are available here include
+Huang-Wand (\code{\link{dhuangwand}}), inverse matrix gamma
+(\code{\link{dinvmatrixgamma}}), Scaled Inverse Wishart
+(\code{\link{dsiw}}), and Yang-Burger (\code{\link{dyangburger}}).
 
 These functions are parameterized as per Gelman et al. (2004).
 }
@@ -94,8 +94,9 @@ These functions are parameterized as per Gelman et al. (2004).
   \code{\link{dinvmatrixgamma}},
   \code{\link{dinvwishartc}},
   \code{\link{dmvn}},
-  \code{\link{dsiw}}, and
-  \code{\link{dwishart}}.
+  \code{\link{dsiw}},
+  \code{\link{dwishart}}, and
+  \code{\link{dyangburger}}.
 }
 \examples{
 library(LaplacesDemon)

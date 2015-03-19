@@ -1,3 +1,6 @@
+2015-03-19 Distributions: Add Yang-Burger
+2015-03-18 Examples: Added Variable Selection: LASSO
+2015-03-17 LaplacesDemon: Added Debug argument
 2015-03-16 LICENSE: Updated year
 2015-03-16 interval: Now handles infinite values, from Richard Hermanson 
            on GitHub, Pull request 21
