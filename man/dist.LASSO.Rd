@@ -45,8 +45,8 @@ rlasso(n, sigma, tau, lambda, a=1, b=1)
       \eqn{\tau > 0}{tau > 0}
     \item Parameter 3: hyperhyperparameter global scale
       \eqn{\lambda > 0}{lambda > 0}
-    \item Parameter 4: hyperhyperparameter scale \eqn{a > 0}
-    \item Parameter 5: hyperhyperparameter scale \eqn{b > 0}
+    \item Parameter 4: hyperhyperhyperparameter scale \eqn{a > 0}
+    \item Parameter 5: hyperhyperhyperparameter scale \eqn{b > 0}
     \item Mean: \eqn{E(\theta)}{E(theta)}
     \item Variance: 
     \item Mode: 

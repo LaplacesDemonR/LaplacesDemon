@@ -1825,7 +1825,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                                    cat("\nWARNING: Stepping out the lower",
                                         "bound failed for",
                                         Data[["parm.names"]][j],
-                                        "in step", count, ".\n",
+                                        "in step", count+1, ".\n",
                                         file=LogFile, append=TRUE)
                               lower <- lower + w[j]
                               break}
@@ -1834,7 +1834,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                                    cat("\nWARNING: Stepping out the lower",
                                         "bound for", Data[["parm.names"]][j],
                                         "resulted in a non-finite LP",
-                                        "in step", count, ".\n",
+                                        "in step", count+1, ".\n",
                                         file=LogFile, append=TRUE)
                               lower <- lower + w[j]
                               break}
@@ -1853,7 +1853,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                                    cat("\nWARNING: Stepping out the upper",
                                         "bound failed for",
                                         Data[["parm.names"]][j],
-                                        "in step", count, ".\n",
+                                        "in step", count+1, ".\n",
                                         file=LogFile, append=TRUE)
                               upper <- upper - w[j]
                               break}
@@ -1862,7 +1862,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                                    cat("\nWARNING: Stepping out the upper",
                                         "bound for", Data[["parm.names"]][j],
                                         "resulted in a non-finite LP",
-                                        "in step", count, ".\n",
+                                        "in step", count+1, ".\n",
                                         file=LogFile, append=TRUE)
                               upper <- upper - w[j]
                               break}
@@ -2015,7 +2015,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                                    cat("\nWARNING: Stepping out the lower",
                                         "bound failed for",
                                         Data[["parm.names"]][j],
-                                        "in step", count, ".\n",
+                                        "in step", count+1, ".\n",
                                         file=LogFile, append=TRUE)
                                    lower <- lower + w[j]
                                    break}
@@ -2024,7 +2024,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                                    cat("\nWARNING: Stepping out the lower",
                                         "bound for", Data[["parm.names"]][j],
                                         "resulted in a non-finite LP",
-                                        "in step", count, ".\n",
+                                        "in step", count+1, ".\n",
                                         file=LogFile, append=TRUE)
                                    lower <- lower + w[j]
                                    break}
@@ -2045,7 +2045,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                                    cat("\nWARNING: Stepping out the upper",
                                         "bound failed for",
                                         Data[["parm.names"]][j],
-                                        "in step", count, ".\n",
+                                        "in step", count+1, ".\n",
                                         file=LogFile, append=TRUE)
                                    upper <- upper - w[j]
                                    break}
@@ -2054,7 +2054,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                                    cat("\nWARNING: Stepping out the upper",
                                         "bound for", Data[["parm.names"]][j],
                                         "resulted in a non-finite LP",
-                                        "in step", count, ".\n",
+                                        "in step", count+1, ".\n",
                                         file=LogFile, append=TRUE)
                                    upper <- upper - w[j]
                                    break}

@@ -1,12 +1,15 @@
-2015-03-19 Distributions: Add Yang-Burger
+2015-03-25 Distributions: Corrected Yang-Burger to Yang-Berger, as well as
+           eigenvalue part of density
+2015-03-22 Distributions: Added Generalized Pareto
+2015-03-19 Distributions: Added Yang-Burger
 2015-03-18 Examples: Added Variable Selection: LASSO
 2015-03-17 LaplacesDemon: Added Debug argument
 2015-03-16 LICENSE: Updated year
 2015-03-16 interval: Now handles infinite values, from Richard Hermanson 
            on GitHub, Pull request 21
 2015-03-16 Distributions: Added rzellner
-2015-03-14 Distributions: Added Huang-Wand, Matrix Gamma, 
-           Matrix Inverse Gamma, and Scaled Inverse Wishart
+2015-03-14 Distributions: Added Huang-Wand, Inverse Matrix Gamma, 
+           Matrix Gamma, and Scaled Inverse Wishart
 2015-03-13 Distributions: Added LASSO and Normal-Laplace
 2015-03-13 Examples: Added Multivariate Poisson Regression and PVAR(p)
 2015-03-13 Data: Added demonsessions

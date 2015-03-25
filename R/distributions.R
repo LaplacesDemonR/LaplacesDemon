@@ -336,6 +336,53 @@ rdirichlet <- function (n, alpha)
      }
 
 ###########################################################################
+# Generalized Pareto Distribution                                         #
+###########################################################################
+
+dgpd <- function(x, mu, sigma, xi, log=FALSE)
+     {
+     x <- as.vector(x)
+     mu <- as.vector(mu)
+     sigma <- as.vector(sigma)
+     xi <- as.vector(xi)
+     if(any(sigma <= 0)) stop("The sigma parameter must be positive.")
+     NN <- max(length(x), length(mu), length(sigma), length(xi))
+     x <- rep(x, len=NN); mu <- rep(mu, len=NN)
+     sigma <- rep(sigma, len=NN); xi <- rep(xi, len=NN)
+     xi.ge.0 <- which(xi >= 0)
+     xi.lt.0 <- which(xi < 0)
+     if(any(mu > x) |
+     any(mu[xi.lt.0] < x[xi.lt.0] + sigma[xi.lt.0] / xi[xi.lt.0]))
+     stop("x is outside of support.")
+     z <- (x - mu) / sigma
+     xi0 <- which(xi == 0)
+     xi1 <- which(xi != 0)
+     dens <- rep(NA, NN)
+     dens[xi0] <- -z[xi0] - log(sigma[xi0])
+     dens[xi1] <- log(1/sigma[xi1]) + log(1 + xi[xi1] *
+     z[xi1]) * (-1/xi[xi1] - 1)
+     if(log == FALSE) dens <- exp(dens)
+     return(dens)
+     }
+rgpd <- function(n, mu, sigma, xi)
+     {
+     mu <- as.vector(mu)
+     sigma <- as.vector(sigma)
+     xi <- as.vector(xi)
+     if(any(sigma <= 0)) stop("The sigma parameter must be non-negative.")
+     mu <- rep(mu, len=n); sigma <- rep(sigma, len=n)
+     xi <- rep(xi, len=n)
+     x <- rep(NA,n)
+     u <- runif(n, min=0.001)
+     xi0 <- which(xi == 0)
+     xi1 <- which(xi != 0)
+     x[xi0] <- mu[xi0] - sigma[xi0] * log(u[xi0])
+     x[xi1] <- mu[xi1] + sigma[xi1] *
+     (u[xi1]^(-xi[xi1]) - 1) / xi[xi1]
+     return(x)
+     }
+
+###########################################################################
 # Generalized Poisson                                                     #
 ###########################################################################
 
@@ -2486,31 +2533,29 @@ rwishartc <- function(nu, S)
      }
 
 ###########################################################################
-# Yang-Burger Distribution                                                #
+# Yang-Berger Distribution                                                #
 ###########################################################################
 
-dyangburger <- function(x, log=FALSE)
+dyangberger <- function(x, log=FALSE)
      {
      if(missing(x)) stop("Matrix x is a required argument.")
      if(!is.matrix(x)) x <- as.matrix(x)
      x <- as.symmetric.matrix(x)
      if(!is.positive.definite(x))
           stop("Matrix x is not positive-definite.")
-     k <- ncol(x)
-     d <- sort(eigen(x)$values, decreasing=TRUE)
-     dens <- log(1) - logdet(x) * sum(cumsum(d[1:(k-1)]))
+     d <- sort(eigen(x)$values)
+     dens <- log(1) - logdet(x) * prod(diff(d))
      if(log == FALSE) dens <- exp(dens)
      return(dens)
      }
-dyangburgerc <- function(x, log=FALSE)
+dyangbergerc <- function(x, log=FALSE)
      {
      if(missing(x))
           stop("Upper triangular matrix x is a required argument.")
      if(!is.matrix(x)) x <- as.matrix(x)
      x <- t(x) %*% x
-     k <- ncol(x)
-     d <- sort(eigen(x)$values, decreasing=TRUE)
-     dens <- log(1) - logdet(x) * sum(cumsum(d[1:(k-1)]))
+     d <- sort(eigen(x)$values)
+     dens <- log(1) - logdet(x) * prod(diff(d))
      if(log == FALSE) dens <- exp(dens)
      return(dens)
      }
