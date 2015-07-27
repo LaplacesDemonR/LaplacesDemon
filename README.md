@@ -16,7 +16,5 @@ Using the 'devtools' package:
 
     install.packages("devtools")
     library(devtools)
-    install_github("Statisticat/LaplacesDemon")
-
-To install the latest official version, see [Bayesian-Inference.com/SoftwareDownload](http://www.bayesian-inference.com/softwaredownload).
+    install_github("ecbrown/LaplacesDemon")
 
