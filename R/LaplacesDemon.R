@@ -7333,7 +7333,7 @@ LaplacesDemon <- function(Model, Data, Initial.Values, Covar=NULL,
                          if(R > Bounds[[b]][2]) R <- Bounds[[b]][2]
                          ### Rejection Sampling
                          repeat {
-                              prop[j] <- sample.int(L:R,1)
+                              prop[j] <- sample(L:R,1)
                               Mo1 <- try(Model(prop, Data),
                                    silent=!Debug[["DB.Model"]])
                               if(inherits(Mo1, "try-error")) {
