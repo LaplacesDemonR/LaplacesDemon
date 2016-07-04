@@ -425,3 +425,22 @@ S3method("summary","laplace.ppc")
 S3method("summary","miss")
 S3method("summary","pmc.ppc")
 S3method("summary","vb.ppc")
+importFrom("grDevices", "col2rgb", "colorRampPalette", "dev.off",
+             "heat.colors", "palette", "pdf", "rgb")
+  importFrom("graphics", "abline", "axis", "barplot", "boxplot",
+             "dotchart", "hist", "image", "layout", "legend", "lines",
+             "panel.smooth", "par", "plot", "plot.new", "plot.window",
+             "points", "polygon", "rect", "segments", "smoothScatter",
+             "strwidth", "symbols", "text")
+  importFrom("stats", "ARMAacf", "Gamma", "acf", "aggregate", "approx",
+             "ar", "ar.yw", "as.dist", "chisq.test", "complete.cases",
+             "cor", "cov", "cov.wt", "cutree", "dbeta", "dbinom",
+             "density", "dexp", "dgamma", "dist", "dnorm", "ecdf", "fft",
+             "glm", "hclust", "integrate", "ks.test", "lm", "lowess",
+             "median", "optim", "optimize", "pbinom", "pgamma", "pnorm",
+             "predict", "pt", "qbinom", "qf", "qgamma", "qnorm", "qt",
+             "quantile", "rbeta", "rbinom", "rchisq", "residuals",
+             "rexp", "rgamma", "rmultinom", "rnorm", "rt", "runif", "sd",
+             "spline", "start", "ts", "uniroot", "var")
+  importFrom("utils", "capture.output", "count.fields", "head",
+             "object.size", "tail")
