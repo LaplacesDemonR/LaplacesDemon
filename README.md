@@ -16,5 +16,5 @@ Using the 'devtools' package:
 
     install.packages("devtools")
     library(devtools)
-    install_github("ecbrown/LaplacesDemon")
+    install_github("LaplacesDemonR/LaplacesDemon")
 
