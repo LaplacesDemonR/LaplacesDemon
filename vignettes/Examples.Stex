@@ -5979,7 +5979,7 @@ MyData <- list(J=J, PGF=PGF, X=X, mon.names=mon.names, \\
 \code{Initial.Values <- c(rep(0,J), 1, 5)}
 
 \section{Seemingly Unrelated Regression (SUR)} \label{sur}
-The following data was used by \citet{zellner62} when introducing the Seemingly Unrelated Regression methodology. This model uses the Yang-Burger prior distribution for the precision matrix of a multivariate normal distribution.
+The following data was used by \citet{zellner62} when introducing the Seemingly Unrelated Regression methodology. This model uses the Yang-Berger prior distribution for the precision matrix of a multivariate normal distribution.
 \subsection{Form}
 $$\textbf{Y}_{t,k} \sim \mathcal{N}_K(\mu_{t,k}, \Omega^{-1}), \quad t=1,\dots,T, \quad k=1,\dots,K$$
 $$\mu_{1,t} = \alpha_1 + \alpha_2 \textbf{X}_{t-1,1} + \alpha_3 \textbf{X}_{t-1,2}, \quad t=2,\dots,T$$
@@ -6032,7 +6032,7 @@ MyData <- list(J=J, PGF=PGF, T=T, Y=Y, CG=CG, CW=CW, IG=IG, IW=IW, \\
 \hspace*{0.27 in} \#\#\# Log-Prior \\
 \hspace*{0.27 in} alpha.prior <- sum(dnormv(alpha, 0, 1000, log=TRUE)) \\
 \hspace*{0.27 in} beta.prior <- sum(dnormv(beta, 0, 1000, log=TRUE)) \\
-\hspace*{0.27 in} U.prior <- dyangburgerc(U, log=TRUE) \\
+\hspace*{0.27 in} U.prior <- dyangbergerc(U, log=TRUE) \\
 \hspace*{0.27 in} \#\#\# Log-Likelihood \\
 \hspace*{0.27 in} mu <- Data$Y \\
 \hspace*{0.27 in} mu[-1,1] <- alpha[1] + alpha[2]*Data$CG[-Data$T] + \\

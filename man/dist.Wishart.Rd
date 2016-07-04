@@ -81,8 +81,8 @@ between variance and correlation, the Wishart distribution does not
 have this dependency.
 
 The matrix gamma (\code{\link{dmatrixgamma}}) distribution is a more
-general version of the Wishart distribution, and the Yang-Burger
-(\code{\link{dyangburger}}) distribution is an alterative that is a
+general version of the Wishart distribution, and the Yang-Berger
+(\code{\link{dyangberger}}) distribution is an alterative that is a
 least informative prior (LIP).
 }
 \value{
@@ -102,7 +102,7 @@ least informative prior (LIP).
   \code{\link{dmvnp}},
   \code{\link{dwishartc}},
   \code{\link{Prec2Cov}}, and
-  \code{\link{dyangburger}}.
+  \code{\link{dyangberger}}.
 }
 \examples{
 library(LaplacesDemon)

@@ -106,7 +106,7 @@ Huang-Wand is recommended.
   \code{\link{dsiw}},
   \code{\link{dwishart}},
   \code{\link{dwishartc}}, and
-  \code{\link{dyangburgerc}}.
+  \code{\link{dyangbergerc}}.
 }
 \examples{
 library(LaplacesDemon)

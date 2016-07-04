@@ -72,7 +72,7 @@ variance and correlation), alternative distributions have been
 developed. Alternative distributions that are available here include
 Huang-Wand (\code{\link{dhuangwand}}), inverse matrix gamma
 (\code{\link{dinvmatrixgamma}}), Scaled Inverse Wishart
-(\code{\link{dsiw}}), and Yang-Burger (\code{\link{dyangburger}}).
+(\code{\link{dsiw}}), and Yang-Berger (\code{\link{dyangberger}}).
 
 These functions are parameterized as per Gelman et al. (2004).
 }
@@ -96,7 +96,7 @@ These functions are parameterized as per Gelman et al. (2004).
   \code{\link{dmvn}},
   \code{\link{dsiw}},
   \code{\link{dwishart}}, and
-  \code{\link{dyangburger}}.
+  \code{\link{dyangberger}}.
 }
 \examples{
 library(LaplacesDemon)
