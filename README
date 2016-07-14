@@ -1,0 +1,9 @@
+LaplacesDemon was initially developed and uploaded to CRAN by Byron Hall, most likely the owner of Statisticat, LLC. Later on, the maintainer of the package (or the name of the maintainer) changed to Martina Hall. 
+
+The last version available on CRAN from the original authors and maintainers (i.e., Byron or Martina Hall) was version 13.03.04, which was removed from CRAN on 2013-07-16 at the request of the maintainer. 
+
+After removal from CRAN, the development of LaplacesDemon continued for some time on GitHub, most likely still by the original author(s) which now only went by their company name Statisticat, LLC. The last commit by Statisticat for LaplacesDemon on GitHub was performed on 25. Mar 2015. After that Statisticat deleted their account on GitHub and ceased further development of the package. 
+
+As Statisticat could not be reached, neither by e-mail nor by snail-mail (the latter was attempted by Rasmus Bååth), Henrik Singmann took over as maintainer of LaplacesDemon in July 2016 with the goal to resubmit the package to CRAN. 
+
+To contribute to the development of LaplacesDemon or discuss the development please visit tits new repository: https://github.com/LaplacesDemonR/LaplacesDemon
