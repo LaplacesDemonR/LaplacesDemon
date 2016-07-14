@@ -2,7 +2,8 @@ Package: LaplacesDemon
 Version: 16.0.0
 Date: 2016-07-04
 Title: Complete Environment for Bayesian Inference
-Authors@R: c(person("Martina", "Hall", role = "aut"),
+Authors@R: c(person("Byron", "Hall", role = "aut"),
+    person("Martina", "Hall", role = "aut"),
     person(family="Statisticat, LLC", role = "aut"),
     person(given="Eric", family="Brown", role = "ctb"),
     person(given="Richard", family="Hermanson", role = "ctb"),
@@ -16,3 +17,4 @@ ByteCompile: TRUE
 Description: LaplacesDemon is a complete environment for Bayesian inference.
 License: MIT + file LICENSE
 URL: https://github.com/LaplacesDemonR/LaplacesDemon
+BugReports: https://github.com/LaplacesDemonR/LaplacesDemon/issues
