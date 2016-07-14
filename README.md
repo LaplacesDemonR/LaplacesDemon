@@ -30,4 +30,4 @@ After removal from CRAN, the development of `LaplacesDemon` continued for some t
 
 As Statisticat could not be reached, neither by e-mail nor by snail-mail (the latter was attempted by Rasmus Bååth), Henrik Singmann took over as maintainer of `LaplacesDemon` in July 2016 with the goal to resubmit the package to CRAN. 
 
-To contribute to the development of `LaplacesDemon` or discuss the development please visit tits new repository: https://github.com/LaplacesDemonR/LaplacesDemon
+To contribute to the development of `LaplacesDemon` or discuss the development please visit its new repository: https://github.com/LaplacesDemonR/LaplacesDemon
