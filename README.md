@@ -28,6 +28,9 @@ The last version available on CRAN from the original authors and maintainers (i.
 
 After removal from CRAN, the development of `LaplacesDemon` continued for some time on GitHub, most likely still by the original author(s) which now only went by their company name Statisticat, LLC. The last commit by Statisticat for `LaplacesDemon` on GitHub was performed on 25. Mar 2015. After that Statisticat deleted their account on GitHub and ceased further development of the package. 
 
-As Statisticat could not be reached, neither by e-mail nor by snail-mail (the latter was attempted by Rasmus Bååth), Henrik Singmann took over as maintainer of `LaplacesDemon` in July 2016 with the goal to resubmit the package to CRAN. 
+As Statisticat could not be reached, neither by e-mail nor by snail-mail (the latter was attempted by Rasmus Bååth), Henrik Singmann took over as maintainer of `LaplacesDemon` in July 2016 with the goal to resubmit the package to CRAN (as version 16.0.0). 
+
+Note that in order to resubmit the package to CRAN all links to the now defunct website of Statisticat (formerly: http://www.bayesian-inference.com) were replaced with links to versions of this website on the web archive (https://web.archive.org/web/20141224051720/http://www.bayesian-inference.com/index).
 
 To contribute to the development of `LaplacesDemon` or discuss the development please visit its new repository: https://github.com/LaplacesDemonR/LaplacesDemon
+
