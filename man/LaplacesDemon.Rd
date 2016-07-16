@@ -219,7 +219,7 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
 
   It is a goal for the documentation in the \pkg{LaplacesDemon} to be
   extensive. However, details of MCMC algorithms are best explored
-  online at \url{http://www.bayesian-inference.com/mcmc}, as well
+  online at \url{https://web.archive.org/web/20150206014000/http://www.bayesian-inference.com/mcmc}, as well
   as in the "LaplacesDemon Tutorial" vignette, and the "Bayesian
   Inference" vignette. Algorithm specifications (\code{Specs}) are
   listed below:
@@ -584,7 +584,6 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
   Methods for Diffusion Bridges". Stoch. Dyn., 8, p. 319--350.
 
   Boyles, L.B. and Welling, M. (2012). "Refractive Sampling".
-  \url{http://www.ics.uci.edu/~lboyles/publications.html}
 
   Craiu, R.V., Rosenthal, J., and Yang, C. (2009). "Learn From Thy
   Neighbor: Parallel-Chain and Regional Adaptive MCMC". \emph{Journal
@@ -698,7 +697,7 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
   International Conference on Machine Learning (ICML)}, p. 681--688.
 
 }
-\author{Statisticat, LLC \email{software@bayesian-inference.com},
+\author{Statisticat, LLC.,
      Silvere Vialet-Chabrand \email{silvere@vialet-chabrand.com}}
 \seealso{
   \code{\link{AcceptanceRate}},
@@ -895,6 +894,7 @@ print(Fit)
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,
 #     Covar=NULL, Iterations=1000, Status=100, Thinning=1,
 #     Algorithm="Gibbs", Specs=list(FC=FC, MWG=pos.sigma))
+
 
 #############################  Griddy-Gibbs  ##############################
 #Fit <- LaplacesDemon(Model, Data=MyData, Initial.Values,

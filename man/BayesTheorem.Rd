@@ -115,7 +115,7 @@ BayesTheorem(PrA, PrBA)
 
     For an introduction to model-based Bayesian inference, see the
     accompanying vignette entitled ``Bayesian Inference'' or
-    \url{http://www.bayesian-inference.com/bayesian}.
+    \url{https://web.archive.org/web/20150206004608/http://www.bayesian-inference.com/bayesian}.
 }
 \references{
   Bayes, T. and Price, R. (1763). "An Essay Towards Solving a Problem in
@@ -124,7 +124,7 @@ BayesTheorem(PrA, PrBA)
   \emph{Philosophical Transactions of the Royal Statistical Society of
   London}, 53, p. 370--418.
 }
-\author{Statisticat, LLC. \email{software@bayesian-inference.com}}
+\author{Statisticat, LLC.}
 \seealso{
   \code{\link{IterativeQuadrature}},
   \code{\link{LaplaceApproximation}},

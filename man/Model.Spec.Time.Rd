@@ -72,7 +72,7 @@ Model.Spec.Time(Model, Initial.Values, Data, n=1000)
   calling drop-in replacement functions from within the \code{Model}
   function, or re-writing the model function entirely in \code{C++}.
   For an introduction to including \code{C++} in \pkg{LaplacesDemon},
-  see \url{http://www.bayesian-inference.com/softwarearticlescppsugar}.
+  see \url{https://web.archive.org/web/20150227225556/http://www.bayesian-inference.com/softwarearticlescppsugar}.
 
   When a model specification function is computationally expensive,
   another approach to reduce run-time may be for the user to write
@@ -151,10 +151,11 @@ Model.Spec.Time(Model, Initial.Values, Data, n=1000)
   MCMC". \emph{Computational Statistics and Data Analysis}, 18,
   p. 349--367.
 }
-\author{Statisticat, LLC. \email{software@bayesian-inference.com}}
+\author{Statisticat, LLC.}
 \seealso{
   \code{\link{.C}},
   \code{\link{.Fortran}},
+
   \code{\link{apply}},
   \code{\link{BigData}},
   \code{\link{interval}},

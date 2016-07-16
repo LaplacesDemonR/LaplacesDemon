@@ -66,7 +66,7 @@
   samples, the user should experience a faster run-time.
 
   For more information on posterior predictive checks, see
-  \url{http://www.bayesian-inference.com/posteriorpredictivechecks}.
+  \url{https://web.archive.org/web/20150215050702/http://www.bayesian-inference.com/posteriorpredictivechecks}.
 }
 \value{
   This function returns an object of class \code{vb.ppc} (where
@@ -88,7 +88,7 @@
     posterior samples. Samples are obtained with the sampling importance
     resampling algorithm, \code{\link{SIR}}.}
 }
-\author{Statisticat, LLC. \email{software@bayesian-inference.com}}
+\author{Statisticat, LLC.}
 \seealso{
   \code{\link{SIR}} and
   \code{\link{VariationalBayes}}.

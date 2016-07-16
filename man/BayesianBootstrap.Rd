@@ -56,7 +56,7 @@ BayesianBootstrap(X, n=1000, Method="weights", Status=NULL)
   bootstrap violates the likelihood principle, because the evaluation of
   a statistic of interest depends on data sets other than the observed
   data set. For more information on the likelihood principle, see
-  \url{http://www.bayesian-inference.com/likelihood#likelihoodprinciple}.
+  \url{https://web.archive.org/web/20150213002158/http://www.bayesian-inference.com/likelihood#likelihoodprinciple}.
 
   The \code{BayesianBootstrap} function has many uses, including
   creating test statistics on the population data given the observed
@@ -77,7 +77,7 @@ BayesianBootstrap(X, n=1000, Method="weights", Status=NULL)
   Statistics}, 9(1), p. 130--134.
 }
 \author{Bogumil Kaminski, \email{bkamins@sgh.waw.pl} and
-  Statisticat, LLC. \email{software@bayesian-inference.com}}
+  Statisticat, LLC.}
 \seealso{
   \code{\link{ABB}},
   \code{\link{Hessian}},

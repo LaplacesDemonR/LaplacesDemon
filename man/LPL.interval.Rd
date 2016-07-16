@@ -94,7 +94,7 @@ LPL.interval(Prior, Posterior, prob=0.95, plot=FALSE, PDF=FALSE)
   within the \code{Model} specification function, the user must specify
   it for the \code{LPL.interval} function as well. A comparison of the
   quantile-based probability interval, HPD interval, and LPL interval is
-  available here: \url{http://www.bayesian-inference.com/credible}.
+  available here: \url{https://web.archive.org/web/20150214090353/http://www.bayesian-inference.com/credible}.
 }
 \value{
   A matrix is returned with one row and two columns. The row represents
@@ -111,7 +111,7 @@ LPL.interval(Prior, Posterior, prob=0.95, plot=FALSE, PDF=FALSE)
   Reference Approach". \emph{International Statistical Review}, 70,
   p. 351--372.
 }
-\author{Statisticat, LLC. \email{software@bayesian-inference.com}}
+\author{Statisticat, LLC.}
 \seealso{
   \code{\link{KLD}},
   \code{\link{p.interval}},

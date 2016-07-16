@@ -4,7 +4,7 @@
 \usage{data(demonsessions)}
 \description{
   These are the monthly number of user sessions at
-  \url{http://www.bayesian-inference.com} by continent. Additional data
+  \url{https://web.archive.org/web/20141224051720/http://www.bayesian-inference.com/index} by continent. Additional data
   may be added in the future.
 }
 \format{
@@ -20,5 +20,5 @@
       was not set, or is unknown.}
     }
 }
-\source{\url{http://www.bayesian-inference.com}}
+\source{\url{https://web.archive.org/web/20141224051720/http://www.bayesian-inference.com/index}}
 \keyword{datasets}

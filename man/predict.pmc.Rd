@@ -57,7 +57,7 @@
   samples, the user should experience a faster run-time.
 
   For more information on posterior predictive checks, see
-  \url{http://www.bayesian-inference.com/posteriorpredictivechecks}.
+  \url{https://web.archive.org/web/20150215050702/http://www.bayesian-inference.com/posteriorpredictivechecks}.
 }
 \value{
   This function returns an object of class \code{pmc.ppc} (where
@@ -71,7 +71,7 @@
     number of posterior samples.}
   \item{Deviance}{This is a vector of predictive deviance.}
 }
-\author{Statisticat, LLC. \email{software@bayesian-inference.com}}
+\author{Statisticat, LLC.}
 \seealso{
   \code{\link{PMC}}
 }

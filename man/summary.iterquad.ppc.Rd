@@ -51,7 +51,7 @@
   poorly) the model fits the data, or to assess discrepancies between
   the model and the data. For more information on posterior predictive
   checks, see
-  \url{http://www.bayesian-inference.com/posteriorpredictivechecks}.
+  \url{https://web.archive.org/web/20150215050702/http://www.bayesian-inference.com/posteriorpredictivechecks}.
 
   When \eqn{\textbf{y}}{y} is continuous and known, this function
   estimates the predictive concordance between \eqn{\textbf{y}}{y} and
@@ -270,7 +270,7 @@
   Discussion)". \emph{Journal of the Royal Statistical Society}, B 64,
   p. 583--639.
 }
-\author{Statisticat, LLC. \email{software@bayesian-inference.com}}
+\author{Statisticat, LLC.}
 \seealso{
   \code{\link{IterativeQuadrature}},
   \code{\link{predict.iterquad}}, and

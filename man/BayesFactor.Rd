@@ -78,7 +78,7 @@ BayesFactor(x)
 
   A table for the interpretation of the strength of evidence for Bayes
   factors is available at
-  \url{http://www.bayesian-inference.com/bayesfactors}.
+  \url{https://web.archive.org/web/20150214194051/http://www.bayesian-inference.com/bayesfactors}.
 
   Each Bayes factor, \code{B}, is the posterior odds in favor of the
   hypothesis divided by the prior odds in favor of the hypothesis, where
@@ -137,7 +137,7 @@ BayesFactor(x)
   \emph{Journal of the American Statistical Association}, 92,
   p. 648--655.
 }
-\author{Statisticat, LLC. \email{software@bayesian-inference.com}}
+\author{Statisticat, LLC.}
 \seealso{
   \code{\link{is.bayesfactor}},
   \code{\link{is.proper}},

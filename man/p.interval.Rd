@@ -110,7 +110,7 @@ p.interval(obj, HPD=TRUE, MM=TRUE, prob=0.95, plot=FALSE, PDF=FALSE, \dots)
   interval, but could be one- or two-tailed, whichever is more
   appropriate, like the HPD interval. A comparison of the quantile-based
   probability interval, HPD interval, and LPL interval is available
-  here: \url{http://www.bayesian-inference.com/credible}.
+  here: \url{https://web.archive.org/web/20150214090353/http://www.bayesian-inference.com/credible}.
 }
 \value{
   A matrix is returned with rows corresponding to the parameters (or
@@ -126,7 +126,7 @@ p.interval(obj, HPD=TRUE, MM=TRUE, prob=0.95, plot=FALSE, PDF=FALSE, \dots)
   Bayesian Approach to Interval Estimation". \emph{Sociedad de
   Estadistica e Investigacion Operativa}, 14(2), p. 317--384.
 }
-\author{Statisticat, LLC \email{software@bayesian-inference.com}}
+\author{Statisticat, LLC}
 \seealso{
   \code{\link{is.multimodal}},
   \code{\link{IterativeQuadrature}},

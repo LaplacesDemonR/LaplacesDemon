@@ -3,7 +3,7 @@ if(!exists('meta') || is.null(meta)) meta <- packageDescription("LaplacesDemon")
 year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", meta$Date)
 vers <- paste("R package version", meta$Version)
 author <- "Statisticat, LLC." #as.personList(meta$Author)
-url <- "http://www.bayesian-inference.com/software"
+url <- "https://web.archive.org/web/20150206004624/http://www.bayesian-inference.com/software"
 
 citHeader(sprintf("To cite package '%s' in publications use:", meta$Package))
 
