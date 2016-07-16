@@ -80,8 +80,8 @@
   \tabular{ll}{
     Package: \tab LaplacesDemon\cr
     Type: \tab Package\cr
-    Version: \tab 15.03.19\cr
-    Date: \tab 2015-03-19\cr
+    Version: \tab 16.00\cr
+    Date: \tab 2016-07-16\cr
     License: \tab MIT\cr
   }
   The goal of LaplacesDemon, often referred to as LD, is to provide a
@@ -101,11 +101,11 @@
   There are many plans for the growth of this package, and many are
   long-term plans such as to cotinuously stockpile distributions,
   examples, samplers, and optimization algorithms. Contributions to this
-  package are welcome.
+  package are welcome at \url{https://github.com/LaplacesDemonR/LaplacesDemon}.
 
   The main function in this package is the \code{LaplacesDemon}
   function, and the best place to start is probably with the
   LaplacesDemon Tutorial vignette.
   }
-\author{Statisticat, LLC. \email{software@bayesian-inference.com}}
+\author{Statisticat, LLC.}
 \keyword{package}
