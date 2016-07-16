@@ -15,7 +15,7 @@
 \Shorttitle{LaplacesDemon} %% a short title (if necessary)
 
 \Abstract{
-\pkg{LaplacesDemon}, also referred to as LD, is a contributed \proglang{R} package for Bayesian inference, and is freely available at \url{http://www.bayesian-inference.com/software}. The user may build any kind of probability model with a user-specified model function. The model may be updated with iterative quadrature, Laplace Approximation, MCMC, PMC, or variational Bayes. After updating, a variety of facilities are available, including MCMC diagnostics, posterior predictive checks, and validation. Hopefully, \pkg{LaplacesDemon} is generalizable and user-friendly for Bayesians, especially Laplacians.
+\pkg{LaplacesDemon}, also referred to as LD, is a contributed \proglang{R} package for Bayesian inference, and is freely available at \url{https://web.archive.org/web/20141224051720/http://www.bayesian-inference.com/indexe}. The user may build any kind of probability model with a user-specified model function. The model may be updated with iterative quadrature, Laplace Approximation, MCMC, PMC, or variational Bayes. After updating, a variety of facilities are available, including MCMC diagnostics, posterior predictive checks, and validation. Hopefully, \pkg{LaplacesDemon} is generalizable and user-friendly for Bayesians, especially Laplacians.
 }
 \Keywords{Bayesian, Big Data, High Performance Computing, HPC, Importance Sampling, Iterative Quadrature, Laplace Approximation, LaplacesDemon, LaplacesDemonCpp, Markov chain Monte Carlo, MCMC, Metropolis, Optimization, Parallel, PMC, R, Rejection Sampling, Variational Bayes}
 \Plainkeywords{bayesian, big data, high performance computing, hpc, importance sampling, iterative quadrature, laplace approximation, laplacesdemon, laplacesdemoncpp, markov chain monte carlo, mcmc, metropolis, optimization, parallel, pmc, r, rejection sampling, variational bayes}
@@ -32,8 +32,8 @@
 \Address{
  Statisticat, LLC\\
  Hot Springs, SD\\
- E-mail: \email{software@bayesian-inference.com}\\
- URL: \url{http://www.bayesian-inference.com/software}
+ E-mail: defunct\\
+ URL: \url{https://web.archive.org/web/20141224051720/http://www.bayesian-inference.com/index}
 }
 
 %% for those who use Sweave please include the following line (with % symbols):
@@ -52,13 +52,13 @@ In 1814, Laplace published his ``Essai Philosophique sur les Probabilites'', whi
 
 The `intellect' has been referred to by future biographers as Laplace's Demon. In this quote, Laplace expresses his philosophical belief in hard determinism and his wish for a computational machine that is capable of estimating the universe.
 
-This article is an introduction to an \proglang{R} \citep{rdct:r} package called \pkg{LaplacesDemon} \citep{r:laplacesdemon}, which was designed without consideration for hard determinism, but instead with a lofty goal toward facilitating high-dimensional Bayesian (or Laplacian) inference\footnote{Even though the \pkg{LaplacesDemon} package is dedicated to Bayesian inference, frequentist inference may be used instead with the same functions by omitting the prior distributions and maximizing the likelihood.}, posing as its own intellect that is capable of impressive analysis. The \pkg{LaplacesDemon} \proglang{R} package is often referred to as LD. This article guides the user through installation, data, specifying a model, initial values, updating a numerical approximation algorithm, summarizing and plotting output, posterior predictive checks, general suggestions, discusses independence and observability, high performance computing, covers details of the algorithms, and introduces \url{www.bayesian-inference.com}.
+This article is an introduction to an \proglang{R} \citep{rdct:r} package called \pkg{LaplacesDemon} \citep{r:laplacesdemon}, which was designed without consideration for hard determinism, but instead with a lofty goal toward facilitating high-dimensional Bayesian (or Laplacian) inference\footnote{Even though the \pkg{LaplacesDemon} package is dedicated to Bayesian inference, frequentist inference may be used instead with the same functions by omitting the prior distributions and maximizing the likelihood.}, posing as its own intellect that is capable of impressive analysis. The \pkg{LaplacesDemon} \proglang{R} package is often referred to as LD. This article guides the user through installation, data, specifying a model, initial values, updating a numerical approximation algorithm, summarizing and plotting output, posterior predictive checks, general suggestions, discusses independence and observability, high performance computing, covers details of the algorithms, and introduces \url{https://web.archive.org/web/20141224051720/http://www.bayesian-inference.com/index}.
 
 Herein, it is assumed that the reader has basic familiarity with Bayesian inference, numerical approximation, and \proglang{R}. If any part of this assumption is violated, then suggested sources include the vignette entitled ``Bayesian Inference'' that comes with the \pkg{LaplacesDemon} package, \citet{robert07}, and \citet{crawley07}.
 
 \section{Installation} \label{installation}
 
-To obtain the \pkg{LaplacesDemon} package, simply download the source code from \url{http://www.bayesian-inference.com/softwaredownload}, open \proglang{R}, and install the \pkg{LaplacesDemon} package from source:
+To obtain the \pkg{LaplacesDemon} package, simply download the source code from \url{https://web.archive.org/web/20141224051720/http://www.bayesian-inference.com/softwaredownload}, open \proglang{R}, and install the \pkg{LaplacesDemon} package from source:
 
 %%\SweaveOpts{echo=TRUE,results=verbatim,fig=FALSE}
 \begin{Scode}{eval=FALSE}
@@ -862,7 +862,7 @@ This tutorial introduces only briefly the basics of Markov chain properties. A M
 
 The non-Markovian chains of an adaptive algorithm that adapt based on the history of the chains should have two conditions: containment and diminishing adaptation. Containment is difficult to implement and is not currently programmed into \pkg{LaplacesDemon}. The condition of diminishing adaptation is fulfilled when the amount of adaptation diminishes with the length of the chain. Diminishing adaptation can be achieved when the proposal variances become smaller or by decreasing the probability of performing adaptations with more iterations \citep{roberts07}. Trace-plots of the output of the \code{LaplacesDemon} function automatically include plots of the absolute differences in proposal variance with each adaptation for adaptive algorithms, and the \code{Consort} function will try to suggest a different adaptive algorithm when these absolute differences are not trending downward.
 
-Descriptions of the MCMC algorithms in the \pkg{LaplacesDemon} package are available online at \url{http://www.bayesian-inference.com/mcmc}.
+Descriptions of the MCMC algorithms in the \pkg{LaplacesDemon} package are available online at \url{https://web.archive.org/web/20150227012508/http://www.bayesian-inference.com/mcmc}.
 
 \subsubsection{Sampler Selection} \label{samplerselection}
 
@@ -920,27 +920,27 @@ The \code{Salimans2} algorithm is the second algorithm of \citet{salimans13} is 
 
 \section{Bayesian-Inference.com} \label{bayesianinferencecom}
 
-Many additional resources may be found at \url{http://www.bayesian-inference.com}, as well as other places online:
+Many additional resources may be found at \url{https://web.archive.org/web/20141224051720/http://www.bayesian-inference.com/index}, as well as other places online:
 
 \begin{itemize}
-\item A Bayesian forum is available at \url{http://www.bayesian-inference.com/forum} to discuss all things Bayesian, including \pkg{LaplacesDemon}.
-\item Bayesian information is being compiled under \url{http://www.bayesian-inference.com/bayesian}.
-\item Bayesian news is aggregated daily as ``The Bayesian Bulletin'': \url{http://www.bayesian-inference.com/newsbayesian}.
-\item Consulting services are available here: \url{http://www.bayesian-inference.com/consulting}.
-\item C++ examples of model functions: \url{http://www.bayesian-inference.com/cpp/LaplacesDemonExamples.txt}.
-\item MCMC algorithms are described at \url{http://www.bayesian-inference.com/mcmc}.
-\item Merchandise may be found at \url{http://www.bayesian-inference.com/merchandise}, such as \pkg{LaplacesDemon} t-shirts, coffee mugs, and more.
-\item \pkg{LaplacesDemon} and \pkg{LaplacesDemonCpp} development is public and occurs at \url{https://github.com/Statisticat/LaplacesDemon} and \url{https://github.com/Statisticat/LaplacesDemonCpp}, respectively.
-\item \pkg{LaplacesDemon} screencasts are available at \url{http://www.bayesian-inference.com/softwarescreencasts}.
-\item \pkg{LaplacesDemon} updates are announced at \url{https://plus.google.com/+Bayesian-inference}.
-\item Opinion polls for Bayesian inference and \pkg{LaplacesDemon} are here: \url{http://www.bayesian-inference.com/polls}.
-\item Technical support services are available at \url{http://www.bayesian-inference.com/support}.
-\item And, the home of \pkg{LaplacesDemon} is \url{http://www.bayesian-inference.com/software}.
+%\item A Bayesian forum is available at \url{http://www.bayesian-inference.com/forum} to discuss all things Bayesian, including \pkg{LaplacesDemon}.
+\item Bayesian information is being compiled under \url{https://web.archive.org/web/20150206004608/http://www.bayesian-inference.com/bayesian}.
+%\item Bayesian news is aggregated daily as ``The Bayesian Bulletin'': \url{http://www.bayesian-inference.com/newsbayesian}.
+%\item Consulting services are available here: \url{http://www.bayesian-inference.com/consulting}.
+\item C++ examples of model functions: \url{https://web.archive.org/web/20140513065103/http://www.bayesian-inference.com/cpp/LaplacesDemonExamples.txt}.
+\item MCMC algorithms are described at \url{https://web.archive.org/web/20150430054005/http://www.bayesian-inference.com/mcmc}.
+\item Merchandise may be found at \url{http://www.zazzle.com/statisticat}, such as \pkg{LaplacesDemon} t-shirts, coffee mugs, and more.
+\item \pkg{LaplacesDemon} and \pkg{LaplacesDemonCpp} development is public and occurs at \url{https://github.com/LaplacesDemonR/LaplacesDemon} and \url{https://github.com/LaplacesDemonR/LaplacesDemonCpp}, respectively.
+%\item \pkg{LaplacesDemon} screencasts are available at \url{http://www.bayesian-inference.com/softwarescreencasts}.
+%\item \pkg{LaplacesDemon} updates are announced at \url{https://plus.google.com/+Bayesian-inference}.
+%\item Opinion polls for Bayesian inference and \pkg{LaplacesDemon} are here: \url{http://www.bayesian-inference.com/polls}.
+%\item Technical support services are available at \url{http://www.bayesian-inference.com/support}.
+\item And, the home of \pkg{LaplacesDemon} is \url{https://web.archive.org/web/20150430054143/http://www.bayesian-inference.com/software}.
 \end{itemize}
 
 \section{Conclusion} \label{conclusion}
 
-The \pkg{LaplacesDemon} package is a significant contribution toward Bayesian inference in \proglang{R}. In turn, contributions toward the development of \pkg{LaplacesDemon} are welcome. Please visit \url{https://github.com/Statisticat/LaplacesDemon} to contribute to development or report software bugs by opening an issue, or send an email to \email{software@bayesian-inference.com} with constructive criticism.
+The \pkg{LaplacesDemon} package is a significant contribution toward Bayesian inference in \proglang{R}. In turn, contributions toward the development of \pkg{LaplacesDemon} are welcome. Please visit \url{https://github.com/LaplacesDemonR} to contribute to development or report software bugs by opening an issue.
 
 \bibliography{References}
 

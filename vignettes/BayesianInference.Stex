@@ -30,8 +30,8 @@
 \Address{
  Statisticat, LLC\\
  Farmington, CT\\
- E-mail: \email{software@bayesian-inference.com}\\
- URL: \url{http://www.bayesian-inference.com/software}
+ E-mail: is defunct\\
+ URL: \url{https://web.archive.org/web/20141224051720/http://www.bayesian-inference.com/index}
 }
 
 %% for those who use Sweave please include the following line (with % symbols):
@@ -202,7 +202,7 @@ A popular objective Bayeisan criticism against WIPs is that there is no precise,
 
 A vague prior, also called a diffuse prior\footnote{Some sources refer to diffuse priors as flat priors.}, is difficult to define, after considering WIPs. The first formal move from vague to weakly informative priors is \citet{lambert05}. After conjugate priors were introduced \citep{raiffa61}, most applied Bayesian modeling has used vague priors, parameterized to approximate the concept of uninformative priors (better considered as least informative priors, see section \ref{lips}). For more information on conjugate priors, see section \ref{conjugacy}.
 
-Typically, a vague prior is a conjugate prior with a large scale parameter. However, vague priors can pose problems when the sample size is small. Most problems with vague priors and small sample size are associated with scale, rather than location, parameters. The problem can be particularly acute in random-effects models, and the term random-effects is used rather loosely here to imply exchangeable\footnote{For more information on exchangeability, see \url{http://www.bayesian-inference.com/exchangeability}.}, hierarchical, and multilevel structures. A vague prior is defined here as usually being a conjugate prior that is intended to approximate an uninformative prior (or actually, a least informative prior), and without the goals of regularization and stabilization.
+Typically, a vague prior is a conjugate prior with a large scale parameter. However, vague priors can pose problems when the sample size is small. Most problems with vague priors and small sample size are associated with scale, rather than location, parameters. The problem can be particularly acute in random-effects models, and the term random-effects is used rather loosely here to imply exchangeable\footnote{For more information on exchangeability, see \url{https://web.archive.org/web/20150418134644/http://www.bayesian-inference.com/exchangeability}.}, hierarchical, and multilevel structures. A vague prior is defined here as usually being a conjugate prior that is intended to approximate an uninformative prior (or actually, a least informative prior), and without the goals of regularization and stabilization.
 
 \subsection{Least Informative Priors} \label{lips}
 
@@ -619,7 +619,7 @@ Following is a short list of advantages of frequentist inference over Bayesian i
 \item Frequentist models optimized with MLE have much shorter run-times than Bayesian models via MCMC or PMC. This is not a difference between frequentist and Bayesian methods, but is due to optimization vs. sampling algorithms. MCMC has a longer run-time, whether it is Bayesian or frequentist. Laplace Approximation uses optimization algorithms, and yields run-times similar to frequentist MLE. If frequentist MLE and Bayesian Laplace Approximation seem to have very different run-times, it is probably due to differences between a method-specific algorithm vs. a general-purpose algorithm.
 \end{itemize}
 
-As they say, it pays to go Bayes. Please send an email to \email{software@bayesian-inference.com} with any questions or concerns about this article.
+As they say, it pays to go Bayes. 
 
 \bibliography{References}
 

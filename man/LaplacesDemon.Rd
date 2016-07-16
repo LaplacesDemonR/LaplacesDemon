@@ -134,9 +134,8 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     then consider setting \code{DB.Model=FALSE} for cleaner output and
     faster sampling. If the Model specification function is not faulty
     and there is a bug in \code{LaplacesDemon}, then please report it
-    by sending an email to \email{software@bayesian-inference.com}.
-    Please place "Bug in LaplacesDemon" in the subject, and the body of
-    the email should describe the bug and include reproducible code.}
+    with a bug description and reproducible code on 
+    \url{https://github.com/LaplacesDemonR/LaplacesDemon/issues}.}
   \item{LogFile}{This argument is used to specify a log file name in
     quotes in the working directory as a destination, rather than the
     console, for the output messages of \code{cat} and \code{stop}

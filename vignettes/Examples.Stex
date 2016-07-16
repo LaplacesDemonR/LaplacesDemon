@@ -31,27 +31,27 @@
 \Address{
   Statisticat, LLC\\
   Farmington, CT\\
-  E-mail: \email{software@bayesian-inference.com}\\
-  URL: \url{http://www.bayesian-inference.com/software}
+  E-mail: defunct\\
+  URL: \url{https://web.archive.org/web/20141224051720/http://www.bayesian-inference.com/index}
 }
 
 %% for those who use Sweave please include the following line (with % symbols):
 %% need no \usepackage{Sweave.sty}
 
 \begin{document}
-\pkg{LaplacesDemon} \citep{r:laplacesdemon}, often referred to as LD, is an \proglang{R} package that is available at \url{http://www.bayesian-inference.com/software}. \pkg{LaplacesDemonCpp} is an extension package that uses \proglang{C++}. A formal introduction to \pkg{LaplacesDemon} is provided in an accompanying vignette entitled ``\pkg{LaplacesDemon} Tutorial'', and an introduction to Bayesian inference is provided in the ``Bayesian Inference'' vignette.
+\pkg{LaplacesDemon} \citep{r:laplacesdemon}, often referred to as LD, is an \proglang{R} package that is available at \url{https://web.archive.org/web/20150430054143/http://www.bayesian-inference.com/software}. \pkg{LaplacesDemonCpp} is an extension package that uses \proglang{C++}. A formal introduction to \pkg{LaplacesDemon} is provided in an accompanying vignette entitled ``\pkg{LaplacesDemon} Tutorial'', and an introduction to Bayesian inference is provided in the ``Bayesian Inference'' vignette.
 
 The purpose of this document is to provide users of the \pkg{LaplacesDemon} package with examples of a variety of Bayesian methods. It is also a testament to the diverse applicability of \pkg{LaplacesDemon} to Bayesian inference.
 
 To conserve space, the examples are not worked out in detail, and only the minimum of necessary materials is provided for using the various methodologies. Necessary materials include the form expressed in notation, data (which is often simulated), the \code{Model} function, and initial values. The provided data, model specification, and initial values may be copy/pasted into an \proglang{R} file and updated with the \code{LaplacesDemon} or (usually) \code{LaplaceApproximation} functions. Although many of these examples update quickly, some examples are computationally intensive.
 
-All examples are provided in R code, but the model specification function can be in another language. A goal is to provide these example model functions in C++ as well, and some are now available at \url{www.bayesian-inference.com/cpp/LaplacesDemonExamples.txt}.
+All examples are provided in R code, but the model specification function can be in another language. A goal is to provide these example model functions in C++ as well, and some are now available at \url{https://web.archive.org/web/20140513065103/http://www.bayesian-inference.com/cpp/LaplacesDemonExamples.txt}.
 
 Initial values are usually hard-coded in the examples, though the Parameter-Generating Function (PGF) is also specified. It is recommended to generate initial values with the \code{GIV} function according to the user-specified \code{PGF}.
 
-Notation in this vignette follows these standards: Greek letters represent parameters, lower case letters represent indices, lower case bold face letters represent scalars or vectors, probability distributions are represented with calligraphic font, upper case letters represent index limits, and upper case bold face letters represent matrices. More information on notation is available at \url{http://www.bayesian-inference.com/notation}.
+Notation in this vignette follows these standards: Greek letters represent parameters, lower case letters represent indices, lower case bold face letters represent scalars or vectors, probability distributions are represented with calligraphic font, upper case letters represent index limits, and upper case bold face letters represent matrices. More information on notation is available at \url{https://web.archive.org/web/20150501205317/http://www.bayesian-inference.com/notation}.
 
-This vignette will grow over time as examples of more methods become included. Contributed examples are welcome. Please send contributed examples or discovered errors in a similar format in an email to \email{software@bayesian-inference.com} for review and testing. All accepted contributions are, of course, credited.
+This vignette may grow over time as examples of more methods become included. Contributed examples are welcome via \url{https://github.com/LaplacesDemonR/LaplacesDemon/issues}. All accepted contributions are, of course, credited.
 
 \begin{center} \Large{\textbf{Contents}} \end{center}
 \begin{itemize}
