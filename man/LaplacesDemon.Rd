@@ -179,7 +179,7 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
     \item Adaptive Metropolis (AM)
     \item Adaptive Metropolis-within-Gibbs (AMWG)
     \item Adaptive-Mixture Metropolis (AMM)
-    \item Affine-Invariant Ensemble Sampler (AIEC)
+    \item Affine-Invariant Ensemble Sampler (AIES)
     \item Componentwise Hit-And-Run Metropolis (CHARM)
     \item Delayed Rejection Adaptive Metropolis (DRAM)
     \item Delayed Rejection Metropolis (DRM)
