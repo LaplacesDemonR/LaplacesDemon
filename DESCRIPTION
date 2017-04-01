@@ -1,6 +1,5 @@
 Package: LaplacesDemon
-Version: 16.0.1
-Date: 2016-07-04
+Version: 16.1.0
 Title: Complete Environment for Bayesian Inference
 Authors@R: c(person("Byron", "Hall", role = "aut"),
     person("Martina", "Hall", role = "aut"),
@@ -8,6 +7,7 @@ Authors@R: c(person("Byron", "Hall", role = "aut"),
     person(given="Eric", family="Brown", role = "ctb"),
     person(given="Richard", family="Hermanson", role = "ctb"),
     person(given="Emmanuel", family="Charpentier", role = "ctb"),
+    person(given="Daniel", family="Heck", role = "ctb"),
     person(given="Henrik", family="Singmann", 
     email="singmann+LaplacesDemon@gmail.com", role="cre"))
 Depends: R (>= 3.0.0)
