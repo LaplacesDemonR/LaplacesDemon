@@ -494,7 +494,8 @@ dhalft <- function(x, scale=25, nu=1, log=FALSE)
      NN <- max(length(x), length(scale), length(nu))
      x <- rep(x, len=NN); scale <- rep(scale, len=NN)
      nu <- rep(nu, len=NN)
-     dens <- (-(nu+1)/2)*log(1 + (1/nu)*(x/scale)*(x/scale))
+     dens <- log(2) -log(scale) + lgamma((nu + 1)/2) - lgamma(nu/2) -
+       .5*log(pi*nu) - (nu + 1)/2 * log(1 + (1/nu) * (x/scale) * (x/scale))
      if(log == FALSE) dens <- exp(dens)
      return(dens)
      }
