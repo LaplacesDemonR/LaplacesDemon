@@ -7,3 +7,5 @@
 ^\.Rproj\.user$
 development.R
 README.md
+.travis.yml
+
