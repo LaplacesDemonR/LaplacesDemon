@@ -41,7 +41,7 @@
     regular expressions, so beware of meta-characters, though these are
     acceptable: ".", "[", and "]".}
   \item{FileName}{
-    This argument accepts a string and save the plot under the specified name. If \code{PDF=FALSE} this argument in unused. By default, \code{FileName = paste0("laplacesDemon-plot_", format(Sys.time(), "%Y-%m-%d_%T"), ".pdf")}
+    This argument accepts a string and save the plot under the specified name. If \code{PDF=FALSE} this argument in unused. By default, \code{FileName = paste0("laplacesDemon-plot_", format(Sys.time(), "yyyy-mm-dd_h:m:s"), ".pdf")}
   }
   \item{\dots}{Additional arguments are unused.}
 }
