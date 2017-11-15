@@ -5,8 +5,8 @@
 # class demonoid.hpc.                                                     #
 ###########################################################################
 
-plot.demonoid.hpc <- function(x, BurnIn=0, Data=NULL, PDF=FALSE,
-     Parms=NULL, ...)
+plot.demonoid.hpc <- function(x, BurnIn=0, Data=NULL, PDF=FALSE, Parms=NULL,
+                              FileName = paste0("laplacesDemon-plot_", format(Sys.time(), "%Y-%m-%d_%T"), ".pdf"), ...)
      {
      ### Initial Checks
      if(missing(x)) stop("The x argument is required.")
@@ -43,7 +43,7 @@ plot.demonoid.hpc <- function(x, BurnIn=0, Data=NULL, PDF=FALSE,
                     nn, length(keepcols))}
           }
      if(PDF == TRUE) {
-          pdf("LaplacesDemon.Plots.pdf")
+          pdf(FileName)
           par(mfrow=c(3,3))
           }
      else {par(mfrow=c(3,3), ask=TRUE)}
