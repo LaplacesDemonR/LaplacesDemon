@@ -7,6 +7,8 @@ The goal of `LaplacesDemon`, often referred to as LD, is to provide a complete a
 
 There are many plans for the growth of this package, and many are long-term plans such as to cotinuously stockpile distributions, examples, samplers, and optimization algorithms. Contributions to this package are welcome.
 
+[![Travis-CI Build Status](https://travis-ci.org/LaplacesDemonR/LaplacesDemon.svg?branch=master)](https://travis-ci.org/LaplacesDemonR/LaplacesDemon)
+
 The main function in this package is the `LaplacesDemon` function, and the best place to start is probably with the LaplacesDemon Tutorial vignette.
 
 # Installation #
