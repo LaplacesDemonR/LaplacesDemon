@@ -10,10 +10,10 @@
   distribution with mean \eqn{\mu}{mu} and precision \eqn{\tau}{tau}.
 }
 \usage{
-dlnormp(x, mu, tau, log=FALSE)
+dlnormp(x, mu, tau=NULL, var=NULL, log=FALSE)
 plnormp(q, mu, tau, lower.tail=TRUE, log.p=FALSE)
 qlnormp(p, mu, tau, lower.tail=TRUE, log.p=FALSE)
-rlnormp(n, mu, tau)
+rlnormp(n, mu, tau=NULL, var=NULL)
 }
 \arguments{
   \item{x, q}{These are each a vector of quantiles.}
@@ -22,7 +22,8 @@ rlnormp(n, mu, tau)
     integer that has length 1.}
   \item{mu}{This is the mean parameter \eqn{\mu}{mu}.}
   \item{tau}{This is the precision parameter \eqn{\tau}{tau}, which
-    must be positive.}
+    must be positive. Tau and var cannot be used together}
+  \item{var}{This is the variance parameter, which must be positive. Tau and var cannot be used together}
   \item{log, log.p}{Logical. If \code{TRUE}, then probabilities
     \eqn{p} are given as \eqn{\log(p)}{log(p)}.}
   \item{lower.tail}{Logical. If \code{TRUE} (default), then probabilities
