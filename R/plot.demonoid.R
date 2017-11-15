@@ -158,4 +158,4 @@ plot.demonoid <- function(x, BurnIn=0, Data=NULL, PDF=FALSE, Parms=NULL,
   if(PDF == TRUE) dev.off()
 }
 
-#End
+# End
