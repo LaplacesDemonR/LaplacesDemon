@@ -726,12 +726,16 @@ dinvmatrixgamma <- function(X, alpha, beta, Psi, log=FALSE)
      for (i in 1:k) gamsum <- gamsum + lgamma(alpha - 0.5*(i-1))
      gamsum <- gamsum + log(pi)*(k*(k-1)/4)
      Omega <- as.inverse(Psi)
-     dens <- logdet(Psi)*(-alpha) - (log(beta)*(k*alpha) + gamsum) +
+     dens <- logdet(Psi)*alpha - (log(beta)*(k*alpha) + gamsum) +
           logdet(X)*(-alpha-(k+1)/2) +
           tr(-(1/beta)*(Psi %*% as.inverse(X)))
      if(log == FALSE) dens <- exp(dens)
      return(dens)
      }
+
+rinvmatrixgamma <- function(alpha, beta, Psi){
+  rinvwishart(2*alpha, 2/beta*Psi)
+}
 
 ###########################################################################
 # Inverse Wishart Distribution                                            #
@@ -1149,6 +1153,9 @@ dmatrixgamma <- function(X, alpha, beta, Sigma, log=FALSE)
      return(dens)
      }
 
+rmatrixgamma <- function(alpha, beta, Sigma){
+  rwishart(2*alpha, beta/2*Sigma)
+}
 ###########################################################################
 # Matrix Normal Distribution                                              #
 ###########################################################################
