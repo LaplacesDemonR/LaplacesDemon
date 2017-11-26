@@ -726,12 +726,16 @@ dinvmatrixgamma <- function(X, alpha, beta, Psi, log=FALSE)
      for (i in 1:k) gamsum <- gamsum + lgamma(alpha - 0.5*(i-1))
      gamsum <- gamsum + log(pi)*(k*(k-1)/4)
      Omega <- as.inverse(Psi)
-     dens <- logdet(Psi)*(-alpha) - (log(beta)*(k*alpha) + gamsum) +
+     dens <- logdet(Psi)*alpha - (log(beta)*(k*alpha) + gamsum) +
           logdet(X)*(-alpha-(k+1)/2) +
           tr(-(1/beta)*(Psi %*% as.inverse(X)))
      if(log == FALSE) dens <- exp(dens)
      return(dens)
      }
+
+rinvmatrixgamma <- function(alpha, beta, Psi){
+  rinvwishart(2*alpha, 2/beta*Psi)
+}
 
 ###########################################################################
 # Inverse Wishart Distribution                                            #
@@ -759,7 +763,7 @@ dinvwishart <- function(Sigma, nu, S, log=FALSE)
      return(dens)
      }
 rinvwishart <- function(nu, S)
-     {return(as.inverse(rwishart(nu, as.inverse(S))))}
+     {return(chol2inv(rwishartc(nu, chol2inv(chol(S)))))}
 
 ###########################################################################
 # Inverse Wishart Distribution (Cholesky Parameterization)                #
@@ -1143,12 +1147,15 @@ dmatrixgamma <- function(X, alpha, beta, Sigma, log=FALSE)
      for (i in 1:k) gamsum <- gamsum + lgamma(alpha - 0.5*(i-1))
      gamsum <- gamsum + log(pi)*(k*(k-1)/4)
      Omega <- as.inverse(Sigma)
-     dens <- logdet(Omega) + logdet(X)*(alpha - 0.5*(k+1)) -
+     dens <- alpha*logdet(Omega) + logdet(X)*(alpha - 0.5*(k+1)) -
           (log(beta)*(k*alpha) + gamsum) + (-1/beta)*tr(Omega %*% X)
      if(log == FALSE) dens <- exp(dens)
      return(dens)
      }
 
+rmatrixgamma <- function(alpha, beta, Sigma){
+  rwishart(2*alpha, beta/2*Sigma)
+}
 ###########################################################################
 # Matrix Normal Distribution                                              #
 ###########################################################################
@@ -1193,7 +1200,7 @@ rmatrixnorm <- function(M, U, V)
      n <- nrow(U)
      k <- ncol(V)
      Z <- matrix(rnorm(n * k), n, k)
-     X <- M + chol(U) %*% Z %*% chol(V)
+     X <- M + t(chol(U)) %*% Z %*% chol(V)
      return(X)
      }
 
@@ -2572,7 +2579,7 @@ rwishartc <- function(nu, S)
           kseq <- 1:(k-1)
           Z[rep(k*kseq, kseq) +
                unlist(lapply(kseq, seq))] <- rnorm(k*{k - 1}/2)}
-     return(chol(crossprod(Z %*% chol(S))))
+     return(Z %*% chol(S))
      }
 
 ###########################################################################
