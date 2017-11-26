@@ -759,7 +759,7 @@ dinvwishart <- function(Sigma, nu, S, log=FALSE)
      return(dens)
      }
 rinvwishart <- function(nu, S)
-     {return(as.inverse(rwishart(nu, as.inverse(S))))}
+     {return(chol2inv(rwishartc(nu, chol2inv(chol(S)))))}
 
 ###########################################################################
 # Inverse Wishart Distribution (Cholesky Parameterization)                #
@@ -2572,7 +2572,7 @@ rwishartc <- function(nu, S)
           kseq <- 1:(k-1)
           Z[rep(k*kseq, kseq) +
                unlist(lapply(kseq, seq))] <- rnorm(k*{k - 1}/2)}
-     return(chol(crossprod(Z %*% chol(S))))
+     return(Z %*% chol(S))
      }
 
 ###########################################################################
