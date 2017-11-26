@@ -1143,7 +1143,7 @@ dmatrixgamma <- function(X, alpha, beta, Sigma, log=FALSE)
      for (i in 1:k) gamsum <- gamsum + lgamma(alpha - 0.5*(i-1))
      gamsum <- gamsum + log(pi)*(k*(k-1)/4)
      Omega <- as.inverse(Sigma)
-     dens <- logdet(Omega) + logdet(X)*(alpha - 0.5*(k+1)) -
+     dens <- alpha*logdet(Omega) + logdet(X)*(alpha - 0.5*(k+1)) -
           (log(beta)*(k*alpha) + gamsum) + (-1/beta)*tr(Omega %*% X)
      if(log == FALSE) dens <- exp(dens)
      return(dens)
