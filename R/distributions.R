@@ -1220,7 +1220,7 @@ dmvc <- function(x, mu, S, log=FALSE)
      ss <- x - mu
      Omega <- as.inverse(S)
      z <- rowSums({ss %*% Omega} * ss)
-     dens <- as.vector(lgamma(k/2) - (lgamma(0.5) + log(1^(k/2)) +
+     dens <- as.vector(lgamma((1 + k)/2) - (lgamma(0.5) +
           (k/2)*log(pi) + 0.5*logdet(S) + ((1+k)/2)*log(1+z)))
      if(log == FALSE) dens <- exp(dens)
      return(dens)
