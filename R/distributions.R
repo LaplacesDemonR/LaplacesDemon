@@ -1692,8 +1692,8 @@ dmvt <- function(x, mu, S, df=Inf, log=FALSE)
      ss <- x - mu
      Omega <- as.inverse(S)
      z <- rowSums({ss %*% Omega} * ss)
-     dens <- as.vector(lgamma((df+k)/2) - lgamma(df/2) + (k/2)*df +
-          (k/2)*log(pi) + 0.5*logdet(S) + ((df+k)/2)*log(1 + (1/df) * z))
+     dens <- as.vector(lgamma((df+k)/2) - lgamma(df/2) - (k/2)*log(df) -
+          (k/2)*log(pi) - 0.5*logdet(S) - ((df+k)/2)*log(1 + (1/df) * z))
      if(log == FALSE) dens <- exp(dens)
      return(dens)
      }
