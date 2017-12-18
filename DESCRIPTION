@@ -8,6 +8,8 @@ Authors@R: c(person("Byron", "Hall", role = "aut"),
     person(given="Richard", family="Hermanson", role = "ctb"),
     person(given="Emmanuel", family="Charpentier", role = "ctb"),
     person(given="Daniel", family="Heck", role = "ctb"),
+    person(given="Stephane", family="Laurent", role = "ctb"),
+    person(given="Quentin F.", family="Gronau", role = "ctb"),
     person(given="Henrik", family="Singmann", 
     email="singmann+LaplacesDemon@gmail.com", role="cre"))
 Depends: R (>= 3.0.0)
