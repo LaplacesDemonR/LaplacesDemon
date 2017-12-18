@@ -441,6 +441,6 @@ importFrom("grDevices", "col2rgb", "colorRampPalette", "dev.off",
              "predict", "pt", "qbinom", "qf", "qgamma", "qnorm", "qt",
              "quantile", "rbeta", "rbinom", "rchisq", "residuals",
              "rexp", "rgamma", "rmultinom", "rnorm", "rt", "runif", "sd",
-             "spline", "start", "ts", "uniroot", "var")
+             "spline", "start", "ts", "uniroot", "var", "rlnorm")
   importFrom("utils", "capture.output", "count.fields", "head",
              "object.size", "tail")
