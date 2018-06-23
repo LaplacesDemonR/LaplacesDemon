@@ -71,19 +71,18 @@
 \alias{.rowVars}
 \alias{.vbsalimans2}
 \docType{package}
-\title{The LaplacesDemon Package}
+\title{
+\packageTitle{LaplacesDemon}
+}
 \description{
-  Welcome to LaplacesDemon, a complete environment for Bayesian
-  inference within R.
+\packageDescription{LaplacesDemon}
 }
 \details{
-  \tabular{ll}{
-    Package: \tab LaplacesDemon\cr
-    Type: \tab Package\cr
-    Version: \tab 16.00\cr
-    Date: \tab 2016-07-16\cr
-    License: \tab MIT\cr
-  }
+
+The DESCRIPTION file:
+\packageDESCRIPTION{LaplacesDemon}
+\packageIndices{LaplacesDemon}
+
   The goal of LaplacesDemon, often referred to as LD, is to provide a
   complete and self-contained Bayesian environment within R. For
   example, this package includes dozens of MCMC algorithms, Laplace
@@ -98,14 +97,17 @@
   specification. Other vignettes include an introduction to Bayesian
   inference, as well as a tutorial.
 
-  There are many plans for the growth of this package, and many are
-  long-term plans such as to cotinuously stockpile distributions,
-  examples, samplers, and optimization algorithms. Contributions to this
+  No further development of this package is currently being done as the original
+  maintainer has stopped working on the package. Contributions to this
   package are welcome at \url{https://github.com/LaplacesDemonR/LaplacesDemon}.
 
   The main function in this package is the \code{LaplacesDemon}
   function, and the best place to start is probably with the
   LaplacesDemon Tutorial vignette.
   }
-\author{Statisticat, LLC.}
+\author{
+\packageAuthor{LaplacesDemon}
+
+Maintainer: \packageMaintainer{LaplacesDemon}
+}
 \keyword{package}
