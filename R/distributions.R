@@ -1176,8 +1176,8 @@ dmatrixnorm <- function(X, M, U, V, log=FALSE)
      k <- ncol(X)
      ss <- X - M
      dens <- -0.5*tr(as.inverse(V) %*% t(ss) %*%
-          as.inverse(U) %*% ss) - (log(2*pi)*(n*k/2) +
-          logdet(V)*(n/2) + logdet(U)*(k/2))
+          as.inverse(U) %*% ss) - 
+       (log(2*pi)*(n*k/2) - logdet(V) * (n/2) - logdet(U) * (k/2))
      if(log == FALSE) dens <- exp(dens)
      return(dens)
      }
