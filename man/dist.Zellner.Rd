@@ -133,6 +133,7 @@ the interval \eqn{(2,4]} may be reasonable.
 }
 \examples{
 library(LaplacesDemon)
+set.seed(667)
 beta <- rnorm(10)
 g <- 100
 sigma <- 2
