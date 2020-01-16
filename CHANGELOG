@@ -1,3 +1,4 @@
+2020-01-16 Used temporary file for Big Data example.
 2020-01-16 Fix to: https://github.com/LaplacesDemonR/LaplacesDemon/issues/17
 2019-12-13 Added seed to dzellner() example (for identifying CRAN MKL Issue) 
 2019-12-13 Fix to: https://github.com/LaplacesDemonR/LaplacesDemon/issues/15

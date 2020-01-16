@@ -202,7 +202,8 @@ PGF <- function(Data) return(c(rnormv(Data$J,0,0.01),
      log(rhalfcauchy(1,1))))
 MyData <- list(J=J, PGF=PGF, N=N, mon.names=mon.names,
      parm.names=parm.names) #Notice that X and y are not included here
-write.table(cbind(y,X), "X.csv", sep=",", row.names=FALSE,
+filename <- tempfile("X.csv")  
+write.table(cbind(y,X), filename, sep=",", row.names=FALSE,
   col.names=FALSE)
 
 Model <- function(parm, Data)
@@ -214,7 +215,7 @@ Model <- function(parm, Data)
      beta.prior <- sum(dnormv(beta, 0, 1000, log=TRUE))
      sigma.prior <- dhalfcauchy(sigma, 25, log=TRUE)
      ### Log-Likelihood
-     LL <- BigData(file="X.csv", nrow=Data$N, ncol=Data$J+1, size=1000,
+     LL <- BigData(file=filename, nrow=Data$N, ncol=Data$J+1, size=1000,
           Method="add", CPUs=1, Type="PSOCK",
           FUN=function(x, beta, sigma) sum(dnorm(x[,1], tcrossprod(x[,-1],
                t(beta)), sigma, log=TRUE)), beta, sigma)
