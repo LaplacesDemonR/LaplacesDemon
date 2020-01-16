@@ -1,3 +1,6 @@
+2020-01-16 Fix to: https://github.com/LaplacesDemonR/LaplacesDemon/issues/17
+2019-12-13 Added seed to dzellner() example (for identifying CRAN MKL Issue) 
+2019-12-13 Fix to: https://github.com/LaplacesDemonR/LaplacesDemon/issues/15
 2018-06-23 Corrected out-of-sync LaplacesDemon-package.Rd
 2017-12-18 Various bug fixes:
             https://github.com/LaplacesDemonR/LaplacesDemon/issues/5
