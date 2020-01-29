@@ -2626,13 +2626,19 @@ dzellner <- function(beta, g, sigma, X, log=FALSE)
      {
      if(g <= 0) stop("The g parameter must be positive.")
      if(sigma <= 0) stop("The sigma parameter must be positive.")
+  ## HS (01/2020): The original formulation was:
+  ### g*sigma*sigma* as.inverse(t(X) %*% X)
+  ### the latter bit is equivalent to: solve(crossprod(X))
+  ### which should be equivalent to the more stable and accurate
+  ### chol2inv(qr.R(qr(X))) 
+  ## see: strucchange::solveCrossprod
      dens <- dmvn(beta, rep(0, length(beta)),
-          g*sigma*sigma*as.inverse(t(X) %*% X), log=log)
+          g*sigma*sigma*chol2inv(qr.R(qr(X))), log=log)
      return(dens)
      }
 rzellner <- function(n, g, sigma, X)
      {
-     x <- rmvn(n, rep(0, ncol(X)), g*sigma*sigma*as.inverse(t(X) %*% X))
+     x <- rmvn(n, rep(0, ncol(X)), g*sigma*sigma*chol2inv(qr.R(qr(X))))
      return(x)
      }
 
