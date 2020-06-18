@@ -46,7 +46,8 @@ Mode <- function(x)
      else {
           x <- as.vector(as.numeric(as.character(x)))
           kde <- density(x)
-          Mode <- kde$x[kde$y == max(kde$y)]}
+          Mode <- kde$x[kde$y == max(kde$y)][1]
+          }
      return(Mode)
      }
 Modes <- function(x, min.size=0.1) {
@@ -83,8 +84,8 @@ Modes <- function(x, min.size=0.1) {
           kde <- dens
           kde$x <- kde$x[begin[j]:begin[j+2]]
           kde$y <- kde$y[begin[j]:begin[j+2]]
-          modes[i] <- kde$x[kde$y == max(kde$y)]
-          mode.dens[i] <- kde$y[kde$y == max(kde$y)]
+          modes[i] <- kde$x[kde$y == max(kde$y)][1]
+          mode.dens[i] <- kde$y[kde$y == max(kde$y)][1]
           j <- j + 2
           }
      ### Order everything by density
