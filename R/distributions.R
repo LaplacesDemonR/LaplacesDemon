@@ -631,7 +631,7 @@ dinvchisq <- function(x, df, scale=1/df, log=FALSE)
      x <- rep(x, len=NN); df <- rep(df, len=NN);
      scale <- rep(scale, len=NN)
      nu <- df / 2
-     dens <- nu*log(nu) - log(gamma(nu)) + nu*log(scale) -
+     dens <- nu*log(nu) - lgamma(nu) + nu*log(scale) -
           (nu+1)*log(x) - (nu*scale/x)
      if(log == FALSE) dens <- exp(dens)
      return(dens)
