@@ -24,13 +24,13 @@ Using the 'devtools' package:
 Important Note
 =============
 
-`LaplacesDemon` was initially developed and uploaded to CRAN by Byron Hall, most likely the owner of Statisticat, LLC. Later on, the maintainer of the package (or the name of the maintainer) changed to Martina Hall. 
+`LaplacesDemon` was initially developed and uploaded to CRAN by Byron Hall, the owner of Statisticat, LLC. Later on, the maintainer of the package changed to Martina Hall. 
 
-The last version available on CRAN from the original authors and maintainers (i.e., Byron or Martina Hall) was version 13.03.04, which was removed from CRAN on 2013-07-16 at the request of the maintainer. 
+The last version available on CRAN from the original authors and maintainers was version 13.03.04, which was removed from CRAN on 2013-07-16 at the request of the maintainer. 
 
-After removal from CRAN, the development of `LaplacesDemon` continued for some time on GitHub, most likely still by the original author(s) which now only went by their company name Statisticat, LLC. The last commit by Statisticat for `LaplacesDemon` on GitHub was performed on 25. Mar 2015. After that Statisticat deleted their account on GitHub and ceased further development of the package. 
+After removal from CRAN, the development of `LaplacesDemon` continued for some time on GitHub under the name of Statisticat LLC (presumably still run by Byron Hall). The last commit by Statisticat for `LaplacesDemon` on GitHub was performed on 25. Mar 2015. After that Statisticat deleted their account on GitHub and ceased further development of the package. 
 
-As Statisticat could not be reached, neither by e-mail nor by snail-mail (the latter was attempted by Rasmus Bååth), Henrik Singmann took over as maintainer of `LaplacesDemon` in July 2016 with the goal to resubmit the package to CRAN (as version 16.0.x). 
+As Statisticat could not be reached, neither by e-mail nor by snail-mail (the latter was attempted by Rasmus Bååth), Henrik Singmann took over as maintainer of `LaplacesDemon` in July 2016 with the goal to resubmit the package to CRAN (as version 16.0.x). Henrik Singmann does not actively continue the development of `LaplacesDemon` but only retains it on CRAN in its current state.
 
 Note that in order to resubmit the package to CRAN all links to the now defunct website of Statisticat (formerly: http://www.bayesian-inference.com) were replaced with links to versions of this website on the web archive (https://web.archive.org/web/20141224051720/http://www.bayesian-inference.com/index).
 
