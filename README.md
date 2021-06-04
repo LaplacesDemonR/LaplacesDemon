@@ -14,6 +14,10 @@ The main function in this package is the `LaplacesDemon` function, and the best 
 # Installation #
 ---
 
+From `CRAN`
+    install.packages("LaplacesDemon")
+
+
 Using the 'devtools' package:
 
     install.packages("devtools")
@@ -21,7 +25,7 @@ Using the 'devtools' package:
     install_github("LaplacesDemonR/LaplacesDemon")
 
 
-Important Note
+Package History
 =============
 
 `LaplacesDemon` was initially developed and uploaded to CRAN by Byron Hall, the owner of Statisticat, LLC. Later on, the maintainer of the package changed to Martina Hall. 

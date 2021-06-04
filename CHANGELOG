@@ -14,7 +14,7 @@
             https://github.com/LaplacesDemonR/LaplacesDemon/pull/12
             https://github.com/LaplacesDemonR/LaplacesDemon/pull/13
 2017-04-01 Distributions: Corrected dhalft distribution which did not integrate
-            to 1 (Thanks to Daniel heck and Quentin F. Gronau).
+            to 1 (Thanks to Daniel Heck and Quentin F. Gronau).
 2015-03-25 Distributions: Corrected Yang-Burger to Yang-Berger, as well as
            eigenvalue part of density
 2015-03-22 Distributions: Added Generalized Pareto

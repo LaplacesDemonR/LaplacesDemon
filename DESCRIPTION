@@ -16,7 +16,7 @@ Depends: R (>= 3.0.0)
 Imports: parallel, grDevices, graphics, stats, utils
 Suggests: KernSmooth
 ByteCompile: TRUE
-Description: Provides a complete environment for Bayesian inference using a variety of different samplers (see ?LaplacesDemon for an overview). The README describes the history of the package development process.
+Description: Provides a complete environment for Bayesian inference using a variety of different samplers (see ?LaplacesDemon for an overview).
 License: MIT + file LICENSE
 URL: https://github.com/LaplacesDemonR/LaplacesDemon
 BugReports: https://github.com/LaplacesDemonR/LaplacesDemon/issues
