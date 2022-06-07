@@ -689,8 +689,7 @@ dinvgaussian <- function(x, mu, lambda, log=FALSE)
      NN <- max(length(x), length(mu), length(lambda))
      x <- rep(x, len=NN); mu <- rep(mu, len=NN)
      lambda <- rep(lambda, len=NN)
-     dens <- log(lambda / (2*pi*x^3)^0.5) -
-          ((lambda*(x - mu)^2) / (2*mu^2*x))
+     dens <- log(lambda^0.5/(2 * pi * x^3)^0.5) - ((lambda * (x - mu)^2)/(2 * mu^2 * x))
      if(log == FALSE) dens <- exp(dens)
      return(dens)
      }
