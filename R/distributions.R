@@ -1604,7 +1604,7 @@ rmvpe <- function(n, mu=c(0,0), Sigma=diag(2), kappa=1)
           stop("Sigma must be positive-definite.")}
      SigmaSqrt <- ev$vectors %*% diag(sqrt(ev$values),
           length(ev$values)) %*% t(ev$vectors)
-     radius <- (rgamma(n, shape=k/(2*kappa), scale=1/2))^(1/(2*kappa))
+     radius <- (rgamma(n, shape=k/(2*kappa), scale=2))^(1/(2*kappa))
      runifsphere <- function(n, k)
           {
           p <- as.integer(k)
