@@ -23,11 +23,11 @@
   \itemize{
     \item Application: Continuous Multivariate
     \item Density: \eqn{p(\theta) = (2^{\nu k/2} \pi^{k(k-1)/4}
-      \prod^k_{i=1} \Gamma(\frac{\nu+1-i}{2}))^{-1} |\textbf{S}|^{nu/2}
-      |\Omega|^{-(nu-k-1)/2} \exp(-\frac{1}{2} tr(\textbf{S}
-      \Omega^{-1}))}{p(theta) = (2^(nu*k/2) * pi^(k(k-1)/4) *
+      \prod^k_{i=1} \Gamma(\frac{\nu+1-i}{2}))^{-1} |\textbf{S}|^{\nu/2}
+      |\Sigma|^{-(\nu+k+1)/2} \exp(-\frac{1}{2} tr(\textbf{S}
+      \Sigma^{-1}))}{p(theta) = (2^(nu*k/2) * pi^(k(k-1)/4) *
       [Gamma((nu+1-i)/2) * ... * Gamma((nu+1-k)/2)])^(-1) * |S|^(nu/2) *
-      |Omega|^(-(nu-k-1)/2) * exp(-(1/2) * tr(S Omega^(-1)))}
+      |Sigma|^(-(nu+k+1)/2) * exp(-(1/2) * tr(S Sigma^(-1)))}
     \item Inventor: John Wishart (1928)
     \item Notation 1: \eqn{\Sigma \sim
       \mathcal{W}^{-1}_{\nu}(\textbf{S}^{-1})}{Sigma ~
