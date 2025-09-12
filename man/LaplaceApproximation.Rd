@@ -482,7 +482,7 @@ LaplaceApproximation(Model, parm, Data, Interval=1.0E-6,
   p. 28--36.
      
   Bernardo, J.M. and Smith, A.F.M. (2000). "Bayesian Theory". John
-  Wiley \& Sons: West Sussex, England.
+  Wiley & Sons: West Sussex, England.
 
   Berndt, E., Hall, B., Hall, R., and Hausman, J. (1974), "Estimation
   and Inference in Nonlinear Structural Models". \emph{Annals of

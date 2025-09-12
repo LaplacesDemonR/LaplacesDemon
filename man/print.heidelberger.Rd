@@ -1,6 +1,6 @@
 \name{print.heidelberger}
 \alias{print.heidelberger}
-\title{Print an object of class \code{heidelberger} to the screen.}
+\title{Print an object of class \code{heidelberger} to the screen}
 \description{
   This may be used to print the contents of an object of class
   \code{heidelberger} to the screen.

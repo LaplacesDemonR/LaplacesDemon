@@ -112,9 +112,9 @@ LossMatrix(L, p.theta)
   Analysis", Second Edition. Springer: New York, NY.
 
   Bernardo, J.M. and Smith, A.F.M. (2000). "Bayesian Theory". John
-  Wiley \& Sons: West Sussex, England.
+  Wiley & Sons: West Sussex, England.
 
-  Savage, L.J. (1954). "The Foundations of Statistics". John Wiley \&
+  Savage, L.J. (1954). "The Foundations of Statistics". John Wiley &
   Sons: West Sussex, England.
 }
 \author{Statisticat, LLC. \email{software@bayesian-inference.com}}

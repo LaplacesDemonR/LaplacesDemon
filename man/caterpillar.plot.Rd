@@ -12,7 +12,7 @@
 \arguments{
   \item{x}{
     This required argument is an object of class \code{demonoid},
-    code{demonoid.hpc}, \code{iterquad}, \code{laplace}, \code{pmc},
+    \code{demonoid.hpc}, \code{iterquad}, \code{laplace}, \code{pmc},
     \code{vb}, or a \eqn{S \times J}{S x J} matrix of \eqn{S} samples
     and \eqn{J} variables. For an object of class \code{demonoid}, the
     distributions of the stationary posterior summary (\code{Summary2})

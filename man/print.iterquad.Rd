@@ -1,6 +1,6 @@
 \name{print.iterquad}
 \alias{print.iterquad}
-\title{Print an object of class \code{iterquad} to the screen.}
+\title{Print an object of class \code{iterquad} to the screen}
 \description{
   This may be used to print the contents of an object of class
   \code{iterquad} to the screen.

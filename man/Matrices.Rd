@@ -313,7 +313,7 @@ upper.triangle(x, diag=FALSE)
 
   The \code{SparseGrid} function returns a sparse grid for a
   \eqn{J}-dimensional integral with accuracy \eqn{K}, given
-  Gauss-Hermite quadrature rules. A grid of order eqn{K} provides an
+  Gauss-Hermite quadrature rules. A grid of order \eqn{K} provides an
   exact result for a polynomial of total order of \eqn{2K - 1} or less.
   \code{SparseGrid} returns a matrix of nodes and a vector of weights.
   A sparse grid is more efficient than the full grid in the

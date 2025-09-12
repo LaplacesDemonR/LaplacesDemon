@@ -1,6 +1,6 @@
 \name{print.vb}
 \alias{print.vb}
-\title{Print an object of class \code{vb} to the screen.}
+\title{Print an object of class \code{vb} to the screen}
 \description{
   This may be used to print the contents of an object of class
   \code{vb} to the screen.

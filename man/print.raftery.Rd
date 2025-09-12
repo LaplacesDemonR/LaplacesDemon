@@ -1,6 +1,6 @@
 \name{print.raftery}
 \alias{print.raftery}
-\title{Print an object of class \code{raftery} to the screen.}
+\title{Print an object of class \code{raftery} to the screen}
 \description{
   This may be used to print the contents of an object of class
   \code{raftery} to the screen.
