@@ -515,7 +515,7 @@ qhalft <- function(p, scale=25, nu=1)
      if(any(scale <= 0)) stop("The scale parameter must be positive.")
      NN <- max(length(p), length(scale), length(nu))
      p <- rep(p, len=NN); scale <- rep(scale, len=NN)
-     q <- rtrunc(p, "st", a=0, b=Inf, mu=0, sigma=scale, nu=nu)
+     q <- qtrunc(p, "st", a=0, b=Inf, mu=0, sigma=scale, nu=nu)
      return(q)
      }
 rhalft <- function(n, scale=25, nu=1)
