@@ -1501,7 +1501,7 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
           pnew <- p + alpha*d
           m.new <- try(Model(pnew, Data), silent=TRUE)
           feval <- feval + 1
-          if(class(m.new) == "try-error" | !is.finite(m.new[["LP"]]))
+          if(inherits(m.new, "try-error") | !is.finite(m.new[["LP"]]))
                return(list(p=NA, f=NA, feval=NA, lsflag=1))
           fnew <- m.new[["LP"]] * -1
           pnew <- m.new[["parm"]]
@@ -1515,7 +1515,7 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
                pnew <- p + alpha*d
                m.new <- try(Model(pnew, Data), silent=TRUE)
                feval <- feval + 1
-               if(class(m.new) == "try-error" | !is.finite(m.new[["LP"]]))
+               if(inherits(m.new, "try-error") | !is.finite(m.new[["LP"]]))
                     return(list(p=NA, f=NA, feval=NA, lsflag=1))
                fnew <- m.new[["LP"]] * -1
                pnew <- m.new[["parm"]]
@@ -1567,7 +1567,7 @@ LaplaceApproximation <- function(Model, parm, Data, Interval=1.0E-6,
           gnew <- try(partial(Model, pnew, Data, Interval) * -1,
                silent=TRUE)
           geval <- geval + 1
-          if(class(gnew) == "try-error" | any(is.nan(gnew))) {
+          if(inherits(gnew, "try-error") | any(is.nan(gnew))) {
                lsflag <- 3
                break}
           s <- pnew - parm

@@ -10,7 +10,7 @@ plot.demonoid.hpc <- function(x, BurnIn=0, Data=NULL, PDF=FALSE, Parms=NULL,
      {
      ### Initial Checks
      if(missing(x)) stop("The x argument is required.")
-     if(class(x) != "demonoid.hpc")
+     if(!inherits(x, "demonoid.hpc"))
           stop("x must be of class demonoid.hpc.")
      Chains <- length(x)
      if(is.null(Data)) stop("The Data argument is NULL.")

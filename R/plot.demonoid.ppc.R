@@ -10,7 +10,7 @@ plot.demonoid.ppc <- function(x, Style=NULL, Data=NULL, Rows=NULL,
      {
      ### Initial Checks
      if(missing(x)) stop("The x argument is required.")
-     if(class(x) != "demonoid.ppc") stop("x is not of class demonoid.ppc.")
+     if(!inherits(x, "demonoid.ppc")) stop("x is not of class demonoid.ppc.")
      if(is.null(Style)) Style <- "Density"
      if(is.null(Rows)) Rows <- 1:nrow(x[["yhat"]])
      ### Plots

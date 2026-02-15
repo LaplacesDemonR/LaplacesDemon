@@ -8,7 +8,7 @@ plot.pmc <- function(x, BurnIn=0, Data=NULL, PDF=FALSE, Parms=NULL, ...)
      {
      ### Initial Checks
      if(missing(x)) stop("The x argument is required.")
-     if(class(x) != "pmc")
+     if(!inherits(x, "pmc"))
           stop("x must be of class pmc.")
      if(is.null(Data)) stop("The Data argument is NULL.")
      if(BurnIn >= nrow(x$Posterior2)) BurnIn <- 0

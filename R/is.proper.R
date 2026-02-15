@@ -9,9 +9,9 @@
 is.proper <- function(f, a, b, tol=1e-5)
        {
        ### Initial Checks
-       if(!is.function(f) & (class(f) != "demonoid") &
-            (class(f) != "iterquad") & (class(f) != "laplace") &
-            (class(f) != "pmc"))
+       if(!is.function(f) & !inherits(f, "demonoid") &
+            !inherits(f, "iterquad") & !inherits(f, "laplace") &
+            !inherits(f, "pmc"))
             stop("f is not a function or object of class demonoid, iterquad, laplace, or pmc.")
        ### Propriety
        propriety <- FALSE

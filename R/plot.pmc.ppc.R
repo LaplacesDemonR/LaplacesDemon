@@ -10,7 +10,7 @@ plot.pmc.ppc <- function(x, Style=NULL, Data=NULL, Rows=NULL, PDF=FALSE,
      {
      ### Initial Checks
      if(missing(x)) stop("The x argument is required.")
-     if(class(x) != "pmc.ppc") stop("x is not of class pmc.ppc.")
+     if(!inherits(x, "pmc.ppc")) stop("x is not of class pmc.ppc.")
      if(is.null(Style)) Style <- "Density"
      if(is.null(Rows)) Rows <- 1:nrow(x[["yhat"]])
      ### Plots
