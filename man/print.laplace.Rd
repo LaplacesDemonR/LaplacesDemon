@@ -1,6 +1,6 @@
 \name{print.laplace}
 \alias{print.laplace}
-\title{Print an object of class \code{laplace} to the screen.}
+\title{Print an object of class \code{laplace} to the screen}
 \description{
   This may be used to print the contents of an object of class
   \code{laplace} to the screen.

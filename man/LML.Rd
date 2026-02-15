@@ -40,7 +40,7 @@ method="NSIS")
     and is specified only with the \code{GD}, \code{HME}, or
     \code{NSIS} methods.}
   \item{LL}{This is a vector of MCMC samples of the log-likelihood, and
-    is specified only with the \code{GD}, code{HME}, or \code{NSIS}
+    is specified only with the \code{GD}, \code{HME}, or \code{NSIS}
     methods.}
   \item{Covar}{This argument accepts the covariance matrix of the
     posterior modes, and is used only with the \code{GD} or \code{LME}

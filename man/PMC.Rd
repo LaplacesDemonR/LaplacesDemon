@@ -211,7 +211,7 @@ alpha=NULL, M=1, N=1000, nu=9, CPUs=1, Type="PSOCK")
   \item{Model}{This contains the model specification \code{Model}.}
   \item{N}{This is the number of un-thinned samples per mixture
     component.}
-  item{nu}{This is the degrees of freedom parameter \eqn{\nu}{nu} for
+  \item{nu}{This is the degrees of freedom parameter \eqn{\nu}{nu} for
   each multivariate t distribution in each mixture component.}
   \item{Mu}{This is a \eqn{T \times K \times M}{T x K x M} array of
     means for the importance sampling distribution across \eqn{T}

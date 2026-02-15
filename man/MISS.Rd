@@ -103,7 +103,7 @@ MISS(X, Iterations=100, Algorithm="GS", Fit=NULL, verbose=TRUE)
   If a large number of iterations is used, then the user may consider
   studying the imputations for approximate convergence with the
   \code{\link{BMK.Diagnostic}} function, by supplying the transpose of
-  code{Fit$Imp}. In the presence of numerous missing values, say more
+  \code{Fit$Imp}. In the presence of numerous missing values, say more
   than 100, the user may consider iterating through the study of the
   imputations of 100 missing values at a time.
 }
