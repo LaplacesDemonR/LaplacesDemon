@@ -57,5 +57,5 @@
     \item{\code{Min13}}{This is the minimum temperature in month 13.}
     }
 }
-\source{\url{http://www.stat.ufl.edu/~winner/datasets.html}}
+\source{\url{https://users.stat.ufl.edu/~winner/datasets.html}}
 \keyword{datasets}

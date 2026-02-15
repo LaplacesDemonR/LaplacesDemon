@@ -52,5 +52,5 @@
     \item{\code{NZDUSD.Low}}{This is the currency pair low price.}
     }
 }
-\source{\url{https://www.global-view.com/forex-trading-tools/forex-history/index.html}}
+\source{Originally downloaded from a database that is not available anymore. See: \url{https://web.archive.org/web/20150222115543/https://www.global-view.com/forex-trading-tools/forex-history/index.html}}
 \keyword{datasets}

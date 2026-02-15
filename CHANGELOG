@@ -1,3 +1,9 @@
+2026-02-15 Fixed documentation bugs: 
+           github.com/LaplacesDemonR/LaplacesDemon/pull/48
+           replaced class(x) == "class" with inherits(x, "class")
+           Also accepted:
+           https://github.com/LaplacesDemonR/LaplacesDemon/pull/49
+           https://github.com/LaplacesDemonR/LaplacesDemon/pull/35
 2021-06-04 README uses more neutral language for package history.
 2020-01-16 Used temporary file for Big Data example.
 2020-01-16 Fix to: https://github.com/LaplacesDemonR/LaplacesDemon/issues/17

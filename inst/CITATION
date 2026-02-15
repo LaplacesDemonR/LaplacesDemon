@@ -7,7 +7,7 @@ url <- "https://web.archive.org/web/20150206004624/http://www.bayesian-inference
 
 citHeader(sprintf("To cite package '%s' in publications use:", meta$Package))
 
-citEntry(entry="Manual",
+bibentry(bibtype ="Manual",
          author = author,
          year = year,
          title =sprintf("%s: %s", meta$Package, meta$Title),
@@ -18,7 +18,7 @@ citEntry(entry="Manual",
     	 header = "Technical documentation:"
 )
 
-citEntry(entry="Manual",
+bibentry(bibtype ="Manual",
          author = author,
          year = year,
          title = vign <- "Bayesian Inference",
@@ -29,7 +29,7 @@ citEntry(entry="Manual",
     	 header = "Vignette(s):"
 )
 
-citEntry(entry="Manual",
+bibentry(bibtype ="Manual",
          author = author,
          year = year,
          title = vign <- "LaplacesDemon Examples",
@@ -40,7 +40,7 @@ citEntry(entry="Manual",
     	 header = "Vignette(s):"
 )
 
-citEntry(entry="Manual",
+bibentry(bibtype ="Manual",
          author = author,
          year = year,
          title = vign <- "LaplacesDemon Tutorial",
