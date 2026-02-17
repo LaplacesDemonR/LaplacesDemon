@@ -685,7 +685,7 @@ LaplacesDemon.hpc(Model, Data, Initial.Values, Covar=NULL,
   Statistics}, 23(2), p. 543--563.
 
   Thompson, M.D. (2011). "Slice Sampling with Multivariate Steps".
-  \url{http://hdl.handle.net/1807/31955}
+  \url{https://utoronto.scholaris.ca/items/161206c5-af25-41a8-99d8-8d622f950cb3}
 
   Vihola, M. (2011). "Robust Adaptive Metropolis Algorithm with Coerced
   Acceptance Rate". \emph{Statistics and Computing}. Springer,

@@ -1,6 +1,6 @@
 require(devtools)
 load_all()
-check(document = FALSE)
+check(document = FALSE, cran = TRUE, build_args = '--compact-vignettes=gs+qpdf')
 
 build_vignettes()
 
